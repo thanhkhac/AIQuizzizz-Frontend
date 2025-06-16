@@ -33,4 +33,3 @@ logs/
 tests_output/
 
 .env
-/src/assets

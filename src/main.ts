@@ -1,4 +1,4 @@
-import "./assets/main.css";
+// import "./assets/main.css";
 
 import { createApp } from "vue";
 import { createPinia } from "pinia";
@@ -11,6 +11,17 @@ import router from "./router/router-index";
  * highchart
  * **/
 import HighchartsVue from "highcharts-vue";
+
+/**
+ * boostrap
+ * **/
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue-3/dist/bootstrap-vue-3.css';
+
+/**
+ * Boxicons
+ * **/
+import "boxicons/css/boxicons.min.css";
 
 /**
  * jquery
