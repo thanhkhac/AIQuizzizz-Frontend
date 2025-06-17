@@ -1,16 +1,38 @@
-<script setup>
+<script setup lang="ts">
 import {computed, onMounted, reactive, ref} from "vue";
 import {useAuthStore} from "@/stores/AuthStore";
 import ApiAuthentication from "@/api/ApiAuthentication";
 import ApiUser from "@/api/ApiUser";
 import {message} from "ant-design-vue";
+import {UserOutlined, LockOutlined, MailOutlined} from "@ant-design/icons-vue";
 
 const authStore = useAuthStore();
+
+const formRef = ref();
+const labelCol = {span: 24};
+const wrapperCol = {span: 24};
 
 const formState = reactive({
     username: "",
     password: "",
 });
+
+const rules = {
+    username: [
+        {
+            required: true,
+            message: "Vui lòng không để trống mục này.",
+            trigger: "change",
+        },
+    ],
+    password: [
+        {
+            required: true,
+            message: "Vui lòng không để trống mục này.",
+            trigger: "change",
+        },
+    ],
+};
 
 const onFinish = async () => {
     var login_result = await ApiAuthentication.Login(formState);
@@ -22,89 +44,231 @@ const onFinish = async () => {
 };
 </script>
 <template>
-    <div class="auth-container">
-        <div class="container">
-            <div class="row d-flex justify-content-between login_form">
-                <div class="col-md-6 auth-form">
-                    <div class="nav-container">
-                        <RouterLink class="navigation-chosen" :to="{name: 'login'}"
-                            >Login</RouterLink
-                        >
-                        <!-- <RouterLink :to="{name: 'register'}">Register</RouterLink> -->
-                    </div>
-                    <hr />
-                    <section>
-                        <form
-                            @submit.prevent="onFinish"
-                            id="account"
-                            method="post"
-                            class="form-login"
-                        >
-                            <div class="form-group mt-3">
-                                <label for="email">Email/Username</label>
-                                <input
-                                    v-model="formState.username"
-                                    id="email"
-                                    class="form-control"
-                                    placeholder="Email/Username"
-                                />
-                            </div>
-                            <div class="form-group mt-3">
-                                <label for="password">Password</label>
-                                <input
-                                    type="password"
-                                    v-model="formState.password"
-                                    id="password"
-                                    class="form-control"
-                                    placeholder="Password"
-                                />
-                            </div>
-                            <div class="form-group mt-5">
-                                <a-button @click="onFinish" type="primary">Login</a-button>
-                            </div>
-                            <div class="form-group mt-3 d-flex justify-content-between text-center">
-                                <!-- <RouterLink class="w-100" :to="{name: 'forgot-password'}"
-                                    >Forgot password ?</RouterLink
-                                > -->
-                            </div>
-                        </form>
-                    </section>
+    <div class="authentication-container">
+        <div class="authentication-item">
+            <div>
+                <div class="pattern pattern-top"></div>
+                <div class="pattern pattern-bottom"></div>
+            </div>
+            <div class="authentication-item-text">
+                <RouterLink :to="{name: 'home'}">AIQuizizz</RouterLink>
+            </div>
+        </div>
+        <div class="authentication-item">
+            <div class="authentication-item-title">
+                <span>Welcome back</span> <br />
+                <span>Enter your credentials to access your account</span>
+            </div>
+
+            <div class="authentication-item-external-login">
+                <div class="external-login external-login-google">
+                    <div></div>
+                    <div>Google</div>
                 </div>
+                <div class="external-login external-login-facebook">
+                    <div></div>
+                    <div>Facebook</div>
+                </div>
+            </div>
+            <a-divider style="height: 1px; background-color: #d9d9d9">
+                <span style="background-color: #fff; padding: 0px 10px">OR</span>
+            </a-divider>
+            <a-form
+                class="authentication-item-form"
+                ref="formRef"
+                :model="formState"
+                :labelCol="labelCol"
+                :wrapperCol="wrapperCol"
+                :rules="rules"
+            >
+                <a-form-item label="" name="username">
+                    <label>Username</label>
+                    <a-input
+                        size="large"
+                        v-model:value="formState.username"
+                        placeholder="Tên đăng nhập hoặc email"
+                    >
+                        <template #addonBefore>
+                            <MailOutlined />
+                        </template>
+                    </a-input>
+                </a-form-item>
+                <a-form-item label="" name="password">
+                    <label>Password</label>
+                    <a-input-password
+                        size="large"
+                        v-model:value="formState.password"
+                        placeholder="Mật khẩu"
+                    >
+                        <template #addonBefore>
+                            <LockOutlined />
+                        </template>
+                    </a-input-password>
+                </a-form-item>
+                <a-form-item>
+                    <a-button
+                        size="large"
+                        type="primary"
+                        style="background-color: #9823f5; width: 100%"
+                    >
+                        Sign in
+                    </a-button>
+                </a-form-item>
+            </a-form>
+            <div class="authentication-item-navigator">
+                Don't have an account? <RouterLink :to="{name: 'register'}">Sign Up</RouterLink>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-.img_container {
+.authentication-item:nth-child(1) {
+    background-color: var(--background-color);
+    height: 100vh;
+    width: 50vw;
     position: relative;
-    width: 450px;
-    height: 450px;
-    object-fit: contain;
-    margin: 0 auto;
-    border-radius: 50%;
-    --radius: 250px;
 }
-.external_login_container {
+
+.pattern {
+    position: absolute;
+    width: 100%;
+    height: 300px;
+    background-image: url("src/assets/home_vector.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    left: 0;
+    pointer-events: none;
+}
+
+.pattern-top {
+    top: 0;
+    transform: rotate(180deg);
+}
+
+.pattern-bottom {
+    bottom: 0;
+}
+
+.authentication-container {
+    display: flex;
+}
+
+.authentication-item-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-size: 60px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: -0.293px;
+    background: linear-gradient(95deg, #5813c1 48.05%, #c45037 96.24%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.authentication-item:nth-child(2) {
+    width: 50vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 100px;
+}
+
+.authentication-item:nth-child(2) > * {
     width: 100%;
 }
 
-.external_login_item {
+.authentication-item-title {
+    margin-bottom: 20px;
+}
+
+.authentication-item-title span {
+    margin-bottom: 10px;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: -0.24px;
+    color: #667085;
+}
+.authentication-item-title span:nth-child(1) {
+    color: var(--background-color);
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.authentication-item-title span:nth-child(2) {
+    font-size: 14px;
+    font-weight: 500;
+}
+.authentication-item-external-login {
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+}
+.external-login {
+    width: calc(100% / 2 - 10px);
+    display: flex;
     justify-content: center;
-    border: 1px solid #ea4335;
-    padding: 8px 0px;
-    border-radius: 5px;
-    color: #ea4335;
+    align-items: center;
+    padding: 8px 20px;
+    margin: 15px 0px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 18px;
+    font-weight: 400;
     cursor: pointer;
 }
-.external_login_item:hover {
-    color: #fff;
-    background: #ea4335;
+.external-login:hover {
+    background-color: #eee;
 }
-.external_login_item i {
-    font-size: 25px;
-    margin-right: 10px;
+
+.external-login div:nth-child(1) {
+    margin-right: 20px;
+    width: 20px;
+    height: 20px;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.external-login-google div:nth-child(1) {
+    background-image: url("src/assets/google_logo.png");
+}
+.external-login-facebook div:nth-child(1) {
+    background-image: url("src/assets/facebook_logo.png");
+}
+
+.authentication-item-form button {
+    margin: 10px 0px;
+}
+
+.authentication-item-form label {
+    color: #101010;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: -0.16px;
+    margin-bottom: 8px;
+}
+
+.authentication-item-navigator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #101010;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: -0.14px;
+}
+.authentication-item-navigator a {
+    color: var(--main-color);
+    padding: 0px 8px;
+    font-weight: 500;
 }
 </style>

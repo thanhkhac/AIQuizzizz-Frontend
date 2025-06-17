@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
+import Header from "@/shared/Header.vue";
 </script>
 <template>
+    <Header />
     <div class="background">
         <div class="pattern pattern-top"></div>
         <div class="pattern pattern-bottom"></div>
@@ -28,7 +30,7 @@ import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
             </div>
         </div>
     </div>
-    <div class="background">
+    <div class="background background-responsive">
         <div class="content-container">
             <div class="d-flex flex-column justify-content-center align-items-center">
                 <div class="content-item">
@@ -136,7 +138,7 @@ import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
             </div>
         </div>
     </div>
-    <div class="background">
+    <div class="background background-responsive">
         <div class="content-container">
             <div class="d-flex flex-column justify-content-center align-items-center">
                 <div class="content-item">
@@ -240,10 +242,17 @@ import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
 <style>
 :root {
     --background-color: #000;
+    --background-color-white: #fff;
+    --background-color-white-hovered: #eee;
+    --background-color-gradient: linear-gradient(95deg, #5813c1 48.05%, #c45037 96.24%);
+
     --background-sub-color1: #ac63e6;
     --background-sub-color2: #c45037;
 
-    --text-color: #fff;
+    --text-color-white: #fff;
+    --text-color-black: #000;
+
+    --main-color: #9823f5;
 
     --category-1st-color: #3b82f6;
     --category-2st-color: #22c55e;
@@ -322,7 +331,7 @@ import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
 }
 
 .content-item {
-    color: var(--text-color);
+    color: var(--text-color-white);
     text-align: center;
     margin: 15px 0px;
 }
@@ -344,7 +353,7 @@ import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
     line-height: normal;
 }
 .content-item:nth-child(2) span {
-    background: linear-gradient(95deg, #5813c1 48.05%, #c45037 96.24%);
+    background: var(--background-color-gradient);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -365,9 +374,19 @@ import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
     font-weight: 500;
 }
 
+.content-item:nth-child(4) a:nth-child(2):hover {
+    background-color: #eee;
+}
+
 .content-item:nth-child(4) a:first-child {
     background: linear-gradient(97deg, #5813c1 -5.8%, #c45037 99.69%);
     color: var(--text-color);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    transition: background-position 0.3s ease-in;
+}
+.content-item:nth-child(4) a:first-child:hover {
+    background-position: 50% 100%;
 }
 
 .category-item-container {
@@ -593,17 +612,20 @@ import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
     justify-content: center;
     align-items: center;
     margin-right: 15px;
-    background-color: #fff;
+    background-color: var(--background-color-white);
     border-radius: 10px;
-    color: #000;
+    color: var(--text-color-black);
     text-decoration: none;
     font-weight: 500;
 }
 
 .banner-item a:nth-child(2) {
     background-color: transparent;
-    border: 1px solid #fff;
-    color: #fff;
+    border: 2px solid #fff;
+    color: var(--text-color-white);
+}
+.banner-item a:nth-child(1):hover {
+    background-color: var(--background-color-white-hovered);
 }
 
 .banner-item-img {
@@ -616,4 +638,46 @@ import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
     padding: 0 350px;
 }
 
+@media screen and (max-width: 600px) {
+    .content-item:nth-child(2) {
+        font-size: 30px;
+    }
+    .content-item:nth-child(3) {
+        width: 400px;
+    }
+    .category-item {
+        width: calc(100vw / 1 - 50px);
+    }
+    .feature-item {
+        width: calc(100vw / 1 - 50px);
+        display: flex;
+        flex-direction: row;
+    }
+
+    .background-responsive {
+        height: 135vh;
+    }
+
+    .banner {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .banner-item div:nth-child(1) {
+        font-size: 32px;
+        width: 300px;
+    }
+    .banner-item div:nth-child(2) {
+        width: 300px;
+    }
+
+    .banner-item a {
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .banner-item-img {
+        display: none;
+    }
+}
 </style>
