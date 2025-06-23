@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
-import Header from "@/shared/Header.vue";
+import Header from "@/shared/components/Header.vue";
 </script>
 <template>
     <Header />

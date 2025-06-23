@@ -2,7 +2,7 @@ const adminRoutes = [
     {
         path: "/admin",
         redirect: {path: "/dashboards"},
-        component: () => import("@/shared/_adminLayout.vue"),
+        component: () => import("@/shared/layouts/_adminLayout.vue"),
         children: [
             {
                 name: "Admin_Dashboards_View",

@@ -9,6 +9,7 @@ const indexRoutes = [
         path: "/",
         name: "home",
         component: import("../views/public/home.vue"),
+        meta: {title: "home"},
     },
     {
         path: "/404",
@@ -19,11 +20,25 @@ const indexRoutes = [
         path: "/login",
         name: "login",
         component: () => import("@/views/public/login.vue"),
+        meta: {title: "login", layout: "authentication"}, //in case somae pages use same layout but keep default path
     },
     {
         path: "/register",
         name: "register",
         component: () => import("@/views/public/register.vue"),
+        meta: {title: "register", layout: "authentication"},
+    },
+    {
+        path: "/forgot-password",
+        name: "forgot-password",
+        component: () => import("@/views/public/forgot-password.vue"),
+        meta: {title: "forgot-password", layout: "authentication"},
+    },
+    {
+        path: "/reset-password",
+        name: "reset-password",
+        component: () => import("@/views/public/reset-password.vue"),
+        meta: {title: "reset-password", layout: "authentication"},
     },
     {
         path: "/:pathMatch(.*)*",
