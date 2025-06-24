@@ -1,4 +1,18 @@
 <script setup>
+import {ref, onMounted} from "vue";
+import {useAuthStore} from "/src/stores/AuthStore.ts";
+import SUPPORTED_LOCALES from "@/constants/languages";
+import {useI18n} from "vue-i18n";
+
+const {availableLocales, locale, setLocaleMessage} = useI18n();
+const selectedLocale = ref("");
+
+const authStore = useAuthStore();
+
+const isUserLogged = () => {
+    return authStore.getUserInfo();
+};
+
 const navbarFunction = () => {
     var x = document.getElementById("header");
     if (x.className === "header") {
@@ -7,13 +21,26 @@ const navbarFunction = () => {
         x.className = "header";
     }
 };
+
+onMounted(() => {
+    selectedLocale.value = localStorage.getItem("locale") || "en";
+});
+
+async function switchLanguage(selectedLocale) {
+    if (!availableLocales.includes(selectedLocale)) {
+        const messages = await import(`@/locales/${selectedLocale}.json`);
+        setLocaleMessage(selectedLocale, messages);
+    }
+    locale.value = selectedLocale;
+    localStorage.setItem("locale", selectedLocale);
+}
 </script>
 <template>
     <div class="header">
         <div class="header-logo">
             <RouterLink :to="{name: 'home'}">AIQuizizz</RouterLink>
         </div>
-        <ul class="header-navigator">
+        <ul class="header-navigator" :style="isUserLogged ? {display: 'none'} : {}">
             <li>Quiz</li>
             <li>Weekly Quiz</li>
             <li>Rewards</li>
@@ -24,7 +51,22 @@ const navbarFunction = () => {
                 </a>
             </li>
         </ul>
-        <div class="header-authentication-navigator">
+        <a-select
+            @change="switchLanguage"
+            class="language-select"
+            style="width: 200px; background-color: black"
+            v-model:value="selectedLocale"
+        >
+            <a-select-option
+                v-for="locale in SUPPORTED_LOCALES"
+                :key="`locale-${locale.code}`"
+                :value="locale.code"
+            >
+                <img class="language-img" :src="locale.imagePath" />
+                {{ locale.label }}
+            </a-select-option>
+        </a-select>
+        <div class="header-authentication-navigator" :style="isUserLogged ? {display: 'none'} : {}">
             <RouterLink :to="{name: 'login'}">Sign In</RouterLink>
             <RouterLink :to="{name: 'register'}">Register</RouterLink>
         </div>
@@ -109,5 +151,18 @@ const navbarFunction = () => {
     .header-navigator {
         display: none;
     }
+}
+
+.language-img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.language-select .ant-select-selector {
+    background-color: black;
+    color: white; /* Optional: change text color */
+    border-color: #333; /* Optional: change border */
 }
 </style>

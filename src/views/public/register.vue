@@ -80,8 +80,8 @@ const onFinish = async () => {
 <template>
     <div class="authentication-item">
         <div class="authentication-item-title">
-            <span>Create Account</span> <br />
-            <span>Create your account and start your journey with us</span>
+            <span> {{ $t("auth.greetings.signUp") }}</span> <br />
+            <span>{{ $t("auth.instructions.signUp") }}</span>
         </div>
 
         <div class="authentication-item-external-login">
@@ -106,19 +106,23 @@ const onFinish = async () => {
             :rules="rules"
         >
             <a-form-item label="" name="fullName">
-                <label>FullName</label>
-                <a-input size="large" v-model:value="formState.fullName" placeholder="Tên đầy đủ">
+                <label>{{ $t("auth.inputs.fullName") }}</label>
+                <a-input
+                    size="large"
+                    v-model:value="formState.fullName"
+                    :placeholder="$t('auth.inputs.fullName')"
+                >
                     <template #addonBefore>
                         <UserOutlined />
                     </template>
                 </a-input>
             </a-form-item>
             <a-form-item label="" name="username">
-                <label>Username or Email</label>
+                <label>{{ $t("auth.inputs.username") }}</label>
                 <a-input
                     size="large"
                     v-model:value="formState.username"
-                    placeholder="Tên đăng nhập hoặc email"
+                    :placeholder="$t('auth.inputs.username')"
                 >
                     <template #addonBefore>
                         <MailOutlined />
@@ -126,11 +130,11 @@ const onFinish = async () => {
                 </a-input>
             </a-form-item>
             <a-form-item label="" name="password">
-                <label>Password</label>
+                <label>{{ $t("auth.inputs.password") }}</label>
                 <a-input-password
                     size="large"
                     v-model:value="formState.password"
-                    placeholder="Mật khẩu"
+                    :placeholder="$t('auth.inputs.password')"
                 >
                     <template #addonBefore>
                         <LockOutlined />
@@ -138,11 +142,11 @@ const onFinish = async () => {
                 </a-input-password>
             </a-form-item>
             <a-form-item label="" name="confirmationPassword">
-                <label>Confirm Password</label>
+                <label>{{ $t("auth.inputs.confirmPassword") }}</label>
                 <a-input-password
                     size="large"
                     v-model:value="formState.confirmationPassword"
-                    placeholder="Nhập lại mật khẩu"
+                    :placeholder="$t('auth.inputs.confirmPassword')"
                 >
                     <template #addonBefore>
                         <LockOutlined />
@@ -155,12 +159,15 @@ const onFinish = async () => {
                     type="primary"
                     style="background-color: #9823f5; width: 100%"
                 >
-                    Sign Up
+                    {{ $t("auth.buttons.signUp") }}
                 </a-button>
             </a-form-item>
         </a-form>
         <div class="authentication-item-navigator">
-            Already have an account? <RouterLink :to="{name: 'login'}">Sign In</RouterLink>
+            {{ $t("auth.navigators.signUp_signIn_ins") }}
+            <RouterLink :to="{name: 'login'}">
+                {{ $t("auth.navigators.signIn_link") }}
+            </RouterLink>
         </div>
     </div>
 </template>

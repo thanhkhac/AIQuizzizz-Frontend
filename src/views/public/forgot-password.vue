@@ -35,10 +35,9 @@ const onFinish = async () => {
 <template>
     <div class="authentication-item">
         <div class="authentication-item-title">
-            <span>Forgot your password ?</span> <br />
+            <span> {{ $t("auth.greetings.forgotPassword") }} </span> <br />
             <span>
-                Don't worry we got you 😉. <br />
-                Enter your email address and we will send you instructions to reset your password.
+                {{ $t("auth.instructions.forgotPassword") }}
             </span>
         </div>
         <a-form
@@ -50,11 +49,11 @@ const onFinish = async () => {
             :rules="rules"
         >
             <a-form-item label="" name="email">
-                <label>Email</label>
+                <label>{{ $t("auth.inputs.email") }}</label>
                 <a-input
                     size="large"
                     v-model:value="formState.email"
-                    placeholder="Địa chỉ email của bạn"
+                    :placeholder="$t('auth.inputs.email')"
                 >
                     <template #addonBefore>
                         <MailOutlined />
@@ -67,12 +66,15 @@ const onFinish = async () => {
                     type="primary"
                     style="background-color: #9823f5; width: 100%"
                 >
-                    Send
+                    {{ $t("auth.buttons.send") }}
                 </a-button>
             </a-form-item>
         </a-form>
         <div class="authentication-item-navigator">
-            Remember it ? <RouterLink :to="{name: 'login'}">Back to Sign In</RouterLink>
+            {{ $t("auth.navigators.forgot_signIn_ins") }}
+            <RouterLink :to="{name: 'login'}">
+               {{ $t("auth.navigators.back_signIn_link") }}
+            </RouterLink>
         </div>
     </div>
 </template>

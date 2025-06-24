@@ -46,8 +46,8 @@ const onFinish = async () => {
 <template>
     <div class="authentication-item">
         <div class="authentication-item-title">
-            <span>Welcome back !</span> <br />
-            <span>Enter your credentials to access your account</span>
+            <span> {{ $t("auth.greetings.signIn") }}</span> <br />
+            <span>{{ $t("auth.instructions.signIn") }}</span>
         </div>
 
         <div class="authentication-item-external-login">
@@ -72,11 +72,11 @@ const onFinish = async () => {
             :rules="rules"
         >
             <a-form-item label="" name="username">
-                <label>Username</label>
+                <label>{{ $t("auth.inputs.email") }}</label>
                 <a-input
                     size="large"
                     v-model:value="formState.username"
-                    placeholder="Tên đăng nhập hoặc email"
+                    placeholder="Your email address..."
                 >
                     <template #addonBefore>
                         <MailOutlined />
@@ -84,7 +84,7 @@ const onFinish = async () => {
                 </a-input>
             </a-form-item>
             <a-form-item label="" name="password">
-                <label>Password</label>
+                <label>{{ $t("auth.inputs.password") }}</label>
                 <a-input-password
                     size="large"
                     v-model:value="formState.password"
@@ -97,19 +97,25 @@ const onFinish = async () => {
             </a-form-item>
             <a-form-item>
                 <a-button
+                    @click="onFinish"
                     size="large"
                     type="primary"
                     style="background-color: #9823f5; width: 100%"
                 >
-                    Sign in
+                    {{ $t("auth.buttons.signIn") }}
                 </a-button>
             </a-form-item>
         </a-form>
         <div class="authentication-item-navigator">
-            Don't have an account? <RouterLink :to="{name: 'register'}">Sign Up</RouterLink>
+            {{ $t("auth.navigators.signUp_signIn_ins") }}
+            <RouterLink :to="{name: 'register'}">
+                {{ $t("auth.navigators.signUp_link") }}
+            </RouterLink>
         </div>
         <div class="authentication-item-navigator">
-            <RouterLink :to="{name: 'forgot-password'}"> Forgot password ? </RouterLink>
+            <RouterLink :to="{name: 'forgot-password'}">
+                {{ $t("auth.navigators.signIn_forgot_link") }}
+            </RouterLink>
         </div>
     </div>
 </template>

@@ -49,12 +49,8 @@ const onFinish = async () => {
 <template>
     <div class="authentication-item">
         <div class="authentication-item-title">
-            <span
-                >You're finally here 😄.<br />
-                Let's reset your password !
-            </span>
-            <br />
-            <span>Enter a new password below to change your password.</span>
+            <span> {{ $t("auth.greetings.resetPassword") }}</span> <br />
+            <span>{{ $t("auth.instructions.resetPassword") }}</span>
         </div>
 
         <a-form
@@ -66,11 +62,11 @@ const onFinish = async () => {
             :rules="rules"
         >
             <a-form-item label="" name="password">
-                <label>Password</label>
+                <label>{{ $t("auth.inputs.password") }}</label>
                 <a-input-password
                     size="large"
                     v-model:value="formState.password"
-                    placeholder="Mật khẩu"
+                    :placeholder="$t('auth.inputs.password')"
                 >
                     <template #addonBefore>
                         <LockOutlined />
@@ -78,11 +74,11 @@ const onFinish = async () => {
                 </a-input-password>
             </a-form-item>
             <a-form-item label="" name="confirmationPassword">
-                <label>Confirm Password</label>
+                <label>{{ $t("auth.inputs.confirmPassword") }}</label>
                 <a-input-password
                     size="large"
                     v-model:value="formState.confirmationPassword"
-                    placeholder="Nhập lại mật khẩu"
+                    :placeholder="$t('auth.inputs.confirmPassword')"
                 >
                     <template #addonBefore>
                         <LockOutlined />
@@ -95,12 +91,15 @@ const onFinish = async () => {
                     type="primary"
                     style="background-color: #9823f5; width: 100%"
                 >
-                    Reset password
+                    {{ $t("auth.buttons.resetPassword") }}
                 </a-button>
             </a-form-item>
         </a-form>
         <div class="authentication-item-navigator">
-            You're done yet ? <RouterLink :to="{name: 'login'}">Back to Sign In</RouterLink>
+            {{ $t("auth.navigators.reset_signIn_ins") }}
+            <RouterLink :to="{name: 'login'}">
+                {{ $t("auth.navigators.back_signIn_link") }}
+            </RouterLink>
         </div>
     </div>
 </template>

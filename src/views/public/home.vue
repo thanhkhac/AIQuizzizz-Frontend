@@ -16,16 +16,24 @@ import Header from "@/shared/components/Header.vue";
                 <div class="content-item">
                     <!-- <div class="content-item-icon">⭐</div> -->
                     ✨
-                    <div>The ultimate quiz experience</div>
-                </div>
-                <div class="content-item">Learn, Quiz, <span>Earn Rewards</span></div>
-                <div class="content-item">
-                    Join thousands of students and teachers on the ultimate quiz platform. Test your
-                    knowledge, compete with peers, and win exciting rewards
+                    <div>{{ $t("homepage.ultimateExperience.sub_title") }}</div>
                 </div>
                 <div class="content-item">
-                    <RouterLink :to="{}"> Get Started </RouterLink>
-                    <RouterLink :to="{}"> Explore Quizzes </RouterLink>
+                    {{ $t("homepage.ultimateExperience.moto.learnQuiz") }}
+                    <span>
+                        {{ $t("homepage.ultimateExperience.moto.earnRewards") }}
+                    </span>
+                </div>
+                <div class="content-item">
+                    {{ $t("homepage.ultimateExperience.content") }}
+                </div>
+                <div class="content-item">
+                    <RouterLink :to="{}">
+                        {{ $t("homepage.ultimateExperience.buttons.started") }}
+                    </RouterLink>
+                    <RouterLink :to="{}">
+                        {{ $t("homepage.ultimateExperience.buttons.explore") }}
+                    </RouterLink>
                 </div>
             </div>
         </div>
@@ -37,98 +45,116 @@ import Header from "@/shared/components/Header.vue";
                     <!-- <div class="content-item-icon">⭐</div> -->
                     <AppstoreOutlined style="color: #ac63e6" />
                     <i class="bxr bx-science"></i>
-                    <div>Categories</div>
+                    <div>{{ $t("homepage.categories.sub_title") }}</div>
                 </div>
-                <div class="content-item">Explore <span>Quiz Categories</span></div>
                 <div class="content-item">
-                    Discover quizzes across various subjects to test and expand your knowledge
+                    {{ $t("homepage.categories.moto.explore") }}
+                    <span>
+                        {{ $t("homepage.categories.moto.quizCategories") }}
+                    </span>
+                </div>
+                <div class="content-item">
+                    {{ $t("homepage.categories.content") }}
                 </div>
                 <div class="content-item">
                     <div class="category-item-container">
                         <div class="category-item">
                             <i class="bx bx-atom category-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Science & Tech</span>
+                                <span>
+                                    {{ $t("homepage.categories.scienceTech.name") }}
+                                </span>
                                 <br />
                                 <span>
-                                    Test your knowledge in science & tech with our challenging
-                                    quizzes
+                                    {{ $t("homepage.categories.scienceTech.description") }}
                                 </span>
                                 <br />
                                 <RouterLink :to="{}">
-                                    Explore Quizzes <i class="bx bx-right-arrow-alt"></i>
+                                    {{ $t("homepage.categories.categories_link") }}
+                                    <i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
                             </div>
                         </div>
                         <div class="category-item">
                             <i class="bx bx-math category-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Mathematics</span>
+                                <span>
+                                    {{ $t("homepage.categories.mathematics.name") }}
+                                </span>
                                 <br />
                                 <span>
-                                    Test your knowledge in mathematics with our challenging quizzes
+                                    {{ $t("homepage.categories.mathematics.description") }}
                                 </span>
                                 <br />
                                 <RouterLink :to="{}">
-                                    Explore Quizzes <i class="bx bx-right-arrow-alt"></i>
+                                    {{ $t("homepage.categories.categories_link")
+                                    }}<i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
                             </div>
                         </div>
                         <div class="category-item">
                             <i class="bx bxs-flask category-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Chemistry</span>
+                                <span>
+                                    {{ $t("homepage.categories.chemistry.name") }}
+                                </span>
                                 <br />
                                 <span>
-                                    Test your knowledge in chemistry with our challenging quizzes
+                                    {{ $t("homepage.categories.chemistry.description") }}
                                 </span>
                                 <br />
                                 <RouterLink :to="{}">
-                                    Explore Quizzes <i class="bx bx-right-arrow-alt"></i>
+                                    {{ $t("homepage.categories.categories_link")
+                                    }}<i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
                             </div>
                         </div>
                         <div class="category-item">
                             <i class="bx bx-dna category-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Biology</span>
+                                <span>
+                                    {{ $t("homepage.categories.biology.name") }}
+                                </span>
                                 <br />
                                 <span>
-                                    Test your knowledge in biology with our challenging quizzes
+                                    {{ $t("homepage.categories.biology.description") }}
                                 </span>
                                 <br />
                                 <RouterLink :to="{}">
-                                    Explore Quizzes <i class="bx bx-right-arrow-alt"></i>
+                                    {{ $t("homepage.categories.categories_link") }}
+                                    <i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
                             </div>
                         </div>
                         <div class="category-item">
                             <i class="bx bx-globe category-item-icon"></i>
                             <div class="category-item-content">
-                                <span>General Knowledge</span>
+                                <span>
+                                    {{ $t("homepage.categories.generalKnowledge.name") }}
+                                </span>
                                 <br />
                                 <span>
-                                    Test your knowledge in general knowledge with our challenging
-                                    quizzes
+                                    {{ $t("homepage.categories.generalKnowledge.description") }}
                                 </span>
                                 <br />
                                 <RouterLink :to="{}">
-                                    Explore Quizzes <i class="bx bx-right-arrow-alt"></i>
+                                    {{ $t("homepage.categories.categories_link") }}
+                                    <i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
                             </div>
                         </div>
                         <div class="category-item">
                             <i class="bx bx-news category-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Current Affairs</span>
-                                <br />
                                 <span>
-                                    Test your knowledge in current affairs with our challenging
-                                    quizzes
+                                    {{ $t("homepage.categories.currentAffairs.name") }}
                                 </span>
                                 <br />
+                                <span>
+                                    {{ $t("homepage.categories.currentAffairs.description") }}
+                                </span>
                                 <RouterLink :to="{}">
-                                    Explore Quizzes
+                                    {{ $t("homepage.categories.categories_link") }}
                                     <i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
                             </div>
@@ -144,72 +170,75 @@ import Header from "@/shared/components/Header.vue";
                 <div class="content-item">
                     <StarOutlined style="color: #ac63e6" />
                     <i class="bxr bx-science"></i>
-                    <div>Features</div>
+                    <div>{{ $t("homepage.features.sub_title") }}</div>
                 </div>
-                <div class="content-item">Why <span>AIQuizizz</span></div>
                 <div class="content-item">
-                    Discover quizzes across various subjects to test and expand your knowledge
+                    {{ $t("homepage.features.moto.why") }}
+                    <span>{{ $t("homepage.features.moto.aiQuiz") }}</span>
+                </div>
+                <div class="content-item">
+                    {{ $t("homepage.features.content") }}
                 </div>
                 <div class="content-item">
                     <div class="feature-item-container">
                         <div class="feature-item">
                             <i class="bx bx-brain feature-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Personalized Learning</span>
+                                <span>{{ $t("homepage.features.personalizedLearning.name") }}</span>
                                 <br />
-                                <span>
-                                    Adaptive quizzes that adjust to your knowledge level and
-                                    learning pace
-                                </span>
+                                <span>{{
+                                    $t("homepage.features.personalizedLearning.description")
+                                }}</span>
                             </div>
                         </div>
                         <div class="feature-item">
                             <i class="bx bx-gift feature-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Reward System</span>
+                                <span>{{ $t("homepage.features.rewardSystem.name") }}</span>
                                 <br />
-                                <span>
-                                    Earn points, badges, and real rewards for your achievements
-                                </span>
+                                <span>{{ $t("homepage.features.rewardSystem.description") }}</span>
                             </div>
                         </div>
                         <div class="feature-item">
                             <i class="bx bxs-group feature-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Teacher Dashboard</span>
+                                <span>{{ $t("homepage.features.teacherDashboard.name") }}</span>
                                 <br />
-                                <span>
-                                    Comprehensive tools for educators to create and manage quizzes
-                                </span>
+                                <span>{{
+                                    $t("homepage.features.teacherDashboard.description")
+                                }}</span>
                             </div>
                         </div>
                         <div class="feature-item">
                             <i class="bx bx-signal-5 feature-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Progress Tracking</span>
+                                <span>{{ $t("homepage.features.progressTracking.name") }}</span>
                                 <br />
-                                <span>
-                                    Adaptive quizzes that adjust to your knowledge level and
-                                    learning pace
-                                </span>
+                                <span>{{
+                                    $t("homepage.features.progressTracking.description")
+                                }}</span>
                             </div>
                         </div>
                         <div class="feature-item">
                             <i class="bx bx-trophy feature-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Competitive Leaderboards</span>
+                                <span>{{
+                                    $t("homepage.features.competitiveLeaderboards.name")
+                                }}</span>
                                 <br />
-                                <span>
-                                    Compete with peers and climb the ranks in various categories
-                                </span>
+                                <span>{{
+                                    $t("homepage.features.competitiveLeaderboards.description")
+                                }}</span>
                             </div>
                         </div>
                         <div class="feature-item">
                             <i class="bx bx-mobile-alt feature-item-icon"></i>
                             <div class="category-item-content">
-                                <span>Mobile Friendly</span>
+                                <span>{{ $t("homepage.features.mobileFriendly.name") }}</span>
                                 <br />
-                                <span> Access your quizzes anytime, anywhere on any device </span>
+                                <span>{{
+                                    $t("homepage.features.mobileFriendly.description")
+                                }}</span>
                             </div>
                         </div>
                     </div>
@@ -221,14 +250,17 @@ import Header from "@/shared/components/Header.vue";
         <div class="w-100 d-flex justify-content-center">
             <div class="banner">
                 <div class="banner-item">
-                    <div>Ready to Start Your Quiz Journey?</div>
+                    <div>{{ $t("homepage.banner.title") }}</div>
                     <div>
-                        Join thousands of students and teachers. Sign up today and get access to all
-                        features
+                        {{ $t("homepage.banner.content") }}
                     </div>
                     <div>
-                        <RouterLink :to="{}">Create account</RouterLink>
-                        <RouterLink :to="{}">Explore Quizzes</RouterLink>
+                        <RouterLink :to="{}">{{
+                            $t("homepage.banner.buttons.createAccount")
+                        }}</RouterLink>
+                        <RouterLink :to="{}">{{
+                            $t("homepage.banner.buttons.explore")
+                        }}</RouterLink>
                     </div>
                 </div>
                 <div class="banner-item">
@@ -253,6 +285,7 @@ import Header from "@/shared/components/Header.vue";
     --text-color-black: #000;
 
     --main-color: #9823f5;
+    --main-sub-color: #7c3aed;
 
     --category-1st-color: #3b82f6;
     --category-2st-color: #22c55e;

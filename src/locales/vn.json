@@ -1,0 +1,132 @@
+{
+    "auth": {
+        "greetings": {
+            "signIn": "Chào mừng quay lại!",
+            "signUp": "Tạo tài khoản",
+            "forgotPassword": "Quên mật khẩu?",
+            "resetPassword": "Cuối cùng bạn cũng tới rồi 😄. Đặt lại mật khẩu thôi nào!"
+        },
+        "instructions": {
+            "signIn": "Nhập thông tin của bạn để đăng nhập vào tài khoản",
+            "signUp": "Chọn loại tài khoản và bắt đầu hành trình cùng chúng tôi",
+            "forgotPassword": "Đừng lo, có chúng tôi ở đây rồi 😉. Nhập email và chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu cho bạn nha.",
+            "resetPassword": "Nhập mật khẩu mới bên dưới để đổi mật khẩu nha."
+        },
+        "inputs": {
+            "username": "Tên đăng nhập",
+            "fullName": "Họ và tên",
+            "email": "Email",
+            "emailPlaceholder": "ten@example.com",
+            "password": "Mật khẩu",
+            "confirmPassword": "Xác nhận mật khẩu"
+        },
+        "buttons": {
+            "signIn": "Đăng nhập",
+            "signUp": "Đăng ký",
+            "send": "Gửi",
+            "resetPassword": "Đặt lại mật khẩu"
+        },
+        "navigators": {
+            "signUp_signIn_ins": "Đã có tài khoản?",
+            "signIn_signUp_ins": "Chưa có tài khoản?",
+            "forgot_signIn_ins": "Nhớ ra rồi hả?",
+            "reset_signIn_ins": "Xong chưa đó?",
+            "signIn_forgot_link": "Quên mật khẩu?",
+            "signIn_link": "Đăng nhập",
+            "signUp_link": "Đăng ký",
+            "back_signIn_link": "Quay lại đăng nhập"
+        },
+        "others": {
+            "or": "HOẶC"
+        }
+    },
+    "homepage": {
+        "ultimateExperience": {
+            "sub_title": "Tuyệt đối trải nghiệm học tập",
+            "moto": {
+                "learnQuiz": "Học, Quiz, ",
+                "earnRewards": "Nhận thưởng"
+            },
+            "content": "Tham gia cùng hàng nghìn học sinh và giáo viên trên nền tảng quiz hàng đầu. Thử thách kiến thức, so tài cùng bạn bè và giành những phần thưởng hấp dẫn!",
+            "buttons": {
+                "started": "Bắt đầu",
+                "explore": "Khám phá Quiz"
+            }
+        },
+        "categories": {
+            "sub_title": "Thể loại",
+            "moto": {
+                "explore": "Khám phá ",
+                "quizCategories": "Danh mục Quiz"
+            },
+            "content": "Khám phá các bài quiz đa dạng để thử thách và mở rộng kiến thức của bạn",
+            "categories_link": "Khám phá quiz",
+            "scienceTech": {
+                "name": "Khoa học & Công nghệ",
+                "description": "Khám phá thế giới khoa học và công nghệ — những câu đố kích thích trí tò mò và thử thách trí tuệ của bạn!"
+            },
+            "mathematics": {
+                "name": "Toán học",
+                "description": "Chinh phục con số, giải đố và khẳng định tài năng toán học của bạn với những thử thách thú vị!"
+            },
+            "chemistry": {
+                "name": "Hóa học",
+                "description": "Kết hợp kiến thức và sự tò mò — kiểm tra kỹ năng của bạn trong thế giới nguyên tử, nguyên tố và phản ứng!"
+            },
+            "biology": {
+                "name": "Sinh học",
+                "description": "Khám phá bí ẩn của sự sống — từ tế bào đến hệ sinh thái — với các bài quiz sinh động!"
+            },
+            "generalKnowledge": {
+                "name": "Kiến thức chung",
+                "description": "Thể hiện sự hiểu biết của bạn qua nhiều chủ đề — vui nhộn, nhanh gọn và đầy bất ngờ!"
+            },
+            "currentAffairs": {
+                "name": "Thời sự",
+                "description": "Luôn nhạy bén và cập nhật — kiểm tra kiến thức của bạn về những sự kiện đang diễn ra trên thế giới!"
+            },
+            "explore": "Khám phá Quiz"
+        },
+
+        "features": {
+            "sub_title": "Tính năng",
+            "moto": {
+                "why": "Vì sao chọn ",
+                "aiQuiz": "AIQuizizz"
+            },
+            "content": "Truy cập kho quiz theo chủ đề đa dạng, được thiết kế để thử thách kiến thức và giúp bạn phát triển.",
+            "personalizedLearning": {
+                "name": "Học tập cá nhân hóa",
+                "description": "Quiz thích ứng dựa theo trình độ và tốc độ học của bạn"
+            },
+            "rewardSystem": {
+                "name": "Hệ thống phần thưởng",
+                "description": "Nhận điểm, huy hiệu và phần thưởng thực cho thành tích của bạn"
+            },
+            "teacherDashboard": {
+                "name": "Bảng điều khiển giáo viên",
+                "description": "Công cụ toàn diện giúp giáo viên tạo và quản lý quiz dễ dàng"
+            },
+            "progressTracking": {
+                "name": "Theo dõi tiến độ",
+                "description": "Theo dõi sự tiến bộ của bạn với báo cáo và phân tích chi tiết"
+            },
+            "competitiveLeaderboards": {
+                "name": "Bảng xếp hạng",
+                "description": "Cạnh tranh với bạn bè và vươn lên trong các bảng xếp hạng ở nhiều thể loại"
+            },
+            "mobileFriendly": {
+                "name": "Hỗ trợ thiết bị di động",
+                "description": "Truy cập quiz mọi lúc, mọi nơi trên mọi thiết bị"
+            }
+        },
+        "banner": {
+            "title": "Sẵn sàng bắt đầu hành trình vĩ đại của bạn?",
+            "content": "Tham gia cùng hàng nghìn học sinh và giáo viên. Đăng ký ngay hôm nay để trải nghiệm đầy đủ các tính năng",
+            "buttons": {
+                "createAccount": "Tạo tài khoản",
+                "explore": "Khám phá"
+            }
+        }
+    }
+}
