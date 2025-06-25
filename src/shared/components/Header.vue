@@ -80,7 +80,7 @@ async function switchLanguage(selectedLocale) {
     background-color: var(--background-color);
     position: sticky;
     top: 0px;
-    z-index: 1;
+    z-index: 100;
     color: #fff;
     border-bottom: 1px solid #2a2a2a;
 }

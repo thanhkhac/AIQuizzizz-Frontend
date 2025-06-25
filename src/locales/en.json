@@ -133,5 +133,28 @@
         "errorMessage": "Not Found!",
         "errorDescription": "Sorry, the site you're trying to access can't be found",
         "homePageNavigator": "Back to home page"
+    },
+    "sidebar": {
+        "navigators": {
+            "dashboards": "Dashboards",
+            "quiz": "Quizzes",
+            "examSchedule": "Exam schedule",
+            "class": "Class",
+            "settings": "Settings"
+        },
+        "buttons": {
+            "signOut": "Sign out",
+            "ok": "Ok",
+            "cancel": "Cancel"
+        },
+        "popUp": {
+            "signOut": {
+                "message": "Wanna sign out from AIQ ?",
+                "content": "Make sure you don't forget anything."
+            }
+        },
+        "others": {
+            "Manage": "Manage"
+        }
     }
 }

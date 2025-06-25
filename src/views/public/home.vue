@@ -271,30 +271,6 @@ import Header from "@/shared/components/Header.vue";
     </div>
 </template>
 
-<style>
-:root {
-    --background-color: #000;
-    --background-color-white: #fff;
-    --background-color-white-hovered: #eee;
-    --background-color-gradient: linear-gradient(95deg, #5813c1 48.05%, #c45037 96.24%);
-
-    --background-sub-color1: #ac63e6;
-    --background-sub-color2: #c45037;
-
-    --text-color-white: #fff;
-    --text-color-black: #000;
-
-    --main-color: #9823f5;
-    --main-sub-color: #7c3aed;
-
-    --category-1st-color: #3b82f6;
-    --category-2st-color: #22c55e;
-    --category-3st-color: #a855f7;
-    --category-4st-color: #ec4899;
-    --category-5st-color: #f59e0b;
-    --category-6st-color: #ef4444;
-}
-</style>
 <style scoped>
 .background {
     height: 100vh;

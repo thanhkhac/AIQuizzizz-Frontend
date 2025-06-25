@@ -2,6 +2,8 @@
 import {ref, onBeforeMount} from "vue";
 import {useAuthStore} from "/src/stores/AuthStore.ts";
 import {Modal} from "ant-design-vue";
+import {useI18n} from "vue-i18n";
+const {t} = useI18n();
 
 const {activeItem} = defineProps(["activeItem"]);
 
@@ -20,9 +22,11 @@ onBeforeMount(async () => {
 
 const onSignOut = () => {
     Modal.confirm({
-        title: "Wanna sign out from AIQ ?",
-        content: "Make sure you don't forget anything.",
+        title: t("sidebar.popUp.signOut.message"),
+        content: t("sidebar.popUp.signOut.content"),
         centered: true,
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: () => {},
         onCancel: () => {},
     });
@@ -41,27 +45,35 @@ const onSignOut = () => {
         <div class="sidebar-wrapper">
             <ul class="sidebar-list">
                 <li :class="['sidebar-listItem active', {active: activeItem === 'dashboard'}]">
-                    <RouterLink :to="{name: 'Admin_Dashboards_View'}">
+                    <RouterLink :to="{name: 'User_Dashboard'}">
                         <i class="bx bxs-dashboard"></i>
-                        <span class="sidebar-listItemText">Dashboards</span>
+                        <span class="sidebar-listItemText">
+                            {{ $t("sidebar.navigators.dashboards") }}
+                        </span>
                     </RouterLink>
                 </li>
                 <li :class="['sidebar-listItem', {active: activeItem === 'appointment'}]">
                     <RouterLink :to="{}">
                         <i class="bx bx-book-open"></i>
-                        <span class="sidebar-listItemText">Quizzes</span>
+                        <span class="sidebar-listItemText">
+                            {{ $t("sidebar.navigators.quiz") }}
+                        </span>
                     </RouterLink>
                 </li>
                 <li :class="['sidebar-listItem', {active: activeItem === 'user'}]">
                     <RouterLink :to="{}">
                         <i class="bx bxs-calendar"></i>
-                        <span class="sidebar-listItemText">Exam Schedule</span>
+                        <span class="sidebar-listItemText">
+                            {{ $t("sidebar.navigators.examSchedule") }}
+                        </span>
                     </RouterLink>
                 </li>
                 <li :class="['sidebar-listItem', {active: activeItem === 'doctor'}]">
                     <RouterLink :to="{}">
                         <i class="bx bx-group"></i>
-                        <span class="sidebar-listItemText">Class</span>
+                        <span class="sidebar-listItemText">
+                            {{ $t("sidebar.navigators.class") }}
+                        </span>
                     </RouterLink>
                 </li>
                 <a-divider
@@ -70,14 +82,16 @@ const onSignOut = () => {
                     orientation-margin="0px"
                     style="margin-bottom: 0px; color: #fff"
                 >
-                    Manage
+                    {{ $t("sidebar.others.Manage") }}
                 </a-divider>
                 <a-divider class="divider" style="margin-top: 0px; background-color: #fff" />
 
                 <li :class="['sidebar-listItem', {active: activeItem === 'specialty'}]">
                     <RouterLink :to="{}">
                         <i class="bx bx-cog"></i>
-                        <span class="sidebar-listItemText">Settings</span>
+                        <span class="sidebar-listItemText">
+                            {{ $t("sidebar.navigators.settings") }}
+                        </span>
                     </RouterLink>
                 </li>
                 <li
@@ -86,7 +100,9 @@ const onSignOut = () => {
                 >
                     <RouterLink :to="{}">
                         <i class="bx bx-download bx-rotate-270"></i>
-                        <span class="sidebar-listItemText">Sign out</span>
+                        <span class="sidebar-listItemText">
+                            {{ $t("sidebar.buttons.signOut") }}
+                        </span>
                     </RouterLink>
                 </li>
             </ul>
@@ -95,7 +111,7 @@ const onSignOut = () => {
                 <div>
                     <span>{{ user.fullName }}</span>
                     <span class="sign-out-btn" @click="onSignOut">
-                        Sign out
+                        {{ $t("sidebar.buttons.signOut") }}
                         <i class="bx bx-download bx-rotate-270"></i>
                     </span>
                 </div>
@@ -109,13 +125,15 @@ const onSignOut = () => {
 }
 
 .sidebar-container {
-    background-color: var(--background-color);
+    background-color: var(--sidebar-background-color);
     padding: 16px;
     transition: width 0.3s ease-in-out;
     width: 240px;
     height: calc(100vh - 60px);
     position: relative;
     z-index: 1;
+    position: sticky;
+    top: 60px;
 }
 
 .sidebar-container.shrink {
@@ -137,7 +155,7 @@ const onSignOut = () => {
     border-radius: 50%;
     border: none;
     right: -20px;
-    top: 41.5%;
+    top: 40%;
     background-color: var(--main-sub-color);
     color: #fff;
     cursor: pointer;
@@ -214,6 +232,7 @@ const onSignOut = () => {
     visibility: visible;
     display: block;
     transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .shrink .sidebar-listItemText {

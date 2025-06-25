@@ -1,4 +1,4 @@
-// import "./assets/main.css";
+import "./assets/main.css";
 
 import {createApp} from "vue";
 import {createPinia} from "pinia";
@@ -72,6 +72,7 @@ import {
     Empty,
     Badge,
     Steps,
+    Progress,
 } from "ant-design-vue";
 
 /**
@@ -132,6 +133,7 @@ async function initLocale(): Promise<void> {
     app.use(Empty);
     app.use(Badge);
     app.use(Steps);
+    app.use(Progress);
 
     app.use(HighchartsVue);
 

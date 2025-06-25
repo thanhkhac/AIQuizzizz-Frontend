@@ -6,8 +6,14 @@ const userRoutes = [
             {
                 name: "User_Profile",
                 path: "profile",
-                meta: {title: "profile"},
                 component: () => import("@/views/user/settings/profile.vue"),
+                meta: {title: "profile"},
+            },
+            {
+                name: "User_Dashboard",
+                path: "dashboards",
+                component: () => import("@/views/user/dashboards.vue"),
+                meta: {title: "dashboards"},
             },
         ],
     },

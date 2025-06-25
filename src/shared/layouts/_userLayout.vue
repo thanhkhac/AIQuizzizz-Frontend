@@ -8,7 +8,7 @@ import Header from "../components/Header.vue";
         <div>
             <UserSidebar />
         </div>
-        <div>
+        <div style="flex: 1">
             <RouterView />
         </div>
     </div>

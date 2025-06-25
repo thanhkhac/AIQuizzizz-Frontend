@@ -109,13 +109,15 @@ const onSignOut = () => {
 }
 
 .sidebar-container {
-    background-color: var(--background-color);
+    background-color: var(--sidebar-background-color);
     padding: 16px;
     transition: width 0.3s ease-in-out;
     width: 240px;
     height: calc(100vh - 60px);
     position: relative;
     z-index: 1;
+    position: sticky;
+    top: 60px;
 }
 
 .sidebar-container.shrink {
@@ -137,7 +139,7 @@ const onSignOut = () => {
     border-radius: 50%;
     border: none;
     right: -20px;
-    top: 41.5%;
+    top: 40%;
     background-color: var(--main-sub-color);
     color: #fff;
     cursor: pointer;
