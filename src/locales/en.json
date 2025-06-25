@@ -128,5 +128,10 @@
                 "explore": "Explore"
             }
         }
+    },
+    "404": {
+        "errorMessage": "Not Found!",
+        "errorDescription": "Sorry, the site you're trying to access can't be found",
+        "homePageNavigator": "Back to home page"
     }
 }

@@ -7,7 +7,7 @@ const userRoutes = [
                 name: "User_Profile",
                 path: "profile",
                 meta: {title: "profile"},
-                component: () => import("@/views/user/profile/profile.vue"),
+                component: () => import("@/views/user/settings/profile.vue"),
             },
         ],
     },

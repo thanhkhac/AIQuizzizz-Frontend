@@ -4,8 +4,6 @@
 
 <template>
     <h1>{{ $t("message.hello") }}</h1>
-    <div class="locale-changer"></div>
-    
 </template>
 <style scoped>
 div {

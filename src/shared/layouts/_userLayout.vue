@@ -1,13 +1,15 @@
 <script setup>
-import adminSidebar from "../components/AdminSidebar.vue";
+import UserSidebar from "../components/UserSidebar.vue";
+import Header from "../components/Header.vue";
 </script>
 <template>
-    <a-row class="d-flex">
-        <a-col :span="12">
-            <adminSidebar />
-        </a-col>
-        <a-col :span="12">
+    <Header />
+    <div class="d-flex">
+        <div>
+            <UserSidebar />
+        </div>
+        <div>
             <RouterView />
-        </a-col>
-    </a-row>
+        </div>
+    </div>
 </template>

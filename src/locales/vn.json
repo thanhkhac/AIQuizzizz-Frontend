@@ -128,5 +128,10 @@
                 "explore": "Khám phá"
             }
         }
+    },
+    "404": {
+        "errorMessage": "Không tìm thấy trang!",
+        "errorDescription": "Rất tiếc, hệ thống không thể tìm thấy trang bạn đang cố truy cập.",
+        "homePageNavigator": "Quay về trang chủ"
     }
 }
