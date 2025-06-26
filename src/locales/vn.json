@@ -156,5 +156,36 @@
         "others": {
             "Manage": "Quản lý"
         }
+    },
+    "dashboards": {
+        "title": "Bảng điều khiển",
+        "sub_title": "Chào mừng trở lại, {username}! Đây là những hoạt động liên quan đến quá trình học của bạn",
+        "buttons": {
+            "createNewQuiz": "Tạo bộ quiz mới",
+            "add_button_ins": "Thêm câu hỏi, mời bạn bè và nhiều hơn nữa",
+            "view": "Chi tiết",
+            "viewAll": "Xem tất cả"
+        },
+        "sections": {
+            "quiz": {
+                "title": "Bài kiểm tra gần đây",
+                "sub_title": "Hoạt động gần đây của bạn"
+            },
+            "schedule": {
+                "title": "Các hoạt động sắp tới",
+                "sub_title": "Lịch bài tập và kiểm tra"
+            }
+        },
+        "list_items": {
+            "quiz": {
+                "questions": "câu hỏi",
+                "learningProgress": "Tiến độ học tập"
+            },
+            "schedule": {
+                "today": "Hôm nay",
+                "tomorrow": "Ngày mai",
+                "upcoming": "Sắp tới"
+            }
+        }
     }
 }

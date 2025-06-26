@@ -156,5 +156,36 @@
         "others": {
             "Manage": "Manage"
         }
+    },
+    "dashboards": {
+        "title": "Dashboard",
+        "sub_title": "Welcome back, {username}! Here's what's happening with your learning progress",
+        "buttons": {
+            "createNewQuiz": "Create new quiz",
+            "add_button_ins": "Add questions, invite friends and more",
+            "view": "View",
+            "viewAll": "View all"
+        },
+        "sections": {
+            "quiz": {
+                "title": "Recent Quizzes",
+                "sub_title": "Your recently activities"
+            },
+            "schedule": {
+                "title": "Up comming activities",
+                "sub_title": "Assignment and test schedules"
+            }
+        },
+        "list_items": {
+            "quiz": {
+                "questions": "questions",
+                "learningProgress": "Learning progress"
+            },
+            "schedule": {
+                "today": "Today",
+                "tomorrow": "Tomorrow",
+                "upcoming": "Upcoming"
+            }
+        }
     }
 }

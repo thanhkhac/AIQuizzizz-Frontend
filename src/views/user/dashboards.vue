@@ -1,6 +1,8 @@
 <script setup>
 import {ref, onMounted} from "vue";
 import dayjs from "dayjs";
+import {useI18n} from "vue-i18n";
+const {t} = useI18n();
 
 const quiz_data = ref([
     {
@@ -34,7 +36,7 @@ const schedule_data = ref([
     {
         title: "Science Mid-term Quiz",
         class: "SC101",
-        date: "06/25/2025 10:00 AM",
+        date: "06/26/2025 10:00 AM",
     },
     {
         title: "Math Final Exam",
@@ -69,9 +71,9 @@ const getCaculatedDateString = (date) => {
     if (diff >= 2) {
         return dayjs(date).format("DD/MM/YYYY - HH:mm");
     } else if (diff === 1) {
-        return "Tomorrow";
+        return t("dashboards.list_items.schedule.tomorrow");
     } else if (diff === 0) {
-        return "Today - " + dayjs(date).format("HH:mm");
+        return t("dashboards.list_items.schedule.today") + " - " + dayjs(date).format("HH:mm");
     } else {
         return dayjs(date).format("DD/MM/YYYY - HH:mm");
     }
@@ -80,15 +82,26 @@ const getCaculatedDateString = (date) => {
 const getTag = (date) => {
     const diff = dayjs(date).startOf("day").diff(dayjs().startOf("day"), "days");
     if (diff === 0) {
-        return "Today";
+        return t("dashboards.list_items.schedule.today");
     } else if (diff > 0) {
-        return "Upcoming";
+        return t("dashboards.list_items.schedule.upcoming");
     }
     return "Past";
 };
 
-const getPercentageComplete = (noq, completed) => {
-    return Math.floor((completed / noq) * 100);
+const getPercentageComplete = (total, completed) => {
+    return Math.floor((completed / total) * 100);
+};
+
+const getScheduleTagBorderColor = (date) => {
+    return {
+        borderColor:
+            getTag(date) === t("dashboards.list_items.schedule.today") ? "#58181c" : "#153450",
+    };
+};
+
+const getScheduleColor = (date) => {
+    return getTag(date) === t("dashboards.list_items.schedule.today") ? "error" : "processing";
 };
 </script>
 
@@ -97,19 +110,27 @@ const getPercentageComplete = (noq, completed) => {
         <div class="title-container">
             <a-row class="w-100">
                 <a-col class="main-title" :span="20">
-                    <span>Dashboard</span> <br />
-                    <span>Welcome back, {username} Here's what's happening with your quizzes</span>
+                    <span>{{ $t("dashboards.title") }}</span> <br />
+                    <span>{{ $t("dashboards.sub_title", {username: "NguyenTanDuc"}) }}</span>
                 </a-col>
-                <a-col class="title-button" :span="4">
-                    <button><i class="bx bx-plus"></i> Create New Set</button>
-                </a-col>
+                <!-- <a-col class="title-button" :span="4">
+                    <button>
+                        <i class="bx bx-plus"></i> {{ $t("dashboards.buttons.createNewQuiz") }}
+                    </button>
+                </a-col> -->
             </a-row>
         </div>
         <div class="content">
             <div class="content-item">
                 <div class="content-item-title">
-                    <span>Recent Quizzes</span>
-                    <span>Your recently activities</span>
+                    <div>
+                        <span>{{ $t("dashboards.sections.quiz.title") }}</span>
+                        <span>{{ $t("dashboards.sections.quiz.sub_title") }}</span>
+                    </div>
+                    <RouterLink :to="{}" class="content-item-navigator">
+                        <span>{{ $t("dashboards.buttons.viewAll") }}</span>
+                        <i class="bx bx-chevron-right"></i>
+                    </RouterLink>
                 </div>
                 <div class="quiz-container">
                     <div class="quiz-item" v-for="quiz in quiz_data">
@@ -118,10 +139,11 @@ const getPercentageComplete = (noq, completed) => {
                         </div>
                         <div class="quiz-item-info">
                             <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                            {{ quiz.numberOfQuestions }} questions
+                            {{ quiz.numberOfQuestions }}
+                            {{ $t("dashboards.list_items.quiz.questions") }}
                         </div>
                         <div class="quiz-item-progress">
-                            <span>Learning progress</span>
+                            <span>{{ $t("dashboards.list_items.quiz.learningProgress") }}</span>
                             <a-progress
                                 stroke-color="#7C3AED"
                                 :percent="
@@ -137,16 +159,22 @@ const getPercentageComplete = (noq, completed) => {
                     <div class="quiz-item add-button">
                         <i class="bx bx-plus add-button-icon"></i>
                         <div class="add-button-context">
-                            <span>Create New Quiz</span>
-                            <span>Add questions, set time limits and more</span>
+                            <span>{{ $t("dashboards.buttons.createNewQuiz") }}</span>
+                            <span>{{ $t("dashboards.buttons.add_button_ins") }}</span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="content-item">
                 <div class="content-item-title">
-                    <span>Up comming activities</span>
-                    <span>Assignment and test schedules</span>
+                    <div>
+                        <span>{{ $t("dashboards.sections.schedule.title") }}</span>
+                        <span>{{ $t("dashboards.sections.schedule.sub_title") }}</span>
+                    </div>
+                    <RouterLink :to="{}" class="content-item-navigator">
+                        <span>{{ $t("dashboards.buttons.viewAll") }}</span>
+                        <i class="bx bx-chevron-right"></i>
+                    </RouterLink>
                 </div>
                 <div class="schedule-container">
                     <div class="schedule-item" v-for="schedule in schedule_data">
@@ -157,13 +185,9 @@ const getPercentageComplete = (noq, completed) => {
                                 <a-tag
                                     :style="[
                                         'background: transparent',
-                                        getTag(schedule.date) === 'Today'
-                                            ? 'border-color: #58181c'
-                                            : 'border-color: #153450',
+                                        getScheduleTagBorderColor(schedule.date),
                                     ]"
-                                    :color="
-                                        getTag(schedule.date) === 'Today' ? 'error' : 'processing'
-                                    "
+                                    :color="getScheduleColor(schedule.date)"
                                 >
                                     {{ getTag(schedule.date) }}
                                 </a-tag>
@@ -174,7 +198,9 @@ const getPercentageComplete = (noq, completed) => {
                             </div>
                         </div>
                         <div class="schedule-item-actions">
-                            <a-button type="primary">View</a-button>
+                            <a-button type="primary">
+                                {{ $t("dashboards.buttons.view") }}
+                            </a-button>
                         </div>
                     </div>
                 </div>
@@ -227,16 +253,16 @@ const getPercentageComplete = (noq, completed) => {
     font-size: 16px;
     font-weight: 400;
 }
-.title-button button {
+/* .title-button button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     background-color: var(--main-sub-color);
     color: var(--text-color-white);
-    align-items: center;
-    display: flex;
     padding: 8px 10px;
     border: none;
     border-radius: 5px;
-    justify-content: space-between;
-    align-items: center;
     font-size: 16px;
     font-weight: 500;
     transition: all 0.3s ease-in-out;
@@ -247,15 +273,20 @@ const getPercentageComplete = (noq, completed) => {
 
 .title-button i {
     font-size: 20px;
-    margin-right: 0px;
-}
+    margin-right: 5px;
+} */
 
 .content-item-title {
+    width: 100%;
     color: var(--text-color-white);
     font-size: 24px;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
+    display: flex;
+    justify-content: space-between;
+}
+.content-item-title div {
     display: flex;
     flex-direction: column;
 }
@@ -264,6 +295,24 @@ const getPercentageComplete = (noq, completed) => {
     color: #a1a1aa;
     font-size: 16px;
     font-weight: 400;
+}
+.content-item-title a {
+    font-size: 14px;
+    color: var(--text-color-white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.content-item-title i {
+    font-size: 28px;
+    transition: all 0.2s ease-in-out;
+    transform: translateY(1px);
+}
+
+.content-item-title a:hover i {
+    /* 1px for that Y above */
+    transform: translate(5px, 1px);
 }
 
 .quiz-container {
@@ -332,13 +381,13 @@ const getPercentageComplete = (noq, completed) => {
 
 .add-button-icon {
     display: flex;
-    width: 30px;
-    height: 30px;
+    width: 50px;
+    height: 50px;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
     aspect-ratio: 1/1;
-    font-size: 20px;
+    font-size: 25px !important;
     border-radius: 50%;
     background: #261544;
     color: #5c00ff;
@@ -347,9 +396,11 @@ const getPercentageComplete = (noq, completed) => {
 .add-button-context {
     color: var(--text-color-white);
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: center;
     text-align: center;
+    justify-content: center;
     font-size: 16px;
 }
 .add-button-context span:nth-child(2) {
@@ -362,6 +413,25 @@ const getPercentageComplete = (noq, completed) => {
     max-height: 300px;
     overflow-y: scroll;
     margin-top: 10px;
+}
+.schedule-container::-webkit-scrollbar {
+    width: 10px;
+    margin: 5px 0;
+}
+
+.schedule-container::-webkit-scrollbar-track {
+    background: var(--background-color);
+    border-radius: 10px;
+}
+
+.schedule-container::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: linear-gradient(
+        to bottom,
+        var(--background-sub-color1),
+        var(--background-sub-color2)
+    );
+    border: 1px solid var(--background-color);
 }
 
 .schedule-item {
