@@ -13,21 +13,21 @@ import Header from "@/shared/components/Header.vue";
         </div>
         <div class="content-container">
             <div class="d-flex flex-column justify-content-center align-items-center">
-                <div class="content-item">
-                    <!-- <div class="content-item-icon">⭐</div> -->
+                <div class="home-content-item">
+                    <!-- <div class="home-content-item-icon">⭐</div> -->
                     ✨
                     <div>{{ $t("homepage.ultimateExperience.sub_title") }}</div>
                 </div>
-                <div class="content-item">
+                <div class="home-content-item">
                     {{ $t("homepage.ultimateExperience.moto.learnQuiz") }}
                     <span>
                         {{ $t("homepage.ultimateExperience.moto.earnRewards") }}
                     </span>
                 </div>
-                <div class="content-item">
+                <div class="home-content-item">
                     {{ $t("homepage.ultimateExperience.content") }}
                 </div>
-                <div class="content-item">
+                <div class="home-content-item">
                     <RouterLink :to="{}">
                         {{ $t("homepage.ultimateExperience.buttons.started") }}
                     </RouterLink>
@@ -41,22 +41,22 @@ import Header from "@/shared/components/Header.vue";
     <div class="background background-responsive">
         <div class="content-container">
             <div class="d-flex flex-column justify-content-center align-items-center">
-                <div class="content-item">
-                    <!-- <div class="content-item-icon">⭐</div> -->
+                <div class="home-content-item">
+                    <!-- <div class="home-content-item-icon">⭐</div> -->
                     <AppstoreOutlined style="color: #ac63e6" />
                     <i class="bxr bx-science"></i>
                     <div>{{ $t("homepage.categories.sub_title") }}</div>
                 </div>
-                <div class="content-item">
+                <div class="home-content-item">
                     {{ $t("homepage.categories.moto.explore") }}
                     <span>
                         {{ $t("homepage.categories.moto.quizCategories") }}
                     </span>
                 </div>
-                <div class="content-item">
+                <div class="home-content-item">
                     {{ $t("homepage.categories.content") }}
                 </div>
-                <div class="content-item">
+                <div class="home-content-item">
                     <div class="category-item-container">
                         <div class="category-item">
                             <i class="bx bx-atom category-item-icon"></i>
@@ -167,19 +167,19 @@ import Header from "@/shared/components/Header.vue";
     <div class="background background-responsive">
         <div class="content-container">
             <div class="d-flex flex-column justify-content-center align-items-center">
-                <div class="content-item">
+                <div class="home-content-item">
                     <StarOutlined style="color: #ac63e6" />
                     <i class="bxr bx-science"></i>
                     <div>{{ $t("homepage.features.sub_title") }}</div>
                 </div>
-                <div class="content-item">
+                <div class="home-content-item">
                     {{ $t("homepage.features.moto.why") }}
                     <span>{{ $t("homepage.features.moto.aiQuiz") }}</span>
                 </div>
-                <div class="content-item">
+                <div class="home-content-item">
                     {{ $t("homepage.features.content") }}
                 </div>
-                <div class="content-item">
+                <div class="home-content-item">
                     <div class="feature-item-container">
                         <div class="feature-item">
                             <i class="bx bx-brain feature-item-icon"></i>
@@ -339,13 +339,13 @@ import Header from "@/shared/components/Header.vue";
     transform: translate(-50%, -50%);
 }
 
-.content-item {
+.home-content-item {
     color: var(--text-color-white);
     text-align: center;
     margin: 15px 0px;
 }
 
-.content-item:first-child {
+.home-content-item:first-child {
     border-radius: 20px;
     background: #161618;
     display: inline-flex;
@@ -354,23 +354,23 @@ import Header from "@/shared/components/Header.vue";
     align-items: center;
     gap: 12px;
 }
-.content-item:nth-child(2) {
+.home-content-item:nth-child(2) {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 60px;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
 }
-.content-item:nth-child(2) span {
+.home-content-item:nth-child(2) span {
     background: var(--background-color-gradient);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
-.content-item:nth-child(3) {
+.home-content-item:nth-child(3) {
     width: 600px;
 }
-.content-item:nth-child(4) a {
+.home-content-item:nth-child(4) a {
     display: inline-flex;
     padding: 10px 30px;
     justify-content: center;
@@ -383,18 +383,18 @@ import Header from "@/shared/components/Header.vue";
     font-weight: 500;
 }
 
-.content-item:nth-child(4) a:nth-child(2):hover {
+.home-content-item:nth-child(4) a:nth-child(2):hover {
     background-color: #eee;
 }
 
-.content-item:nth-child(4) a:first-child {
+.home-content-item:nth-child(4) a:first-child {
     background: linear-gradient(97deg, #5813c1 -5.8%, #c45037 99.69%);
     color: var(--text-color);
     background-size: 200% 200%;
     background-position: 0% 50%;
     transition: background-position 0.3s ease-in;
 }
-.content-item:nth-child(4) a:first-child:hover {
+.home-content-item:nth-child(4) a:first-child:hover {
     background-position: 50% 100%;
 }
 
@@ -404,7 +404,7 @@ import Header from "@/shared/components/Header.vue";
     justify-content: space-around;
 }
 
-.content-item:nth-child(4) {
+.home-content-item:nth-child(4) {
     width: 100vw;
     padding: 0px 20px;
 }
@@ -648,10 +648,10 @@ import Header from "@/shared/components/Header.vue";
 }
 
 @media screen and (max-width: 600px) {
-    .content-item:nth-child(2) {
+    .home-content-item:nth-child(2) {
         font-size: 30px;
     }
-    .content-item:nth-child(3) {
+    .home-content-item:nth-child(3) {
         width: 400px;
     }
     .category-item {

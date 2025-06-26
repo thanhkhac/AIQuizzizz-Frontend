@@ -187,5 +187,26 @@
                 "upcoming": "Upcoming"
             }
         }
+    },
+    "question_sets_index": {
+        "title": "Library",
+        "sub_title": "Create, manage and analyze your quizzes",
+        "visibility": {
+            "public": "Public",
+            "private": "Private",
+            "inClass": "In Class"
+        },
+        "credit": {
+            "all": "All",
+            "createdByMe": "Created by me",
+            "sharedWithMe": "Shared with me"
+        },
+        "sections": {
+            "quiz": {
+                "title": "Quizzes",
+                "sub_title": "Browse and access all you quizzes"
+            }
+        },
+        "empty_description": "We couldn't find any results with your keywords."
     }
 }

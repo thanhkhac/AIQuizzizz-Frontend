@@ -1,8 +1,27 @@
-<script setup>
+<script setup lang="ts">
 import {ref, onBeforeMount} from "vue";
-import {useAuthStore} from "/src/stores/AuthStore.ts";
+import {useAuthStore} from "@/stores/AuthStore";
 import {Modal} from "ant-design-vue";
 import {useI18n} from "vue-i18n";
+
+interface type_user {
+    id: string;
+    email: string;
+    gender: boolean;
+    image: string;
+    fullName: string;
+    dob: string;
+}
+
+const user = ref<type_user>({
+    id: "",
+    email: "",
+    gender: true,
+    image: "",
+    fullName: "",
+    dob: "",
+});
+
 const {t} = useI18n();
 
 const {activeItem} = defineProps(["activeItem"]);
@@ -14,7 +33,6 @@ const toggleSidebar = () => {
 };
 
 const authStore = useAuthStore();
-const user = ref({});
 
 onBeforeMount(async () => {
     user.value = await authStore.getUserInfo();
@@ -44,7 +62,7 @@ const onSignOut = () => {
         </button>
         <div class="sidebar-wrapper">
             <ul class="sidebar-list">
-                <li :class="['sidebar-listItem active', {active: activeItem === 'dashboard'}]">
+                <li :class="['sidebar-listItem', {active: activeItem === 'dashboard'}]">
                     <RouterLink :to="{name: 'User_Dashboard'}">
                         <i class="bx bxs-dashboard"></i>
                         <span class="sidebar-listItemText">
@@ -52,8 +70,8 @@ const onSignOut = () => {
                         </span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', {active: activeItem === 'appointment'}]">
-                    <RouterLink :to="{}">
+                <li :class="['sidebar-listItem', {active: activeItem === 'library'}]">
+                    <RouterLink :to="{name: 'User_Library'}">
                         <i class="bx bx-book-open"></i>
                         <span class="sidebar-listItemText">
                             {{ $t("sidebar.navigators.quiz") }}
@@ -156,13 +174,13 @@ const onSignOut = () => {
     border: none;
     right: -20px;
     top: 40%;
-    background-color: var(--main-sub-color);
+    background-color: var(--main-color);
     color: #fff;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 1px 1px 10px var(--main-sub-color);
+    box-shadow: 1px 1px 10px var(--main-color);
     z-index: 1;
 }
 
@@ -184,7 +202,7 @@ const onSignOut = () => {
 }
 
 .sidebar-listItem.active {
-    background-color: var(--main-sub-color);
+    background-color: var(--main-color);
     color: var(--text-color-white) !important;
 }
 
@@ -214,7 +232,7 @@ const onSignOut = () => {
 }
 
 .sidebar-listItem:hover {
-    background-color: var(--main-sub-color);
+    background-color: var(--main-color);
 }
 
 .sidebar-listItem:hover i,
@@ -254,7 +272,7 @@ const onSignOut = () => {
     min-height: 60px;
     border-radius: 50%;
     margin-right: 15px;
-    border: 1px solid var(--main-sub-color);
+    border: 1px solid var(--main-color);
     padding: 2px;
 }
 
@@ -306,6 +324,6 @@ const onSignOut = () => {
 }
 
 .sign-out-btn:hover {
-    background-color: var(--main-sub-color);
+    background-color: var(--main-color);
 }
 </style>

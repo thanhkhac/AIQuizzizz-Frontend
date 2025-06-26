@@ -1,0 +1,454 @@
+<script setup>
+import {onMounted, ref, computed, watch} from "vue";
+import {useI18n} from "vue-i18n";
+import {DownOutlined} from "@ant-design/icons-vue";
+
+const {t} = useI18n();
+
+const emit = defineEmits(["updateSidebar"]);
+
+const getPercentageComplete = (total, completed) => {
+    return Math.floor((completed / total) * 100);
+};
+
+const getTagColor = (visibility) => {
+    return t("question_sets_index.visibility.public") === visibility ? "#22C55E" : "#C52225";
+};
+
+const getTag = (visibility) => {
+    return t("question_sets_index.visibility.public") === visibility
+        ? t("question_sets_index.visibility.public")
+        : t("question_sets_index.visibility.private");
+};
+
+const searchValue = ref("");
+
+const onSearch = () => {
+    quiz_data.value = quiz_data_raw.value.filter((quiz) =>
+        quiz.title.toLowerCase().includes(searchValue.value.toLowerCase()),
+    );
+};
+
+const quiz_data = ref([]);
+
+const quiz_data_raw = ref([
+    {
+        title: "Introduction to Biology",
+        numberOfQuestions: 56,
+        compeletedQuestion: 24,
+        createdBy: "me",
+        visibility: "Private",
+    },
+    {
+        title: "Fundamental programming",
+        numberOfQuestions: 76,
+        compeletedQuestion: 0,
+        createdBy: "qwerty",
+        visibility: "Public",
+    },
+    {
+        title: "World History Basics",
+        numberOfQuestions: 40,
+        compeletedQuestion: 15,
+        createdBy: "historyFan99",
+        visibility: "Public",
+    },
+    {
+        title: "Advanced Mathematics",
+        numberOfQuestions: 100,
+        compeletedQuestion: 88,
+        createdBy: "mathMaster",
+        visibility: "Private",
+    },
+    {
+        title: "Chemistry 101",
+        numberOfQuestions: 50,
+        compeletedQuestion: 25,
+        createdBy: "me",
+        visibility: "Private",
+    },
+    {
+        title: "English Grammar Essentials",
+        numberOfQuestions: 30,
+        compeletedQuestion: 10,
+        createdBy: "teacherJane",
+        visibility: "Public",
+    },
+    {
+        title: "Introduction to Psychology",
+        numberOfQuestions: 60,
+        compeletedQuestion: 0,
+        createdBy: "qwerty",
+        visibility: "Private",
+    },
+]);
+
+const optionKeys = ["all", "createdByMe", "sharedWithMe"];
+
+const quiz_credit_options = computed(() =>
+    optionKeys.map((key) => ({
+        label: t(`question_sets_index.credit.${key}`),
+        value: key,
+    })),
+);
+
+const selected_credit_option = ref(quiz_credit_options.value[0]);
+
+onMounted(() => {
+    const sidebarActiveItem = "library";
+    emit("updateSidebar", sidebarActiveItem);
+    quiz_data.value = quiz_data_raw.value;
+});
+</script>
+<template>
+    <div class="page-container">
+        <div class="title-container">
+            <a-row class="w-100">
+                <a-col class="main-title" :span="20">
+                    <span>{{ $t("question_sets_index.title") }}</span> <br />
+                    <span>
+                        {{ $t("question_sets_index.sub_title") }}
+                    </span>
+                </a-col>
+            </a-row>
+        </div>
+        <div class="content">
+            <div class="content-item">
+                <div class="content-item-title">
+                    <div>
+                        <span>{{ $t("question_sets_index.sections.quiz.title") }}</span>
+                        <span>{{ $t("question_sets_index.sections.quiz.sub_title") }}</span>
+                    </div>
+
+                    <button class="content-item-button">
+                        {{ $t("dashboards.buttons.createNewQuiz") }}
+                        <i class="bx bx-plus"></i>
+                    </button>
+                </div>
+                <div class="content-item-search">
+                    <a-select
+                        ref="select"
+                        v-model:value="selected_credit_option"
+                        style="width: 150px"
+                        @focus="focus"
+                        @change="handleChange"
+                    >
+                        <a-select-option
+                            v-for="option in quiz_credit_options"
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </a-select-option>
+                    </a-select>
+                    <div class="search-input">
+                        <i class="bx bx-search"></i>
+                        <input
+                            v-model="searchValue"
+                            placeholder="Search sets ..."
+                            style="width: 200px"
+                            @input="onSearch"
+                        />
+                    </div>
+                </div>
+                <div v-if="quiz_data.length > 0" class="quiz-item-container">
+                    <div class="quiz-item" v-for="quiz in quiz_data">
+                        <i class="bx bx-book-open quiz-item-icon"></i>
+                        <div>
+                            <div class="quiz-item-title">
+                                {{ quiz.title }}
+                            </div>
+                            <div class="quiz-item-info">
+                                <div>
+                                    <i class="bx bx-message-square-edit bx-rotate-270"></i>
+                                    {{ quiz.numberOfQuestions }}
+                                    {{ $t("dashboards.list_items.quiz.questions") }}
+                                </div>
+                                <div class="quiz-item-progress">
+                                    <a-progress
+                                        stroke-color="#7C3AED"
+                                        status="active"
+                                        :percent="
+                                            getPercentageComplete(
+                                                quiz.numberOfQuestions,
+                                                quiz.compeletedQuestion,
+                                            )
+                                        "
+                                    />
+                                </div>
+                            </div>
+                            <div class="quiz-item-credit">
+                                <a-tag :color="getTagColor(quiz.visibility)">
+                                    {{ getTag(quiz.visibility) }}
+                                </a-tag>
+                                <span>| Created by {{ quiz.createdBy }}</span>
+                            </div>
+                        </div>
+                        <div class="quiz-item-actions">
+                            <a-dropdown :trigger="['click']">
+                                <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
+                                <template #overlay>
+                                    <a-menu class="drop-down-container">
+                                        <a-menu-item key="0">
+                                            <i class="bx bx-info-circle"></i> Detail
+                                        </a-menu-item>
+                                        <a-menu-item key="1">
+                                            <i class="bx bx-edit"></i> Edit
+                                        </a-menu-item>
+                                        <a-menu-item key="2">
+                                            <i class="bx bx-copy"></i> Dublicate
+                                        </a-menu-item>
+                                        <a-menu-divider style="background-color: #ddd" />
+                                        <a-menu-item key="3">
+                                            <span class="d-flex align-items-center">
+                                                <i class="bx bx-trash-alt"></i>
+                                                Delete
+                                            </span>
+                                        </a-menu-item>
+                                    </a-menu>
+                                </template>
+                            </a-dropdown>
+                        </div>
+                    </div>
+                </div>
+                <a-empty v-else>
+                    <template #description>
+                        <span>{{ $t("question_sets_index.empty_description") }}</span>
+                    </template>
+                </a-empty>
+            </div>
+        </div>
+    </div>
+</template>
+<style scoped>
+.content-item {
+    width: 100%;
+    overflow-y: hidden;
+}
+
+.content-item-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--main-color);
+    border: none;
+    border-radius: 5px;
+    padding: 8px 10px;
+    font-size: 16px;
+    color: var(--text-color-white);
+    transition: all 0.2s ease-in-out;
+    margin-right: 20px;
+}
+.content-item-button:hover {
+    background-color: var(--main-color);
+}
+
+.content-item-button i {
+    font-size: 24px;
+    margin-left: 10px;
+    transform: translateY(1px);
+}
+
+.quiz-container {
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    color: var(--text-color-white);
+}
+
+.quiz-item {
+    background-color: #19191b;
+    margin: 10px 0px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    width: calc(100% - 50px);
+    cursor: pointer;
+}
+
+.quiz-item:hover {
+    border: 1px solid var(--main-color);
+}
+
+.quiz-item i {
+    font-size: 18px;
+}
+
+.quiz-item-icon {
+    display: flex;
+    width: 35px;
+    height: 35px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    aspect-ratio: 1/1;
+    font-size: 16px;
+    border-radius: 50%;
+    background: #221a32;
+    color: #7c3aed;
+    margin-right: 12px;
+}
+
+.quiz-item-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.quiz-item-info {
+    font-size: 14px;
+    color: var(--text-color--sub-white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 3px 0px;
+}
+.quiz-item-info i {
+    font-size: 14px;
+}
+
+.quiz-item-progress {
+    font-size: 12px;
+    margin-bottom: 0 !important;
+    min-width: 250px;
+    margin-left: 10px;
+}
+.quiz-item-credit {
+    color: #ccc;
+    font-size: 12px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+}
+
+.quiz-item-actions {
+    flex: 1;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+.quiz-item-actions button {
+    background-color: var(--main-color);
+}
+
+.quiz-item-actions button:hover {
+    background-color: var(--main-color);
+}
+
+::v-deep(.ant-progress) {
+    margin: 0 !important;
+}
+
+::v-deep(.ant-progress-text) {
+    color: var(--text-color-white) !important;
+}
+::v-deep(.ant-progress-inner) {
+    background-color: #27272a;
+}
+::v-deep(.ant-tag) {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+.ant-dropdown-link {
+    padding: 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.drop-down-container {
+    background: #101010 !important;
+    border: 1px solid var(--main-color);
+}
+
+::v-deep(.ant-dropdown-menu-item) {
+    color: #fff !important;
+    font-weight: 400 !important;
+}
+
+::v-deep(.ant-dropdown-menu-item):last-child {
+    color: red !important;
+}
+
+::v-deep(.ant-dropdown-menu-item) i {
+    margin-right: 5px;
+}
+
+::v-deep(.ant-dropdown-menu-item):hover {
+    background-color: var(--main-color) !important;
+    color: var(--text-color-white) !important;
+}
+
+::v-deep(.ant-dropdown-menu-item):last-child:hover {
+    color: red !important;
+    background-color: #2a1215 !important;
+}
+
+.content-item-search {
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    margin-right: 50px;
+}
+
+.search-input {
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    border: 1px solid #27272a;
+    background-color: #18181a;
+    overflow: hidden;
+    width: 300px;
+}
+
+.search-input input {
+    flex: 1;
+    padding: 5px 10px;
+    border: none;
+    background-color: #18181a;
+    color: #fff;
+}
+
+.search-input input:focus {
+    outline: none;
+}
+
+.search-input i {
+    color: #757575;
+    margin: 0px 5px;
+}
+
+::v-deep(.ant-select) {
+    margin-right: 10px !important;
+}
+
+::v-deep(.ant-select-dropdown) {
+    background-color: red !important;
+}
+
+::v-deep(.ant-select-selector) {
+    height: 35px !important;
+    background-color: #18181a !important;
+    border: 1px solid #27272a !important;
+    color: #757575 !important;
+}
+
+::v-deep(.ant-select-arrow) {
+    color: #757575 !important;
+}
+
+::v-deep(.ant-select-selection-item) {
+    color: #757575 !important;
+}
+
+::v-deep(.ant-select-item-option) {
+    color: #ccc !important;
+}
+
+::v-deep(.ant-select-item-option-selected),
+::v-deep(.ant-select-item-option-active) {
+    background-color: red !important;
+    color: #fff !important;
+}
+</style>

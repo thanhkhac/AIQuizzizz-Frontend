@@ -2,36 +2,90 @@
 body {
     overflow-x: hidden;
 }
-/* #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+/* ========================================UserLayout-Children======================================== */
+
+.page-container {
+    width: calc(100% - 30px);
+    margin-left: 30px;
+    overflow-x: hidden;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
+.content {
     display: flex;
-    place-items: center;
-  }
+    flex-direction: column;
+    justify-content: center;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-} */
+.content-item {
+    width: calc(100% - 60px);
+    margin: 8px;
+    padding: 10px;
+    background-color: #151518;
+    border: 1px solid #27272a;
+    color: var(--text-color-white);
+    border-radius: 8px;
+    overflow-y: hidden;
+}
+
+.title-container {
+    width: 100%;
+    color: var(--text-color-white);
+    line-height: normal;
+    font-style: normal;
+    letter-spacing: -0.293px;
+    margin: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.main-title span:nth-child(1) {
+    font-size: 24px;
+    font-weight: 600;
+}
+.main-title span:nth-child(3) {
+    color: #a1a1aa;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.content-item-title {
+    width: 100%;
+    color: var(--text-color-white);
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    display: flex;
+    justify-content: space-between;
+}
+.content-item-title div {
+    display: flex;
+    flex-direction: column;
+}
+
+.content-item-title span:nth-child(2) {
+    color: #a1a1aa;
+    font-size: 16px;
+    font-weight: 400;
+}
+.content-item-title a {
+    font-size: 14px;
+    color: var(--text-color-white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.content-item-title i {
+    font-size: 28px;
+    transition: all 0.2s ease-in-out;
+    transform: translateY(1px);
+}
+
+.content-item-title a:hover i {
+    /* 1px for that Y above */
+    transform: translate(5px, 1px);
+}
+
+/* ========================================UserLayout-Children======================================== */
