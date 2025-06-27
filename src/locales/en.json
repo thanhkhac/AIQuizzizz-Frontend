@@ -199,7 +199,8 @@
         "credit": {
             "all": "All",
             "createdByMe": "Created by me",
-            "sharedWithMe": "Shared with me"
+            "sharedWithMe": "Shared with me",
+            "createdBy": "Create by {user}"
         },
         "sections": {
             "quiz": {
@@ -207,6 +208,17 @@
                 "sub_title": "Browse and access all you quizzes"
             }
         },
-        "empty_description": "We couldn't find any results with your keywords."
+        "empty_description": "We couldn't find any results with your keywords.",
+        "search_placeholder": "Search sets ...",
+        "buttons": {
+            "detail": "Detail",
+            "edit": "Edit",
+            "dublicate": "Dublicate",
+            "delete": "Delete"
+        },
+        "navigators": {
+            "quiz": "Quizzes",
+            "test": "Tests"
+        }
     }
 }

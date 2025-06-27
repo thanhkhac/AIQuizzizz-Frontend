@@ -21,14 +21,6 @@ const getTag = (visibility) => {
         : t("question_sets_index.visibility.private");
 };
 
-const searchValue = ref("");
-
-const onSearch = () => {
-    quiz_data.value = quiz_data_raw.value.filter((quiz) =>
-        quiz.title.toLowerCase().includes(searchValue.value.toLowerCase()),
-    );
-};
-
 const quiz_data = ref([]);
 
 const quiz_data_raw = ref([
@@ -92,7 +84,27 @@ const quiz_credit_options = computed(() =>
     })),
 );
 
+const searchValue = ref("");
 const selected_credit_option = ref(quiz_credit_options.value[0]);
+
+const onFilter = () => {
+    const filtered_data = quiz_data_raw.value.filter((quiz) => {
+        const matchesSearch = quiz.title.toLowerCase().includes(searchValue.value.toLowerCase());
+
+        if (!matchesSearch) return false;
+
+        switch (selected_credit_option.value) {
+            case "createdByMe":
+                return quiz.createdBy === "me";
+            case "sharedWithMe":
+                return quiz.createdBy !== "me";
+            default:
+                return true;
+        }
+    });
+
+    quiz_data.value = filtered_data;
+};
 
 onMounted(() => {
     const sidebarActiveItem = "library";
@@ -125,13 +137,21 @@ onMounted(() => {
                         <i class="bx bx-plus"></i>
                     </button>
                 </div>
-                <div class="content-item-search">
+                <div class="content-item-functions">
+                    <div class="content-item-navigators">
+                        <div class="navigator-container">
+                            <RouterLink class="navigator-item active" :t="{name: ''}">
+                                {{ $t("question_sets_index.navigators.quiz") }}
+                            </RouterLink>
+                            <RouterLink class="navigator-item" :t="{name: ''}">
+                                {{ $t("question_sets_index.navigators.test") }}
+                            </RouterLink>
+                        </div>
+                    </div>
                     <a-select
-                        ref="select"
                         v-model:value="selected_credit_option"
-                        style="width: 150px"
-                        @focus="focus"
-                        @change="handleChange"
+                        style="width: 200px"
+                        @change="onFilter"
                     >
                         <a-select-option
                             v-for="option in quiz_credit_options"
@@ -144,9 +164,9 @@ onMounted(() => {
                         <i class="bx bx-search"></i>
                         <input
                             v-model="searchValue"
-                            placeholder="Search sets ..."
+                            :placeholder="t('question_sets_index.search_placeholder')"
                             style="width: 200px"
-                            @input="onSearch"
+                            @input="onFilter"
                         />
                     </div>
                 </div>
@@ -180,7 +200,14 @@ onMounted(() => {
                                 <a-tag :color="getTagColor(quiz.visibility)">
                                     {{ getTag(quiz.visibility) }}
                                 </a-tag>
-                                <span>| Created by {{ quiz.createdBy }}</span>
+                                <span>
+                                    |
+                                    {{
+                                        $t("question_sets_index.credit.createdBy", {
+                                            user: quiz.createdBy,
+                                        })
+                                    }}
+                                </span>
                             </div>
                         </div>
                         <div class="quiz-item-actions">
@@ -189,19 +216,22 @@ onMounted(() => {
                                 <template #overlay>
                                     <a-menu class="drop-down-container">
                                         <a-menu-item key="0">
-                                            <i class="bx bx-info-circle"></i> Detail
+                                            <i class="bx bx-info-circle"></i>
+                                            {{ $t("question_sets_index.buttons.detail") }}
                                         </a-menu-item>
                                         <a-menu-item key="1">
-                                            <i class="bx bx-edit"></i> Edit
+                                            <i class="bx bx-edit"></i>
+                                            {{ $t("question_sets_index.buttons.edit") }}
                                         </a-menu-item>
                                         <a-menu-item key="2">
-                                            <i class="bx bx-copy"></i> Dublicate
+                                            <i class="bx bx-copy"></i>
+                                            {{ $t("question_sets_index.buttons.dublicate") }}
                                         </a-menu-item>
                                         <a-menu-divider style="background-color: #ddd" />
                                         <a-menu-item key="3">
                                             <span class="d-flex align-items-center">
                                                 <i class="bx bx-trash-alt"></i>
-                                                Delete
+                                                {{ $t("question_sets_index.buttons.delete") }}
                                             </span>
                                         </a-menu-item>
                                     </a-menu>
@@ -384,8 +414,8 @@ onMounted(() => {
     background-color: #2a1215 !important;
 }
 
-.content-item-search {
-    margin: 10px;
+.content-item-functions {
+    margin: 10px 0px;
     display: flex;
     align-items: center;
     justify-content: end;
@@ -450,5 +480,45 @@ onMounted(() => {
 ::v-deep(.ant-select-item-option-active) {
     background-color: red !important;
     color: #fff !important;
+}
+
+.content-item-navigators {
+    flex: 1;
+    justify-content: start;
+    display: flex;
+}
+.navigator-container {
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #27272a;
+    display: flex;
+    background-color: #19191b;
+}
+.navigator-item {
+    color: var(--text-color-white);
+    text-decoration: none;
+    height: 100%;
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.navigator-item:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    margin-right: 2px;
+}
+
+.navigator-item:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.navigator-item:hover {
+    background-color: var(--main-color);
+}
+
+.active {
+    background-color: var(--main-color);
 }
 </style>

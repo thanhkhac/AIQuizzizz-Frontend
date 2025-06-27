@@ -199,7 +199,8 @@
         "credit": {
             "all": "Tất cả",
             "createdByMe": "Tạo bởi tôi",
-            "sharedWithMe": "Được chia sẻ với tôi"
+            "sharedWithMe": "Được chia sẻ với tôi",
+            "createdBy": "Tạo bởi {user}"
         },
         "sections": {
             "quiz": {
@@ -207,6 +208,17 @@
                 "sub_title": "Truy cập và phân tích"
             }
         },
-        "empty_description": "Không tìm thấy kết quả nào khớp với từ khóa của bạn."
+        "empty_description": "Không tìm thấy kết quả nào khớp với từ khóa của bạn.",
+        "search_placeholder": "Tìm kiếm ...",
+        "buttons": {
+            "detail": "Chi tiết",
+            "edit": "Sửa",
+            "dublicate": "Tạo bản sao",
+            "delete": "Xóa"
+        },
+        "navigators": {
+            "quiz": "Bộ câu hỏi",
+            "test": "Bài kiểm tra"
+        }
     }
 }
