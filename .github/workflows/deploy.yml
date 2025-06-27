@@ -12,6 +12,7 @@ permissions:
 env: 
   VITE_API_URL_PRODUCT: ${{ secrets.VITE_API_URL_PRODUCT }}
   NODE_ENV: ${{ secrets.NODE_ENV }}
+  VITE_API_URL_LOCAL: ${{ secrets.VITE_API_URL_LOCAL }}
   
 
 jobs:
@@ -30,7 +31,7 @@ jobs:
         run: npm install
 
       - name: Build project
-        run: npm run build
+        run: npm run build -- {@}
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
