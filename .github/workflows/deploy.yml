@@ -8,6 +8,12 @@ on:
 permissions:
   contents: write
 
+
+env: 
+  VITE_API_URL_PRODUCT: ${{ secrets.VITE_API_URL_PRODUCT }}
+  NODE_ENV: ${{ secrets.NODE_ENV }}
+  
+
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
