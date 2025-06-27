@@ -7,6 +7,7 @@ const baseURL = import.meta.env.VITE_API_URL_LOCAL;
 // const authStore = useAuthStore();
 const router = useRouter();
 
+
 const instance = axios.create({
     baseURL,
     timeout: 300000,
@@ -39,7 +40,7 @@ instance.interceptors.response.use(
                     if (!renew_token_result.data.isSucceeded) {
                         useAuthStore().logOut();
                     }
-                    
+
                     return instance(originalConfig); //axios execute original request
                 } catch (_error) {
                     return Promise.reject(_error);
