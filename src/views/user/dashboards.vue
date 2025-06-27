@@ -9,7 +9,7 @@ const {t} = useI18n();
 onMounted(() => {
     const sidebarActiveItem = "dashboard";
     emit("updateSidebar", sidebarActiveItem);
-});
+}); 
 
 const quiz_data = ref([
     {

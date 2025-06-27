@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import {computed, onMounted, reactive, ref} from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
 import {message} from "ant-design-vue";
@@ -73,7 +73,7 @@ const onFinish = async () => {
         <div class="authentication-item-navigator">
             {{ $t("auth.navigators.forgot_signIn_ins") }}
             <RouterLink :to="{name: 'login'}">
-               {{ $t("auth.navigators.back_signIn_link") }}
+                {{ $t("auth.navigators.back_signIn_link") }}
             </RouterLink>
         </div>
     </div>

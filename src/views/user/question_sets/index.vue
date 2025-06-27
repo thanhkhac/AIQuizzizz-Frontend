@@ -1,9 +1,9 @@
 <script setup>
-import {onMounted, ref, computed, watch} from "vue";
-import {useI18n} from "vue-i18n";
-import {DownOutlined} from "@ant-design/icons-vue";
+import { onMounted, ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { DownOutlined } from "@ant-design/icons-vue";
 
-const {t} = useI18n();
+const { t } = useI18n();
 
 const emit = defineEmits(["updateSidebar"]);
 
@@ -140,10 +140,10 @@ onMounted(() => {
                 <div class="content-item-functions">
                     <div class="content-item-navigators">
                         <div class="navigator-container">
-                            <RouterLink class="navigator-item active" :t="{name: ''}">
+                            <RouterLink class="navigator-item active" :t="{ name: '' }">
                                 {{ $t("question_sets_index.navigators.quiz") }}
                             </RouterLink>
-                            <RouterLink class="navigator-item" :t="{name: ''}">
+                            <RouterLink class="navigator-item" :t="{ name: '' }">
                                 {{ $t("question_sets_index.navigators.test") }}
                             </RouterLink>
                         </div>

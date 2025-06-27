@@ -5,9 +5,11 @@ body {
 /* ========================================UserLayout-Children======================================== */
 
 .page-container {
+    height: 100vh;
     width: calc(100% - 30px);
     margin-left: 30px;
     overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 .content {
