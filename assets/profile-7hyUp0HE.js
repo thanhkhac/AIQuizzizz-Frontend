@@ -1,0 +1,1 @@
+import{_ as e,a as r,o as n}from"./index-9sDnZNiX.js";const o={};function s(t,c){return n(),r("h1",null,"User profile")}const _=e(o,[["render",s],["__file","/home/runner/work/AIQuizzizz-Frontend/AIQuizzizz-Frontend/src/views/user/settings/profile.vue"]]);export{_ as default};
