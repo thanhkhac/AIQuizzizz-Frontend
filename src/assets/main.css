@@ -9,7 +9,6 @@ body {
     width: calc(100% - 30px);
     margin-left: 30px;
     overflow-x: hidden;
-    overflow-y: hidden;
 }
 
 .content {
@@ -71,23 +70,46 @@ body {
     font-size: 16px;
     font-weight: 400;
 }
-.content-item-title a {
-    font-size: 14px;
-    color: var(--text-color-white);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.content-item-title i {
-    font-size: 28px;
-    transition: all 0.2s ease-in-out;
-    transform: translateY(1px);
+
+/**
+Custome a-select
+**/
+
+.ant-select-selector {
+    background-color: var(--input-item-background-color) !important;
+    border: 1px solid var(--input-item-border-color) !important;
 }
 
-.content-item-title a:hover i {
-    /* 1px for that Y above */
-    transform: translate(5px, 1px);
+.ant-select-selector:focus-within {
+    box-shadow: none !important;
+}
+
+.ant-select-dropdown {
+    background-color: var(--input-item-background-color);
+    border: 1px solid var(--input-item-border-color);
+}
+
+.ant-select-item-option {
+    background-color: var(--input-item-background-color);
+    color: var(--text-color-white) !important;
+}
+
+.ant-select-item-option-active {
+    background-color: #313131 !important;
+}
+
+.ant-select-item-option-selected {
+    background-color: #2a2a2e !important;
+    font-weight: 500;
+    color: var(--text-color-white) !important;
+}
+
+/* select area when dropdown */
+.ant-select-selection-item {
+    color: var(--text-color-white) !important;
+}
+.ant-select-arrow {
+    color: var(--text-color-grey) !important;
 }
 
 /* ========================================UserLayout-Children======================================== */

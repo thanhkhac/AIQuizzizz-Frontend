@@ -2,6 +2,7 @@
 import { onMounted, ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { DownOutlined } from "@ant-design/icons-vue";
+import Input from "@/shared/components/Common/Input.vue";
 
 const { t } = useI18n();
 
@@ -160,14 +161,16 @@ onMounted(() => {
                             {{ option.label }}
                         </a-select-option>
                     </a-select>
-                    <div class="search-input">
-                        <i class="bx bx-search"></i>
-                        <input
+                    <div style="width: 300px; padding: 0px">
+                        <Input
+                            @input="onFilter"
                             v-model="searchValue"
                             :placeholder="t('question_sets_index.search_placeholder')"
-                            style="width: 200px"
-                            @input="onFilter"
-                        />
+                        >
+                            <template #icon>
+                                <i class="bx bx-search"></i>
+                            </template>
+                        </Input>
                     </div>
                 </div>
                 <div v-if="quiz_data.length > 0" class="quiz-item-container">
@@ -417,69 +420,17 @@ onMounted(() => {
 .content-item-functions {
     margin: 10px 0px;
     display: flex;
-    align-items: center;
+    align-items: end;
     justify-content: end;
     margin-right: 50px;
-}
-
-.search-input {
-    display: flex;
-    align-items: center;
-    border-radius: 5px;
-    border: 1px solid #27272a;
-    background-color: #18181a;
-    overflow: hidden;
-    width: 300px;
-}
-
-.search-input input {
-    flex: 1;
-    padding: 5px 10px;
-    border: none;
-    background-color: #18181a;
-    color: #fff;
-}
-
-.search-input input:focus {
-    outline: none;
-}
-
-.search-input i {
-    color: #757575;
-    margin: 0px 5px;
 }
 
 ::v-deep(.ant-select) {
     margin-right: 10px !important;
 }
 
-::v-deep(.ant-select-dropdown) {
-    background-color: red !important;
-}
-
 ::v-deep(.ant-select-selector) {
     height: 35px !important;
-    background-color: #18181a !important;
-    border: 1px solid #27272a !important;
-    color: #757575 !important;
-}
-
-::v-deep(.ant-select-arrow) {
-    color: #757575 !important;
-}
-
-::v-deep(.ant-select-selection-item) {
-    color: #757575 !important;
-}
-
-::v-deep(.ant-select-item-option) {
-    color: #ccc !important;
-}
-
-::v-deep(.ant-select-item-option-selected),
-::v-deep(.ant-select-item-option-active) {
-    background-color: red !important;
-    color: #fff !important;
 }
 
 .content-item-navigators {
