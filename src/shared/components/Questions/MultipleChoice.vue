@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from "vue";
+import { computed } from "vue";
 import { Form } from "ant-design-vue";
 
 import type { Question } from "@/models/question";
@@ -8,9 +8,7 @@ import { useI18n } from "vue-i18n";
 import { QuestionCircleOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 
-import Input from "../Common/Input.vue";
 import TextArea from "../Common/TextArea.vue";
-import Select from "../Common/Select.vue";
 
 //@ts-ignore
 import InputEditor from "../Common/InputEditor.vue";
@@ -24,7 +22,13 @@ const { t } = useI18n();
 
 const props = defineProps<Props>();
 
-const optionKeys = ["multipleChoice", "matching", "ordering", "shortTexts"];
+const optionKeys = ["MultipleChoice", "Matching", "Ordering", "ShortText"];
+const options = computed(() =>
+    optionKeys.map((key) => ({
+        label: key,
+        value: key,
+    })),
+);
 
 const addOption = () => {
     if (props.question.multipleChoices.length >= 10) {
@@ -99,7 +103,11 @@ const onCheckHaveAnswer = () => {
                 <div class="question-info">Question {{ index }}</div>
                 <div class="question-functions">
                     <div class="question-function-select">
-                        <Select :options="optionKeys" />
+                        <a-select v-model:value="props.question.type" style="width: 200px">
+                            <a-select-option v-for="option in options" :value="option.value">
+                                {{ option.label }}
+                            </a-select-option>
+                        </a-select>
                     </div>
                     <a-popconfirm
                         class="pop-confirm-delete"
@@ -173,118 +181,10 @@ const onCheckHaveAnswer = () => {
         </div>
     </a-form>
 </template>
-<style>
-.ant-form {
-    position: relative !important;
-}
-
-.ant-popover-arrow::before {
-    background: var(--input-item-background-color) !important;
-}
-
-.ant-popover-inner {
-    background: var(--input-item-background-color) !important;
-    border: 1px solid var(--input-item-border-color);
-    border-bottom: none;
-}
-
-.ant-popconfirm-message-title {
-    color: var(--text-color-white) !important;
-}
-</style>
-
 <style scoped>
-.question-container {
-    border: 1px solid var(--main-color);
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 20px;
-}
-
-.question-header {
-    margin: 20px 0px;
-    color: var(--text-color-white);
-    display: flex;
-    justify-content: end;
-}
-.question-info {
-    margin-left: 10px;
-    font-size: 16px;
-    font-weight: 500;
-    padding: 5px 10px;
-    background-color: var(--main-color);
-    border: 1px solid var(--main-color);
-    border-radius: 5px;
-}
-
-.question-functions {
-    flex: 1;
-    display: flex;
-    justify-content: end;
-    align-items: center;
-}
-.question-function-select {
-    width: 200px;
-}
-.question-function-delete {
-    font-size: 24px;
-    margin: 0px 10px 0px 20px;
-    cursor: pointer;
-}
-
-.question-body {
-    padding: 0px 10px;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-}
-
-.question-description {
-    flex: 0.5;
-}
-.question-description-item {
-    margin-bottom: 25px;
-}
-
 .option-section {
     flex: 1;
     margin-left: 20px;
-}
-
-.question-body-answer {
-    flex: 1;
-    display: flex;
-}
-
-.option-title {
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: var(--text-color-white);
-}
-
-.option-list-container {
-    padding: 10px;
-    height: auto;
-    max-height: 300px;
-    border-radius: 5px;
-    border: 1px solid #878787;
-    background: #151518;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-    overflow-y: scroll;
-}
-
-.option-list-container-error {
-    border-color: #f44336;
-}
-
-.option-list-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.option-list-container::-webkit-scrollbar-thumb {
-    width: 8px;
-    background-color: var(--input-item-border-color);
-    border-radius: 10px;
 }
 
 .option-item {
@@ -314,26 +214,5 @@ const onCheckHaveAnswer = () => {
     margin-left: 10px;
     cursor: pointer;
     color: #f44336;
-}
-.add-option {
-    border-radius: 8px;
-    padding: 5px 10px;
-    max-width: 200px !important;
-    margin: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 500;
-    font-size: 14px;
-    cursor: pointer;
-    color: var(--text-color-white);
-    border: 1px dashed var(--text-color-grey);
-}
-.add-option i {
-    font-size: 24px;
-}
-
-.add-option:hover {
-    border: 1px dashed #aaa;
 }
 </style>

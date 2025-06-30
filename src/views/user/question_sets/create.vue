@@ -7,7 +7,11 @@ import type { Question } from "@/models/question";
 
 import Input from "@/shared/components/Common/Input.vue";
 import TextArea from "@/shared/components/Common/TextArea.vue";
+
 import MultipleChoice from "@/shared/components/Questions/MultipleChoice.vue";
+import Matching from "@/shared/components/Questions/Matching.vue";
+import Ordering from "@/shared/components/Questions/Ordering.vue";
+import ShortText from "@/shared/components/Questions/ShortText.vue";
 
 interface FormState {
     title: string;
@@ -143,7 +147,7 @@ const removeTag = (index: number) => {
     formState.tags.splice(index, 1);
 };
 
-const createQuestionTemplate = (): Question => ({
+const createMultipleChoiceQuestionTemplate = (): Question => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
@@ -160,8 +164,24 @@ const createQuestionTemplate = (): Question => ({
     shortAnswer: "",
 });
 
+const createMatchingQuestionTemplate = (): Question => ({
+    id: Date.now().toString(),
+    type: "Matching",
+    questionText: "",
+    explainText: "",
+    score: 10,
+    multipleChoices: [],
+    matchingPairs: [
+        { id: (Date.now() + 1).toString(), leftItem: "", rightItem: "" },
+        { id: (Date.now() + 2).toString(), leftItem: "", rightItem: "" },
+    ],
+    orderingItems: [],
+    shortAnswer: "",
+});
+
 onMounted(() => {
-    formState.questions.push(createQuestionTemplate());
+    formState.questions.push(createMultipleChoiceQuestionTemplate());
+    formState.questions.push(createMatchingQuestionTemplate());
 });
 
 const onAddQuestion = () => {
@@ -170,21 +190,28 @@ const onAddQuestion = () => {
         return;
     }
 
-    formState.questions.push(createQuestionTemplate());
+    formState.questions.push(createMultipleChoiceQuestionTemplate());
 };
 
 const onRemoveQuestion = (index: number) => {
-    console.log(index);
-
     if (formState.questions.length <= 1) {
         message.warning("Each question set must have at least 1 questions");
         return;
     }
 
-    const removed = formState.questions.splice(index, 1);
-    console.log(removed);
+    formState.questions.splice(index, 1);
 };
 
+const check = () => {
+    console.log(formState.questions);
+};
+
+const componentMap = {
+    MultipleChoice,
+    Matching,
+    Ordering,
+    ShortText,
+};
 </script>
 <template>
     <div class="page-container">
@@ -279,8 +306,9 @@ const onRemoveQuestion = (index: number) => {
                     </div>
                     <div class="list-question-container">
                         <div v-for="(question, index) in formState.questions" :key="question.id">
-                            <MultipleChoice
-                                :question="question as Question"
+                            <component
+                                :is="componentMap[question.type]"
+                                :question="question"
                                 :index="index + 1"
                                 @deleteQuestion="onRemoveQuestion(index)"
                             />

@@ -5,11 +5,13 @@ interface MultipleChoice {
 }
 
 interface MatchingPair {
+    id: string;
     leftItem: string;
     rightItem: string;
 }
 
 interface OrderingItem {
+    id: string;
     text: string;
     correctOrder: number;
 }
