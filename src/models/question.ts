@@ -1,4 +1,5 @@
 interface MultipleChoice {
+    id: string;
     text: string;
     isAnswer: boolean;
 }
@@ -14,6 +15,7 @@ interface OrderingItem {
 }
 
 export interface Question {
+    id: string;
     type: "MultipleChoice" | "Matching" | "Ordering" | "ShortText";
     questionText: string;
     explainText: string;

@@ -17,11 +17,17 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
+    "@tiptap/extension-floating-menu": "^2.23.0",
+    "@tiptap/extension-placeholder": "^2.23.0",
+    "@tiptap/extension-underline": "^2.23.0",
+    "@tiptap/starter-kit": "^2.23.0",
+    "@tiptap/vue-3": "^2.23.0",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.9.0",
     "bootstrap-vue-3": "^0.3.12",
     "boxicons": "^2.1.4",
     "dayjs": "^1.11.13",
+    "gh-pages": "^6.3.0",
     "highcharts": "^12.2.0",
     "highcharts-vue": "^2.0.1",
     "jquery": "^3.7.1",
@@ -29,8 +35,7 @@
     "pinia-plugin-persistedstate": "^4.3.0",
     "vue": "^3.5.13",
     "vue-i18n": "^11.1.7",
-    "vue-router": "^4.5.0",
-    "gh-pages": "^6.3.0"
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "@nightwatch/vue": "^3.1.2",

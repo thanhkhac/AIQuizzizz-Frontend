@@ -1,16 +1,55 @@
 <script setup lang="ts">
+import { ref } from "vue";
 const modelValue = defineModel<string>("modelValue");
 const placeholder = defineModel<string>("placeholder");
 const label = defineModel<string>("label");
+const name = defineModel<string>("name");
+
+const maxLength = defineModel<number>("maxLength");
+const isRequired = defineModel<boolean>("isRequired");
+
+const emit = defineEmits(["update:value", "change"]);
+
+// const isTouched = ref(false); // disable is-invalid at first
+//     if (!isTouched.value) isTouched.value = true;
+
+const onUpdate = () => {
+    emit("update:value", modelValue.value);
+    emit("change", modelValue.value);
+};
+
+const checkInvalid = () => {
+    const valueLength = modelValue.value?.length ?? 0;
+    const max = maxLength.value ?? Infinity;
+
+    const required = isRequired.value;
+    const isEmpty = !modelValue.value;
+
+    const isOutOfRange = valueLength > max;
+    const isInvalid = (required && isEmpty) || isOutOfRange;
+
+    let message = "This field is required";
+    if (isOutOfRange) message = `Limit: ${max} characters.`;
+
+    return { isInvalid, message };
+};
 </script>
 
 <template>
-    <a-form-item :label="label" name="title" class="input-item">
-        <a-textarea v-model:value="modelValue" :placeholder="placeholder" class="input">
-            <template #prefix>
-                <slot name="icon" />
-            </template>
-        </a-textarea>
+    <a-form-item :label="label" :name="name" class="input-item">
+        <a-tooltip :title="checkInvalid().isInvalid ? checkInvalid().message : null" :color="'red'">
+            <a-textarea
+                @input="onUpdate"
+                v-model:value="modelValue"
+                :placeholder="placeholder"
+                class="input"
+                :class="['input', checkInvalid().isInvalid ? 'is-invalid' : '']"
+            >
+                <template #prefix>
+                    <slot name="icon" />
+                </template>
+            </a-textarea>
+        </a-tooltip>
     </a-form-item>
 </template>
 <style scoped>
@@ -30,9 +69,13 @@ const label = defineModel<string>("label");
     border: none;
     background: var(--input-item-background-color);
     border: 1px solid var(--input-item-border-color);
-    height: 100px !important;
-    max-height: 160px !important;
+    min-height: 60px;
+    max-height: 160px;
     color: var(--text-color-white);
+}
+
+.input.is-invalid {
+    border: 1px solid red !important;
 }
 
 .input::placeholder {

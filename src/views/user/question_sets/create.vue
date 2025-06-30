@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { message } from "ant-design-vue";
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type { Question } from "@/models/question";
@@ -128,6 +128,10 @@ const question_data_raw = [
 
 const tagContent = ref("");
 const addTag = () => {
+    if (formState.tags.length >= 5) {
+        message.warning("Limit : 5 tags");
+        return;
+    }
     if (tagContent.value) {
         formState.tags.push(tagContent.value);
         tagContent.value = "";
@@ -139,25 +143,48 @@ const removeTag = (index: number) => {
     formState.tags.splice(index, 1);
 };
 
-const onChange = () => {
-    console.log(formState.title);
-};
-
-const empty_question = ref<Question>({
+const createQuestionTemplate = (): Question => ({
+    id: Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
     explainText: "",
     score: 10,
     multipleChoices: [
-        { text: "", isAnswer: true },
-        { text: "", isAnswer: false },
-        { text: "", isAnswer: false },
-        { text: "", isAnswer: false },
+        { id: (Date.now() + 1).toString(), text: "", isAnswer: true },
+        { id: (Date.now() + 2).toString(), text: "", isAnswer: false },
+        { id: (Date.now() + 3).toString(), text: "", isAnswer: false },
+        { id: (Date.now() + 4).toString(), text: "", isAnswer: false },
     ],
     matchingPairs: [],
     orderingItems: [],
     shortAnswer: "",
 });
+
+onMounted(() => {
+    formState.questions.push(createQuestionTemplate());
+});
+
+const onAddQuestion = () => {
+    if (formState.questions.length >= 10) {
+        message.warning("Each question set could have at most 100 questions");
+        return;
+    }
+
+    formState.questions.push(createQuestionTemplate());
+};
+
+const onRemoveQuestion = (index: number) => {
+    console.log(index);
+
+    if (formState.questions.length <= 1) {
+        message.warning("Each question set must have at least 1 questions");
+        return;
+    }
+
+    const removed = formState.questions.splice(index, 1);
+    console.log(removed);
+};
+
 </script>
 <template>
     <div class="page-container">
@@ -186,11 +213,12 @@ const empty_question = ref<Question>({
                 </div>
                 <div class="content-item-body"></div>
             </div>
-            <a-form layout="vertical">
+            <a-form layout="vertical" v-model="formState" :rules="rules" ref="formRef">
                 <div class="content-item">
                     <Input
                         class="question-input-item"
                         v-model="formState.title"
+                        :isRequired="true"
                         :placeholder="t('question_sets_index.search_placeholder')"
                         :label="'Quiz title'"
                     >
@@ -204,6 +232,7 @@ const empty_question = ref<Question>({
                             :label="'Description'"
                             v-model="formState.description"
                             placeholder="textarea with clear icon"
+                            :max-length="500"
                         />
                         <div class="form-item">
                             <label>#Tag</label>
@@ -244,17 +273,22 @@ const empty_question = ref<Question>({
                             <RouterLink class="import-button" :to="{ name: '' }">
                                 ✨ Generate with AI <i class="bx bx-upload"></i>
                             </RouterLink>
+                            <div class="import-button" @click="check">Create</div>
                             <div class="import-button">Total: {{ formState.questions.length }}</div>
                         </div>
                     </div>
                     <div class="list-question-container">
-                        <div v-for="(question, index) in formState.questions">
-                            <MultipleChoice :question="question as any" :index="index + 1" />
+                        <div v-for="(question, index) in formState.questions" :key="question.id">
+                            <MultipleChoice
+                                :question="question as Question"
+                                :index="index + 1"
+                                @deleteQuestion="onRemoveQuestion(index)"
+                            />
                         </div>
-                        <MultipleChoice
-                            :question="empty_question as Question"
-                            :index="formState.questions.length + 1"
-                        />
+                        <div class="add-question-btn" @click="onAddQuestion">
+                            <i class="bx bx-plus"></i>
+                            Add Question
+                        </div>
                     </div>
                 </div>
             </a-form>
@@ -397,5 +431,29 @@ const empty_question = ref<Question>({
 
 .question-input-item {
     margin-bottom: 10px;
+}
+
+.add-question-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--main-color);
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}
+
+.add-question-btn i {
+    font-size: 24px;
+    margin-right: 10px;
+    transform: translateY(2px);
+}
+
+.add-question-btn:hover {
+    background-color: var(--main-color);
+    border: 2px solid var(--main-color);
+    cursor: pointer;
 }
 </style>
