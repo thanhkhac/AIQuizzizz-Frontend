@@ -20,6 +20,7 @@ export interface Question {
     id: string;
     type: "MultipleChoice" | "Matching" | "Ordering" | "ShortText";
     questionText: string;
+    questionHTML: string;
     explainText: string;
     score: number;
     multipleChoices: MultipleChoice[];

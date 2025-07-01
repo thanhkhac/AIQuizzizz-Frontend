@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { Form } from "ant-design-vue";
+import { Form, message } from "ant-design-vue";
 
 import type { Question } from "@/models/question";
 import { useI18n } from "vue-i18n";
 
 import { QuestionCircleOutlined } from "@ant-design/icons-vue";
-import { message } from "ant-design-vue";
 
 import TextArea from "../Common/TextArea.vue";
 
 //@ts-ignore
 import InputEditor from "../Common/InputEditor.vue";
+
+import QUESTION_TYPE from "@/constants/questionTypes";
 
 interface Props {
     question: Question;
@@ -22,17 +23,23 @@ const { t } = useI18n();
 
 const props = defineProps<Props>();
 
-const optionKeys = ["MultipleChoice", "Matching", "Ordering", "ShortText"];
+const optionKeys = [
+    QUESTION_TYPE.MULTIPLE_CHOICE,
+    QUESTION_TYPE.MATCHING,
+    QUESTION_TYPE.ORDERING,
+    QUESTION_TYPE.SHORT_TEXT,
+];
+
 const options = computed(() =>
     optionKeys.map((key) => ({
-        label: key,
+        label: t(`create_QS.type.${key}`),
         value: key,
     })),
 );
 
 const addOption = () => {
     if (props.question.matchingPairs.length >= 10) {
-        message.warning("Each question must has at most 10 options");
+        message.warning(t("create_QS.error_msg.maximum_options"));
         return;
     }
 
@@ -45,8 +52,7 @@ const addOption = () => {
 
 const removeOption = (index: number) => {
     if (props.question.matchingPairs.length <= 2) {
-        message.warning("Each question must has at least 2 options");
-        return;
+        message.warning(t("create_QS.error_msg.minimum_options"));
     }
     if (props.question.matchingPairs[index]) {
         props.question.matchingPairs.splice(index, 1);
@@ -55,15 +61,17 @@ const removeOption = (index: number) => {
 
 const { validateInfos } = Form.useForm(props.question, {
     questionText: [
-        { required: true, message: "Explanation text is required", trigger: "change" },
+        { required: true, message: t("create_QS.error_msg.required"), trigger: "change" },
         {
             validator: (_rule: string, value: string) => {
                 const plainText = value.replace(/<[^>]+>/g, ""); //editor return as html in <p></p>
                 if (!plainText) {
-                    return Promise.reject("Question text is required");
+                    return Promise.reject(t("create_QS.error_msg.required"));
                 }
                 if (plainText.length > 500) {
-                    return Promise.reject("Question text must be less than 500 characters");
+                    return Promise.reject(
+                        t("create_QS.error_msg.out_of_range", { maxLength: 500 }),
+                    );
                 }
                 return Promise.resolve();
             },
@@ -75,7 +83,9 @@ const { validateInfos } = Form.useForm(props.question, {
             validator: (_rule: string, value: string) => {
                 const plainText = value.replace(/<[^>]+>/g, "");
                 if (plainText.length > 500) {
-                    return Promise.reject("Explanation text must be less than 500 characters");
+                    return Promise.reject(
+                        t("create_QS.error_msg.out_of_range", { maxLength: 500 }),
+                    );
                 }
                 return Promise.resolve();
             },
@@ -89,13 +99,14 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
     props.question.matchingPairs[index].leftItem = rightItem;
     props.question.matchingPairs[index].rightItem = temp;
 };
-
 </script>
 <template>
     <a-form :layout="'vertical'" :rules="validateInfos" :model="props.question">
         <div class="question-container">
             <div class="question-header">
-                <div class="question-info">Question {{ index }}</div>
+                <div class="question-info">
+                    {{ $t("create_QS.question.question") }} {{ props.index }}
+                </div>
                 <div class="question-functions">
                     <div class="question-function-select">
                         <a-select v-model:value="props.question.type" style="width: 200px">
@@ -106,7 +117,7 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                     </div>
                     <a-popconfirm
                         class="pop-confirm-delete"
-                        title="Are you sure ?"
+                        :title="$t('create_QS.quiz.confirm')"
                         @confirm="$emit('deleteQuestion')"
                     >
                         <template #icon><QuestionCircleOutlined style="color: red" /></template>
@@ -121,23 +132,23 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                         v-model="props.question.questionText"
                         v-model:validateStatus="validateInfos.questionText.validateStatus"
                         v-model:help="validateInfos.questionText.help"
-                        :label="'Question Text'"
                         :name="'questionText'"
-                        :placeholder="'Enter question title/text...'"
+                        :label="t('create_QS.question.text')"
+                        :placeholder="t('create_QS.question.text_placeholder')"
                     />
                     <InputEditor
                         class="explain-section question-description-item"
                         v-model="props.question.explainText"
                         v-model:validateStatus="validateInfos.explainText.validateStatus"
                         v-model:help="validateInfos.explainText.help"
-                        :label="'Explain Text'"
                         :name="'explainText'"
-                        :placeholder="'Enter explain text...'"
+                        :label="t('create_QS.question.explain_text')"
+                        :placeholder="t('create_QS.question.explain_text_placeholder')"
                     />
                 </div>
                 <div class="question-body-answer">
                     <div class="option-section">
-                        <div class="option-title">Answer options</div>
+                        <div class="option-title">{{ $t("create_QS.question.answer_option") }}</div>
                         <div :class="['option-list-container']">
                             <div
                                 class="pair-item"
@@ -147,7 +158,9 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                                 <div class="pair-item-input">
                                     <TextArea
                                         v-model="option.leftItem"
-                                        :placeholder="'Enter option text'"
+                                        :placeholder="
+                                            t('create_QS.question.answer_option_placeholder')
+                                        "
                                         :isRequired="true"
                                         :maxLength="500"
                                     />
@@ -171,7 +184,7 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                             </div>
                             <div class="add-option" @click="addOption">
                                 <i class="bx bx-plus"></i>
-                                Add pair
+                                {{ $t("create_QS.buttons.add_pair") }}
                             </div>
                         </div>
                     </div>

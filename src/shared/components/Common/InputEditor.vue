@@ -10,6 +10,7 @@ const modelValue = defineModel("modelValue");
 const placeholder = defineModel("placeholder", { default: "" });
 const label = defineModel("label", { default: "" });
 const name = defineModel("name", { default: "" });
+const html = defineModel("html", { default: "" });
 
 const editor = ref(null);
 

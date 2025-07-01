@@ -77,56 +77,82 @@ const rules = {
 
 const question_data_raw = [
     {
+        id: "q1",
         type: "MultipleChoice",
-        questionText: "2 + 3 bằng bao nhiêu?",
-        explainText: "Cộng hai số 2 và 3 sẽ cho kết quả là 5.",
-        score: 10,
+        questionText: "What is the capital of France?",
+        questionHTML: `<p><strong>What</strong> is the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
+        explainText: "Paris is the capital city of France.",
+        score: 1,
         multipleChoices: [
-            { text: "5", isAnswer: true },
-            { text: "6", isAnswer: false },
-            { text: "7", isAnswer: false },
+            { id: "1", text: "Paris", isAnswer: true },
+            { id: "2", text: "London", isAnswer: false },
+            { id: "3", text: "Berlin", isAnswer: false },
         ],
         matchingPairs: [],
         orderingItems: [],
         shortAnswer: "",
     },
     {
+        id: "q2",
         type: "Matching",
-        questionText: "Nối các thành phố với quốc gia của chúng",
-        explainText: "Mỗi thành phố thuộc một quốc gia duy nhất.",
-        score: 15,
+        questionText: "Match the countries to their capitals.",
+        questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
+        explainText: "Each country must be paired with its capital.",
+        score: 2,
         multipleChoices: [],
         matchingPairs: [
-            { leftItem: "Hà Nội", rightItem: "Việt Nam" },
-            { leftItem: "Paris", rightItem: "Pháp" },
+            { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
+            { id: "2", leftItem: "Italy", rightItem: "Rome" },
+            { id: "3", leftItem: "Vietnam", rightItem: "Hanoi" },
         ],
         orderingItems: [],
         shortAnswer: "",
     },
     {
+        id: "q3",
         type: "Ordering",
-        questionText: "Sắp xếp các mùa trong năm theo thứ tự bắt đầu từ đầu năm",
-        explainText: "Thứ tự dựa trên chu kỳ tự nhiên của các mùa.",
-        score: 20,
+        questionText: "Arrange the steps of the water cycle in the correct order.",
+        questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
+        explainText:
+            "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
+        score: 2,
         multipleChoices: [],
         matchingPairs: [],
         orderingItems: [
-            { text: "Mùa xuân", correctOrder: 0 },
-            { text: "Mùa hè", correctOrder: 1 },
-            { text: "Mùa thu", correctOrder: 2 },
-            { text: "Mùa đông", correctOrder: 3 },
+            { id: "1", text: "Evaporation", correctOrder: 1 },
+            { id: "2", text: "Condensation", correctOrder: 2 },
+            { id: "3", text: "Precipitation", correctOrder: 3 },
+            { id: "4", text: "Collection", correctOrder: 4 },
         ],
         shortAnswer: "",
     },
     {
+        id: "q4",
         type: "ShortText",
-        questionText: "Thủ đô của Việt Nam là gì?",
-        explainText: "Thủ đô là trung tâm hành chính của một quốc gia.",
-        score: 10,
+        questionText: "What is the chemical symbol for water?",
+        questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
+        explainText: "H2O is the formula for water.",
+        score: 1,
         multipleChoices: [],
         matchingPairs: [],
         orderingItems: [],
-        shortAnswer: "Hà Nội",
+        shortAnswer: "H2O",
+    },
+    {
+        id: "q5",
+        type: "MultipleChoice",
+        questionText: "Which planet is known as the Red Planet?",
+        questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <code>// astronomy</code></p>`,
+        explainText: "Mars is often called the Red Planet due to its reddish appearance.",
+        score: 1,
+        multipleChoices: [
+            { id: "1", text: "Mars", isAnswer: true },
+            { id: "2", text: "Venus", isAnswer: false },
+            { id: "3", text: "Jupiter", isAnswer: false },
+        ],
+        matchingPairs: [],
+        orderingItems: [],
+        shortAnswer: "",
     },
 ];
 
@@ -143,7 +169,6 @@ const addTag = () => {
 };
 
 const removeTag = (index: number) => {
-    console.log(index);
     formState.tags.splice(index, 1);
 };
 
@@ -151,6 +176,7 @@ const createQuestionTemplate = (): Question => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
+    questionHTML: "",
     explainText: "",
     score: 10,
     multipleChoices: [
@@ -173,7 +199,8 @@ const createQuestionTemplate = (): Question => ({
 });
 
 onMounted(() => {
-    formState.questions.push(createQuestionTemplate());
+    formState.questions = question_data_raw as Question[];
+    // formState.questions.push(createQuestionTemplate());
 });
 
 const onAddQuestion = () => {
@@ -215,46 +242,39 @@ const componentMap = {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="23">
-                    <span> {{ $t("question_sets_index.title") }}</span> <br />
+                    <span> {{ $t("create_QS.title") }}</span> <br />
                     <span>
-                        {{ $t("question_sets_index.sub_title") }}
+                        {{ $t("create_QS.sub_title") }}
                     </span>
                 </a-col>
             </a-row>
         </div>
         <div class="content">
-            <div class="content-item">
-                <div class="content-item-title">
-                    <div>
-                        <span>{{ $t("question_sets_index.sections.quiz.title") }}</span>
-                        <span>{{ $t("question_sets_index.sections.quiz.sub_title") }}</span>
-                    </div>
-                </div>
-                <div class="content-item-body"></div>
-            </div>
             <a-form layout="vertical" v-model="formState" :rules="rules" ref="formRef">
                 <div class="content-item">
+                    <div class="content-item-title">
+                        <div>
+                            <span>{{ $t("create_QS.quiz.question_detail_title") }}</span>
+                            <span>{{ $t("create_QS.quiz.question_detail_sub_title") }}</span>
+                        </div>
+                    </div>
                     <Input
                         class="question-input-item"
                         v-model="formState.title"
                         :isRequired="true"
                         :placeholder="t('question_sets_index.search_placeholder')"
-                        :label="'Quiz title'"
-                    >
-                        <template #icon>
-                            <i class="bx bx-search"></i>
-                        </template>
-                    </Input>
+                        :label="t('create_QS.quiz.title')"
+                    />
                     <div class="d-flex">
                         <TextArea
                             class="question-input-item"
-                            :label="'Description'"
                             v-model="formState.description"
                             placeholder="textarea with clear icon"
                             :max-length="500"
+                            :label="t('create_QS.quiz.description')"
                         />
                         <div class="form-item">
-                            <label>#Tag</label>
+                            <label>{{ $t("create_QS.quiz.tag") }}</label>
                             <div class="tag-container">
                                 <div
                                     class="tag-item"
@@ -282,18 +302,29 @@ const componentMap = {
                 <div class="content-item">
                     <div class="content-item-title">
                         <div>
-                            <span>{{ $t("question_sets_index.sections.quiz.title") }}</span>
-                            <span>{{ $t("question_sets_index.sections.quiz.sub_title") }}</span>
+                            <span>{{ $t("create_QS.quiz.question_question_title") }}</span>
+                            <span>{{ $t("create_QS.quiz.question_question_sub_title") }}</span>
                         </div>
                         <div class="content-item-buttons">
                             <RouterLink class="import-button" :to="{ name: '' }">
-                                Import <i class="bx bx-download"></i>
+                                {{ $t("create_QS.buttons.import") }} <i class="bx bx-download"></i>
                             </RouterLink>
                             <RouterLink class="import-button" :to="{ name: '' }">
-                                ✨ Generate with AI <i class="bx bx-upload"></i>
+                                {{ $t("create_QS.buttons.generated_by_ai") }}
+                                <i class="bx bx-upload"></i>
                             </RouterLink>
-                            <div class="import-button" @click="check">Create</div>
-                            <div class="import-button">Total: {{ formState.questions.length }}</div>
+                            <div class="import-button" @click="check">
+                                {{ $t("create_QS.buttons.create") }}
+                            </div>
+                            <div class="import-button">
+                                {{
+                                    $t("create_QS.quiz.total", {
+                                        number: formState.questions.length
+                                            .toString()
+                                            .padStart(3, "0"),
+                                    })
+                                }}
+                            </div>
                         </div>
                     </div>
                     <div class="list-question-container">
@@ -307,7 +338,7 @@ const componentMap = {
                         </div>
                         <div class="add-question-btn" @click="onAddQuestion">
                             <i class="bx bx-plus"></i>
-                            Add Question
+                            {{ $t("create_QS.buttons.add_question") }}
                         </div>
                     </div>
                 </div>
@@ -315,7 +346,12 @@ const componentMap = {
         </div>
     </div>
 </template>
+
 <style scoped>
+.content-item-title {
+    margin-bottom: 20px;
+}
+
 .page-container {
     overflow-y: scroll;
     scroll-behavior: smooth;

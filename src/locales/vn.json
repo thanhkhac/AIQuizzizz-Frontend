@@ -220,5 +220,63 @@
             "quiz": "Bộ câu hỏi",
             "test": "Bài kiểm tra"
         }
+    },
+    "create_QS": {
+        "title": "Tạo bài kiểm tra mới",
+        "sub_title": "Thêm câu hỏi, đặt đáp án và cấu hình bài kiểm tra",
+
+        "quiz": {
+            "title": "Tiêu đề bài kiểm tra",
+            "description": "Mô tả",
+            "question_question_title": "Câu hỏi trong bài kiểm tra",
+            "question_question_sub_title": "Tạo và quản lý các câu hỏi cho bài kiểm tra",
+            "tag": "#Thẻ",
+            "question_detail_title": "Chi tiết bài kiểm tra",
+            "question_detail_sub_title": "Thông tin cơ bản về bài kiểm tra của bạn",
+            "total": "Tổng cộng: {number}",
+            "confirm": "Bạn có chắc chắn không?"
+        },
+        "buttons": {
+            "import": "Nhập",
+            "generated_by_ai": "✨ Tạo bằng AI",
+            "create": "Tạo",
+            "ok": "OK",
+            "cancel": "Hủy",
+            "add_question": "Thêm câu hỏi",
+            "add_option": "Thêm lựa chọn",
+            "add_pair": "Thêm cặp"
+        },
+        "type": {
+            "MultipleChoice": "Trắc nghiệm",
+            "Matching": "Ghép đôi",
+            "Ordering": "Sắp xếp",
+            "ShortText": "Tự luận ngắn"
+        },
+        "question": {
+            "question": "Câu hỏi",
+            "text": "Nội dung câu hỏi",
+            "text_placeholder": "Nhập nội dung câu hỏi",
+            "explain_text": "Giải thích (tùy chọn)",
+            "explain_text_placeholder": "Nhập giải thích",
+            "answer_option": "Lựa chọn đáp án",
+            "answer_option_placeholder": "Nhập nội dung lựa chọn",
+            "answer_text": "Đáp án",
+            "answer_text_placeholder": "Nhập đáp án",
+
+            "multiple_choice_ins": "Chọn ít nhất một đáp án đúng",
+            "matching_ins": "Mỗi lựa chọn là một cặp đúng",
+            "ordering_ins": "Giữ & kéo để sắp xếp theo thứ tự đúng",
+            "short_text_ins": "Đây có thể là các đáp án đúng dựa trên đầu vào người dùng",
+            "short_text_valid_answer": "Đáp án hợp lệ"
+        },
+        "error_msg": {
+            "required": "Trường này là bắt buộc",
+            "out_of_range": "Giới hạn {max_length} ký tự",
+            "have_no_answer": "Câu hỏi {index} phải có ít nhất một đáp án đúng",
+            "minimum_question": "Mỗi bài kiểm tra phải có ít nhất 1 câu hỏi",
+            "minimum_options": "Mỗi câu hỏi phải có ít nhất 2 lựa chọn",
+            "maximum_options": "Mỗi câu hỏi có tối đa 10 lựa chọn",
+            "maximum_tag": "Tối đa {tag} thẻ"
+        }
     }
 }

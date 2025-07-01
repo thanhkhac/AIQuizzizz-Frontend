@@ -12,6 +12,8 @@ import TextArea from "../Common/TextArea.vue";
 //@ts-ignore
 import InputEditor from "../Common/InputEditor.vue";
 
+import QUESTION_TYPE from "@/constants/questionTypes";
+
 interface Props {
     question: Question;
     index: number;
@@ -21,10 +23,16 @@ const { t } = useI18n();
 
 const props = defineProps<Props>();
 
-const optionKeys = ["MultipleChoice", "Matching", "Ordering", "ShortText"];
+const optionKeys = [
+    QUESTION_TYPE.MULTIPLE_CHOICE,
+    QUESTION_TYPE.MATCHING,
+    QUESTION_TYPE.ORDERING,
+    QUESTION_TYPE.SHORT_TEXT,
+];
+
 const options = computed(() =>
     optionKeys.map((key) => ({
-        label: key,
+        label: t(`create_QS.type.${key}`),
         value: key,
     })),
 );
@@ -78,7 +86,9 @@ const { validateInfos } = Form.useForm(props.question, {
     <a-form :layout="'vertical'" :rules="validateInfos" :model="props.question">
         <div class="question-container">
             <div class="question-header">
-                <div class="question-info">Question {{ index }}</div>
+                <div class="question-info">
+                    {{ $t("create_QS.question.question") }} {{ props.index }}
+                </div>
                 <div class="question-functions">
                     <div class="question-function-select">
                         <a-select v-model:value="props.question.type" style="width: 200px">
@@ -89,7 +99,7 @@ const { validateInfos } = Form.useForm(props.question, {
                     </div>
                     <a-popconfirm
                         class="pop-confirm-delete"
-                        title="Are you sure ?"
+                        :title="$t('create_QS.quiz.confirm')"
                         @confirm="$emit('deleteQuestion')"
                     >
                         <template #icon><QuestionCircleOutlined style="color: red" /></template>
@@ -104,9 +114,9 @@ const { validateInfos } = Form.useForm(props.question, {
                         v-model="props.question.questionText"
                         v-model:validateStatus="validateInfos.questionText.validateStatus"
                         v-model:help="validateInfos.questionText.help"
-                        :label="'Question Text'"
                         :name="'questionText'"
-                        :placeholder="'Enter question title/text...'"
+                        :label="t('create_QS.question.text')"
+                        :placeholder="t('create_QS.question.text_placeholder')"
                     />
                 </div>
                 <div class="question-body-answer">
@@ -116,25 +126,25 @@ const { validateInfos } = Form.useForm(props.question, {
                         v-model="props.question.explainText"
                         v-model:validateStatus="validateInfos.explainText.validateStatus"
                         v-model:help="validateInfos.explainText.help"
-                        :label="'Explain Text'"
                         :name="'explainText'"
-                        :placeholder="'Enter explain text...'"
+                        :label="t('create_QS.question.explain_text')"
+                        :placeholder="t('create_QS.question.explain_text_placeholder')"
                     />
                     <div class="option-section">
-                        <div class="option-title">Answer text</div>
+                        <div class="option-title">{{ $t("create_QS.question.answer_text") }}</div>
                         <div class="option-item-input">
                             <TextArea
                                 @input="getPossibleAnswers"
                                 v-model="props.question.shortAnswer"
-                                :placeholder="'Enter option text'"
+                                :placeholder="t('create_QS.question.answer_text_placeholder')"
                                 :isRequired="true"
                                 :maxLength="500"
                             />
                         </div>
                         <div class="option-title">
-                            Valid answers
+                            {{ $t("create_QS.question.short_text_valid_answer") }}
                             <span class="option-title-ins">
-                                - These might be correct answers base on user input
+                                - {{ $t("create_QS.question.short_text_ins") }}
                             </span>
                         </div>
                         <div class="possible-answer-container">

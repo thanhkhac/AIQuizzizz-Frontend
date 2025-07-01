@@ -220,5 +220,64 @@
             "quiz": "Quizzes",
             "test": "Tests"
         }
+    },
+    "create_QS": {
+        "title": "Create New Quiz",
+        "sub_title": "Add questions, set answers and configure quiz settings",
+
+        "quiz": {
+            "title": "Quiz Title",
+            "description": "Description",
+            "question_question_title": "Quiz Questions",
+            "question_question_sub_title": "Create and manage your quiz questions",
+            "tag": "#Tag",
+            "question_detail_title": "Quiz Details",
+            "question_detail_sub_title": "Basic information about your quiz",
+            "total": "Total : {number}",
+            "confirm": "Are you sure ?"
+        },
+        "buttons": {
+            "import": "Import",
+            "generated_by_ai": "✨ Generate with AI",
+            "create": "Create",
+            "ok": "Ok",
+            "cancel": "Cancel",
+            "add_question": "Add question",
+            "add_option": "Add option",
+            "add_pair": "Add pair"
+        },
+        "type": {
+            "MultipleChoice": "Multiple choice",
+            "Matching": "Matching",
+            "Ordering": "Ordering",
+            "ShortText": "Short text"
+        },
+        "question": {
+            "question": "Question",
+            "text": "Question text",
+            "text_placeholder": "Enter question text",
+            "explain_text": "Explain text (optional)",
+            "explain_text_placeholder": "Enter explaination",
+            "answer_option": "Answer options",
+            "answer_option_placeholder": "Enter option text",
+            "answer_text": "Answer text",
+            "answer_text_placeholder": "Enter answer text",
+
+            "multiple_choice_ins": "Choose at least one correct option",
+            "matching_ins": "Each option is a correct pair",
+            "ordering_ins": "Hold & drag these options to the correct order you want",
+            "short_text_ins": "These might be correct answers base on user input",
+            "short_text_valid_answer": "Valid answers"
+
+        },
+        "error_msg": {
+            "required": "This field is required",
+            "out_of_range": "Limit {max_length} characters",
+            "have_no_answer": "Question {index} must have at least one correct answer",
+            "minimum_question": "Each question must have at least 1 question",
+            "minimum_options": "Each question must have at least 2 options",
+            "maximum_options": "Each question must have at most 10 options",
+            "maximum_tag": "Limit {tag} tags"
+        }
     }
 }

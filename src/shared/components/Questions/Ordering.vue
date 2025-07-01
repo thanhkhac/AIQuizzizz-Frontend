@@ -16,6 +16,8 @@ import TextArea from "../Common/TextArea.vue";
 //@ts-ignore
 import InputEditor from "../Common/InputEditor.vue";
 
+import QUESTION_TYPE from "@/constants/questionTypes";
+
 interface Props {
     question: Question;
     index: number;
@@ -25,17 +27,23 @@ const { t } = useI18n();
 
 const props = defineProps<Props>();
 
-const optionKeys = ["MultipleChoice", "Matching", "Ordering", "ShortText"];
+const optionKeys = [
+    QUESTION_TYPE.MULTIPLE_CHOICE,
+    QUESTION_TYPE.MATCHING,
+    QUESTION_TYPE.ORDERING,
+    QUESTION_TYPE.SHORT_TEXT,
+];
+
 const options = computed(() =>
     optionKeys.map((key) => ({
-        label: key,
+        label: t(`create_QS.type.${key}`),
         value: key,
     })),
 );
 
 const addOption = () => {
     if (props.question.orderingItems.length >= 10) {
-        message.warning("Each question must has at most 10 options");
+        message.warning(t("create_QS.error_msg.maximum_options"));
         return;
     }
 
@@ -48,7 +56,7 @@ const addOption = () => {
 
 const removeOption = (index: number) => {
     if (props.question.orderingItems.length <= 2) {
-        message.warning("Each question must has at least 2 options");
+        message.warning(t("create_QS.error_msg.minimum_options"));
         return;
     }
     if (props.question.orderingItems[index]) {
@@ -58,7 +66,7 @@ const removeOption = (index: number) => {
 
 const { validateInfos } = Form.useForm(props.question, {
     questionText: [
-        { required: true, message: "Explanation text is required", trigger: "change" },
+        { required: true, message: t("create_QS.error_msg.required"), trigger: "change" },
         {
             validator: (_rule: string, value: string) => {
                 const plainText = value.replace(/<[^>]+>/g, ""); //editor return as html in <p></p>
@@ -66,7 +74,9 @@ const { validateInfos } = Form.useForm(props.question, {
                     return Promise.reject("Question text is required");
                 }
                 if (plainText.length > 500) {
-                    return Promise.reject("Question text must be less than 500 characters");
+                    return Promise.reject(
+                        t("create_QS.error_msg.out_of_range", { maxLength: 500 }),
+                    );
                 }
                 return Promise.resolve();
             },
@@ -78,7 +88,9 @@ const { validateInfos } = Form.useForm(props.question, {
             validator: (_rule: string, value: string) => {
                 const plainText = value.replace(/<[^>]+>/g, "");
                 if (plainText.length > 500) {
-                    return Promise.reject("Explanation text must be less than 500 characters");
+                    return Promise.reject(
+                        t("create_QS.error_msg.out_of_range", { maxLength: 500 }),
+                    );
                 }
                 return Promise.resolve();
             },
@@ -91,19 +103,14 @@ const haveAnswer = () => {
     const haveAnswer = props.question.multipleChoices.filter((item) => item.isAnswer);
     return haveAnswer.length > 0;
 };
-
-const onCheckHaveAnswer = () => {
-    const haveAnswer = props.question.multipleChoices.filter((item) => item.isAnswer);
-    if (haveAnswer.length === 0) {
-        message.error(`Question ${props.index} should have at least 1 correct answer.`);
-    }
-};
 </script>
 <template>
     <a-form :layout="'vertical'" :rules="validateInfos" :model="props.question">
         <div class="question-container">
             <div class="question-header">
-                <div class="question-info">Question {{ index }}</div>
+                <div class="question-info">
+                    {{ $t("create_QS.question.question") }} {{ props.index }}
+                </div>
                 <div class="question-functions">
                     <div class="question-function-select">
                         <a-select v-model:value="props.question.type" style="width: 200px">
@@ -114,7 +121,7 @@ const onCheckHaveAnswer = () => {
                     </div>
                     <a-popconfirm
                         class="pop-confirm-delete"
-                        title="Are you sure ?"
+                        :title="$t('create_QS.quiz.confirm')"
                         @confirm="$emit('deleteQuestion')"
                     >
                         <template #icon><QuestionCircleOutlined style="color: red" /></template>
@@ -129,9 +136,9 @@ const onCheckHaveAnswer = () => {
                         v-model="props.question.questionText"
                         v-model:validateStatus="validateInfos.questionText.validateStatus"
                         v-model:help="validateInfos.questionText.help"
-                        :label="'Question Text'"
                         :name="'questionText'"
-                        :placeholder="'Enter question title/text...'"
+                        :label="t('create_QS.question.text')"
+                        :placeholder="t('create_QS.question.text_placeholder')"
                     />
                 </div>
                 <div class="question-body-answer">
@@ -141,15 +148,15 @@ const onCheckHaveAnswer = () => {
                         v-model="props.question.explainText"
                         v-model:validateStatus="validateInfos.explainText.validateStatus"
                         v-model:help="validateInfos.explainText.help"
-                        :label="'Explain Text'"
                         :name="'explainText'"
-                        :placeholder="'Enter explain text...'"
+                        :label="t('create_QS.question.explain_text')"
+                        :placeholder="t('create_QS.question.explain_text_placeholder')"
                     />
                     <div class="option-section">
                         <div class="option-title">
-                            Answer options
+                            {{ $t("create_QS.question.answer_option") }}
                             <span class="option-title-ins">
-                                - Hold & drag these option to the correct order you want
+                                -  {{ $t("create_QS.question.ordering_ins") }}
                             </span>
                         </div>
 
@@ -172,7 +179,9 @@ const onCheckHaveAnswer = () => {
                                     <div class="option-item-input">
                                         <TextArea
                                             v-model="option.text"
-                                            :placeholder="'Enter option text'"
+                                            :placeholder="
+                                                t('create_QS.question.answer_option_placeholder')
+                                            "
                                             :isRequired="true"
                                             :maxLength="500"
                                         />
@@ -182,7 +191,7 @@ const onCheckHaveAnswer = () => {
                             </VueDraggable>
                             <div class="add-option" @click="addOption">
                                 <i class="bx bx-plus"></i>
-                                Add option
+                                {{ $t("create_QS.buttons.add_option") }}
                             </div>
                         </div>
                     </div>
