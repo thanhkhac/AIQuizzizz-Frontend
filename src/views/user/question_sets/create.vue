@@ -147,7 +147,7 @@ const removeTag = (index: number) => {
     formState.tags.splice(index, 1);
 };
 
-const createMultipleChoiceQuestionTemplate = (): Question => ({
+const createQuestionTemplate = (): Question => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
@@ -159,29 +159,21 @@ const createMultipleChoiceQuestionTemplate = (): Question => ({
         { id: (Date.now() + 3).toString(), text: "", isAnswer: false },
         { id: (Date.now() + 4).toString(), text: "", isAnswer: false },
     ],
-    matchingPairs: [],
-    orderingItems: [],
-    shortAnswer: "",
-});
-
-const createMatchingQuestionTemplate = (): Question => ({
-    id: Date.now().toString(),
-    type: "Matching",
-    questionText: "",
-    explainText: "",
-    score: 10,
-    multipleChoices: [],
     matchingPairs: [
         { id: (Date.now() + 1).toString(), leftItem: "", rightItem: "" },
         { id: (Date.now() + 2).toString(), leftItem: "", rightItem: "" },
     ],
-    orderingItems: [],
+    orderingItems: [
+        { id: (Date.now() + 1).toString(), text: "", correctOrder: 1 },
+        { id: (Date.now() + 2).toString(), text: "", correctOrder: 2 },
+        { id: (Date.now() + 3).toString(), text: "", correctOrder: 3 },
+        { id: (Date.now() + 4).toString(), text: "", correctOrder: 4 },
+    ],
     shortAnswer: "",
 });
 
 onMounted(() => {
-    formState.questions.push(createMultipleChoiceQuestionTemplate());
-    formState.questions.push(createMatchingQuestionTemplate());
+    formState.questions.push(createQuestionTemplate());
 });
 
 const onAddQuestion = () => {
@@ -190,7 +182,7 @@ const onAddQuestion = () => {
         return;
     }
 
-    formState.questions.push(createMultipleChoiceQuestionTemplate());
+    formState.questions.push(createQuestionTemplate());
 };
 
 const onRemoveQuestion = (index: number) => {

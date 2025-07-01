@@ -84,16 +84,12 @@ const { validateInfos } = Form.useForm(props.question, {
     ],
 });
 
-const haveAnswer = () => {
-    const haveAnswer = props.question.multipleChoices.filter((item) => item.isAnswer);
-    return haveAnswer.length > 0;
-};
-
 const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
     let temp = leftItem;
     props.question.matchingPairs[index].leftItem = rightItem;
     props.question.matchingPairs[index].rightItem = temp;
 };
+
 </script>
 <template>
     <a-form :layout="'vertical'" :rules="validateInfos" :model="props.question">
@@ -142,12 +138,7 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                 <div class="question-body-answer">
                     <div class="option-section">
                         <div class="option-title">Answer options</div>
-                        <div
-                            :class="[
-                                'option-list-container',
-                                !haveAnswer() ? 'option-list-container-error' : '',
-                            ]"
-                        >
+                        <div :class="['option-list-container']">
                             <div
                                 class="pair-item"
                                 v-for="(option, index) in props.question.matchingPairs"
