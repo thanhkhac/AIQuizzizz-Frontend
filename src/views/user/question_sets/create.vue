@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { message } from "ant-design-vue";
 import { ref, reactive, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { message } from "ant-design-vue";
+import { InboxOutlined } from "@ant-design/icons-vue";
 
 import type { Question } from "@/models/question";
 
@@ -12,6 +13,7 @@ import MultipleChoice from "@/shared/components/Questions/MultipleChoice.vue";
 import Matching from "@/shared/components/Questions/Matching.vue";
 import Ordering from "@/shared/components/Questions/Ordering.vue";
 import ShortText from "@/shared/components/Questions/ShortText.vue";
+import QUESTION_TYPE from "@/constants/questionTypes";
 
 interface FormState {
     title: string;
@@ -75,12 +77,19 @@ const rules = {
     ],
 };
 
+const componentMap = {
+    MultipleChoice,
+    Matching,
+    Ordering,
+    ShortText,
+};
+
 const question_data_raw = [
     {
         id: "q1",
         type: "MultipleChoice",
-        questionText: "What is the capital of France?",
-        questionHTML: `<p><strong>What</strong> is the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
+        questionText: "What is the capital of France ?",
+        questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
         explainText: "Paris is the capital city of France.",
         score: 1,
         multipleChoices: [
@@ -142,7 +151,7 @@ const question_data_raw = [
         id: "q5",
         type: "MultipleChoice",
         questionText: "Which planet is known as the Red Planet?",
-        questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <code>// astronomy</code></p>`,
+        questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
         explainText: "Mars is often called the Red Planet due to its reddish appearance.",
         score: 1,
         multipleChoices: [
@@ -198,11 +207,6 @@ const createQuestionTemplate = (): Question => ({
     shortAnswer: "",
 });
 
-onMounted(() => {
-    formState.questions = question_data_raw as Question[];
-    // formState.questions.push(createQuestionTemplate());
-});
-
 const onAddQuestion = () => {
     if (formState.questions.length >= 10) {
         message.warning("Each question set could have at most 100 questions");
@@ -225,12 +229,75 @@ const check = () => {
     console.log(formState.questions);
 };
 
-const componentMap = {
-    MultipleChoice,
-    Matching,
-    Ordering,
-    ShortText,
+//modal-import
+
+const modal_import_active = ref(false);
+const modal_generate_ai_active = ref(false);
+
+const files = ref<File[]>([]);
+const fileInput = ref<HTMLInputElement | null>(null);
+const isDragging = ref(false);
+
+const handleModalImport = () => {};
+
+const openFileExplorer = () => {
+    fileInput.value?.click();
 };
+
+const handleFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+
+    if (file) {
+        files.value = [];
+        message.success(file.name + " uploaded successfully.");
+        files.value.push(file);
+        return;
+    }
+    message.error("Upload failed");
+};
+
+const handleDragEnter = (event: DragEvent) => {
+    const types = event.dataTransfer?.types || [];
+    if (Array.from(types).includes("files")) {
+        isDragging.value = true;
+    }
+};
+
+const handleDrop = (event: DragEvent) => {
+    const file = event.dataTransfer?.files[0];
+
+    isDragging.value = false;
+
+    if (file) {
+        files.value = [];
+        message.success(file.name + " uploaded successfully.");
+        files.value.push(file);
+        return;
+    }
+    message.error("Upload failed");
+};
+
+const onRemoveUploadedFile = (index: number) => {
+    files.value?.splice(index, 1);
+};
+
+const toggleDisplayAnswer = (index: number, button: EventTarget) => {
+    // var $button = $(button);
+
+    // $button.toggleClass("up");
+
+    // if ($button.hasClass("up")) $button.addClass("bx-chevron-down");
+    // else $button.addClass("bx-chevron-up")
+
+    const answer = $(`#question-item-answer-${index}`);
+    if (answer) $(answer).slideToggle();
+};
+
+onMounted(() => {
+    formState.questions = question_data_raw as Question[];
+    // formState.questions.push(createQuestionTemplate());
+});
 </script>
 <template>
     <div class="page-container">
@@ -306,7 +373,11 @@ const componentMap = {
                             <span>{{ $t("create_QS.quiz.question_question_sub_title") }}</span>
                         </div>
                         <div class="content-item-buttons">
-                            <RouterLink class="import-button" :to="{ name: '' }">
+                            <RouterLink
+                                @click="modal_import_active = true"
+                                class="import-button"
+                                :to="{ name: '' }"
+                            >
                                 {{ $t("create_QS.buttons.import") }} <i class="bx bx-download"></i>
                             </RouterLink>
                             <RouterLink class="import-button" :to="{ name: '' }">
@@ -345,7 +416,204 @@ const componentMap = {
             </a-form>
         </div>
     </div>
+
+    <a-modal
+        centered
+        width="100%"
+        wrap-class-name="full-modal"
+        :open="modal_import_active"
+        @ok="modal_import_active = false"
+        @cancel="modal_import_active = false"
+    >
+        <div class="modal-container">
+            <div class="modal-title-container">
+                <a-row class="w-100 d-flex align-items-center">
+                    <a-col :span="1">
+                        <RouterLink @click="modal_import_active = false" :to="{ name: '' }">
+                            <i class="bx bx-chevron-left navigator-back-button"></i>
+                        </RouterLink>
+                    </a-col>
+                    <a-col class="main-title" :span="23">
+                        <span> {{ $t("create_QS.title") }}</span> <br />
+                        <span>
+                            {{ $t("create_QS.sub_title") }}
+                        </span>
+                    </a-col>
+                </a-row>
+            </div>
+            <div class="modal-content-item">
+                <div class="content-item-section upload-section">
+                    <div class="section-title">
+                        <span>Upload</span>
+                        <a-button class="main-color-btn" type="primary">Download template</a-button>
+                    </div>
+                    <div class="section-content">
+                        <input
+                            @change="handleFileChange"
+                            class="d-none"
+                            type="file"
+                            ref="fileInput"
+                        />
+                        <div
+                            :class="['customized-file-upload', isDragging ? 'is-dragging' : '']"
+                            @click="openFileExplorer"
+                            @dragenter="handleDragEnter"
+                            @dragover.prevent="isDragging = true"
+                            @dragleave="isDragging = false"
+                            @drop.prevent="handleDrop"
+                        >
+                            <div class="customized-file-upload-icons">
+                                <i
+                                    :class="[
+                                        'bx',
+                                        'bx-down-arrow-alt',
+                                        'bx-fade-up',
+                                        !isDragging ? 'd-none' : '',
+                                    ]"
+                                ></i>
+                                <InboxOutlined :class="[isDragging ? 'd-none' : '']" />
+                            </div>
+                            <div class="customized-file-upload-ins">
+                                <strong>Click</strong> or <strong>drag</strong> file to this area to
+                                upload
+                            </div>
+                            <div class="customized-file-upload-hint">
+                                Please use the template above to ensure the file is read
+                                correctly.<br />
+                                Support for a single upload.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-container">
+                        <div class="file-item" v-for="(file, index) in files">
+                            <span>{{ file.name }}</span>
+                            <i
+                                class="bx bx-trash text-danger"
+                                @click="onRemoveUploadedFile(index)"
+                            ></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-item-section preview-section">
+                    <div class="section-title">Preview</div>
+                    <div class="section-content">
+                        <div class="preview-question-container">
+                            <div
+                                class="preview-question-item"
+                                v-for="(question, index) in formState.questions"
+                            >
+                                <a-checkbox></a-checkbox>
+                                <div class="question-item-content">
+                                    <div
+                                        v-if="question.questionHTML"
+                                        class="question-html"
+                                        v-html="question.questionHTML"
+                                    ></div>
+                                    <div v-else class="question-text">
+                                        {{ question.questionText }}
+                                    </div>
+                                    <div
+                                        class="question-item-answer"
+                                        :id="`question-item-answer-${index}`"
+                                    >
+                                        <template
+                                            v-if="question.type === QUESTION_TYPE.MULTIPLE_CHOICE"
+                                        >
+                                            <div class="multiple-choice-answer">
+                                                <ul>
+                                                    <li v-for="option in question.multipleChoices">
+                                                        {{ option.text }}
+                                                        <span
+                                                            class="text-success"
+                                                            v-if="option.isAnswer"
+                                                        >
+                                                            ({{ option.isAnswer }})
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </template>
+                                        <template v-if="question.type === QUESTION_TYPE.MATCHING">
+                                            <div
+                                                class="pair-answer"
+                                                v-for="option in question.matchingPairs"
+                                            >
+                                                <span class="pair-answer-item">
+                                                    {{ option.leftItem }}
+                                                </span>
+                                                <i class="bx bx-right-arrow-alt"></i>
+                                                <span class="pair-answer-item">
+                                                    {{ option.rightItem }}
+                                                </span>
+                                            </div>
+                                        </template>
+                                        <template v-if="question.type === QUESTION_TYPE.ORDERING">
+                                            <div class="ordering-answer">
+                                                <div class="ordering-answer-item">
+                                                    <div v-for="option in question.orderingItems">
+                                                        {{ option.text }}
+                                                    </div>
+                                                </div>
+                                                <i class="bx bx-right-arrow-alt"></i>
+                                                <div class="ordering-answer-item">
+                                                    <div
+                                                        class="ordering-answer-item"
+                                                        v-for="(
+                                                            option, index
+                                                        ) in question.orderingItems"
+                                                    >
+                                                        <span>#{{ index + 1 }}</span> -
+                                                        {{ option.text }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <template v-if="question.type === QUESTION_TYPE.SHORT_TEXT">
+                                            <span>Answer:</span>
+                                            <div class="short-text-answer">
+                                                {{ question.shortAnswer }}
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="question-item-toogle-btn">
+                                    <i
+                                        class="bx bx-chevron-down"
+                                        @click="toggleDisplayAnswer(index, $event.currentTarget)"
+                                    ></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <template #footer>
+            <a-button class="main-color-btn" key="submit" type="primary" @click="handleModalImport"
+                >Import</a-button
+            >
+        </template>
+    </a-modal>
 </template>
+
+<style>
+.full-modal {
+    .ant-modal {
+        max-width: 100%;
+    }
+    .ant-modal-content {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh);
+        padding: 10px;
+        background-color: #101010;
+    }
+    .ant-modal-body {
+        flex: 1;
+    }
+}
+</style>
 
 <style scoped>
 .content-item-title {
@@ -511,5 +779,189 @@ const componentMap = {
     background-color: var(--main-color);
     border: 2px solid var(--main-color);
     cursor: pointer;
+}
+
+.modal-title-container {
+    color: var(--text-color-white);
+    margin-bottom: 10px;
+}
+
+.modal-content-item {
+    color: var(--text-color-white);
+    background-color: var(--content-item-background-color);
+    border: 1px solid var(--content-item-border-color);
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.content-item-section {
+    padding: 10px;
+}
+
+.section-title {
+    color: var(--text-color-white);
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.section-content {
+    border: 1px solid var(--main-color);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.upload-section {
+    width: calc(100% - 65% - 20px);
+}
+
+.preview-section {
+    flex: 1;
+}
+.preview-section .section-content {
+    max-height: 550px;
+    overflow-y: scroll;
+}
+
+.main-color-btn {
+    background-color: var(--main-color);
+}
+
+.main-color-btn:hover {
+    background-color: var(--main-sub-color);
+}
+
+.customized-file-upload {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 3px;
+    padding: 10px;
+}
+
+.customized-file-upload-icons {
+    font-size: 50px;
+    display: flex;
+    flex-direction: column;
+    color: var(--main-color);
+}
+
+.is-dragging {
+    background-color: var(--content-item-border-color);
+}
+
+.customized-file-upload-ins {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #ddd;
+}
+
+.customized-file-upload-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-color-grey);
+}
+
+.file-container {
+    margin-top: 10px;
+}
+
+.file-item {
+    padding: 5px 10px;
+    border: 1px solid var(--input-item-border-color);
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-item i {
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.preview-question-item {
+    padding: 10px;
+    margin: 10px 0px;
+    border: 1px solid var(--input-item-border-color);
+    border-radius: 5px;
+    display: flex;
+    align-items: start;
+}
+
+.question-item-content {
+    margin-left: 20px;
+}
+
+.question-item-toogle-btn {
+    flex: 1;
+    display: flex;
+    justify-content: end;
+}
+
+.question-item-toogle-btn i {
+    height: 30px;
+    width: 30px;
+    padding: 5px;
+    font-size: 20px;
+    color: var(--text-color-grey);
+    border: 1px solid var(--text-color-grey);
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.multiple-choice-answer ul {
+    margin: 0;
+}
+
+.pair-answer {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+.pair-answer i {
+    font-size: 20px;
+}
+
+.pair-answer-item {
+    min-width: 100px;
+    max-width: 400px;
+    padding: 5px 10px;
+    border: 1px solid var(--input-item-border-color);
+    border-radius: 3px;
+}
+
+.ordering-answer {
+    display: flex;
+    align-items: center;
+}
+
+.ordering-answer-item {
+    max-width: 400px;
+}
+
+.ordering-answer-item div {
+    margin: 5px 0px;
+}
+
+.ordering-answer i {
+    font-size: 20px;
+    margin: 0 10px;
+}
+
+.short-text-answer {
+    margin-top: 10px;
+    max-width: 600px;
+    padding: 5px 10px;
+    border: 1px solid var(--input-item-border-color);
+    border-radius: 3px;
 }
 </style>

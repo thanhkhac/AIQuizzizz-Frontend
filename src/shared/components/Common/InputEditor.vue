@@ -10,7 +10,7 @@ const modelValue = defineModel("modelValue");
 const placeholder = defineModel("placeholder", { default: "" });
 const label = defineModel("label", { default: "" });
 const name = defineModel("name", { default: "" });
-const html = defineModel("html", { default: "" });
+const html = defineModel("html");
 
 const editor = ref(null);
 
@@ -25,7 +25,7 @@ onMounted(() => {
                 placeholder: placeholder.value,
             }),
         ],
-        content: modelValue.value,
+        content: html.value ? html.value : modelValue.value,
         onUpdate: ({ editor }) => {
             modelValue.value = editor.getHTML();
             emit("change", editor.getHTML());

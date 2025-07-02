@@ -135,6 +135,7 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                         :name="'questionText'"
                         :label="t('create_QS.question.text')"
                         :placeholder="t('create_QS.question.text_placeholder')"
+                        :html="props.question.questionHTML"
                     />
                     <InputEditor
                         class="explain-section question-description-item"

@@ -143,6 +143,7 @@ const onCheckHaveAnswer = () => {
                         :name="'questionText'"
                         :label="t('create_QS.question.text')"
                         :placeholder="t('create_QS.question.text_placeholder')"
+                        :html="props.question.questionHTML"
                     />
                 </div>
                 <div class="question-body-answer">

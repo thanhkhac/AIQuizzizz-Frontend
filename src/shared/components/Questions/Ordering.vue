@@ -99,10 +99,6 @@ const { validateInfos } = Form.useForm(props.question, {
     ],
 });
 
-const haveAnswer = () => {
-    const haveAnswer = props.question.multipleChoices.filter((item) => item.isAnswer);
-    return haveAnswer.length > 0;
-};
 </script>
 <template>
     <a-form :layout="'vertical'" :rules="validateInfos" :model="props.question">
@@ -139,6 +135,7 @@ const haveAnswer = () => {
                         :name="'questionText'"
                         :label="t('create_QS.question.text')"
                         :placeholder="t('create_QS.question.text_placeholder')"
+                        :html="props.question.questionHTML"
                     />
                 </div>
                 <div class="question-body-answer">
@@ -156,16 +153,11 @@ const haveAnswer = () => {
                         <div class="option-title">
                             {{ $t("create_QS.question.answer_option") }}
                             <span class="option-title-ins">
-                                -  {{ $t("create_QS.question.ordering_ins") }}
+                                - {{ $t("create_QS.question.ordering_ins") }}
                             </span>
                         </div>
 
-                        <div
-                            :class="[
-                                'option-list-container',
-                                !haveAnswer() ? 'option-list-container-error' : '',
-                            ]"
-                        >
+                        <div :class="['option-list-container']">
                             <VueDraggable v-model="props.question.orderingItems">
                                 <div
                                     class="option-item"

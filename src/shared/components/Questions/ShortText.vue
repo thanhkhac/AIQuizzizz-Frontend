@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { Form } from "ant-design-vue";
 
 import type { Question } from "@/models/question";
@@ -50,6 +50,10 @@ const getPossibleAnswers = () => {
         '- "' + (value.charAt(0).toUpperCase() + value.slice(1, value.length).toLowerCase()) + '"',
     );
 };
+
+onMounted(() => {
+    getPossibleAnswers();
+});
 
 const { validateInfos } = Form.useForm(props.question, {
     questionText: [
@@ -117,6 +121,7 @@ const { validateInfos } = Form.useForm(props.question, {
                         :name="'questionText'"
                         :label="t('create_QS.question.text')"
                         :placeholder="t('create_QS.question.text_placeholder')"
+                        :html="props.question.questionHTML"
                     />
                 </div>
                 <div class="question-body-answer">
