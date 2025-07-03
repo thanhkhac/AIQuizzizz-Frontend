@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/AuthStore";
 import { useRouter } from "vue-router";
 
 const baseURL = import.meta.env.VITE_API_URL_LOCAL;
+// const baseURL = import.meta.env.VITE_API_URL_PRODUCT;
 // const authStore = useAuthStore();
 const router = useRouter();
 

@@ -14,6 +14,7 @@ import Matching from "@/shared/components/Questions/Matching.vue";
 import Ordering from "@/shared/components/Questions/Ordering.vue";
 import ShortText from "@/shared/components/Questions/ShortText.vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
+import QUESTION_DIFFICULTY from "@/constants/questiondifficulties";
 
 interface FormState {
     title: string;
@@ -231,7 +232,6 @@ const check = () => {
 
 //modal-import
 const modal_import_open = ref(false);
-const modal_generate_ai_open = ref(false);
 
 const uploadedQuestions = ref<Question[]>();
 
@@ -253,6 +253,30 @@ const openImportModal = () => {
 const closeImportModal = () => {
     modal_import_open.value = false;
 };
+
+//modal-generate by AI
+const modal_generate_ai_open = ref(false);
+
+const questionTypeOptions = Object.values(QUESTION_TYPE).map((questionType) => ({
+    label: t(`create_QS.type.${questionType}`),
+    value: questionType,
+}));
+
+const questionDifficultyOptions = Object.values(QUESTION_DIFFICULTY).map((difficulty) => ({
+    label: difficulty,
+    value: difficulty,
+}));
+
+const questionMaximumOptions = ref<any>([]);
+for (let i = 10; i <= 100; i += 10) {
+    questionMaximumOptions.value.push({ label: i, value: i });
+}
+
+const generateByAIModalState = reactive({
+    selectedQuestionTypes: [questionTypeOptions[0]],
+    maxQuestion: questionMaximumOptions.value[0].value,
+    difficulty: questionDifficultyOptions[0].value,
+});
 
 const openGenerateAIModal = () => {
     importModalState.checkedList = []; //reset checked list
@@ -363,6 +387,7 @@ const handleModalImport = () => {
 
 onMounted(() => {
     formState.questions.push(...(question_data_raw as Question[]));
+
     // formState.questions.push(createQuestionTemplate());
 });
 </script>
@@ -783,6 +808,46 @@ onMounted(() => {
                             ></i>
                         </div>
                     </div>
+                    <a-form layout="vertical" class="generate-ai-form">
+                        <a-row class="d-flex justify-content-between">
+                            <a-col :span="12">
+                                <a-form-item label="Difficulty">
+                                    <a-select
+                                        v-model:value="generateByAIModalState.difficulty"
+                                        style="width: 100%"
+                                        :placeholder="'Difficulty of questions'"
+                                        :options="questionDifficultyOptions"
+                                    />
+                                </a-form-item>
+                            </a-col>
+                            <a-col :span="11">
+                                <a-form-item label="Maximum question">
+                                    <a-select
+                                        v-model:value="generateByAIModalState.maxQuestion"
+                                        style="width: 100%"
+                                        :placeholder="'Maximum number of question'"
+                                        :options="questionMaximumOptions"
+                                    />
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+
+                        <a-form-item label="Question types">
+                            <a-select
+                                v-model:value="generateByAIModalState.selectedQuestionTypes"
+                                mode="multiple"
+                                style="width: 100%"
+                                :placeholder="'Select multiple'"
+                                :options="questionTypeOptions"
+                            />
+                        </a-form-item>
+
+                        <a-form-item class="generate-ai-btn-container">
+                            <a-button size="large" class="generate-ai-btn" type="primary"
+                                >✨ Generate</a-button
+                            >
+                        </a-form-item>
+                    </a-form>
                 </div>
                 <div class="content-item-section preview-section">
                     <div class="section-title">Preview</div>
@@ -1342,5 +1407,40 @@ onMounted(() => {
     padding: 5px 10px;
     border: 1px solid var(--input-item-border-color);
     border-radius: 3px;
+}
+
+::v-deep(.ant-select-selection-item-remove) {
+    color: var(--text-color-white);
+    transform: translateY(-2px);
+}
+
+::v-deep(.ant-select-selection-item-remove):hover {
+    color: var(--text-color-white);
+}
+
+::v-deep(.ant-select-selection-overflow) {
+    color: var(--text-color-white);
+}
+
+::v-deep(.ant-select-selection-placeholder) {
+    color: var(--text-color-grey);
+}
+
+.generate-ai-form {
+    display: flex;
+    flex-direction: column;
+}
+.generate-ai-btn-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.generate-ai-btn {
+    width: 100%;
+    background-color: var(--main-color);
+}
+
+.generate-ai-btn:hover {
+    background-color: var(--main-sub-color);
 }
 </style>
