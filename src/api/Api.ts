@@ -5,8 +5,8 @@ import { useRouter } from "vue-router";
 import { notification } from "ant-design-vue";
 
 // const baseURL = import.meta.env.VITE_API_URL_LOCAL;
-const baseURL = import.meta.env.VITE_API_URL_PRODUCT;
-// const authStore = useAuthStore();
+// const baseURL = import.meta.env.VITE_API_URL_PRODUCT;
+const baseURL = "https://thanhkhac.id.vn/api";
 const router = useRouter();
 
 const instance = axios.create({
