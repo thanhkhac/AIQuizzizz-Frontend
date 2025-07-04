@@ -979,6 +979,12 @@ onMounted(() => {
                             </div>
                         </a-checkbox-group>
                     </div>
+                    <div class="modal-generate-by-ai-warning">
+                        <span>
+                            <i class="bx bx-info-circle"></i>
+                            AI can make mistakes. Please check carefully the important info.
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1237,8 +1243,18 @@ onMounted(() => {
     flex: 1;
 }
 .preview-section .section-content {
-    max-height: 550px;
+    height: 520px;
+    max-height: 520px;
     overflow-y: scroll;
+}
+
+.preview-section .section-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.preview-section .section-content::-webkit-scrollbar-thumb {
+    background-color: var(--input-item-border-color);
+    border-radius: 10px;
 }
 
 .main-color-btn {
@@ -1442,5 +1458,14 @@ onMounted(() => {
 
 .generate-ai-btn:hover {
     background-color: var(--main-sub-color);
+}
+
+.modal-generate-by-ai-warning {
+    color: var(--text-color-grey);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    font-size: 14px;
 }
 </style>

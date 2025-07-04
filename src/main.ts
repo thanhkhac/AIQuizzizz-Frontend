@@ -1,8 +1,8 @@
 import "./assets/main.css";
 
-import {createApp} from "vue";
-import {createPinia} from "pinia";
-import {createPersistedState} from "pinia-plugin-persistedstate";
+import { createApp } from "vue";
+import { createPinia } from "pinia";
+import { createPersistedState } from "pinia-plugin-persistedstate";
 
 import App from "./App.vue";
 import router from "./router/router-index";
@@ -10,7 +10,7 @@ import router from "./router/router-index";
 /**
  * vue-i18n - multi-languages
  * **/
-import {createI18n} from "vue-i18n";
+import { createI18n } from "vue-i18n";
 
 /**
  * highchart
@@ -73,6 +73,7 @@ import {
     Badge,
     Steps,
     Progress,
+    Result,
 } from "ant-design-vue";
 
 /**
@@ -134,6 +135,7 @@ async function initLocale(): Promise<void> {
     app.use(Badge);
     app.use(Steps);
     app.use(Progress);
+    app.use(Result);
 
     app.use(HighchartsVue);
 

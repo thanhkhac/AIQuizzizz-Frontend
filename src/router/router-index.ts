@@ -1,5 +1,5 @@
-import {createRouter, createWebHistory} from "vue-router";
-import {useAuthStore} from "@/stores/AuthStore";
+import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "@/stores/AuthStore";
 
 import adminRoutes from "./route-admin";
 import userRoutes from "./route-user";
@@ -9,7 +9,7 @@ const indexRoutes = [
         path: "/",
         name: "home",
         component: import("../views/public/home.vue"),
-        meta: {title: "home"},
+        meta: { title: "home" },
     },
     {
         path: "/404",
@@ -20,25 +20,31 @@ const indexRoutes = [
         path: "/login",
         name: "login",
         component: () => import("@/views/public/login.vue"),
-        meta: {title: "login", layout: "authentication"}, //in case somae pages use same layout but keep default path
+        meta: { title: "login", layout: "authentication" }, //in case somae pages use same layout but keep default path
     },
     {
         path: "/register",
         name: "register",
         component: () => import("@/views/public/register.vue"),
-        meta: {title: "register", layout: "authentication"},
+        meta: { title: "register", layout: "authentication" },
+    },
+    {
+        path: "/verify-email",
+        name: "verify-email",
+        component: () => import("@/views/public/verify-email.vue"),
+        meta: { title: "verify-email", layout: "authentication" },
     },
     {
         path: "/forgot-password",
         name: "forgot-password",
         component: () => import("@/views/public/forgot-password.vue"),
-        meta: {title: "forgot-password", layout: "authentication"},
+        meta: { title: "forgot-password", layout: "authentication" },
     },
     {
         path: "/reset-password",
         name: "reset-password",
         component: () => import("@/views/public/reset-password.vue"),
-        meta: {title: "reset-password", layout: "authentication"},
+        meta: { title: "reset-password", layout: "authentication" },
     },
     {
         path: "/:pathMatch(.*)*",
@@ -50,6 +56,7 @@ const publicRoutes = [
     "home",
     "login",
     "register",
+    "verify-email",
     "forgot-password",
     "reset-password",
     "create-password",
@@ -73,16 +80,16 @@ router.beforeEach(async (to, from, next) => {
     if (!useAuthStore().checkUser() && !publicRoutes.includes(to.name as string)) {
         useAuthStore().returnURL = to.fullPath;
         useAuthStore().logOut();
-        next({name: "login"});
+        next({ name: "login" });
         return;
     }
 
     //test redirect
     if (to.name === "login" && useAuthStore().checkUser()) {
         if (useAuthStore().user_info.claims.includes("Admin_Dashboard_View")) {
-            next({name: "Admin_Dashboards_View"});
+            next({ name: "Admin_Dashboards_View" });
         } else {
-            next({name: "404"});
+            next({ name: "404" });
         }
         return;
     }
@@ -114,7 +121,7 @@ router.beforeEach(async (to, from, next) => {
         if (useAuthStore().getUserInfo().claims[claimKey] === "1") {
             next();
         }
-        next({name: "404"});
+        next({ name: "404" });
         return;
     }
     next();

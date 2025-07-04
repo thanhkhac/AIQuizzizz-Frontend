@@ -4,13 +4,16 @@
             "signIn": "Welcome back!",
             "signUp": "Create Account",
             "forgotPassword": "Forgot your password ?",
-            "resetPassword": "You're finally here 😄. Let's reset your password !"
+            "resetPassword": "You're finally here 😄. Let's reset your password !",
+            "verify_email": "The verification email has been sent."
         },
         "instructions": {
             "signIn": "Enter your credentials to access your account",
             "signUp": "Choose your account type and start your journey with us",
             "forgotPassword": "Don't worry we got you 😉. Enter your email address and we will send you instructions to reset your password.",
-            "resetPassword": "Enter a new password below to change your password."
+            "resetPassword": "Enter a new password below to change your password.",
+            "verify_email": "We have sent an OTP to your email {email}. Please check your inbox 📬",
+            "send_email_result": "Email sent successfully!"
         },
         "inputs": {
             "username": "Tên đăng nhập",
@@ -18,13 +21,18 @@
             "email": "Email",
             "emailPlaceholder": "name@example.com",
             "password": "Password",
-            "confirmPassword": "Confirm Password"
+            "confirmPassword": "Confirm password",
+            "code": "OTP",
+            "code_placeholder": "Code sent with email",
+            "new_password": "New password",
+            "new_password_confirmation": "Confirm new password"
         },
         "buttons": {
             "signIn": "Sign In",
             "signUp": "Sign Up",
             "send": "Send",
-            "resetPassword": "Reset Password"
+            "resetPassword": "Reset Password",
+            "resend": "Re-send"
         },
         "navigators": {
             "signUp_signIn_ins": "Already have an account?",
@@ -34,7 +42,8 @@
             "signIn_forgot_link": "Forgot your password ?",
             "signIn_link": "Sign In",
             "signUp_link": "Sign Up",
-            "back_signIn_link": "Back to Sign In"
+            "back_signIn_link": "Back to Sign In",
+            "resend_email": "Didn't receive any email?"
         },
         "others": {
             "or": "OR"
@@ -268,7 +277,6 @@
             "ordering_ins": "Hold & drag these options to the correct order you want",
             "short_text_ins": "These might be correct answers base on user input",
             "short_text_valid_answer": "Valid answers"
-
         },
         "error_msg": {
             "required": "This field is required",

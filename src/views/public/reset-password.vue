@@ -1,20 +1,45 @@
 <script setup lang="ts">
-import {computed, onMounted, reactive, ref} from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
 import ApiUser from "@/api/ApiUser";
-import {message} from "ant-design-vue";
-import {UserOutlined, LockOutlined, MailOutlined} from "@ant-design/icons-vue";
+import { message, notification } from "ant-design-vue";
+import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons-vue";
 
 const formRef = ref();
-const labelCol = {span: 24};
-const wrapperCol = {span: 24};
+const labelCol = { span: 24 };
+const wrapperCol = { span: 24 };
 
 const formState = reactive({
+    email: "",
+    resetCode: "",
     password: "",
     confirmationPassword: "",
 });
 
+const button_loading = ref(false);
+
 const rules = {
+    email: [
+        {
+            required: true,
+            message: "Vui lòng không để trống mục này.",
+            trigger: "change",
+        },
+        {
+            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: "Vui lòng nhập đúng định dạng email",
+            trigger: "change",
+        },
+    ],
+
+    resetCode: [
+        {
+            required: true,
+            message: "Vui lòng không để trống mục này.",
+            trigger: "change",
+        },
+    ],
+
     password: [
         {
             required: true,
@@ -28,6 +53,7 @@ const rules = {
             trigger: "change",
         },
     ],
+
     confirmationPassword: [
         {
             validator: (rule: any, value: string) => {
@@ -41,9 +67,31 @@ const rules = {
     ],
 };
 
+type NotificationType = "success" | "info" | "warning" | "error";
+const showNotification = (type: NotificationType, message: string, description: string) => {
+    notification[type]({
+        message,
+        description,
+    });
+};
+
 const onFinish = async () => {
-    // call reset password api
-    // notifcation / message result
+    try {
+        button_loading.value = true;
+        const result = await ApiAuthentication.ResetPassword({
+            email: formState.email,
+            resetCode: formState.resetCode,
+            newPassword: formState.password,
+        });
+        if (result.data.success) {
+            showNotification("success", "Reset password result", "Success");
+            return;
+        }
+        showNotification("error", "Reset password result", "ERROR");
+    } catch (error) {
+    } finally {
+        button_loading.value = false;
+    }
 };
 </script>
 <template>
@@ -61,8 +109,34 @@ const onFinish = async () => {
             :wrapperCol="wrapperCol"
             :rules="rules"
         >
+            <a-form-item label="" name="email">
+                <label>{{ $t("auth.inputs.email") }}</label>
+                <a-input
+                    size="large"
+                    v-model:value="formState.email"
+                    :placeholder="$t('auth.inputs.email')"
+                >
+                    <template #addonBefore>
+                        <MailOutlined />
+                    </template>
+                </a-input>
+            </a-form-item>
+
+            <a-form-item label="" name="code">
+                <label>{{ $t("auth.inputs.code") }}</label>
+                <a-input
+                    size="large"
+                    v-model:value="formState.resetCode"
+                    :placeholder="$t('auth.inputs.code_placeholder')"
+                >
+                    <template #addonBefore>
+                        <MailOutlined />
+                    </template>
+                </a-input>
+            </a-form-item>
+
             <a-form-item label="" name="password">
-                <label>{{ $t("auth.inputs.password") }}</label>
+                <label>{{ $t("auth.inputs.new_password") }}</label>
                 <a-input-password
                     size="large"
                     v-model:value="formState.password"
@@ -74,7 +148,7 @@ const onFinish = async () => {
                 </a-input-password>
             </a-form-item>
             <a-form-item label="" name="confirmationPassword">
-                <label>{{ $t("auth.inputs.confirmPassword") }}</label>
+                <label>{{ $t("auth.inputs.new_password_confirmation") }}</label>
                 <a-input-password
                     size="large"
                     v-model:value="formState.confirmationPassword"
@@ -87,6 +161,8 @@ const onFinish = async () => {
             </a-form-item>
             <a-form-item>
                 <a-button
+                    :loading="button_loading"
+                    @click="onFinish"
                     size="large"
                     type="primary"
                     style="background-color: #9823f5; width: 100%"
@@ -97,7 +173,7 @@ const onFinish = async () => {
         </a-form>
         <div class="authentication-item-navigator">
             {{ $t("auth.navigators.reset_signIn_ins") }}
-            <RouterLink :to="{name: 'login'}">
+            <RouterLink :to="{ name: 'login' }">
                 {{ $t("auth.navigators.back_signIn_link") }}
             </RouterLink>
         </div>

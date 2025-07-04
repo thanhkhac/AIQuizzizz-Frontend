@@ -3,8 +3,9 @@ const END_POINTS = {
     LOGIN: "Authentication/Login",
     REGISTER: "Authentication/Register",
     RENEW_TOKEN: "Authentication/RenewToken",
-    REQUEST_VERIFICATION_EMAIL: "Authentication/RequestEmailVerification",
-    FORGOT_PASSWORD: "Authentication/ForgotPassword",
+    REQUEST_EMAIL_VERIFICATION: "Authentication/RequestEmailVerification",
+    VERIFY_EMAIL: "Authentication/VerifyEmail",
+    FORGOT_PASSWORD: "Authentication/RequestPasswordReset",
     RESET_PASSWORD: "Authentication/ResetPassword",
 };
 
@@ -22,7 +23,11 @@ class ApiAuthentication {
     };
 
     RequestEmailVerification = async (formState: object) => {
-        return await Api.post(`${END_POINTS.REQUEST_VERIFICATION_EMAIL}`, formState);
+        return await Api.post(`${END_POINTS.REQUEST_EMAIL_VERIFICATION}`, formState);
+    };
+
+    VerifyEmail = async (formState: object) => {
+        return await Api.post(`${END_POINTS.VERIFY_EMAIL}`, formState);
     };
 
     ForgotPassword = async (formState: object) => {
