@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import { useAuthStore } from "@/stores/AuthStore";
 import ApiAuthentication from "@/api/ApiAuthentication";
-import { message, notification } from "ant-design-vue";
+import { notification } from "ant-design-vue";
 import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
-
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const router = useRouter();
-const authStore = useAuthStore();
 
 const formState = reactive({
     email: "",
@@ -22,25 +22,24 @@ const rules = {
     email: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
         {
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: "Vui lòng nhập đúng định dạng email",
+            message: t("auth.validation.email"),
             trigger: "change",
         },
     ],
     password: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
         {
             pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
-            message:
-                "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.",
+            message: t("auth.validation.password"),
             trigger: "change",
         },
     ],
@@ -48,7 +47,7 @@ const rules = {
         {
             validator: (rule: any, value: string) => {
                 if (value !== formState.password) {
-                    return Promise.reject("Mật khẩu xác nhận không khớp.");
+                    return Promise.reject(t("auth.validation.confirm_password"));
                 }
                 return Promise.resolve();
             },
@@ -72,13 +71,13 @@ const showNotification = (type: NotificationType, message: string, description: 
 const onFinish = async () => {
     try {
         button_loading.value = true;
-        var register_result = await ApiAuthentication.Register({
+        let register_result = await ApiAuthentication.Register({
             email: formState.email,
             password: formState.password,
         });
         if (!register_result.data.success) return;
 
-        var send_email_result = await ApiAuthentication.RequestEmailVerification({
+        let send_email_result = await ApiAuthentication.RequestEmailVerification({
             email: formState.email,
         });
 

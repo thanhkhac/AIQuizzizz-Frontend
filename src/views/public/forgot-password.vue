@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
-import { message, notification } from "ant-design-vue";
-import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons-vue";
+import { notification } from "ant-design-vue";
+import { MailOutlined } from "@ant-design/icons-vue";
+import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
+
+const router = useRouter();
 
 const formRef = ref();
 const labelCol = { span: 24 };
@@ -18,12 +24,12 @@ const rules = {
     email: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
         {
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: "Vui lòng nhập đúng định dạng email",
+            message: t("auth.validation.email"),
             trigger: "change",
         },
     ],
@@ -39,17 +45,20 @@ const showNotification = (type: NotificationType, message: string, description: 
 
 const onFinish = async () => {
     try {
-        button_loading.value = false;
+        button_loading.value = true;
         const result = await ApiAuthentication.ForgotPassword(formState);
         if (result.data.success) {
             showNotification("success", "Register result", "Success");
+            setTimeout(() => {
+                router.push({ name: "reset-password" });
+            }, 3000);
             return;
         }
         showNotification("error", "Register result", "ERROR");
     } catch (error) {
         console.log(error);
     } finally {
-        button_loading.value = true;
+        button_loading.value = false;
     }
 };
 </script>

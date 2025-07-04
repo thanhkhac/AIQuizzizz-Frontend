@@ -54,15 +54,14 @@ const indexRoutes = [
 
 const publicRoutes = [
     "home",
+    "404",
     "login",
     "register",
     "verify-email",
     "forgot-password",
     "reset-password",
-    "create-password",
-    "create-profile",
-    "404",
 ];
+// const authRoutes = [];
 
 const routes = [...adminRoutes, ...userRoutes, ...indexRoutes];
 
@@ -74,7 +73,7 @@ const router = createRouter({
 //check claim before redirect
 router.beforeEach(async (to, from, next) => {
     //meta-title
-    document.title = "YourApp-" + to.meta.title;
+    document.title = "AIQuizizz-" + to.meta.title;
 
     //check authentication + returnURL
     if (!useAuthStore().checkUser() && !publicRoutes.includes(to.name as string)) {
@@ -85,11 +84,12 @@ router.beforeEach(async (to, from, next) => {
     }
 
     //test redirect
+    // authRoutes.includes(to.name?.toString() ?? "")
     if (to.name === "login" && useAuthStore().checkUser()) {
         if (useAuthStore().user_info.claims.includes("Admin_Dashboard_View")) {
             next({ name: "Admin_Dashboards_View" });
         } else {
-            next({ name: "404" });
+            next({ name: "/" });
         }
         return;
     }

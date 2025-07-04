@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
 import ApiAuthentication from "@/api/ApiAuthentication";
-import ApiUser from "@/api/ApiUser";
 import { message } from "ant-design-vue";
-import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons-vue";
+import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const authStore = useAuthStore();
 
@@ -23,14 +25,14 @@ const rules = {
     email: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
     ],
     password: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
     ],
@@ -39,13 +41,14 @@ const rules = {
 const onFinish = async () => {
     try {
         button_loading.value = true;
-        var login_result = await ApiAuthentication.Login(formState);
-        console.log(login_result);
-        if (login_result.data.isSucceeded) {
-            message.success(login_result.data.message);
+        let login_result = await ApiAuthentication.Login(formState);
+
+        if (login_result.data.success) {
+            message.success("Login successfully. Redirecting...");
             authStore.LoginSuccessful();
         }
     } catch (error) {
+        console.log(error);
     } finally {
         button_loading.value = false;
     }

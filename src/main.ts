@@ -93,7 +93,13 @@ const i18n = createI18n({
 });
 
 async function loadLocale(locale: string): Promise<void> {
-    const messages = (await import(`./locales/${locale}.json`)).default;
+    var messages;
+    try {
+        messages = (await import(`./locales/${locale}.json`)).default;
+    } catch (error) {
+        messages = (await import(`./locales/en.json`)).default;
+    }
+
     i18n.global.setLocaleMessage(locale, messages);
     i18n.global.locale.value = locale;
 }

@@ -16,7 +16,7 @@
             "send_email_result": "Email sent successfully!"
         },
         "inputs": {
-            "username": "Tên đăng nhập",
+            "username": "Username",
             "fullName": "Full Name",
             "email": "Email",
             "emailPlaceholder": "name@example.com",
@@ -47,6 +47,13 @@
         },
         "others": {
             "or": "OR"
+        },
+        "validation": {
+            "required": "This field is required",
+            "out_of_range": "Limit: {max_length} characters",
+            "email": "This field requires correct email format",
+            "password": "Password must be at least 8 characters(1 upper, 1 lower, 1 number, 1 special character).",
+            "confirm_password": "Confirm password must match with password"
         }
     },
     "homepage": {

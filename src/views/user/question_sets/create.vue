@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, computed } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
 import { InboxOutlined } from "@ant-design/icons-vue";
@@ -342,7 +342,7 @@ const onRemoveUploadedFile = (index: number) => {
 //preview uploaded content
 
 const toggleDisplayAnswer = (index: number, button: EventTarget) => {
-    var $button = $(button);
+    let $button = $(button);
 
     $button.toggleClass("bx-chevron-up bx-chevron-down");
 
@@ -387,8 +387,6 @@ const handleModalImport = () => {
 
 onMounted(() => {
     formState.questions.push(...(question_data_raw as Question[]));
-
-    // formState.questions.push(createQuestionTemplate());
 });
 </script>
 <template>

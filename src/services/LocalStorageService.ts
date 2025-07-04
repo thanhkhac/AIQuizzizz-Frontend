@@ -3,16 +3,22 @@ const LOCAL_USER_INFO: string = "user_info";
 
 class LocalStorageService {
     SetUserInfo(value: any) {
-        var item = {
+        let item = {
             value: value,
             expiry: dayjs().add(7, "day").valueOf(),
         };
         localStorage.setItem(LOCAL_USER_INFO, JSON.stringify(item));
     }
     GetUserInfo() {
-        var data = localStorage.getItem(LOCAL_USER_INFO);
-        var user_info = data ? JSON.parse(data) : null;
-        return user_info;
+        try {
+            let data = localStorage.getItem(LOCAL_USER_INFO);
+            let user_info = data ? JSON.parse(data) : null;
+
+            return user_info;
+        } catch (error) {
+            console.log(error);
+        }
+        return null;
     }
     ClearUserInfo() {
         localStorage.removeItem(LOCAL_USER_INFO);
