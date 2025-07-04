@@ -12,7 +12,7 @@ const router = useRouter();
 const instance = axios.create({
     baseURL,
     timeout: 300000,
-    //withCredentials: true,
+    withCredentials: true,
     headers: {
         "Content-Type": "application/json",
     },
