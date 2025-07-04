@@ -2,7 +2,13 @@
     --background-color: #000;
     --background-color-white: #fff;
     --background-color-white-hovered: #eee;
-    --background-color-gradient: linear-gradient(95deg, #5813c1 48.05%, #c45037 96.24%);
+    --background-color-gradient: linear-gradient(150deg, #5813c1 20%, #c45037 100%);
+
+    --content-item-background-color: #151518;
+    --content-item-border-color: #27272A;
+
+    --input-item-background-color: #1F1F20;
+    --input-item-border-color: #424242;
 
     --background-sub-color1: #ac63e6;
     --background-sub-color2: #c45037;
@@ -11,6 +17,7 @@
 
     --text-color-white: #fff;
     --text-color-sub-white: #a1a1aa;
+    --text-color-grey: #757575;
     --text-color-black: #000;
 
     --main-color: #7c3aed;

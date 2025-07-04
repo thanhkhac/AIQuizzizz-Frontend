@@ -1,40 +1,33 @@
 <script setup lang="ts">
-import {computed, onMounted, reactive, ref} from "vue";
-import {useAuthStore} from "@/stores/AuthStore";
+import { reactive, ref } from "vue";
+import { useAuthStore } from "@/stores/AuthStore";
 import ApiAuthentication from "@/api/ApiAuthentication";
-import ApiUser from "@/api/ApiUser";
-import {message} from "ant-design-vue";
-import {UserOutlined, LockOutlined, MailOutlined} from "@ant-design/icons-vue";
+import { message, notification } from "ant-design-vue";
+import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
 
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 const authStore = useAuthStore();
 
 const formState = reactive({
-    fullName: "",
-    username: "",
     email: "",
     password: "",
     confirmationPassword: "",
 });
 
+const button_loading = ref(false);
+
 const rules = {
-    fullName: [
-        {
-            required: true,
-            message: "Vui lòng không để trống mục này.",
-            trigger: "change",
-        },
-    ],
-    username: [
-        {
-            required: true,
-            message: "Vui lòng không để trống mục này.",
-            trigger: "change",
-        },
-    ],
     email: [
         {
             required: true,
             message: "Vui lòng không để trống mục này.",
+            trigger: "change",
+        },
+        {
+            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: "Vui lòng nhập đúng định dạng email",
             trigger: "change",
         },
     ],
@@ -65,15 +58,42 @@ const rules = {
 };
 
 const formRef = ref();
-const labelCol = {span: 24};
-const wrapperCol = {span: 24};
+const labelCol = { span: 24 };
+const wrapperCol = { span: 24 };
+
+type NotificationType = "success" | "info" | "warning" | "error";
+const showNotification = (type: NotificationType, message: string, description: string) => {
+    notification[type]({
+        message,
+        description,
+    });
+};
 
 const onFinish = async () => {
-    var login_result = await ApiAuthentication.Login(formState);
-    console.log(login_result);
-    if (login_result.data.isSucceeded) {
-        message.success(login_result.data.message);
-        authStore.LoginSuccessful();
+    try {
+        button_loading.value = true;
+        var register_result = await ApiAuthentication.Register({
+            email: formState.email,
+            password: formState.password,
+        });
+        if (!register_result.data.success) return;
+
+        var send_email_result = await ApiAuthentication.RequestEmailVerification({
+            email: formState.email,
+        });
+
+        if (send_email_result.data.success) {
+            showNotification("success", "Register result", "Success");
+
+            sessionStorage.setItem("email", formState.email);
+            router.push({ name: "verify-email" });
+            return;
+        }
+        showNotification("error", "Register result", "ERROR");
+    } catch (error) {
+        console.log(error);
+    } finally {
+        button_loading.value = false;
     }
 };
 </script>
@@ -105,24 +125,12 @@ const onFinish = async () => {
             :wrapperCol="wrapperCol"
             :rules="rules"
         >
-            <a-form-item label="" name="fullName">
-                <label>{{ $t("auth.inputs.fullName") }}</label>
+            <a-form-item label="" name="email">
+                <label>{{ $t("auth.inputs.email") }}</label>
                 <a-input
                     size="large"
-                    v-model:value="formState.fullName"
-                    :placeholder="$t('auth.inputs.fullName')"
-                >
-                    <template #addonBefore>
-                        <UserOutlined />
-                    </template>
-                </a-input>
-            </a-form-item>
-            <a-form-item label="" name="username">
-                <label>{{ $t("auth.inputs.username") }}</label>
-                <a-input
-                    size="large"
-                    v-model:value="formState.username"
-                    :placeholder="$t('auth.inputs.username')"
+                    v-model:value="formState.email"
+                    :placeholder="$t('auth.inputs.email')"
                 >
                     <template #addonBefore>
                         <MailOutlined />
@@ -155,6 +163,8 @@ const onFinish = async () => {
             </a-form-item>
             <a-form-item>
                 <a-button
+                    :loading="button_loading"
+                    @click="onFinish"
                     size="large"
                     type="primary"
                     style="background-color: #9823f5; width: 100%"
@@ -165,7 +175,7 @@ const onFinish = async () => {
         </a-form>
         <div class="authentication-item-navigator">
             {{ $t("auth.navigators.signUp_signIn_ins") }}
-            <RouterLink :to="{name: 'login'}">
+            <RouterLink :to="{ name: 'login' }">
                 {{ $t("auth.navigators.signIn_link") }}
             </RouterLink>
         </div>

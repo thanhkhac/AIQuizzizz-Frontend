@@ -1,10 +1,10 @@
 <script setup>
-import {ref, onMounted} from "vue";
+import { ref, onMounted } from "vue";
 import dayjs from "dayjs";
-import {useI18n} from "vue-i18n";
+import { useI18n } from "vue-i18n";
 const emit = defineEmits(["updateSidebar"]);
 
-const {t} = useI18n();
+const { t } = useI18n();
 
 onMounted(() => {
     const sidebarActiveItem = "dashboard";
@@ -117,7 +117,7 @@ const getScheduleItemMeta = (schedule) => {
             <a-row class="w-100">
                 <a-col class="main-title" :span="20">
                     <span>{{ $t("dashboards.title") }}</span> <br />
-                    <span>{{ $t("dashboards.sub_title", {username: "NguyenTanDuc"}) }}</span>
+                    <span>{{ $t("dashboards.sub_title", { username: "NguyenTanDuc" }) }}</span>
                 </a-col>
             </a-row>
         </div>
@@ -128,7 +128,7 @@ const getScheduleItemMeta = (schedule) => {
                         <span>{{ $t("dashboards.sections.quiz.title") }}</span>
                         <span>{{ $t("dashboards.sections.quiz.sub_title") }}</span>
                     </div>
-                    <RouterLink :to="{name: 'User_Library'}" class="content-item-navigator">
+                    <RouterLink :to="{ name: 'User_Library' }" class="content-item-navigator">
                         <span>{{ $t("dashboards.buttons.viewAll") }}</span>
                         <i class="bx bx-chevron-right"></i>
                     </RouterLink>
@@ -210,6 +210,25 @@ const getScheduleItemMeta = (schedule) => {
     </div>
 </template>
 <style scoped>
+.content-item-title a {
+    font-size: 14px;
+    color: var(--text-color-white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.content-item-title i {
+    font-size: 28px;
+    transition: all 0.2s ease-in-out;
+    transform: translateY(1px);
+}
+
+.content-item-title a:hover i {
+    /* 1px for that Y above */
+    transform: translate(5px, 1px);
+}
+
 .quiz-container {
     padding: 10px;
     display: flex;

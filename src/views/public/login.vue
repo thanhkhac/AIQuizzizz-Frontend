@@ -1,24 +1,26 @@
 <script setup lang="ts">
-import {computed, onMounted, reactive, ref} from "vue";
-import {useAuthStore} from "@/stores/AuthStore";
+import { computed, onMounted, reactive, ref } from "vue";
+import { useAuthStore } from "@/stores/AuthStore";
 import ApiAuthentication from "@/api/ApiAuthentication";
 import ApiUser from "@/api/ApiUser";
-import {message} from "ant-design-vue";
-import {UserOutlined, LockOutlined, MailOutlined} from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
+import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons-vue";
 
 const authStore = useAuthStore();
 
 const formRef = ref();
-const labelCol = {span: 24};
-const wrapperCol = {span: 24};
+const labelCol = { span: 24 };
+const wrapperCol = { span: 24 };
 
 const formState = reactive({
-    username: "",
+    email: "",
     password: "",
 });
 
+const button_loading = ref(false);
+
 const rules = {
-    username: [
+    email: [
         {
             required: true,
             message: "Vui lòng không để trống mục này.",
@@ -35,11 +37,17 @@ const rules = {
 };
 
 const onFinish = async () => {
-    var login_result = await ApiAuthentication.Login(formState);
-    console.log(login_result);
-    if (login_result.data.isSucceeded) {
-        message.success(login_result.data.message);
-        authStore.LoginSuccessful();
+    try {
+        button_loading.value = true;
+        var login_result = await ApiAuthentication.Login(formState);
+        console.log(login_result);
+        if (login_result.data.isSucceeded) {
+            message.success(login_result.data.message);
+            authStore.LoginSuccessful();
+        }
+    } catch (error) {
+    } finally {
+        button_loading.value = false;
     }
 };
 </script>
@@ -75,7 +83,7 @@ const onFinish = async () => {
                 <label>{{ $t("auth.inputs.email") }}</label>
                 <a-input
                     size="large"
-                    v-model:value="formState.username"
+                    v-model:value="formState.email"
                     placeholder="Your email address..."
                 >
                     <template #addonBefore>
@@ -97,6 +105,7 @@ const onFinish = async () => {
             </a-form-item>
             <a-form-item>
                 <a-button
+                    :loading="button_loading"
                     @click="onFinish"
                     size="large"
                     type="primary"
@@ -108,12 +117,12 @@ const onFinish = async () => {
         </a-form>
         <div class="authentication-item-navigator">
             {{ $t("auth.navigators.signUp_signIn_ins") }}
-            <RouterLink :to="{name: 'register'}">
+            <RouterLink :to="{ name: 'register' }">
                 {{ $t("auth.navigators.signUp_link") }}
             </RouterLink>
         </div>
         <div class="authentication-item-navigator">
-            <RouterLink :to="{name: 'forgot-password'}">
+            <RouterLink :to="{ name: 'forgot-password' }">
                 {{ $t("auth.navigators.signIn_forgot_link") }}
             </RouterLink>
         </div>

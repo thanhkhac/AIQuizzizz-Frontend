@@ -5,6 +5,7 @@ body {
 /* ========================================UserLayout-Children======================================== */
 
 .page-container {
+    height: 100vh;
     width: calc(100% - 30px);
     margin-left: 30px;
     overflow-x: hidden;
@@ -69,23 +70,171 @@ body {
     font-size: 16px;
     font-weight: 400;
 }
-.content-item-title a {
-    font-size: 14px;
-    color: var(--text-color-white);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.content-item-title i {
-    font-size: 28px;
-    transition: all 0.2s ease-in-out;
-    transform: translateY(1px);
+
+/**
+Custome a-select
+**/
+
+.ant-select-selector {
+    background-color: var(--input-item-background-color) !important;
+    border: 1px solid var(--input-item-border-color) !important;
 }
 
-.content-item-title a:hover i {
-    /* 1px for that Y above */
-    transform: translate(5px, 1px);
+.ant-select-selector:focus-within {
+    box-shadow: none !important;
+}
+
+.ant-select-dropdown {
+    background-color: var(--input-item-background-color);
+    border: 1px solid var(--input-item-border-color);
+}
+
+.ant-select-item-option {
+    background-color: var(--input-item-background-color);
+    color: var(--text-color-white) !important;
+}
+
+.ant-select-item-option-active {
+    background-color: #313131 !important;
+}
+
+.ant-select-item-option-selected {
+    background-color: #2a2a2e !important;
+    font-weight: 500;
+    color: var(--text-color-white) !important;
+}
+
+/* select area when dropdown */
+.ant-select-selection-item {
+    color: var(--text-color-white) !important;
+}
+.ant-select-arrow {
+    color: var(--text-color-grey) !important;
+}
+
+/**
+* Custom a-popconfirm
+**/
+
+.ant-popover-arrow::before {
+    background: var(--input-item-background-color) !important;
+}
+
+.ant-popover-inner {
+    background: var(--input-item-background-color) !important;
+    border: 1px solid var(--input-item-border-color);
+    border-bottom: none;
+}
+
+.ant-popconfirm-message-title {
+    color: var(--text-color-white) !important;
+}
+
+/**
+* Custom question type component 
+**/
+
+.question-container {
+    border: 1px solid var(--main-color);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.question-header {
+    margin: 20px 0px;
+    color: var(--text-color-white);
+    display: flex;
+    justify-content: end;
+}
+.question-info {
+    margin-left: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 5px 10px;
+    background-color: var(--main-color);
+    border: 1px solid var(--main-color);
+    border-radius: 5px;
+}
+
+.question-functions {
+    flex: 1;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+.question-function-select {
+    width: 200px;
+}
+.question-function-delete {
+    font-size: 24px;
+    margin: 0px 10px 0px 20px;
+    cursor: pointer;
+}
+
+.question-body {
+    padding: 0px 10px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.question-body-answer {
+    flex: 1;
+    display: flex;
+}
+
+.option-title {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-color-white);
+}
+
+.option-list-container {
+    padding: 10px;
+    height: auto;
+    max-height: 300px;
+    border-radius: 5px;
+    border: 1px solid #878787;
+    background: #151518;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    overflow-y: scroll;
+}
+
+.option-list-container-error {
+    border-color: #f44336;
+}
+
+.option-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.option-list-container::-webkit-scrollbar-thumb {
+    width: 8px;
+    background-color: var(--input-item-border-color);
+    border-radius: 10px;
+}
+
+.add-option {
+    border-radius: 8px;
+    padding: 5px 10px;
+    max-width: 200px !important;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--text-color-white);
+    border: 1px dashed var(--text-color-grey);
+}
+.add-option i {
+    font-size: 24px;
+}
+
+.add-option:hover {
+    border: 1px dashed #aaa;
 }
 
 /* ========================================UserLayout-Children======================================== */

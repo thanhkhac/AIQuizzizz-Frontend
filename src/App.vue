@@ -18,7 +18,7 @@ const layoutComponent = computed(() => {
 </script>
 <template>
     <component :is="layoutComponent || 'div'">
-        <div class="admin-layout-body">
+        <div class="layout-body">
             <div class="background-eclipse-container">
                 <div class="eclipse eclipse-left"></div>
                 <div class="eclipse eclipse-right"></div>
@@ -28,7 +28,7 @@ const layoutComponent = computed(() => {
     </component>
 </template>
 <style scoped>
-.admin-layout-body {
+.layout-body {
     background-color: #000;
     width: 100vw;
     position: relative;

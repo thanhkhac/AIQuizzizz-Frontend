@@ -1,16 +1,18 @@
-<script setup>
-import {computed, onMounted, reactive, ref} from "vue";
+<script setup lang="ts">
+import { computed, onMounted, reactive, ref } from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
-import {message} from "ant-design-vue";
-import {UserOutlined, LockOutlined, MailOutlined} from "@ant-design/icons-vue";
+import { message, notification } from "ant-design-vue";
+import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons-vue";
 
 const formRef = ref();
-const labelCol = {span: 24};
-const wrapperCol = {span: 24};
+const labelCol = { span: 24 };
+const wrapperCol = { span: 24 };
 
 const formState = reactive({
     email: "",
 });
+
+const button_loading = ref(false);
 
 const rules = {
     email: [
@@ -27,9 +29,28 @@ const rules = {
     ],
 };
 
+type NotificationType = "success" | "info" | "warning" | "error";
+const showNotification = (type: NotificationType, message: string, description: string) => {
+    notification[type]({
+        message,
+        description,
+    });
+};
+
 const onFinish = async () => {
-    //call send email api
-    //notification / message result
+    try {
+        button_loading.value = false;
+        const result = await ApiAuthentication.ForgotPassword(formState);
+        if (result.data.success) {
+            showNotification("success", "Register result", "Success");
+            return;
+        }
+        showNotification("error", "Register result", "ERROR");
+    } catch (error) {
+        console.log(error);
+    } finally {
+        button_loading.value = true;
+    }
 };
 </script>
 <template>
@@ -62,6 +83,8 @@ const onFinish = async () => {
             </a-form-item>
             <a-form-item>
                 <a-button
+                    :loading="button_loading"
+                    @click="onFinish"
                     size="large"
                     type="primary"
                     style="background-color: #9823f5; width: 100%"
@@ -72,8 +95,8 @@ const onFinish = async () => {
         </a-form>
         <div class="authentication-item-navigator">
             {{ $t("auth.navigators.forgot_signIn_ins") }}
-            <RouterLink :to="{name: 'login'}">
-               {{ $t("auth.navigators.back_signIn_link") }}
+            <RouterLink :to="{ name: 'login' }">
+                {{ $t("auth.navigators.back_signIn_link") }}
             </RouterLink>
         </div>
     </div>
