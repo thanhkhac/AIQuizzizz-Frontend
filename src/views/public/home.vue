@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import {StarOutlined, AppstoreOutlined} from "@ant-design/icons-vue";
+import home_banner from "@/assets/banner_image.png";
+
+import { StarOutlined, AppstoreOutlined } from "@ant-design/icons-vue";
 import Header from "@/shared/components/Header.vue";
 </script>
 <template>
@@ -264,7 +266,10 @@ import Header from "@/shared/components/Header.vue";
                     </div>
                 </div>
                 <div class="banner-item">
-                    <div class="banner-item-img"></div>
+                    <div
+                        class="banner-item-img"
+                        :style="{ backgroundImage: `url(${home_banner})` }"
+                    ></div>
                 </div>
             </div>
         </div>
@@ -274,7 +279,7 @@ import Header from "@/shared/components/Header.vue";
 <style scoped>
 .background {
     height: 100vh;
-    background-color: #000;
+    background-color: var(--background-color);
     overflow-x: hidden;
     position: relative;
 }
@@ -340,14 +345,14 @@ import Header from "@/shared/components/Header.vue";
 }
 
 .home-content-item {
-    color: var(--text-color-white);
     text-align: center;
     margin: 15px 0px;
+    color: var(--text-color);
 }
 
 .home-content-item:first-child {
     border-radius: 20px;
-    background: #161618;
+    background: var(--background-color-selected);
     display: inline-flex;
     padding: 4px 12px;
     justify-content: center;
@@ -377,9 +382,9 @@ import Header from "@/shared/components/Header.vue";
     align-items: center;
     text-decoration: none;
     border-radius: 10px;
-    background-color: #fff;
+    background-color: var(--background-color-contrast);
     margin: 0 10px;
-    color: #000;
+    color: var(--text-color-contrast);
     font-weight: 500;
 }
 
@@ -415,8 +420,8 @@ import Header from "@/shared/components/Header.vue";
     padding: 10px;
     margin: 10px;
     border-radius: 8px;
-    border: 4px solid #241f20;
-    background: #241f20;
+    border: 4px solid var(--background-color-selected);
+    background: var(--background-color-selected);
 }
 
 .category-item-icon {
@@ -505,7 +510,7 @@ import Header from "@/shared/components/Header.vue";
 }
 
 .category-item-content span:nth-child(3) {
-    color: #cccccc;
+    color: var(--text-color);
     font-size: 14px;
     font-style: normal;
     font-weight: 400;
@@ -541,11 +546,12 @@ import Header from "@/shared/components/Header.vue";
     padding: 10px;
     margin: 10px;
     border-radius: 8px;
-    border: 4px solid #241f20;
-    background: #241f20;
     flex-direction: column;
     justify-content: start;
     align-items: start;
+
+    border: 2px solid var(--border-color);
+    background: var(--form-item-background-color);
 }
 
 .feature-item-icon {
@@ -599,7 +605,7 @@ import Header from "@/shared/components/Header.vue";
 }
 .banner-item div:nth-child(1) {
     width: 400px;
-    color: #fff;
+    color: var(--text-color);
     font-size: 36px;
     font-style: normal;
     font-weight: 700;
@@ -608,7 +614,7 @@ import Header from "@/shared/components/Header.vue";
 
 .banner-item div:nth-child(2) {
     width: 550px;
-    color: #ccc;
+    color: var(--text-color);
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
@@ -621,17 +627,17 @@ import Header from "@/shared/components/Header.vue";
     justify-content: center;
     align-items: center;
     margin-right: 15px;
-    background-color: var(--background-color-white);
+    background-color: var(--background-color-contrast);
     border-radius: 10px;
-    color: var(--text-color-black);
+    color: var(--text-color-contrast);
     text-decoration: none;
     font-weight: 500;
 }
 
 .banner-item a:nth-child(2) {
     background-color: transparent;
-    border: 2px solid #fff;
-    color: var(--text-color-white);
+    border: 2px solid var(--border-color-contrast);
+    color: var(--text-color);
 }
 .banner-item a:nth-child(1):hover {
     background-color: var(--background-color-white-hovered);
@@ -640,7 +646,6 @@ import Header from "@/shared/components/Header.vue";
 .banner-item-img {
     width: 700px;
     height: 220px;
-    background-image: url("src/assets/banner_image.png");
     background-size: cover;
     background-position: center;
     border-radius: 20px;

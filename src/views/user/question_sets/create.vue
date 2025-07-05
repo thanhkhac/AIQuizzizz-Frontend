@@ -1047,7 +1047,7 @@ onMounted(() => {
 }
 
 .page-container::-webkit-scrollbar-thumb {
-    background-color: var(--input-item-border-color) !important;
+    background-color: var(--form-item-border-color) !important;
     border-radius: 10px;
 }
 
@@ -1056,7 +1056,7 @@ onMounted(() => {
     font-size: 30px;
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 5px;
-    color: var(--text-color-white);
+    color: var(--text-color);
     transition: all 0.2s ease-in-out;
 }
 .navigator-back-button:hover {
@@ -1075,7 +1075,7 @@ onMounted(() => {
     border-radius: 8px;
     margin: 0px 10px;
     font-size: 16px;
-    color: var(--text-color-white);
+    color: var(--text-color);
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -1115,15 +1115,15 @@ onMounted(() => {
     flex-wrap: wrap;
     padding: 5px;
     margin-bottom: 16px;
-    background-color: #101010 !important;
+    background-color: var(--content-item-children-background-color) !important;
     overflow-y: scroll;
-    border: 1px solid #27272a;
+    border: 1px solid var(--content-item-border-color);
     border-radius: 5px;
 }
 
 .tag-item {
     padding: 0px 1px 0px 6px;
-    border: 1px solid #a1a1aa;
+    border: 1px solid var(--border-color-contrast);
     border-radius: 120px;
     height: 22px;
     font-size: 14px;
@@ -1199,12 +1199,12 @@ onMounted(() => {
 }
 
 .modal-title-container {
-    color: var(--text-color-white);
+    color: var(--text-color);
     margin-bottom: 10px;
 }
 
 .modal-content-item {
-    color: var(--text-color-white);
+    color: var(--text-color);
     background-color: var(--content-item-background-color);
     border: 1px solid var(--content-item-border-color);
     border-radius: 5px;
@@ -1218,7 +1218,7 @@ onMounted(() => {
 }
 
 .section-title {
-    color: var(--text-color-white);
+    color: var(--text-color);
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 10px;
@@ -1251,7 +1251,7 @@ onMounted(() => {
 }
 
 .preview-section .section-content::-webkit-scrollbar-thumb {
-    background-color: var(--input-item-border-color);
+    background-color: var(--form-item-border-color);
     border-radius: 10px;
 }
 
@@ -1288,7 +1288,7 @@ onMounted(() => {
     font-size: 18px;
     font-weight: 500;
     margin-bottom: 10px;
-    color: #ddd;
+    color: var(--text-color-sub-white);
 }
 
 .customized-file-upload-hint {
@@ -1303,7 +1303,7 @@ onMounted(() => {
 
 .file-item {
     padding: 5px 10px;
-    border: 1px solid var(--input-item-border-color);
+    border: 1px solid var(--form-item-border-color);
     border-radius: 5px;
     display: flex;
     justify-content: space-between;
@@ -1331,7 +1331,7 @@ onMounted(() => {
     padding: 8px;
     border: 1px solid var(--main-color);
     border-radius: 5px;
-    color: var(--text-color-white);
+    color: var(--text-color);
     font-weight: 500;
 }
 
@@ -1346,11 +1346,11 @@ onMounted(() => {
 .preview-question-item {
     padding: 10px;
     margin: 10px 0px;
-    border: 1px solid var(--input-item-border-color);
+    border: 1px solid var(--form-item-border-color);
     border-radius: 5px;
     display: flex;
     align-items: start;
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 .question-item-content {
@@ -1393,7 +1393,7 @@ onMounted(() => {
     min-width: 100px;
     max-width: 400px;
     padding: 5px 10px;
-    border: 1px solid var(--input-item-border-color);
+    border: 1px solid var(--form-item-border-color);
     border-radius: 3px;
 }
 
@@ -1419,21 +1419,21 @@ onMounted(() => {
     margin-top: 10px;
     max-width: 600px;
     padding: 5px 10px;
-    border: 1px solid var(--input-item-border-color);
+    border: 1px solid var(--form-item-border-color);
     border-radius: 3px;
 }
 
 ::v-deep(.ant-select-selection-item-remove) {
-    color: var(--text-color-white);
+    color: var(--text-color);
     transform: translateY(-2px);
 }
 
 ::v-deep(.ant-select-selection-item-remove):hover {
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 ::v-deep(.ant-select-selection-overflow) {
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 ::v-deep(.ant-select-selection-placeholder) {

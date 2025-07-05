@@ -2,10 +2,195 @@
 body {
     overflow-x: hidden;
 }
-/* ========================================UserLayout-Children======================================== */
+/* ========================================Sidebar==================================================== */
+.sidebar-container {
+    background-color: var(--sidebar-background-color);
+    padding: 16px;
+    transition: width 0.3s ease-in-out;
+    width: 240px;
+    height: calc(100vh - 60px);
+    z-index: 1;
+    position: sticky;
+    top: 60px;
+}
 
+.sidebar-container.shrink {
+    width: 85px;
+}
+
+.sidebar-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    justify-content: space-between;
+}
+
+.sidebar-viewButton {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    right: -20px;
+    top: 40%;
+    background-color: var(--main-color);
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 1px 1px 10px var(--main-color);
+    z-index: 1;
+}
+
+.sidebar-container.shrink .sidebar-viewButton {
+    transform: rotate(180deg);
+}
+
+.sidebar-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+}
+
+.sidebar-listItem {
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    margin: 5px 0px;
+}
+
+.sidebar-listItem.active {
+    background-color: var(--main-color);
+    color: var(--text-color) !important;
+}
+
+.sidebar-listItem a {
+    width: 100%;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--text-color-sub-white);
+    font-size: 14px;
+}
+
+.sidebar-listItem.active a,
+.sidebar-listItem.active i {
+    color: var(--text-color);
+}
+
+.sidebar-listItem i {
+    color: var(--text-color-sub-white);
+    font-size: 22px;
+    margin-right: 8px;
+    width: 18px;
+    text-align: center;
+}
+
+.sidebar-listItem:hover {
+    background-color: var(--main-color);
+}
+
+.sidebar-listItem:hover i,
+.sidebar-listItem:hover a {
+    color: var(--text-color) !important;
+}
+
+.shrink .sidebar-listItem i {
+    margin-right: 0;
+}
+
+.sidebar-listItemText {
+    white-space: nowrap;
+    opacity: 1;
+    visibility: visible;
+    display: block;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.shrink .sidebar-listItemText {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.sidebar-profileSection {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    color: var(--text-color);
+}
+
+.sidebar-profileSection img {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    min-height: 60px;
+    border-radius: 50%;
+    margin-right: 15px;
+    border: 1px solid var(--main-color);
+    padding: 2px;
+}
+
+.sidebar-profileSection div {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-profileSection span {
+    visibility: visible;
+    opacity: 1;
+    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+    font-size: 11px;
+}
+
+.shrink .sidebar-profileSection span {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.divider {
+    transition: all 0.2s ease-in-out;
+}
+
+.shrink .divider {
+    opacity: 0;
+}
+
+.sign-out {
+    display: none;
+}
+
+.shrink .sign-out {
+    display: block;
+}
+
+.sign-out-btn {
+    margin: 3px 0px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sign-out-btn i {
+    font-size: 20px;
+}
+
+.sign-out-btn:hover {
+    background-color: var(--main-color);
+}
+/* ========================================Sidebar==================================================== */
+/****/
+/* ========================================UserLayout-Children======================================== */
 .page-container {
-    height: 100vh;
     width: calc(100% - 30px);
     margin-left: 30px;
     overflow-x: hidden;
@@ -20,17 +205,18 @@ body {
 .content-item {
     width: calc(100% - 60px);
     margin: 8px;
+    margin-bottom: 0px;
     padding: 10px;
-    background-color: #151518;
-    border: 1px solid #27272a;
-    color: var(--text-color-white);
+    background-color: var(--content-item-background-color);
+    border: 1px solid var(--content-item-border-color);
+    color: var(--text-color);
     border-radius: 8px;
     overflow-y: hidden;
 }
 
 .title-container {
     width: 100%;
-    color: var(--text-color-white);
+    color: var(--text-color);
     line-height: normal;
     font-style: normal;
     letter-spacing: -0.293px;
@@ -52,7 +238,7 @@ body {
 
 .content-item-title {
     width: 100%;
-    color: var(--text-color-white);
+    color: var(--text-color);
     font-size: 24px;
     font-style: normal;
     font-weight: 700;
@@ -76,8 +262,8 @@ Custome a-select
 **/
 
 .ant-select-selector {
-    background-color: var(--input-item-background-color) !important;
-    border: 1px solid var(--input-item-border-color) !important;
+    background-color: var(--form-item-background-color) !important;
+    border: 1px solid var(--form-item-border-color) !important;
 }
 
 .ant-select-selector:focus-within {
@@ -85,28 +271,28 @@ Custome a-select
 }
 
 .ant-select-dropdown {
-    background-color: var(--input-item-background-color);
-    border: 1px solid var(--input-item-border-color);
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
 }
 
 .ant-select-item-option {
-    background-color: var(--input-item-background-color);
-    color: var(--text-color-white) !important;
+    background-color: var(--form-item-background-color);
+    color: var(--text-color) !important;
 }
 
 .ant-select-item-option-active {
-    background-color: #313131 !important;
+    background-color: var(--background-color-hovered) !important;
 }
 
 .ant-select-item-option-selected {
-    background-color: #2a2a2e !important;
+    background-color: var(--background-color-selected) !important;
     font-weight: 500;
-    color: var(--text-color-white) !important;
+    color: var(--text-color) !important;
 }
 
 /* select area when dropdown */
 .ant-select-selection-item {
-    color: var(--text-color-white) !important;
+    color: var(--text-color) !important;
 }
 .ant-select-arrow {
     color: var(--text-color-grey) !important;
@@ -117,17 +303,17 @@ Custome a-select
 **/
 
 .ant-popover-arrow::before {
-    background: var(--input-item-background-color) !important;
+    background: var(--form-item-background-color) !important;
 }
 
 .ant-popover-inner {
-    background: var(--input-item-background-color) !important;
-    border: 1px solid var(--input-item-border-color);
+    background: var(--form-item-background-color) !important;
+    border: 1px solid var(--form-item-border-color);
     border-bottom: none;
 }
 
 .ant-popconfirm-message-title {
-    color: var(--text-color-white) !important;
+    color: var(--text-color) !important;
 }
 
 /**
@@ -143,7 +329,7 @@ Custome a-select
 
 .question-header {
     margin: 20px 0px;
-    color: var(--text-color-white);
+    color: var(--text-color);
     display: flex;
     justify-content: end;
 }
@@ -187,7 +373,7 @@ Custome a-select
 .option-title {
     margin-bottom: 8px;
     font-weight: 500;
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 .option-list-container {
@@ -211,7 +397,7 @@ Custome a-select
 
 .option-list-container::-webkit-scrollbar-thumb {
     width: 8px;
-    background-color: var(--input-item-border-color);
+    background-color: var(--form-item-border-color);
     border-radius: 10px;
 }
 
@@ -226,7 +412,7 @@ Custome a-select
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
-    color: var(--text-color-white);
+    color: var(--text-color);
     border: 1px dashed var(--text-color-grey);
 }
 .add-option i {

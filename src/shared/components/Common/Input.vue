@@ -68,9 +68,8 @@ const checkInvalid = () => {
 .input {
     height: 35px;
     padding: 5px 10px;
-    border: none;
-    background: var(--input-item-background-color);
-    border: 1px solid var(--input-item-border-color);
+    background-color:  var(--content-item-children-background-color);
+    border: 1px solid var(--form-item-border-color);
     color: var(--text-color-white);
 }
 
@@ -79,7 +78,7 @@ const checkInvalid = () => {
 }
 
 .input:hover {
-    border: 1px solid var(--input-item-border-color);
+    border: 1px solid var(--form-item-border-color);
 }
 
 .input::placeholder {
@@ -94,12 +93,12 @@ const checkInvalid = () => {
 /*---*/
 
 ::v-deep(.input input) {
-    color: var(--text-color-white);
-    background: var(--input-item-background-color);
+    color: var(--text-color);
+    background-color:  var(--content-item-children-background-color);
 }
 
 ::v-deep(.ant-form-item-label > label) {
-    color: var(--text-color-white); /* or any custom color */
+    color: var(--text-color);
     font-weight: 500;
     font-size: 14px;
 }

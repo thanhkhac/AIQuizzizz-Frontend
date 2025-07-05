@@ -214,13 +214,11 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #1f1f20;
-    border: 1px solid var(--content-item-border-color);
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
     margin: 10px 0px;
 
     border-radius: 5px;
-    border: 1px solid #27272a;
-    background: #1f1f20;
 }
 
 .pair-item-input {
@@ -236,7 +234,7 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
 }
 
 .pair-icon:hover {
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 .remove-btn {

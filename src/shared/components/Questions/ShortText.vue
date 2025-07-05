@@ -172,13 +172,10 @@ const { validateInfos } = Form.useForm(props.question, {
 .option-item {
     padding: 5px 10px;
     display: flex;
-    background-color: #1f1f20;
-    border: 1px solid var(--content-item-border-color);
+    background-color: var(--content-item-children-background-color);
+    border: 1px solid var(--form-item-border-color);
     margin: 10px 0px;
-
     border-radius: 5px;
-    border: 1px solid #27272a;
-    background: #1f1f20;
 }
 
 .option-item-checkbox {
@@ -203,7 +200,7 @@ const { validateInfos } = Form.useForm(props.question, {
     flex-wrap: wrap;
 }
 .possible-answer {
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 .option-title span {
     font-size: 12px;

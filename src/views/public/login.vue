@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import google_logo from "@/assets/google_logo.png";
+import facebook_logo from "@/assets/facebook_logo.png";
+
 import { reactive, ref } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
 import ApiAuthentication from "@/api/ApiAuthentication";
@@ -63,11 +66,11 @@ const onFinish = async () => {
 
         <div class="authentication-item-external-login">
             <div class="external-login external-login-google">
-                <div></div>
+                <div :style="{ backgroundImage: `url(${google_logo})` }"></div>
                 <div>Google</div>
             </div>
             <div class="external-login external-login-facebook">
-                <div></div>
+                <div :style="{ backgroundImage: `url(${facebook_logo})` }"></div>
                 <div>Facebook</div>
             </div>
         </div>

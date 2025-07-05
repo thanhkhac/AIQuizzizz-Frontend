@@ -98,7 +98,6 @@ const { validateInfos } = Form.useForm(props.question, {
         },
     ],
 });
-
 </script>
 <template>
     <a-form :layout="'vertical'" :rules="validateInfos" :model="props.question">
@@ -201,13 +200,11 @@ const { validateInfos } = Form.useForm(props.question, {
 .option-item {
     padding: 5px 10px;
     display: flex;
-    background-color: #1f1f20;
-    border: 1px solid var(--content-item-border-color);
+    background-color: var(--content-item-children-background-color);
+    border: 1px solid var(--form-item-border-color);
     margin: 10px 0px;
 
     border-radius: 5px;
-    border: 1px solid #27272a;
-    background: #1f1f20;
 }
 
 .option-item-checkbox {

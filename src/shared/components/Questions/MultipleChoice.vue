@@ -205,15 +205,12 @@ const onCheckHaveAnswer = () => {
 }
 
 .option-item {
+    margin: 10px 0px;
     padding: 5px 10px;
     display: flex;
-    background-color: #1f1f20;
-    border: 1px solid var(--content-item-border-color);
-    margin: 10px 0px;
-
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
     border-radius: 5px;
-    border: 1px solid #27272a;
-    background: #1f1f20;
 }
 
 .option-item-checkbox {

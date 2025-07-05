@@ -212,7 +212,7 @@ const getScheduleItemMeta = (schedule) => {
 <style scoped>
 .content-item-title a {
     font-size: 14px;
-    color: var(--text-color-white);
+    color: var(--text-color);
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -233,13 +233,13 @@ const getScheduleItemMeta = (schedule) => {
     padding: 10px;
     display: flex;
     flex-wrap: wrap;
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 .quiz-item {
-    background-color: #19191b;
+    background-color: var(--content-item-children-background-color);
     margin: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 10px;
     display: flex;
@@ -249,7 +249,7 @@ const getScheduleItemMeta = (schedule) => {
 }
 
 .quiz-item:hover {
-    border: 1px solid var(--main-sub-color);
+    border: 1px solid var(--main-color);
 }
 
 .quiz-item i {
@@ -277,16 +277,16 @@ const getScheduleItemMeta = (schedule) => {
 }
 
 ::v-deep(.ant-progress-text) {
-    color: var(--text-color-white) !important;
+    color: var(--text-color) !important;
 }
 ::v-deep(.ant-progress-inner) {
-    background-color: #27272a;
+    background-color: var(--content-item-border-color);
 }
 
 .add-button {
     display: flex;
     align-items: center;
-    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border: 1px dashed var(--border-color);
     cursor: pointer;
 }
 .add-button:hover {
@@ -308,7 +308,7 @@ const getScheduleItemMeta = (schedule) => {
 }
 
 .add-button-context {
-    color: var(--text-color-white);
+    color: var(--text-color);
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -323,7 +323,7 @@ const getScheduleItemMeta = (schedule) => {
 
 .schedule-container {
     border-radius: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--border-color);
     max-height: 300px;
     overflow-y: scroll;
     margin-top: 10px;
@@ -349,9 +349,9 @@ const getScheduleItemMeta = (schedule) => {
 }
 
 .schedule-item {
-    background-color: #19191b;
+    background-color: var(--content-item-children-background-color);
     margin: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 10px;
     display: flex;
@@ -379,7 +379,7 @@ const getScheduleItemMeta = (schedule) => {
 }
 
 .schedule-item-info {
-    color: var(--text-color-white);
+    color: var(--text-color);
     font-size: 16px;
     font-weight: 600;
 }
@@ -390,7 +390,7 @@ const getScheduleItemMeta = (schedule) => {
 .schedule-item-date {
     display: flex;
     align-items: center;
-    color: #ccc;
+    color: var(--text-color-sub-white);
     font-size: 14px;
     font-weight: 400;
 }
@@ -405,10 +405,10 @@ const getScheduleItemMeta = (schedule) => {
     justify-content: end;
 }
 .schedule-item-actions button {
-    background-color: var(--main-sub-color);
+    background-color: var(--main-color);
 }
 
 .schedule-item-actions button:hover {
-    background-color: var(--main-color);
+    background-color: var(--main-sub-color);
 }
 </style>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 const modelValue = defineModel<string>("modelValue");
 const placeholder = defineModel<string>("placeholder");
 const label = defineModel<string>("label");
@@ -9,9 +8,6 @@ const maxLength = defineModel<number>("maxLength");
 const isRequired = defineModel<boolean>("isRequired");
 
 const emit = defineEmits(["update:value", "change"]);
-
-// const isTouched = ref(false); // disable is-invalid at first
-//     if (!isTouched.value) isTouched.value = true;
 
 const onUpdate = () => {
     emit("update:value", modelValue.value);
@@ -59,19 +55,18 @@ const checkInvalid = () => {
     border-radius: 5px;
     overflow: hidden;
     margin-bottom: 0px;
-    color: var(--text-color-white);
+    color: var(--text-color);
     width: 100%;
 }
 
 .input {
     height: 35px;
     padding: 5px 10px;
-    border: none;
-    background: var(--input-item-background-color);
-    border: 1px solid var(--input-item-border-color);
+    background-color: var(--content-item-children-background-color);
+    border: 1px solid var(--form-item-border-color);
     min-height: 60px;
     max-height: 160px;
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 .input.is-invalid {
@@ -89,12 +84,12 @@ const checkInvalid = () => {
 /*---*/
 
 ::v-deep(.input textarea) {
-    color: var(--text-color-white);
-    background: var(--input-item-background-color);
+    color: var(--text-color);
+    background-color: var(--content-item-children-background-color);
 }
 
 ::v-deep(.ant-form-item-label > label) {
-    color: var(--text-color-white); /* or any custom color */
+    color: var(--text-color);
     font-weight: 500;
     font-size: 14px;
 }

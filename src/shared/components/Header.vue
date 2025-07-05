@@ -1,20 +1,18 @@
 <script setup>
-import {ref, onMounted} from "vue";
-import {useAuthStore} from "/src/stores/AuthStore.ts";
+import { ref, onMounted } from "vue";
+import { useAuthStore } from "@/stores/AuthStore";
 import SUPPORTED_LOCALES from "@/constants/languages";
-import {useI18n} from "vue-i18n";
+import { useI18n } from "vue-i18n";
 
-const {availableLocales, locale, setLocaleMessage} = useI18n();
+const { availableLocales, locale, setLocaleMessage } = useI18n();
 const selectedLocale = ref("");
 
 const authStore = useAuthStore();
 
-const isUserLogged = () => {
-    return authStore.getUserInfo();
-};
+const isUserLogged = authStore.checkUser();
 
 const navbarFunction = () => {
-    var x = document.getElementById("header");
+    let x = document.getElementById("header");
     if (x.className === "header") {
         x.className += " responsive";
     } else {
@@ -38,9 +36,9 @@ async function switchLanguage(selectedLocale) {
 <template>
     <div class="header">
         <div class="header-logo">
-            <RouterLink :to="{name: 'home'}">AIQuizizz</RouterLink>
+            <RouterLink :to="{ name: 'home' }">AIQuizizz</RouterLink>
         </div>
-        <ul class="header-navigator" :style="isUserLogged ? {display: 'none'} : {}">
+        <ul class="header-navigator">
             <li>Quiz</li>
             <li>Weekly Quiz</li>
             <li>Rewards</li>
@@ -51,25 +49,28 @@ async function switchLanguage(selectedLocale) {
                 </a>
             </li>
         </ul>
+        <div
+            class="header-authentication-navigator"
+            :style="isUserLogged ? { display: 'none' } : {}"
+        >
+            <RouterLink :to="{ name: 'login' }">Sign In</RouterLink>
+            <RouterLink :to="{ name: 'register' }">Register</RouterLink>
+        </div>
         <a-select
             @change="switchLanguage"
             class="language-select"
-            style="width: 200px; background-color: black"
             v-model:value="selectedLocale"
+            :style="!isUserLogged ? { display: 'none' } : {}"
         >
             <a-select-option
                 v-for="locale in SUPPORTED_LOCALES"
                 :key="`locale-${locale.code}`"
                 :value="locale.code"
             >
-                <img class="language-img" :src="locale.imagePath" />
+                <img class="language-img" :src="locale.imagePath" alt="img" />
                 {{ locale.label }}
             </a-select-option>
         </a-select>
-        <div class="header-authentication-navigator" :style="isUserLogged ? {display: 'none'} : {}">
-            <RouterLink :to="{name: 'login'}">Sign In</RouterLink>
-            <RouterLink :to="{name: 'register'}">Register</RouterLink>
-        </div>
     </div>
 </template>
 <style scoped>
@@ -81,8 +82,8 @@ async function switchLanguage(selectedLocale) {
     position: sticky;
     top: 0px;
     z-index: 100;
-    color: #fff;
-    border-bottom: 1px solid #2a2a2a;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--content-item-border-color);
 }
 
 .header-logo {
@@ -106,7 +107,7 @@ async function switchLanguage(selectedLocale) {
     flex: 0.3;
     margin: 0;
 
-    color: #fff;
+    color: var(--text-color);
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -121,22 +122,27 @@ async function switchLanguage(selectedLocale) {
     text-decoration: none;
     margin-left: 10px;
     padding: 8px 16px;
-    background-color: red;
     border-radius: 10px;
 
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
-    color: #000;
+    color: var(--text-color);
     background-color: var(--background-color-white);
+
+    display: flex;
+    align-items: center;
+
+    transition: all 0.2s ease-in-out;
 }
 
 .header-authentication-navigator a:nth-child(1):hover {
-    background-color: #eee;
+    background-color: var(--background-color-contrast);
+    color: var(--text-color-contrast);
 }
 
 .header-authentication-navigator a:nth-child(2) {
-    color: #fff;
+    color: var(--text-color);
     background: linear-gradient(97deg, #5813c1 -5.8%, #c45037 99.69%);
     background-size: 200% 200%;
     background-position: 25% 50%;
@@ -153,6 +159,12 @@ async function switchLanguage(selectedLocale) {
     }
 }
 
+.language-select {
+    width: 200px;
+    height: 100%;
+    background-color: var(--background-color);
+}
+
 .language-img {
     width: 30px;
     height: 30px;
@@ -161,8 +173,13 @@ async function switchLanguage(selectedLocale) {
 }
 
 .language-select .ant-select-selector {
-    background-color: black;
-    color: white; /* Optional: change text color */
-    border-color: #333; /* Optional: change border */
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+::v-deep(.ant-select-selector) {
+    padding: 5px 10px !important;
+    height: auto !important;
 }
 </style>
