@@ -294,5 +294,31 @@
             "maximum_options": "Each question must have at most 10 options",
             "maximum_tag": "Limit {tag} tags"
         }
+    },
+    "settings": {
+        "title": "Settings",
+        "sub_title": "Manage your account settings and preferences",
+        "tabs": {
+            "profile": "Profile",
+            "security": "Security",
+            "appearance": "Appearance",
+            "subscription": "Subscription"
+        },
+        "profile": {
+            "title": "Profile Information",
+            "sub_title": "Update your profile information and public details"
+        },
+        "security": {
+            "title": "Account Security",
+            "sub_title": "Update your password and security settings"
+        },
+        "appearance": {
+            "title": "Appearance",
+            "sub_title": "Customize how AIQuizizz looks for you"
+        },
+        "subscription": {
+            "title": "Subscription Plan",
+            "sub_title": "Manage your subscription and billing details"
+        }
     }
 }

@@ -74,6 +74,7 @@ import {
     Steps,
     Progress,
     Result,
+    Tabs,
 } from "ant-design-vue";
 
 /**
@@ -109,6 +110,24 @@ async function initLocale(): Promise<void> {
     await loadLocale(savedLocale);
 }
 
+const colors = ["purple", "blue", "green", "red", "amber", "pink"];
+
+const storedThemeClass = localStorage.getItem("theme") || "theme-dark";
+const isDarkSystem = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+const themeClass =
+    storedThemeClass === "theme-system"
+        ? isDarkSystem
+            ? "theme-dark"
+            : "theme-light"
+        : storedThemeClass;
+document.documentElement.classList.add(themeClass);
+
+const storedColorClass = localStorage.getItem("accent_color") || "purple";
+if (colors.includes(storedColorClass)) {
+    document.documentElement.classList.add(storedColorClass);
+}
+
 (async () => {
     await initLocale();
     const app = createApp(App);
@@ -142,6 +161,7 @@ async function initLocale(): Promise<void> {
     app.use(Steps);
     app.use(Progress);
     app.use(Result);
+    app.use(Tabs);
 
     app.use(HighchartsVue);
 

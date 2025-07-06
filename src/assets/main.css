@@ -423,4 +423,14 @@ Custome a-select
     border: 1px dashed #aaa;
 }
 
+.main-color-btn {
+    background-color: var(--main-color);
+    transition: all 0.2s ease-in-out;
+}
+
+.main-color-btn:hover {
+    background-color: var(--main-sub-color) !important;
+    border-color: var(--main-sub-color) !important;
+}
+
 /* ========================================UserLayout-Children======================================== */

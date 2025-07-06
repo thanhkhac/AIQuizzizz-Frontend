@@ -78,7 +78,7 @@ const onSignOut = () => {
                         </span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', { active: activeItem === 'user' }]">
+                <li :class="['sidebar-listItem', { active: activeItem === 'schedule' }]">
                     <RouterLink :to="{}">
                         <i class="bx bxs-calendar"></i>
                         <span class="sidebar-listItemText">
@@ -86,7 +86,7 @@ const onSignOut = () => {
                         </span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', { active: activeItem === 'doctor' }]">
+                <li :class="['sidebar-listItem', { active: activeItem === 'class' }]">
                     <RouterLink :to="{}">
                         <i class="bx bx-group"></i>
                         <span class="sidebar-listItemText">
@@ -104,8 +104,8 @@ const onSignOut = () => {
                 </a-divider>
                 <a-divider class="divider" style="margin-top: 0px; background-color: #fff" />
 
-                <li :class="['sidebar-listItem', { active: activeItem === 'specialty' }]">
-                    <RouterLink :to="{}">
+                <li :class="['sidebar-listItem', { active: activeItem === 'settings' }]">
+                    <RouterLink :to="{ name: 'User_Settings' }">
                         <i class="bx bx-cog"></i>
                         <span class="sidebar-listItemText">
                             {{ $t("sidebar.navigators.settings") }}
