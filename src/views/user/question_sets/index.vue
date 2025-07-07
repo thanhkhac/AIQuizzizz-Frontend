@@ -1,7 +1,11 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
+import { useRouter } from "vue-router";
+
 import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
+
+const router = useRouter();
 
 const { t } = useI18n();
 
@@ -25,6 +29,7 @@ const quiz_data = ref([]);
 
 const quiz_data_raw = ref([
     {
+        id: "1",
         title: "Introduction to Biology",
         numberOfQuestions: 56,
         compeletedQuestion: 24,
@@ -32,6 +37,7 @@ const quiz_data_raw = ref([
         visibility: "Private",
     },
     {
+        id: "2",
         title: "Fundamental programming",
         numberOfQuestions: 76,
         compeletedQuestion: 0,
@@ -39,6 +45,7 @@ const quiz_data_raw = ref([
         visibility: "Public",
     },
     {
+        id: "3",
         title: "World History Basics",
         numberOfQuestions: 40,
         compeletedQuestion: 15,
@@ -46,6 +53,7 @@ const quiz_data_raw = ref([
         visibility: "Public",
     },
     {
+        id: "3",
         title: "Advanced Mathematics",
         numberOfQuestions: 100,
         compeletedQuestion: 88,
@@ -53,6 +61,7 @@ const quiz_data_raw = ref([
         visibility: "Private",
     },
     {
+        id: "4",
         title: "Chemistry 101",
         numberOfQuestions: 50,
         compeletedQuestion: 25,
@@ -60,6 +69,7 @@ const quiz_data_raw = ref([
         visibility: "Private",
     },
     {
+        id: "5",
         title: "English Grammar Essentials",
         numberOfQuestions: 30,
         compeletedQuestion: 10,
@@ -67,6 +77,7 @@ const quiz_data_raw = ref([
         visibility: "Public",
     },
     {
+        id: "5",
         title: "Introduction to Psychology",
         numberOfQuestions: 60,
         compeletedQuestion: 0,
@@ -106,6 +117,10 @@ const onFilter = () => {
     quiz_data.value = filtered_data;
 };
 
+const onRedirectToEdit = (id, title) => {
+    router.push({ name: "User_QuestionSet_Detail", params: { id: id, title: title } });
+};
+
 onMounted(() => {
     const sidebarActiveItem = "library";
     emit("updateSidebar", sidebarActiveItem);
@@ -132,7 +147,10 @@ onMounted(() => {
                         <span>{{ $t("question_sets_index.sections.quiz.sub_title") }}</span>
                     </div>
 
-                    <RouterLink class="content-item-button" :to="{ name: 'User_QuestionSet_Create' }">
+                    <RouterLink
+                        class="content-item-button"
+                        :to="{ name: 'User_QuestionSet_Create' }"
+                    >
                         {{ $t("dashboards.buttons.createNewQuiz") }}
                         <i class="bx bx-plus"></i>
                     </RouterLink>
@@ -217,7 +235,10 @@ onMounted(() => {
                                 <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
                                 <template #overlay>
                                     <a-menu class="drop-down-container">
-                                        <a-menu-item key="0">
+                                        <a-menu-item
+                                            key="0"
+                                            @click="onRedirectToEdit(quiz.id, quiz.title)"
+                                        >
                                             <i class="bx bx-info-circle"></i>
                                             {{ $t("question_sets_index.buttons.detail") }}
                                         </a-menu-item>
@@ -378,7 +399,7 @@ onMounted(() => {
     color: var(--text-color) !important;
 }
 ::v-deep(.ant-progress-inner) {
-    background-color: #27272a;
+    background-color: var(--content-item-border-color);
 }
 ::v-deep(.ant-tag) {
     font-size: 14px !important;
@@ -392,7 +413,7 @@ onMounted(() => {
 }
 
 .drop-down-container {
-    background: #101010 !important;
+    background: var(--content-item-background-color) !important;
     border: 1px solid var(--main-color);
 }
 

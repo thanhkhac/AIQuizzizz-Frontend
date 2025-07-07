@@ -436,6 +436,31 @@ Custome a-select
     border-color: var(--main-sub-color) !important;
 }
 
+.ant-dropdown-link {
+    padding: 6px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.drop-down-container {
+    background: var(--content-item-background-color) !important;
+    border: 1px solid var(--main-color);
+}
+
+.ant-dropdown-menu-item {
+    color: var(--text-color) !important;
+    font-weight: 400 !important;
+}
+
+.ant-dropdown-menu-item i {
+    margin-right: 5px;
+}
+
+.ant-dropdown-menu-item:hover {
+    background-color: var(--main-color) !important;
+    color: var(--text-color) !important;
+}
+
 /* ========================================UserLayout-Children======================================== */
 /****/
 /* ========================================Modal-Folder====================================================== */

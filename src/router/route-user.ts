@@ -45,12 +45,14 @@ const userRoutes = [
                 component: () => import("@/views/user/question_sets/index.vue"),
                 meta: { title: "library" },
             },
-            // {
-            //     name: "User_QuestionSet_Create",
-            //     path: "library/create",
-            //     component: () => import("@/views/user/question_sets/create.vue"),
-            //     meta: {title: "createQS"},
-            // },
+            {
+                name: "User_QuestionSet_Detail",
+                path: "/user/library/:id/:title?",
+                component: () => import("@/views/user/question_sets/detail.vue"),
+                meta: {
+                    title: "updateQS",
+                },
+            },
         ],
     },
     {
