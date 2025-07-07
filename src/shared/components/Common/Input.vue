@@ -11,10 +11,11 @@ const maxLength = defineModel<number>("maxLength");
 
 const emit = defineEmits(["update:value", "change"]);
 
-// const isTouched = ref(false); // disable is-invalid at first
-//     if (!isTouched.value) isTouched.value = true;
+const isTouched = ref(false); // disable is-invalid at first
 
 const onUpdate = () => {
+    if (!isTouched.value) isTouched.value = true;
+
     emit("update:value", modelValue.value);
     emit("change", modelValue.value);
 };
@@ -27,7 +28,7 @@ const checkInvalid = () => {
     const isEmpty = !modelValue.value;
 
     const isOutOfRange = valueLength > max;
-    const isInvalid = (required && isEmpty) || isOutOfRange;
+    const isInvalid = (required && isEmpty && isTouched.value) || isOutOfRange;
 
     let message = "This field is required";
     if (isOutOfRange) message = `Limit: ${max} characters.`;
@@ -68,7 +69,7 @@ const checkInvalid = () => {
 .input {
     height: 35px;
     padding: 5px 10px;
-    background-color:  var(--content-item-children-background-color);
+    background-color: var(--content-item-children-background-color);
     border: 1px solid var(--form-item-border-color);
     color: var(--text-color-white);
 }
@@ -94,7 +95,7 @@ const checkInvalid = () => {
 
 ::v-deep(.input input) {
     color: var(--text-color);
-    background-color:  var(--content-item-children-background-color);
+    background-color: var(--content-item-children-background-color);
 }
 
 ::v-deep(.ant-form-item-label > label) {

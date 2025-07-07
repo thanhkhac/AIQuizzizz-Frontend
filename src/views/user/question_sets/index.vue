@@ -1,7 +1,6 @@
 <script setup>
-import { onMounted, ref, computed, watch } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { DownOutlined } from "@ant-design/icons-vue";
 import Input from "@/shared/components/Common/Input.vue";
 
 const { t } = useI18n();
