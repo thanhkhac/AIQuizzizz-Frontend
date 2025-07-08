@@ -461,6 +461,15 @@ Custome a-select
     color: var(--text-color) !important;
 }
 
+/* customized code tag tiptap */
+pre {
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
+    color: var(--text-color);
+    padding: 10px;
+    border-radius: 5px;
+}
+
 /* ========================================UserLayout-Children======================================== */
 /****/
 /* ========================================Modal-Folder====================================================== */
@@ -737,6 +746,21 @@ Custome a-select
         display: flex;
         flex-direction: column;
         height: calc(100vh);
+        padding: 10px;
+        background-color: var(--content-item-background-color);
+    }
+    .ant-modal-body {
+        flex: 1;
+    }
+}
+
+.medium-modal {
+    .ant-modal {
+        max-width: 50%;
+    }
+    .ant-modal-content {
+        display: flex;
+        flex-direction: column;
         padding: 10px;
         background-color: var(--content-item-background-color);
     }

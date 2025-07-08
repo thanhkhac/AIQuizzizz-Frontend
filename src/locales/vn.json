@@ -294,5 +294,31 @@
             "maximum_options": "Mỗi câu hỏi có tối đa 10 lựa chọn",
             "maximum_tag": "Tối đa {tag} thẻ"
         }
+    },
+    "settings": {
+        "title": "Cài đặt",
+        "sub_title": "Quản lý cài đặt tài khoản và tùy chọn của bạn",
+        "tabs": {
+            "profile": "Hồ sơ",
+            "security": "Bảo mật",
+            "appearance": "Giao diện",
+            "subscription": "Gói đăng ký"
+        },
+        "profile": {
+            "title": "Thông tin hồ sơ",
+            "sub_title": "Cập nhật thông tin và chi tiết hiển thị công khai của bạn"
+        },
+        "security": {
+            "title": "Bảo mật tài khoản",
+            "sub_title": "Cập nhật mật khẩu và các cài đặt bảo mật"
+        },
+        "appearance": {
+            "title": "Giao diện",
+            "sub_title": "Tùy chỉnh giao diện AIQuizizz theo sở thích của bạn"
+        },
+        "subscription": {
+            "title": "Gói đăng ký",
+            "sub_title": "Quản lý gói đăng ký và thông tin thanh toán của bạn"
+        }
     }
 }

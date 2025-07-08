@@ -129,18 +129,67 @@ const question_type_options = computed(() =>
         value: key,
     })),
 );
+question_type_options.value.unshift({
+    label: "All",
+    value: "all",
+});
 
-const selected_type_option = ref(QUESTION_TYPE.MULTIPLE_CHOICE);
+const selected_type_option = ref(question_type_options.value[0].value);
 
 const searchValue = ref("");
-
-onMounted(() => {});
-
-const onFilter = () => {};
 
 const onAddBookMark = () => {
     quiz.value.isBookMarked = !quiz.value.isBookMarked;
 };
+
+//preview uploaded content
+const toggleDisplayAnswer = (index: number, button: EventTarget) => {
+    let $button = $(button);
+
+    $button.toggleClass("bx-chevron-up bx-chevron-down");
+
+    const answer = $(`#question-item-answer-${index}`);
+    if (answer) $(answer).slideToggle();
+};
+
+const questionsToBeRendered = ref<Question[]>([]);
+const onFilter = () => {
+    const filteredQuestions = quiz.value.questions.filter((x) => {
+        let matches = x.questionText.includes(searchValue.value.toLowerCase().trim());
+        if (!matches) return false;
+
+        switch (selected_type_option.value) {
+            case QUESTION_TYPE.MULTIPLE_CHOICE: {
+                return x.type === QUESTION_TYPE.MULTIPLE_CHOICE;
+            }
+            case QUESTION_TYPE.MATCHING: {
+                return x.type === QUESTION_TYPE.MATCHING;
+            }
+            case QUESTION_TYPE.ORDERING: {
+                return x.type === QUESTION_TYPE.ORDERING;
+            }
+            case QUESTION_TYPE.SHORT_TEXT: {
+                return x.type === QUESTION_TYPE.SHORT_TEXT;
+            }
+            default: {
+                return true;
+            }
+        }
+    });
+    questionsToBeRendered.value = filteredQuestions as Question[];
+};
+
+//share quiz
+import ShareModal from "@/shared/modals/ShareModal.vue";
+const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
+
+const onOpenShareModal = () => {
+    shareModalRef.value?.openModal();
+};
+
+onMounted(() => {
+    questionsToBeRendered.value = quiz.value.questions as Question[];
+});
 </script>
 <template>
     <div class="content">
@@ -207,7 +256,12 @@ const onAddBookMark = () => {
                     </div>
                 </div>
                 <div class="share-btn-container">
-                    <a-button type="primary" class="main-color-btn" size="large">
+                    <a-button
+                        type="primary"
+                        class="main-color-btn share-btn"
+                        size="large"
+                        @click="onOpenShareModal"
+                    >
                         <i class="bx bx-share-alt"></i>
                         Share Quiz
                     </a-button>
@@ -237,37 +291,113 @@ const onAddBookMark = () => {
                 <div>
                     <span>Questions ({{ quiz.questions.length }})</span>
                 </div>
-                <div class="content-item-functions">
-                    <a-select
-                        class="me-3"
-                        v-model:value="selected_type_option"
-                        style="width: 200px"
-                        @change="onFilter"
-                        :options="question_type_options"
-                    >
-                        <!-- <a-select-option
-                            v-for="option in question_type_options"
-                            :value="option.value"
-                        >
-                            {{ option.label }}
-                        </a-select-option> -->
-                    </a-select>
+            </div>
+            <div class="content-item-functions">
+                <a-select
+                    class="me-3"
+                    v-model:value="selected_type_option"
+                    style="width: 200px"
+                    @change="onFilter"
+                >
+                    <a-select-option v-for="option in question_type_options" :value="option.value">
+                        {{ option.label }}
+                    </a-select-option>
+                </a-select>
 
-                    <div style="width: 300px; padding: 0">
-                        <Input
-                            @input="onFilter"
-                            v-model="searchValue"
-                            :placeholder="t('question_sets_index.search_placeholder')"
+                <div style="width: 300px; padding: 0">
+                    <Input
+                        @input="onFilter"
+                        v-model="searchValue"
+                        :placeholder="t('question_sets_index.search_placeholder')"
+                    >
+                        <template #icon>
+                            <i class="bx bx-search"></i>
+                        </template>
+                    </Input>
+                </div>
+            </div>
+
+            <div class="preview-question-container">
+                <div
+                    class="preview-question-item"
+                    v-for="(question, index) in questionsToBeRendered"
+                >
+                    <div class="question-item-content">
+                        <div
+                            v-if="question.questionHTML"
+                            class="question-html"
+                            v-html="question.questionHTML"
+                        ></div>
+                        <div v-else class="question-text">
+                            {{ question.questionText }}
+                        </div>
+                        <div
+                            class="question-item-answer"
+                            :id="`question-item-answer-${index}`"
+                            style="display: none"
                         >
-                            <template #icon>
-                                <i class="bx bx-search"></i>
+                            <template v-if="question.type === QUESTION_TYPE.MULTIPLE_CHOICE">
+                                <div class="multiple-choice-answer">
+                                    <ul>
+                                        <li v-for="option in question.multipleChoices">
+                                            {{ option.text }}
+                                            <span class="text-success" v-if="option.isAnswer">
+                                                ({{ option.isAnswer }})
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
                             </template>
-                        </Input>
+                            <template v-if="question.type === QUESTION_TYPE.MATCHING">
+                                <div class="pair-answer" v-for="option in question.matchingPairs">
+                                    <span class="pair-answer-item">
+                                        {{ option.leftItem }}
+                                    </span>
+                                    <i class="bx bx-right-arrow-alt"></i>
+                                    <span class="pair-answer-item">
+                                        {{ option.rightItem }}
+                                    </span>
+                                </div>
+                            </template>
+                            <template v-if="question.type === QUESTION_TYPE.ORDERING">
+                                <div class="ordering-answer">
+                                    <div class="ordering-answer-item">
+                                        <div v-for="option in question.orderingItems">
+                                            {{ option.text }}
+                                        </div>
+                                    </div>
+                                    <i class="bx bx-right-arrow-alt"></i>
+                                    <div class="ordering-answer-item">
+                                        <div
+                                            class="ordering-answer-item"
+                                            v-for="(option, index) in question.orderingItems"
+                                        >
+                                            <span>#{{ index + 1 }}</span> -
+                                            {{ option.text }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            <template v-if="question.type === QUESTION_TYPE.SHORT_TEXT">
+                                <span>Answer:</span>
+                                <div class="short-text-answer">
+                                    {{ question.shortAnswer }}
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="question-item-toogle-btn">
+                        <i
+                            class="bx bx-chevron-down"
+                            @click="toggleDisplayAnswer(index, $event.currentTarget!)"
+                        ></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <ShareModal ref="shareModalRef" />
 </template>
 
 <style scoped>
@@ -418,5 +548,16 @@ const onAddBookMark = () => {
 
 ::v-deep(.ant-form-item-control-input-content) {
     width: 100%;
+}
+
+.share-btn {
+    display: flex;
+    align-items: center;
+}
+
+.share-btn i {
+    margin-right: 10px;
+    font-size: 20px;
+    transform: translateY(2px);
 }
 </style>

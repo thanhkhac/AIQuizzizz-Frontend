@@ -320,5 +320,31 @@
             "title": "Subscription Plan",
             "sub_title": "Manage your subscription and billing details"
         }
+    },
+    "share_modal": {
+        "visibility": {
+            "public": {
+                "mode": "Public",
+                "explain": "Only you and people you shared with can access"
+            },
+            "private": {
+                "mode": "Private",
+                "explain": "Everyone can access"
+            },
+            "in_class": {
+                "mode": "In Class",
+                "explain": "Can only access via class after shared in class"
+            }
+        },
+        "permission": {
+            "edit": {
+                "mode": "edit",
+                "explain": "Organise, add and edit"
+            },
+            "view": {
+                "mode": "view",
+                "explain": "View only"
+            }
+        }
     }
 }
