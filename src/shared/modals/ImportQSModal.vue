@@ -3,7 +3,7 @@ import { ref, reactive, watch, onMounted } from "vue";
 import { Modal, message } from "ant-design-vue";
 import { InboxOutlined } from "@ant-design/icons-vue";
 
-import type { Question } from "@/models/question";
+import type { Question } from "@/models/request/question";
 import QUESTION_TYPE from "@/constants/questionTypes";
 
 const question_data_raw = [
@@ -214,7 +214,6 @@ const handleModalImport = () => {
 onMounted(() => {
     uploadedQuestions.value = question_data_raw as Question[]; //sample
 });
-
 </script>
 
 <template>
@@ -323,9 +322,7 @@ onMounted(() => {
                                     class="preview-question-item"
                                     v-for="(question, index) in uploadedQuestions"
                                 >
-                                    <a-checkbox
-                                        :value="question.id"
-                                    ></a-checkbox>
+                                    <a-checkbox :value="question.id"></a-checkbox>
                                     <div class="question-item-content">
                                         <div
                                             v-if="question.questionHTML"

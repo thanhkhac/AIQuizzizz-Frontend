@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import ApiQuestionSet from "@/api/ApiQuestionSet";
+
 import { ref, reactive, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { message } from "ant-design-vue";
+
+import type { useRoute, useRouter } from "vue-router";
 
 import type { Question } from "@/models/request/question";
 
@@ -82,6 +86,7 @@ const componentMap = {
     ShortText,
 };
 
+/* get this from api for update */
 const question_data_raw = [
     {
         id: "q1",

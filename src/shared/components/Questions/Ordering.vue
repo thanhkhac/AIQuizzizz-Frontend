@@ -5,7 +5,7 @@ import { Form } from "ant-design-vue";
 import { VueDraggable } from "vue-draggable-plus";
 import type { SortableEvent } from "vue-draggable-plus";
 
-import type { Question } from "@/models/question";
+import type { Question } from "@/models/request/question";
 import { useI18n } from "vue-i18n";
 
 import { QuestionCircleOutlined } from "@ant-design/icons-vue";

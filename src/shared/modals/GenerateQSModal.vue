@@ -5,7 +5,7 @@ import { InboxOutlined } from "@ant-design/icons-vue";
 
 import { useI18n } from "vue-i18n";
 
-import type { Question } from "@/models/question";
+import type { Question } from "@/models/request/question";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import QUESTION_DIFFICULTY from "@/constants/questiondifficulties";

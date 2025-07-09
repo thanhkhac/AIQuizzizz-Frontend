@@ -429,11 +429,18 @@ Custome a-select
 .main-color-btn {
     background-color: var(--main-color);
     transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
 }
 
 .main-color-btn:hover {
     background-color: var(--main-sub-color) !important;
     border-color: var(--main-sub-color) !important;
+}
+
+.main-color-btn i {
+    font-size: 22px;
+    transform: translateY(1px);
 }
 
 .ant-dropdown-link {

@@ -6,7 +6,7 @@ import { message } from "ant-design-vue";
 import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
 
-import type { Question } from "@/models/question";
+import type { Question } from "@/models/request/question";
 import QUESTION_TYPE from "@/constants/questionTypes";
 
 const { t } = useI18n();
@@ -15,6 +15,7 @@ const route = useRoute();
 const router = useRouter();
 
 const quiz = ref({
+    id: "123456",
     title: "Introduction to Biology",
     description: "Basic knowledges about generic, biologic, and so on ...",
     rating: {
@@ -187,6 +188,10 @@ const onOpenShareModal = () => {
     shareModalRef.value?.openModal();
 };
 
+const onRedirectToLearn = () => {
+    router.push({ name: "User_QuestionSet_Learn", params: { id: quiz.value.id } });
+};
+
 onMounted(() => {
     //get api quiz + check visibility to current user
     //format url
@@ -271,7 +276,7 @@ onMounted(() => {
                 </div>
             </div>
             <div class="action-container">
-                <div class="action-item">
+                <div class="action-item" @click="onRedirectToLearn">
                     Learn
                     <i class="bx bx-analyse"></i>
                 </div>

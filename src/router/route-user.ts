@@ -51,7 +51,7 @@ const userRoutes = [
                 component: () => import("@/views/user/question_sets/detail.vue"),
                 meta: {
                     title: "updateQS",
-                }
+                },
             },
         ],
     },
@@ -61,6 +61,14 @@ const userRoutes = [
         component: () => import("@/views/user/question_sets/create.vue"),
         meta: {
             title: "createQS",
+        },
+    },
+    {
+        name: "User_QuestionSet_Learn",
+        path: "/user/learn/:id",
+        component: () => import("@/views/user/question_sets/learn.vue"),
+        meta: {
+            title: "learn",
         },
     },
 ];
