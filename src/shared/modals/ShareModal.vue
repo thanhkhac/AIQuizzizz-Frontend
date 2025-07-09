@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "../components/Common/Input.vue";
 
@@ -53,26 +53,28 @@ const selected_permission_option = ref(permission_options.value[0].value);
 
 /* email sample for searching */
 const user_sample = [
-    { email: "ducnthe173064@fpt.edu.vn", hasAccess: true },
-    { email: "ducnthe173064@fpt.edu.vn", hasAccess: true },
-    { email: "ducnguyen@gmail.com", hasAccess: true },
-    { email: "ducnguyen@gmail.com", hasAccess: true },
-    { email: "ducntan1234@gmail.com", hasAccess: false },
-    { email: "ducntan1234@gmail.com", hasAccess: false },
-    { email: "qwert@gmail.com", hasAccess: false },
-    { email: "qwert@gmail.com", hasAccess: false },
-    { email: "asdfg@gmail.com", hasAccess: false },
-    { email: "asdfg@gmail.com", hasAccess: false },
+    { id: "1", email: "ducnthe173064@fpt.edu.vn", hasAccess: true },
+    { id: "2", email: "ducnthe173064@fpt.edu.vn", hasAccess: true },
+    { id: "4", email: "ducnguyen@gmail.com", hasAccess: true },
+    { id: "5", email: "ducnguyen@gmail.com", hasAccess: true },
+    { id: "6", email: "ducntan1234@gmail.com", hasAccess: false },
+    { id: "7", email: "ducntan1234@gmail.com", hasAccess: false },
+    { id: "8", email: "qwert@gmail.com", hasAccess: false },
+    { id: "9", email: "qwert@gmail.com", hasAccess: false },
+    { id: "10", email: "asdfg@gmail.com", hasAccess: false },
+    { id: "11", email: "asdfg@gmail.com", hasAccess: false },
 ];
 
 /* user sample for quiz permission */
 const user_permission_sample = [
     {
+        id: "1",
         fullName: "NguyenTanDuc",
         email: "ducnthe173064@fpt.edu.vn",
         permission: PERMISSION.EDIT.mode,
     },
     {
+        id: "2",
         fullName: "NguyenDuc",
         email: "ducnguyen@gmail.com",
         permission: PERMISSION.VIEW.mode,
@@ -80,21 +82,29 @@ const user_permission_sample = [
 ];
 
 /* class sample for InClass mode */
-const user_class_sample = [
+const user_class_sample = ref([
     {
+        id: "1",
         name: "SEP490 - Summer 2025",
     },
     {
+        id: "2",
         name: "MLN111 - Spring 2025",
     },
-];
+    {
+        id: "3",
+        name: "MLN121 - Spring 2025",
+    },
+]);
 
 interface UserPermission {
-    email: "";
-    permission: "";
+    id: string;
+    email: string;
+    permission: string;
 }
 interface SearchUserWithEmail {
-    email: "";
+    id: string;
+    email: string;
     hasAccess: boolean;
 }
 
@@ -140,12 +150,64 @@ const userWithPermission = ref<UserPermission[]>([]);
 
 const onShareWithResultUser = (user: SearchUserWithEmail) => {
     user_permission_sample.push({
+        id: user.id,
         email: user.email,
         fullName: user.email,
         permission: PERMISSION.VIEW.mode,
     });
     user.hasAccess = true;
     message.success("Added successfully");
+
+    //call api insert qs-user
+    //message result
+    //re-fetch the people access list
+};
+
+//change people permission
+const onChangePeoplePermission = (peopleId: string, permission: string) => {
+    //call api update qs-user
+    //message result
+    //re-fetch the people access list
+};
+
+/* remove people access */
+
+const onConfirmRemovePeopleAccess = (id: string) => {
+    //call api disable qs-user
+    //message result
+    //re-fetch the people access list
+};
+
+/* use this for add quiz to list class mode = InClass */
+
+const shareClassState = reactive({
+    checkAll: false,
+    indeterminate: false,
+    checkedList: [] as string[],
+});
+
+//checkboxes  / checkbox-all for sharing quiz with class
+const onCheckAll = (event: any) => {
+    Object.assign(shareClassState, {
+        checkedList: event.target.checked ? user_class_sample.value?.map((x) => x.id) : [],
+        indeterminate: false,
+    });
+};
+
+watch(
+    () => shareClassState.checkedList,
+    (val) => {
+        shareClassState.indeterminate =
+            !!val.length && val.length < user_class_sample.value!.map((x) => x.id).length; //change to queried when it done
+        shareClassState.checkAll = val.length === user_class_sample.value?.length;
+    },
+);
+
+const onShareClass = () => {
+    //call api create class-qs
+    //message result
+    //close pop-up
+    closeModal();
 };
 
 onMounted(() => {
@@ -274,6 +336,12 @@ onMounted(() => {
                                         </div>
                                         <div class="people-access-permission">
                                             <a-select
+                                                @change="
+                                                    onChangePeoplePermission(
+                                                        people.id,
+                                                        people.permission,
+                                                    )
+                                                "
                                                 style="width: 100px"
                                                 v-model:value="people.permission"
                                             >
@@ -284,7 +352,14 @@ onMounted(() => {
                                                     {{ option.label }}
                                                 </a-select-option>
                                             </a-select>
-                                            <i class="ms-2 text-danger bx bx-trash"></i>
+                                            <a-popconfirm
+                                                title="Are you sure remove this people?"
+                                                ok-text="Yes"
+                                                cancel-text="No"
+                                                @confirm="onConfirmRemovePeopleAccess(people.id)"
+                                            >
+                                                <i class="ms-2 text-danger bx bx-trash"></i>
+                                            </a-popconfirm>
                                         </div>
                                     </div>
                                 </template>
@@ -299,20 +374,43 @@ onMounted(() => {
                         ]"
                     >
                         <div class="list-item-section">
-                            <div class="list-item-title">Share with your classes</div>
-                            <div class="list-item-container">
-                                <template v-for="item in user_class_sample">
-                                    <div class="list-item">
-                                        <span>{{ item.name }}</span>
-                                    </div>
-                                </template>
+                            <div class="list-item-title d-flex align-items-center">
+                                <div
+                                    :class="[
+                                        'w-25 header-item',
+                                        shareClassState.checkAll ? 'check-all' : '',
+                                    ]"
+                                >
+                                    <a-checkbox
+                                        @click="onCheckAll"
+                                        v-model:checked="shareClassState.checkAll"
+                                        :indeterminate="shareClassState.indeterminate"
+                                    >
+                                        Check all ({{ shareClassState.checkedList.length }})
+                                    </a-checkbox>
+                                </div>
+                                <span> Share with your classes </span>
+                            </div>
+                            <div>
+                                <a-checkbox-group
+                                    class="list-item-container"
+                                    v-model:value="shareClassState.checkedList"
+                                >
+                                    <template v-for="item in user_class_sample">
+                                        <div class="list-item">
+                                            <a-checkbox :value="item.id">
+                                                <span>{{ item.name }}</span>
+                                            </a-checkbox>
+                                        </div>
+                                    </template>
+                                </a-checkbox-group>
                             </div>
                             <div class="mt-3 d-flex justify-content-end">
                                 <a-button
                                     type="primary"
                                     class="main-color-btn"
                                     size="large"
-                                    @click="closeModal"
+                                    @click="onShareClass"
                                 >
                                     Done
                                 </a-button>
@@ -432,6 +530,8 @@ onMounted(() => {
     height: 230px;
     max-height: 300px;
     overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
 }
 
 .list-item-container::-webkit-scrollbar {
@@ -442,6 +542,12 @@ onMounted(() => {
     padding: 10px;
     display: flex;
     align-items: center;
+    flex-direction: row;
+}
+
+.list-item span {
+    margin-left: 10px;
+    color: var(--text-color);
 }
 
 .list-item:hover {

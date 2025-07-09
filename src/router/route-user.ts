@@ -47,11 +47,11 @@ const userRoutes = [
             },
             {
                 name: "User_QuestionSet_Detail",
-                path: "/user/library/:id/:title?",
+                path: "/user/library/:id",
                 component: () => import("@/views/user/question_sets/detail.vue"),
                 meta: {
                     title: "updateQS",
-                },
+                }
             },
         ],
     },

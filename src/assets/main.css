@@ -613,10 +613,15 @@ pre {
     border-radius: 5px;
     color: var(--text-color);
     font-weight: 500;
+    display: flex;
+    align-items: center;
 }
 
 .check-all {
     background-color: var(--main-color);
+}
+.check-all .ant-checkbox-wrapper {
+    color: #fff;
 }
 
 .preview-question-container {
@@ -786,6 +791,40 @@ pre {
 .ant-checkbox-checked:hover .ant-checkbox-inner {
     background-color: var(--main-color) !important;
     border: 1px solid var(--main-sub-color) !important;
+}
+
+.ant-checkbox-inner::after {
+    background-color: var(--main-color) !important;
+}
+
+.ant-checkbox-inner:hover {
+    background-color: var(--main-color) !important;
+    border-color: var(--main-color) !important;
+}
+
+.ant-checkbox-wrapper {
+    color: var(--text-color);
+}
+
+.ant-checkbox-wrapper:hover .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: var(--main-color) !important;
+    border-color: var(--main-color) !important;
+}
+
+/* customized pop-confirm buttons */
+.ant-popconfirm-buttons .ant-btn-default:hover {
+    border-color: var(--main-color);
+    color: var(--main-color);
+}
+
+.ant-popconfirm-buttons .ant-btn-primary {
+    background-color: var(--main-color);
+    border-color: var(--main-color);
+}
+
+.ant-popconfirm-buttons .ant-btn-primary:hover {
+    background-color: var(--main-sub-color);
+    border-color: var(--main-sub-color);
 }
 
 /* ========================================Modal-Folder====================================================== */

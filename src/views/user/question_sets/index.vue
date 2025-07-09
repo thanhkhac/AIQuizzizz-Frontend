@@ -118,7 +118,7 @@ const onFilter = () => {
 };
 
 const onRedirectToEdit = (id, title) => {
-    router.push({ name: "User_QuestionSet_Detail", params: { id: id, title: title } });
+    router.push({ name: "User_QuestionSet_Detail", params: { id: id } });
 };
 
 onMounted(() => {

@@ -324,7 +324,6 @@ onMounted(() => {
                                     v-for="(question, index) in uploadedQuestions"
                                 >
                                     <a-checkbox
-                                        @click="console.log(importModalState.checkedList)"
                                         :value="question.id"
                                     ></a-checkbox>
                                     <div class="question-item-content">

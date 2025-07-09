@@ -188,6 +188,9 @@ const onOpenShareModal = () => {
 };
 
 onMounted(() => {
+    //get api quiz + check visibility to current user
+    //format url
+
     questionsToBeRendered.value = quiz.value.questions as Question[];
 });
 </script>
