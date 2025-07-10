@@ -75,6 +75,7 @@ import {
     Progress,
     Result,
     Tabs,
+    Drawer,
 } from "ant-design-vue";
 
 /**
@@ -162,6 +163,7 @@ if (colors.includes(storedColorClass)) {
     app.use(Progress);
     app.use(Result);
     app.use(Tabs);
+    app.use(Drawer);
 
     app.use(HighchartsVue);
 

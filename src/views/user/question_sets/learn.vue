@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from "vue";
+
+import QUESTION_TYPE from "@/constants/questionTypes";
 import type { Question } from "@/models/response/question";
+import TextArea from "@/shared/components/Common/TextArea.vue";
+import { VueDraggable } from "vue-draggable-plus";
 
 const QUESTION_FORMAT = {
     HTML: "HTML",
@@ -37,6 +41,35 @@ const quiz = {
             },
         },
         {
+            id: "33333333-cccc-cccc-cccc-333333333333",
+            questionSetId: "11111111-1111-1111-1111-111111111111",
+            type: "Ordering",
+            textFormat: "PlainText",
+            questionText: "Arrange the steps of executing a JavaScript function.",
+            score: 10.0,
+            scoreGraded: 10.0,
+            explainText:
+                "First, the function must be declared. Then it can be called, at which point the body of the function will execute.",
+            questionData: {
+                multipleChoice: null,
+                matching: null,
+                shortText: null,
+                ordering: [
+                    { id: "s1", text: "Function is declared", correctOrder: 1 },
+                    { id: "s2", text: "Function is called", correctOrder: 2 },
+                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
+                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
+                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
+                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
+                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
+                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
+                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
+                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
+                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
+                ],
+            },
+        },
+        {
             id: "22222222-bbbb-bbbb-bbbb-222222222222",
             questionSetId: "11111111-1111-1111-1111-111111111111",
             type: "Matching",
@@ -69,27 +102,7 @@ const quiz = {
                 },
             },
         },
-        {
-            id: "33333333-cccc-cccc-cccc-333333333333",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Ordering",
-            textFormat: "PlainText",
-            questionText: "Arrange the steps of executing a JavaScript function.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "First, the function must be declared. Then it can be called, at which point the body of the function will execute.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                shortText: null,
-                ordering: [
-                    { id: "s1", text: "Function is declared", correctOrder: 1 },
-                    { id: "s2", text: "Function is called", correctOrder: 2 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                ],
-            },
-        },
+
         {
             id: "44444444-dddd-dddd-dddd-444444444444",
             questionSetId: "11111111-1111-1111-1111-111111111111",
@@ -222,6 +235,129 @@ const quiz = {
     ],
 };
 
+const comment_sample = [
+    {
+        id: "1",
+        user: {
+            userName: "NguyenTanDuc",
+        },
+        content: "D",
+        lastModified: "09/07/2025 10:12AM",
+    },
+    {
+        id: "2",
+        user: {
+            userName: "NguyenManhDuong",
+        },
+        content: "Phải là A mới đúng",
+        lastModified: "09/07/2025 10:15AM",
+    },
+    {
+        id: "3",
+        user: {
+            userName: "PhamXuanTruong",
+        },
+        content: "A",
+        lastModified: "09/07/2025 10:18AM",
+    },
+    {
+        id: "4",
+        user: {
+            userName: "NguyenManhHieu",
+        },
+        content: "D",
+        lastModified: "09/07/2025 10:20AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+    {
+        id: "5",
+        user: {
+            userName: "NguyenDucTan123",
+        },
+        content: "It's d for sure",
+        lastModified: "09/07/2025 10:25AM",
+    },
+];
+
 const totalCompleted = ref(quiz.completed); //for total
 
 const completed = ref<Question[]>([]); // for session
@@ -232,6 +368,13 @@ const currentSession = ref<Question[]>([]); // for session
 
 const currentQuestionIndex = ref(0);
 const currentQuestion = ref<Question>(quiz.question[0] as Question);
+const currentQuestionIsSubmitted = ref(false);
+
+const userAnswer = ref<string[]>([]);
+const currentQuestionResult = ref({
+    result: false,
+    resultText: "Wrong answer!",
+});
 
 const completionPercentage = computed(() => {
     return Math.floor((quiz.completed / quiz.question.length) * 100);
@@ -244,21 +387,80 @@ function clamp(value: number, min: number, max: number): number {
 const onNextQuestion = () => {
     currentQuestionIndex.value = clamp((currentQuestionIndex.value += 1), 0, quiz.question.length);
     currentQuestion.value = quiz.question[currentQuestionIndex.value] as Question;
-    console.log(currentQuestionIndex.value);
+
+    currentQuestionIsSubmitted.value = false;
+
+    toggleExplainModal();
 };
 
 const onPreviousQuestion = () => {
     currentQuestionIndex.value = clamp((currentQuestionIndex.value -= 1), 0, quiz.question.length);
     currentQuestion.value = quiz.question[currentQuestionIndex.value] as Question;
-    console.log(currentQuestionIndex.value);
 };
 
-onMounted(() => {
-    //initiate
-    console.log(clamp(10, 0, 5)); // 👉 5
-    console.log(clamp(-3, 0, 5)); // 👉 0
-    console.log(clamp(3, 0, 5)); // 👉 3
-});
+const checkMultipleChoice = () => {
+    let correctAnswer = currentQuestion.value.questionData.multipleChoice
+        ?.filter((x) => x.isAnswer)
+        .map((x) => x.id || [])
+        .sort();
+
+    let sortedUserAnswer = userAnswer.value.sort();
+    if (userAnswer.value.length !== correctAnswer?.length) return false;
+    return sortedUserAnswer.every((value: string, i: number) => value === correctAnswer[i]);
+};
+
+/* explain modal bottom */
+const explainModal = ref<HTMLElement | null>(null);
+const explainModalOpen = ref(false);
+const toggleExplainModal = () => {
+    explainModalOpen.value = !explainModalOpen.value;
+};
+
+/* comment modal right */
+const commentModalOpen = ref(false);
+
+const onOpenCommentModal = () => {
+    commentModalOpen.value = true;
+    //get api comment
+};
+
+const onCloseCommentModal = () => {
+    commentModalOpen.value = false;
+    //reset comment list
+};
+
+const onSubmitAnswer = () => {
+    toggleExplainModal();
+    currentQuestionIsSubmitted.value = true;
+    switch (currentQuestion.value.type) {
+        case QUESTION_TYPE.MULTIPLE_CHOICE: {
+            currentQuestionResult.value = {
+                result: checkMultipleChoice(),
+                resultText: checkMultipleChoice() ? "Correct!" : "Wrong answer!",
+            };
+        }
+    }
+};
+
+const onSkipQuestion = (event: MouseEvent) => {
+    toggleExplainModal();
+    currentQuestionIsSubmitted.value = true;
+    currentQuestionResult.value = {
+        result: false,
+        resultText: "",
+    };
+    let target = event.target as HTMLElement;
+    target.textContent = "Skipped";
+};
+
+const dragOptions = {
+    scroll: true,
+    scrollSensitivity: 100,
+    scrollSpeed: 100,
+    scrollTarget: document.scrollingElement,
+};
+
+onMounted(() => {});
 </script>
 
 <template>
@@ -292,6 +494,7 @@ onMounted(() => {
                 :percent="completionPercentage"
             />
         </div>
+
         <div class="content">
             <div class="content-item">
                 <div class="section question-section">
@@ -311,47 +514,221 @@ onMounted(() => {
                         {{ currentQuestion.questionText }}
                     </div>
                     <div class="section answer-section">
-                        <div class="answer-section-ins">
-                            Choose ({{ currentQuestion.questionData.multipleChoice?.length }})
-                            answers
-                        </div>
-                        <div class="answer-option-container">
-                            <a-checkbox
-                                class="answer-option"
-                                v-for="option in currentQuestion.questionData.multipleChoice"
+                        <div class="d-flex align-items-center">
+                            <div class="answer-section-ins">
+                                Choose ({{ currentQuestion.questionData.multipleChoice?.length }})
+                                answers
+                            </div>
+                            <div
+                                :class="[
+                                    'ms-3 learn-question-result',
+                                    !currentQuestionIsSubmitted ? 'd-none' : '',
+                                    currentQuestionIsSubmitted && currentQuestionResult.result
+                                        ? 'result-correct'
+                                        : 'result-incorrect',
+                                ]"
                             >
-                                <div>
-                                    {{ option.text }}
-                                </div>
-                            </a-checkbox>
+                                {{ currentQuestionResult.resultText }}
+                            </div>
                         </div>
+                        <template v-if="currentQuestion.type === QUESTION_TYPE.MULTIPLE_CHOICE">
+                            <a-checkbox-group
+                                v-model:value="userAnswer"
+                                class="answer-option-container"
+                            >
+                                <template
+                                    v-for="option in currentQuestion.questionData.multipleChoice"
+                                >
+                                    <a-checkbox
+                                        v-model:value="option.id"
+                                        :disabled="currentQuestionIsSubmitted"
+                                        :class="[
+                                            'answer-option',
+                                            currentQuestionIsSubmitted &&
+                                            // userAnswer.includes(option.id) &&
+                                            option.isAnswer
+                                                ? 'answer-correct'
+                                                : '',
+                                            currentQuestionIsSubmitted &&
+                                            // userAnswer.includes(option.id) &&
+                                            !option.isAnswer
+                                                ? 'answer-incorrect'
+                                                : '',
+                                        ]"
+                                    >
+                                        <div class="answer-option-content">
+                                            {{ option.text }}
+                                        </div>
+
+                                        <i
+                                            v-if="currentQuestionIsSubmitted && option.isAnswer"
+                                            class="bx bx-check answer-icon"
+                                        ></i>
+                                        <i
+                                            v-if="currentQuestionIsSubmitted && !option.isAnswer"
+                                            class="bx bx-x answer-icon"
+                                        ></i>
+                                    </a-checkbox>
+                                </template>
+                            </a-checkbox-group>
+                        </template>
+
+                        <template v-if="currentQuestion.type === QUESTION_TYPE.MATCHING">
+                            <div class=""></div>
+                        </template>
+                        <template v-if="currentQuestion.type === QUESTION_TYPE.ORDERING">
+                            <div class="answer-option-container ordering">
+                                <VueDraggable
+                                    v-model="currentQuestion.questionData.ordering!"
+                                    :options="dragOptions"
+                                >
+                                    <div
+                                        class="answer-option answer-option-ordering"
+                                        v-for="(option, index) in currentQuestion.questionData
+                                            .ordering"
+                                        :key="option.id"
+                                    >
+                                        <div class="answer-option-order">
+                                            <i class="bx bx-hash"></i>
+                                            {{ index + 1 }}
+                                        </div>
+                                        <div class="answer-option-content">
+                                            {{ option.text }}
+                                        </div>
+                                    </div>
+                                </VueDraggable>
+                            </div>
+                        </template>
+                        <template v-if="currentQuestion.type === QUESTION_TYPE.SHORT_TEXT">
+                            <div class=""></div>
+                        </template>
                     </div>
                 </div>
-                <div class="learn-question-footer d-flex justify-content-between">
-                    <a-button
-                        type="primary"
-                        size="large"
-                        class="main-color-btn"
-                        @click="onPreviousQuestion"
+                <div class="learn-question-footer">
+                    <div
+                        :class="[
+                            'main-color-btn-ghost',
+                            currentQuestionIsSubmitted ? 'main-color-btn-ghost-disabled' : '',
+                        ]"
+                        @click="onSkipQuestion($event)"
                     >
-                        <i class="bx bx-chevron-left"></i>
-                        Previous question
-                    </a-button>
-                    <div class="main-color-btn-ghost">Don't know ?</div>
-                    <a-button
-                        type="primary"
-                        size="large"
-                        class="main-color-btn"
-                        @click="onNextQuestion"
-                    >
-                        Next question
-                        <i class="bx bx-chevron-right"></i>
-                    </a-button>
+                        Don't know ?
+                    </div>
+                    <div class="d-flex">
+                        <div
+                            :class="[
+                                'main-color-btn-ghost me-3',
+                                !currentQuestionIsSubmitted ? 'd-none' : '',
+                            ]"
+                            @click="onOpenCommentModal"
+                        >
+                            <i class="bx bx-conversation me-2"></i>
+                            Comments
+                        </div>
+
+                        <div
+                            :class="[
+                                'main-color-btn-ghost me-3',
+                                !currentQuestionIsSubmitted ? 'd-none' : '',
+                            ]"
+                            @click="toggleExplainModal"
+                        >
+                            <i class="bx bx-bulb me-2"></i>
+                            Explaination
+                        </div>
+
+                        <a-button
+                            :class="[
+                                'main-color-btn',
+                                currentQuestionIsSubmitted ? 'main-color-btn-disabled' : '',
+                            ]"
+                            type="primary"
+                            size="large"
+                            @click="onSubmitAnswer"
+                        >
+                            Submit
+                        </a-button>
+                    </div>
                 </div>
             </div>
+            <div
+                ref="explainModal"
+                class="explain-modal explain-modal-up"
+                :class="{ show: explainModalOpen }"
+            >
+                <div class="learn-question-explain">
+                    {{ currentQuestion.explainText }}
+                </div>
+                <a-button
+                    :class="['main-color-btn close-modal-btn']"
+                    type="primary"
+                    size="large"
+                    @click="toggleExplainModal"
+                >
+                    <i class="bx bx-chevrons-down"></i>
+                </a-button>
+                <a-button
+                    :class="['main-color-btn']"
+                    type="primary"
+                    size="large"
+                    @click="onNextQuestion"
+                >
+                    Next question
+                    <i class="bx bx-chevron-right"></i>
+                </a-button>
+            </div>
+            <a-drawer
+                :width="500"
+                title="Comment section"
+                :placement="'right'"
+                :open="commentModalOpen"
+                @close="onCloseCommentModal"
+            >
+                <div class="comment-section">
+                    <div class="comment-container">
+                        <div class="comment-item" v-for="comment in comment_sample">
+                            <img class="comment-user-img" src="" alt="" />
+                            <div>
+                                <div class="comment-content-info">
+                                    {{ comment.user.userName }}
+                                    <span>{{ comment.lastModified }}</span>
+                                </div>
+                                <div class="comment-content">{{ comment.content }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a-form layout="vertical" class="comment-form">
+                        <TextArea :label="'Your comment'" :placeholder="'Add a comment'" />
+                        <div class="comment-form-footer">
+                            <div class="me-3 main-color-btn-ghost">Cancel</div>
+                            <a-button type="primary" shape="round" class="main-color-btn">
+                                Comment
+                            </a-button>
+                        </div>
+                    </a-form>
+                </div>
+            </a-drawer>
         </div>
     </div>
 </template>
+<style>
+.ant-drawer-content {
+    background-color: var(--content-item-background-color) !important;
+    border-color: var(--content-item-border-color) !important;
+    color: var(--text-color) !important;
+}
+
+.ant-drawer-close {
+    color: var(--text-color) !important;
+}
+.ant-drawer-title {
+    color: var(--text-color) !important;
+}
+.ant-drawer-header {
+    border-bottom-color: var(--content-item-border-color) !important;
+}
+</style>
+
 <style scoped>
 .page-container {
     height: 100vh;
@@ -360,9 +737,6 @@ onMounted(() => {
 .progress-bar-container {
     width: 95vw;
     margin: auto;
-}
-
-::v-deep(.ant-progress-outer) {
 }
 
 ::v-deep(.ant-progress-bg) {
@@ -389,7 +763,12 @@ onMounted(() => {
 }
 
 .section {
-    padding: 10px;
+    padding: 10px 20px;
+}
+
+.learn-question {
+    font-size: 20px;
+    margin-bottom: 50px;
 }
 
 .answer-section {
@@ -397,8 +776,8 @@ onMounted(() => {
 }
 
 .answer-section-ins {
-    font-size: 14px;
-    color: var(--text-color-grey);
+    font-size: 1em;
+    color: var(--text-color);
 }
 
 .answer-option-container {
@@ -408,31 +787,230 @@ onMounted(() => {
 }
 .answer-option {
     width: calc(100% / 2 - 100px);
-    border: 1px solid var(--form-item-border-color);
-    padding: 10px;
+    border: 2px solid var(--form-item-border-color);
+    padding: 20px;
     margin: 10px 0px;
     border-radius: 8px;
+    font-size: 1.1em;
     cursor: pointer;
+    display: flex;
+    transition: all 0.1s ease;
 }
 
 .answer-option:hover {
     background-color: var(--content-item-border-color);
 }
 
+.answer-option-content {
+    font-size: 1.1em;
+    color: var(--text-color);
+    margin-left: 10px;
+}
+
+::v-deep(.ant-checkbox-wrapper span:last-of-type) {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+::v-deep(.ant-checkbox-wrapper-disabled) {
+    color: var(--text-color) !important;
+}
+
+.answer-correct {
+    border-color: #22e55c;
+}
+
+.answer-incorrect {
+    border-color: red;
+}
+
+.answer-icon {
+    font-size: 26px;
+}
+.answer-correct .answer-icon {
+    color: #22e55c;
+}
+
+.answer-incorrect .answer-icon {
+    color: red;
+}
+
 .learn-question-footer {
-    padding: 0px 10px;
+    padding: 0px 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.learn-question-result {
+    font-weight: 500;
+}
+
+.result-correct {
+    color: #22e55c;
+}
+
+.result-incorrect {
+    color: red;
+}
+
+.main-color-btn-disabled {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .main-color-btn-ghost {
+    display: flex;
+    align-items: center;
     padding: 8px 10px;
-    border: 1px solid var(--border-color-contrast);
+    border: 1px solid transparent;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
+    color: var(--text-color);
 }
 
 .main-color-btn-ghost:hover {
-    color: var(--main-color);
+    color: var(--text-color);
     border-color: var(--main-color);
+}
+
+.main-color-btn-ghost-disabled {
+    color: var(--text-color-grey);
+    cursor: default;
+    pointer-events: none;
+}
+.main-color-btn-ghost-disabled:hover {
+    color: var(--text-color-grey);
+    border-color: transparent;
+}
+
+.explain-modal-up {
+    background-color: var(--content-item-background-color);
+    padding: 20px 50px;
+    border-top: 1px solid var(--main-color);
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(130%);
+    transition: transform 0.5s ease-in-out;
+    z-index: 100;
+}
+
+.explain-modal-up.show {
+    transform: translateY(0%);
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+}
+
+.learn-question-explain {
+    color: var(--text-color);
+    width: 50%;
+}
+
+.comment-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.comment-container {
+    flex: 1;
+    overflow-y: scroll;
+}
+
+.comment-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.comment-container::-webkit-scrollbar-thumb {
+    background-color: var(--content-item-border-color);
+    border-radius: 10px;
+}
+
+.comment-item {
+    padding: 5px;
+    display: flex;
+    margin-bottom: 10px;
+    align-items: start;
+}
+
+.comment-user-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--text-color);
+    margin-right: 10px;
+    margin-top: 5px;
+}
+
+.comment-content-info {
+    display: flex;
+    align-items: center;
+}
+
+.comment-content-info span {
+    margin-left: 10px;
+    font-size: 12px;
+    color: var(--text-color-grey);
+}
+
+.comment-content {
+    font-weight: 500;
+    margin-top: 5px;
+    max-width: 400px;
+    word-wrap: break-word;
+}
+
+.comment-form {
+    width: 100%;
+    border-top: 1px solid var(--form-item-border-color);
+    padding-top: 10px;
+    border-radius: 8px;
+}
+
+.comment-form-footer {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+
+/* ordering */
+.answer-option-container.ordering {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+.answer-option-ordering {
+    width: 100%;
+}
+
+.answer-option-order {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color-grey);
+    font-size: 26px;
+    font-weight: 600;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.answer-option-order i {
+    color: var(--text-color-grey);
+    font-size: 26px;
+    transform: translateY(2px);
 }
 </style>
