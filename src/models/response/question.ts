@@ -37,7 +37,7 @@ export interface Question {
     scoreGraded: number;
     questionData: {
         multipleChoice: MultipleChoice[] | null;
-        matching: Matching[] | null;
+        matching: Matching | null;
         ordering: Ordering[] | null;
         shortText: string;
     };

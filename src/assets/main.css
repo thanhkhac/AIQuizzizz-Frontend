@@ -215,6 +215,7 @@ body {
     color: var(--text-color);
     border-radius: 8px;
     overflow-y: hidden;
+    z-index: 2;
 }
 
 .title-container {

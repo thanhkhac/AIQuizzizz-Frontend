@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted } from "vue";
+import { ref, reactive, computed, watch, onMounted, nextTick } from "vue";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import type { Question } from "@/models/response/question";
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
+import { HolderOutlined } from "@ant-design/icons-vue";
 
 const QUESTION_FORMAT = {
     HTML: "HTML",
@@ -18,57 +19,6 @@ const quiz = {
     totalQuestion: 30,
     completed: 1,
     question: [
-        {
-            id: "11111111-aaaa-aaaa-aaaa-111111111111",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "MultipleChoice",
-            textFormat: "HTML",
-            questionText:
-                "Which of the following are valid variable declarations in JavaScript?<br/><pre>let x = 5;<br>const y = 'hello';<br>var 1name = 'error';</pre>",
-            score: 10.0,
-            scoreGraded: 0.0,
-            explainText:
-                "Variables in JavaScript cannot start with a number. 'let x = 5' and 'const y = \"hello\"' are valid, but 'var 1name = \"error\"' is invalid.",
-            questionData: {
-                multipleChoice: [
-                    { id: "a1", text: "let x = 5;", isAnswer: true },
-                    { id: "a2", text: "const y = 'hello';", isAnswer: true },
-                    { id: "a3", text: "var 1name = 'error';", isAnswer: false },
-                ],
-                matching: null,
-                ordering: null,
-                shortText: null,
-            },
-        },
-        {
-            id: "33333333-cccc-cccc-cccc-333333333333",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Ordering",
-            textFormat: "PlainText",
-            questionText: "Arrange the steps of executing a JavaScript function.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "First, the function must be declared. Then it can be called, at which point the body of the function will execute.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                shortText: null,
-                ordering: [
-                    { id: "s1", text: "Function is declared", correctOrder: 1 },
-                    { id: "s2", text: "Function is called", correctOrder: 2 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                ],
-            },
-        },
         {
             id: "22222222-bbbb-bbbb-bbbb-222222222222",
             questionSetId: "11111111-1111-1111-1111-111111111111",
@@ -100,6 +50,49 @@ const quiz = {
                         { leftId: "l3", rightId: "r3" },
                     ],
                 },
+            },
+        },
+        {
+            id: "11111111-aaaa-aaaa-aaaa-111111111111",
+            questionSetId: "11111111-1111-1111-1111-111111111111",
+            type: "MultipleChoice",
+            textFormat: "HTML",
+            questionText:
+                "Which of the following are valid variable declarations in JavaScript?<br/><pre>let x = 5;<br>const y = 'hello';<br>var 1name = 'error';</pre>",
+            score: 10.0,
+            scoreGraded: 0.0,
+            explainText:
+                "Variables in JavaScript cannot start with a number. 'let x = 5' and 'const y = \"hello\"' are valid, but 'var 1name = \"error\"' is invalid.",
+            questionData: {
+                multipleChoice: [
+                    { id: "a1", text: "let x = 5", isAnswer: true },
+                    { id: "a2", text: "const y = 'hello';", isAnswer: true },
+                    { id: "a3", text: "var 1name = 'error';", isAnswer: false },
+                ],
+                matching: null,
+                ordering: null,
+                shortText: null,
+            },
+        },
+        {
+            id: "33333333-cccc-cccc-cccc-333333333333",
+            questionSetId: "11111111-1111-1111-1111-111111111111",
+            type: "Ordering",
+            textFormat: "PlainText",
+            questionText: "Arrange the steps of executing a JavaScript function.",
+            score: 10.0,
+            scoreGraded: 10.0,
+            explainText:
+                "First, the function must be declared. Then it can be called, at which point the body of the function will execute.",
+            questionData: {
+                multipleChoice: null,
+                matching: null,
+                shortText: null,
+                ordering: [
+                    { id: "s2", text: "Function is called", correctOrder: 2 },
+                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
+                    { id: "s1", text: "Function is declared", correctOrder: 1 },
+                ],
             },
         },
 
@@ -277,7 +270,7 @@ const comment_sample = [
         lastModified: "09/07/2025 10:25AM",
     },
     {
-        id: "5",
+        id: "6",
         user: {
             userName: "NguyenDucTan123",
         },
@@ -285,7 +278,7 @@ const comment_sample = [
         lastModified: "09/07/2025 10:25AM",
     },
     {
-        id: "5",
+        id: "7",
         user: {
             userName: "NguyenDucTan123",
         },
@@ -293,7 +286,7 @@ const comment_sample = [
         lastModified: "09/07/2025 10:25AM",
     },
     {
-        id: "5",
+        id: "8",
         user: {
             userName: "NguyenDucTan123",
         },
@@ -301,7 +294,7 @@ const comment_sample = [
         lastModified: "09/07/2025 10:25AM",
     },
     {
-        id: "5",
+        id: "9",
         user: {
             userName: "NguyenDucTan123",
         },
@@ -309,47 +302,7 @@ const comment_sample = [
         lastModified: "09/07/2025 10:25AM",
     },
     {
-        id: "5",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-    {
-        id: "5",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-    {
-        id: "5",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-    {
-        id: "5",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-    {
-        id: "5",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-    {
-        id: "5",
+        id: "10",
         user: {
             userName: "NguyenDucTan123",
         },
@@ -371,6 +324,11 @@ const currentQuestion = ref<Question>(quiz.question[0] as Question);
 const currentQuestionIsSubmitted = ref(false);
 
 const userAnswer = ref<string[]>([]);
+const userAnswerOrdering = ref<any[]>([]);
+
+const userAnswerMatchingLeft = ref<any[]>([]);
+const userAnswerMatchingRight = ref<any[]>([]);
+
 const currentQuestionResult = ref({
     result: false,
     resultText: "Wrong answer!",
@@ -384,12 +342,31 @@ function clamp(value: number, min: number, max: number): number {
     return Math.max(min, Math.min(max, value));
 }
 
+const loadQuestionData = () => {
+    switch (currentQuestion.value.type) {
+        case QUESTION_TYPE.MULTIPLE_CHOICE: {
+            userAnswer.value = [];
+            break;
+        }
+        case QUESTION_TYPE.ORDERING: {
+            userAnswerOrdering.value = currentQuestion.value.questionData.ordering!;
+            break;
+        }
+        case QUESTION_TYPE.MATCHING: {
+            userAnswerMatchingLeft.value = currentQuestion.value.questionData.matching!.leftItems;
+            userAnswerMatchingRight.value = currentQuestion.value.questionData.matching!.rightItems;
+            break;
+        }
+    }
+};
+
 const onNextQuestion = () => {
     currentQuestionIndex.value = clamp((currentQuestionIndex.value += 1), 0, quiz.question.length);
     currentQuestion.value = quiz.question[currentQuestionIndex.value] as Question;
 
     currentQuestionIsSubmitted.value = false;
 
+    loadQuestionData();
     toggleExplainModal();
 };
 
@@ -407,6 +384,42 @@ const checkMultipleChoice = () => {
     let sortedUserAnswer = userAnswer.value.sort();
     if (userAnswer.value.length !== correctAnswer?.length) return false;
     return sortedUserAnswer.every((value: string, i: number) => value === correctAnswer[i]);
+};
+
+const checkOrdering = () => {
+    let correctAnswer =
+        currentQuestion.value.questionData.ordering?.map((x) => x.correctOrder).sort() || [];
+
+    let userAnswer = userAnswerOrdering.value.map((x) => x.correctOrder);
+    return userAnswer.every((value: number, i: number) => value === correctAnswer[i]);
+};
+
+const checkMatching = () => {
+    let correctAnswer = currentQuestion.value.questionData.matching?.matches!;
+
+    let userAnswerLeft = userAnswerMatchingLeft.value.map((x) => x.id);
+    let userAnswerRight = userAnswerMatchingRight.value.map((x) => x.id);
+
+    let userAnswerMatches = userAnswerLeft.map((leftId: string, i: number) => ({
+        leftId,
+        rightId: userAnswerRight[i] as string,
+    }));
+
+    return userAnswerMatches.every(
+        (value: any, i: number) =>
+            value.leftId === correctAnswer[i].leftId && value.rightId === correctAnswer[i].rightId,
+    );
+};
+
+const checkMatchingAnswerCorrect = (index: number) => {
+    let isLeftCorrect =
+        userAnswerMatchingLeft.value[index].id ===
+        currentQuestion.value.questionData.matching?.matches[index].leftId;
+
+    let isRightCorrect =
+        userAnswerMatchingRight.value[index].id ===
+        currentQuestion.value.questionData.matching?.matches[index].rightId;
+    return isLeftCorrect && isRightCorrect;
 };
 
 /* explain modal bottom */
@@ -438,19 +451,36 @@ const onSubmitAnswer = () => {
                 result: checkMultipleChoice(),
                 resultText: checkMultipleChoice() ? "Correct!" : "Wrong answer!",
             };
+            break;
+        }
+        case QUESTION_TYPE.ORDERING: {
+            currentQuestionResult.value = {
+                result: checkOrdering(),
+                resultText: checkOrdering() ? "Correct!" : "Wrong answer!",
+            };
+            break;
+        }
+        case QUESTION_TYPE.MATCHING: {
+            currentQuestionResult.value = {
+                result: checkMatching(),
+                resultText: checkMatching() ? "Correct!" : "Wrong answer!",
+            };
+            break;
         }
     }
 };
 
 const onSkipQuestion = (event: MouseEvent) => {
     toggleExplainModal();
+
+    let target = event.target as HTMLElement;
+    target.textContent = "Skipped";
+
     currentQuestionIsSubmitted.value = true;
     currentQuestionResult.value = {
         result: false,
         resultText: "",
     };
-    let target = event.target as HTMLElement;
-    target.textContent = "Skipped";
 };
 
 const dragOptions = {
@@ -460,7 +490,41 @@ const dragOptions = {
     scrollTarget: document.scrollingElement,
 };
 
-onMounted(() => {});
+function syncMatchingHeights() {
+    nextTick(() => {
+        requestAnimationFrame(() => {
+            const leftItems = document.querySelectorAll(
+                ".matching-option-container.left .answer-option-matching",
+            );
+            const rightItems = document.querySelectorAll(
+                ".matching-option-container.right .answer-option-matching",
+            );
+
+            const count = Math.min(leftItems.length, rightItems.length);
+
+            for (let i = 0; i < count; i++) {
+                const left = leftItems[i] as HTMLElement;
+                const right = rightItems[i] as HTMLElement;
+
+                if (!left || !right) continue;
+
+                left.style.height = "auto";
+                right.style.height = "auto";
+
+                const maxHeight = Math.max(left.offsetHeight, right.offsetHeight);
+
+                left.style.height = `${maxHeight}px`;
+                right.style.height = `${maxHeight}px`;
+            }
+        });
+    });
+}
+
+onMounted(() => {
+    loadQuestionData();
+    syncMatchingHeights();
+    window.addEventListener("resize", syncMatchingHeights);
+});
 </script>
 
 <template>
@@ -574,31 +638,132 @@ onMounted(() => {});
                         </template>
 
                         <template v-if="currentQuestion.type === QUESTION_TYPE.MATCHING">
-                            <div class=""></div>
+                            <div class="answer-option-container matching">
+                                <div class="matching-option-container left">
+                                    <VueDraggable
+                                        :disabled="currentQuestionIsSubmitted"
+                                        v-model="userAnswerMatchingLeft"
+                                        :options="dragOptions"
+                                        @end="syncMatchingHeights"
+                                    >
+                                        <template v-for="(option, index) in userAnswerMatchingLeft">
+                                            <div class="d-flex align-items-center">
+                                                <div
+                                                    :class="[
+                                                        'answer-option answer-option-matching',
+                                                        currentQuestionIsSubmitted
+                                                            ? checkMatchingAnswerCorrect(index)
+                                                                ? 'answer-correct'
+                                                                : 'answer-incorrect'
+                                                            : '',
+                                                    ]"
+                                                >
+                                                    <div class="answer-option-order">
+                                                        <HolderOutlined />
+                                                    </div>
+                                                    <div class="answer-option-content">
+                                                        {{ option.text }}
+                                                    </div>
+                                                </div>
+                                                <i
+                                                    :class="[
+                                                        'bx bxs-label matching-icon',
+                                                        currentQuestionIsSubmitted
+                                                            ? checkMatchingAnswerCorrect(index)
+                                                                ? 'answer-correct-icon'
+                                                                : 'answer-incorrect-icon'
+                                                            : '',
+                                                    ]"
+                                                ></i>
+                                            </div>
+                                        </template>
+                                    </VueDraggable>
+                                </div>
+                                <div class="matching-option-container right">
+                                    <VueDraggable
+                                        :disabled="currentQuestionIsSubmitted"
+                                        v-model="userAnswerMatchingRight"
+                                        :options="dragOptions"
+                                        @end="syncMatchingHeights"
+                                    >
+                                        <template
+                                            v-for="(option, index) in userAnswerMatchingRight"
+                                        >
+                                            <div class="d-flex align-items-center">
+                                                <i
+                                                    :class="[
+                                                        'bx bxs-label matching-icon',
+                                                        currentQuestionIsSubmitted
+                                                            ? checkMatchingAnswerCorrect(index)
+                                                                ? 'answer-correct-icon'
+                                                                : 'answer-incorrect-icon'
+                                                            : '',
+                                                    ]"
+                                                ></i>
+                                                <div
+                                                    :class="[
+                                                        'answer-option answer-option-matching',
+                                                        currentQuestionIsSubmitted
+                                                            ? checkMatchingAnswerCorrect(index)
+                                                                ? 'answer-correct'
+                                                                : 'answer-incorrect'
+                                                            : '',
+                                                    ]"
+                                                >
+                                                    <div class="answer-option-content">
+                                                        {{ option.text }}
+                                                    </div>
+                                                    <div class="answer-option-order">
+                                                        <HolderOutlined />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </VueDraggable>
+                                </div>
+                            </div>
                         </template>
+
                         <template v-if="currentQuestion.type === QUESTION_TYPE.ORDERING">
                             <div class="answer-option-container ordering">
                                 <VueDraggable
-                                    v-model="currentQuestion.questionData.ordering!"
+                                    :disabled="currentQuestionIsSubmitted"
+                                    v-model="userAnswerOrdering"
                                     :options="dragOptions"
                                 >
-                                    <div
-                                        class="answer-option answer-option-ordering"
-                                        v-for="(option, index) in currentQuestion.questionData
-                                            .ordering"
-                                        :key="option.id"
-                                    >
-                                        <div class="answer-option-order">
-                                            <i class="bx bx-hash"></i>
-                                            {{ index + 1 }}
+                                    <template v-for="(option, index) in userAnswerOrdering">
+                                        <div
+                                            :class="[
+                                                'answer-option answer-option-ordering',
+                                                currentQuestionIsSubmitted
+                                                    ? index + 1 === option.correctOrder
+                                                        ? 'answer-correct'
+                                                        : 'answer-incorrect'
+                                                    : '',
+                                            ]"
+                                        >
+                                            <div class="answer-option-order">
+                                                <HolderOutlined />
+                                                {{ index + 1 }}
+                                            </div>
+                                            <div class="answer-option-content">
+                                                {{ option.text }}
+                                            </div>
+                                            <div
+                                                :class="[
+                                                    'answer-option-order answer-icon',
+                                                    !currentQuestionIsSubmitted ? 'd-none' : '',
+                                                ]"
+                                            >
+                                                <i class="bx bx-hash answer-icon"></i>
+                                                {{ option.correctOrder }}
+                                            </div>
                                         </div>
-                                        <div class="answer-option-content">
-                                            {{ option.text }}
-                                        </div>
-                                    </div>
+                                    </template>
                                 </VueDraggable>
                             </div>
                         </template>
+
                         <template v-if="currentQuestion.type === QUESTION_TYPE.SHORT_TEXT">
                             <div class=""></div>
                         </template>
@@ -788,12 +953,15 @@ onMounted(() => {});
 .answer-option {
     width: calc(100% / 2 - 100px);
     border: 2px solid var(--form-item-border-color);
+    background-color: var(--content-item-background-color);
     padding: 20px;
     margin: 10px 0px;
     border-radius: 8px;
     font-size: 1.1em;
     cursor: pointer;
     display: flex;
+    align-items: center;
+    white-space: normal;
     transition: all 0.1s ease;
 }
 
@@ -805,6 +973,17 @@ onMounted(() => {});
     font-size: 1.1em;
     color: var(--text-color);
     margin-left: 10px;
+    max-height: 160px;
+    overflow-y: auto;
+    padding: 10px 0px;
+}
+
+.answer-option .answer-option-content::-webkit-scrollbar {
+    width: 10px;
+}
+.answer-option .answer-option-content::-webkit-scrollbar-thumb {
+    background-color: var(--main-color);
+    padding: 5px 0px;
 }
 
 ::v-deep(.ant-checkbox-wrapper span:last-of-type) {
@@ -995,6 +1174,9 @@ onMounted(() => {});
 
 .answer-option-ordering {
     width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .answer-option-order {
@@ -1012,5 +1194,67 @@ onMounted(() => {});
     color: var(--text-color-grey);
     font-size: 26px;
     transform: translateY(2px);
+}
+
+/* matching */
+.sortable-chosen .answer-option {
+    background-color: var(--content-item-border-color);
+    border: 2px solid var(--main-color);
+}
+
+.sortable-chosen .matching-icon {
+    color: var(--main-color);
+}
+
+.answer-option-container.matching {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    width: 100%;
+}
+
+.matching-option-container {
+    position: relative;
+}
+
+.answer-option.answer-option-matching {
+    width: calc(100vw / 2 - 120px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1;
+}
+
+.matching-icon {
+    z-index: 0;
+    color: var(--form-item-border-color);
+}
+
+.answer-correct-icon {
+    color: #22e55c;
+}
+
+.answer-incorrect-icon {
+    color: red;
+}
+
+.matching-option-container.left {
+    margin-right: 20px;
+}
+
+.matching-option-container.right {
+    margin-left: 20px;
+}
+
+.matching-option-container.left .matching-icon {
+    font-size: 105px;
+    position: absolute;
+    right: -35px;
+}
+
+.matching-option-container.right .matching-icon {
+    font-size: 105px;
+    position: absolute;
+    left: -35px;
 }
 </style>

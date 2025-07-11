@@ -42,7 +42,7 @@ const layoutComponent = computed(() => {
     width: 100%;
     position: absolute;
     top: 50%;
-    z-index: -1;
+    z-index: -1000;
 }
 
 .eclipse {
