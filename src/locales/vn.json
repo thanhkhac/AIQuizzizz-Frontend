@@ -266,7 +266,8 @@
             "MultipleChoice": "Trắc nghiệm",
             "Matching": "Ghép đôi",
             "Ordering": "Sắp xếp",
-            "ShortText": "Tự luận ngắn"
+            "ShortText": "Tự luận ngắn",
+            "All": "Tất cả"
         },
         "question": {
             "question": "Câu hỏi",
@@ -319,6 +320,66 @@
         "subscription": {
             "title": "Gói đăng ký",
             "sub_title": "Quản lý gói đăng ký và thông tin thanh toán của bạn"
+        }
+    },
+    "share_modal": {
+        "title": "Chia sẻ bộ câu hỏi",
+        "sub_title": "Chia sẻ bộ câu hỏi này với học sinh, đồng nghiệp hoặc trên mạng xã hội",
+        "visibility": {
+            "public": {
+                "mode": "Công khai",
+                "explain": "Chỉ bạn và những người được chia sẻ mới có thể truy cập"
+            },
+            "private": {
+                "mode": "Riêng tư",
+                "explain": "Mọi người đều có thể truy cập"
+            },
+            "in_class": {
+                "mode": "Trong lớp",
+                "explain": "Chỉ có thể truy cập qua lớp sau khi đã chia sẻ trong lớp"
+            }
+        },
+        "permission": {
+            "edit": {
+                "mode": "Chỉnh sửa",
+                "explain": "Sắp xếp, thêm và chỉnh sửa"
+            },
+            "view": {
+                "mode": "Xem",
+                "explain": "Chỉ được xem"
+            }
+        },
+        "buttons": {
+            "copy_link": "Sao chép liên kết",
+            "check_all": "Chọn tất cả ({number})",
+            "done": "Hoàn tất",
+            "yes": "Có",
+            "no": "Không"
+        },
+        "component_title": {
+            "visibility": "Quyền hiển thị",
+            "share_with_email": "Chia sẻ qua email",
+            "people_with_access": "Người có quyền truy cập",
+            "share_with_class": "Chia sẻ với lớp của bạn"
+        },
+        "other": {
+            "search_email_placeholder": "Thêm người, thành viên nhóm, hoặc giữ cho riêng bạn",
+            "delete_warning": "Bạn có chắc chắn muốn xóa người dùng này không?"
+        }
+    },
+    "detail_QS": {
+        "buttons": {
+            "share_quiz": "Chia sẻ",
+            "learn": "Học",
+            "test": "Kiểm tra",
+            "assign_to_class": "Giao cho lớp",
+            "download": "Tải xuống"
+        },
+        "other": {
+            "library": "Thư viện",
+            "created_by": "Tạo bởi {username}",
+            "reviews": "đánh giá",
+            "questions": "Câu hỏi ({number})"
         }
     }
 }

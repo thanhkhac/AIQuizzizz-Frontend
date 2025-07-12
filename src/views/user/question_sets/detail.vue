@@ -118,6 +118,7 @@ const quiz = ref({
 });
 
 const optionKeys = [
+    "All",
     QUESTION_TYPE.MULTIPLE_CHOICE,
     QUESTION_TYPE.MATCHING,
     QUESTION_TYPE.ORDERING,
@@ -130,10 +131,6 @@ const question_type_options = computed(() =>
         value: key,
     })),
 );
-question_type_options.value.unshift({
-    label: "All",
-    value: "all",
-});
 
 const selected_type_option = ref(question_type_options.value[0].value);
 
@@ -203,7 +200,7 @@ onMounted(() => {
     <div class="content">
         <RouterLink class="navigator-back-link d-flex align-items-center p-2" :to="{ name: '' }">
             <i class="me-1 bx bx-chevron-left"></i>
-            Library
+            {{ $t("detail_QS.other.library") }}
         </RouterLink>
         <div class="content-item">
             <div class="content-item-title">
@@ -247,7 +244,8 @@ onMounted(() => {
             </div>
             <div class="quiz-info">
                 <div class="quiz-rating">
-                    {{ quiz.rating.value }} ⭐️ ({{ quiz.rating.reviews }} reviews)
+                    {{ quiz.rating.value }} ⭐️ ({{ quiz.rating.reviews }}
+                    {{ $t("detail_QS.other.reviews") }})
                 </div>
                 <div class="quiz-tag-container">
                     <div class="quiz-tag-item" v-for="tag in quiz.tags">
@@ -259,7 +257,13 @@ onMounted(() => {
                 <div class="credit-user">
                     <img class="user-image" :src="quiz.createdBy.image" alt="" />
                     <div class="credit-user-info">
-                        <span>Created by {{ quiz.createdBy.fullName }}</span>
+                        <span>
+                            {{
+                                $t("detail_QS.other.created_by", {
+                                    username: quiz.createdBy.fullName,
+                                })
+                            }}
+                        </span>
                         <span>{{ quiz.createdAt }}</span>
                     </div>
                 </div>
@@ -271,25 +275,25 @@ onMounted(() => {
                         @click="onOpenShareModal"
                     >
                         <i class="bx bx-share-alt"></i>
-                        Share Quiz
+                        {{ $t("detail_QS.buttons.share_quiz") }}
                     </a-button>
                 </div>
             </div>
             <div class="action-container">
                 <div class="action-item" @click="onRedirectToLearn">
-                    Learn
+                    {{ $t("detail_QS.buttons.learn") }}
                     <i class="bx bx-analyse"></i>
                 </div>
                 <div class="action-item">
-                    Test
+                    {{ $t("detail_QS.buttons.test") }}
                     <i class="bx bx-detail"></i>
                 </div>
                 <div class="action-item">
-                    Assign to class
+                    {{ $t("detail_QS.buttons.assign_to_class") }}
                     <i class="bx bx-calendar-exclamation"></i>
                 </div>
                 <div class="action-item">
-                    Dowload
+                    {{ $t("detail_QS.buttons.download") }}
                     <i class="bx bx-download"></i>
                 </div>
             </div>
@@ -297,7 +301,9 @@ onMounted(() => {
         <div class="content-item">
             <div class="content-item-title">
                 <div>
-                    <span>Questions ({{ quiz.questions.length }})</span>
+                    <span>{{
+                        $t("detail_QS.other.questions", { number: quiz.questions.length })
+                    }}</span>
                 </div>
             </div>
             <div class="content-item-functions">

@@ -27,8 +27,8 @@ defineExpose({
 const visibilityKeys = [VISIBILITY.PUBLIC, VISIBILITY.PRIVATE, VISIBILITY.IN_CLASS];
 const visibility_options = computed(() =>
     visibilityKeys.map((key) => ({
-        label: t(`share_modal.visibility.${key.mode}.mode`),
-        value: key.mode,
+        label: t(`share_modal.visibility.${key}.mode`),
+        value: key,
     })),
 );
 const selected_visibility_option = ref(visibility_options.value[0].value);
@@ -36,8 +36,8 @@ const selected_visibility_explain = ref("");
 
 watch(
     () => selected_visibility_option.value,
-    (mode) => {
-        selected_visibility_explain.value = visibilityKeys.find((x) => x.mode === mode)!.explain;
+    (visibility) => {
+        selected_visibility_explain.value = t(`share_modal.visibility.${visibility}.explain`);
     },
 );
 
@@ -45,8 +45,8 @@ watch(
 const permissionKeys = [PERMISSION.VIEW, PERMISSION.EDIT];
 const permission_options = computed(() =>
     permissionKeys.map((key) => ({
-        label: t(`share_modal.permission.${key.mode}.mode`),
-        value: key.mode,
+        label: t(`share_modal.permission.${key}.mode`),
+        value: key,
     })),
 );
 const selected_permission_option = ref(permission_options.value[0].value);
@@ -71,13 +71,13 @@ const user_permission_sample = [
         id: "1",
         fullName: "NguyenTanDuc",
         email: "ducnthe173064@fpt.edu.vn",
-        permission: PERMISSION.EDIT.mode,
+        permission: PERMISSION.EDIT,
     },
     {
         id: "2",
         fullName: "NguyenDuc",
         email: "ducnguyen@gmail.com",
-        permission: PERMISSION.VIEW.mode,
+        permission: PERMISSION.VIEW,
     },
 ];
 
@@ -153,7 +153,7 @@ const onShareWithResultUser = (user: SearchUserWithEmail) => {
         id: user.id,
         email: user.email,
         fullName: user.email,
-        permission: PERMISSION.VIEW.mode,
+        permission: PERMISSION.VIEW,
     });
     user.hasAccess = true;
     message.success("Added successfully");
@@ -213,6 +213,10 @@ const onShareClass = () => {
 onMounted(() => {
     document.addEventListener("click", handleMouseClickOutside);
     userWithPermission.value.push(...(user_permission_sample as UserPermission[]));
+
+    selected_visibility_explain.value = t(
+        `share_modal.visibility.${selected_visibility_option.value}.explain`,
+    );
 });
 </script>
 <template>
@@ -226,7 +230,7 @@ onMounted(() => {
         <div
             :class="[
                 'page-container',
-                selected_visibility_option === VISIBILITY.PRIVATE.mode ? 'larger' : '',
+                selected_visibility_option === VISIBILITY.PRIVATE ? 'larger' : '',
             ]"
         >
             <div class="title-container">
@@ -237,15 +241,15 @@ onMounted(() => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="22">
-                        <span>Share Quiz</span> <br />
-                        <span>Share this quiz with students, colleagues, or on social media</span>
+                        <span>{{ $t("share_modal.title") }}</span> <br />
+                        <span>{{ $t("share_modal.sub_title") }}</span>
                     </a-col>
                 </a-row>
             </div>
             <a-form layout="vertical">
                 <a-row class="p-3 d-flex justify-content-between">
                     <a-col :span="24">
-                        <a-form-item label="Visibility">
+                        <a-form-item :label="$t('share_modal.component_title.visibility')">
                             <a-select
                                 class="me-3"
                                 v-model:value="selected_visibility_option"
@@ -265,7 +269,7 @@ onMounted(() => {
                         :span="24"
                         :class="[
                             'shareable-link-container',
-                            selected_visibility_option === VISIBILITY.PUBLIC.mode ? '' : 'd-none',
+                            selected_visibility_option === VISIBILITY.PUBLIC ? '' : 'd-none',
                         ]"
                     >
                         <a-qrcode value="AIQuizziz.com.vn" />
@@ -274,24 +278,22 @@ onMounted(() => {
                                 class="share-link"
                                 value="http://localhost:5173/user/library/1/Introduction%20to%20Biology"
                             />
-                            <a-button class="ms-3 main-color-btn" type="primary">
+                            <a-button class="mt-2 main-color-btn" type="primary">
                                 <i class="me-3 bx bx-link-alt"></i>
-                                Copy link
+                                {{ $t("share_modal.buttons.copy_link") }}
                             </a-button>
                         </div>
                     </a-col>
                     <a-col
                         :span="24"
-                        :class="[
-                            selected_visibility_option === VISIBILITY.PRIVATE.mode ? '' : 'd-none',
-                        ]"
+                        :class="[selected_visibility_option === VISIBILITY.PRIVATE ? '' : 'd-none']"
                     >
                         <div class="search-user" ref="searchUserResultRef">
                             <Input
                                 @change="onSearchUser"
-                                :label="'Share with email'"
+                                :label="t('share_modal.component_title.share_with_email')"
                                 v-model:value="searchUserEmailValue"
-                                :placeholder="'Add people, group members, or keep it yourself'"
+                                :placeholder="t('share_modal.other.search_email_placeholder')"
                             >
                                 <template #icon>
                                     <i class="bx bx-envelope"></i>
@@ -325,7 +327,9 @@ onMounted(() => {
                             </div>
                         </div>
                         <div class="list-item-section">
-                            <div class="list-item-title">People with access</div>
+                            <div class="list-item-title">
+                                {{ $t("share_modal.component_title.people_with_access") }}
+                            </div>
                             <div class="list-item-container">
                                 <template v-for="people in user_permission_sample">
                                     <div class="list-item">
@@ -342,7 +346,7 @@ onMounted(() => {
                                                         people.permission,
                                                     )
                                                 "
-                                                style="width: 100px"
+                                                style="width: 130px"
                                                 v-model:value="people.permission"
                                             >
                                                 <a-select-option
@@ -353,9 +357,9 @@ onMounted(() => {
                                                 </a-select-option>
                                             </a-select>
                                             <a-popconfirm
-                                                title="Are you sure remove this people?"
-                                                ok-text="Yes"
-                                                cancel-text="No"
+                                                :title="$t('share_modal.other.delete_warning')"
+                                                :ok-text="$t('share_modal.buttons.yes')"
+                                                :cancel-text="$t('share_modal.buttons.no')"
                                                 @confirm="onConfirmRemovePeopleAccess(people.id)"
                                             >
                                                 <i class="ms-2 text-danger bx bx-trash"></i>
@@ -370,7 +374,7 @@ onMounted(() => {
                     <a-col
                         :span="24"
                         :class="[
-                            selected_visibility_option === VISIBILITY.IN_CLASS.mode ? '' : 'd-none',
+                            selected_visibility_option === VISIBILITY.IN_CLASS ? '' : 'd-none',
                         ]"
                     >
                         <div class="list-item-section">
@@ -386,10 +390,16 @@ onMounted(() => {
                                         v-model:checked="shareClassState.checkAll"
                                         :indeterminate="shareClassState.indeterminate"
                                     >
-                                        Check all ({{ shareClassState.checkedList.length }})
+                                        {{
+                                            $t("share_modal.buttons.check_all", {
+                                                number: shareClassState.checkedList.length,
+                                            })
+                                        }}
                                     </a-checkbox>
                                 </div>
-                                <span> Share with your classes </span>
+                                <span>
+                                    {{ $t("share_modal.component_title.share_with_class") }}
+                                </span>
                             </div>
                             <div>
                                 <a-checkbox-group
@@ -412,7 +422,7 @@ onMounted(() => {
                                     size="large"
                                     @click="onShareClass"
                                 >
-                                    Done
+                                    {{ $t("share_modal.buttons.done") }}
                                 </a-button>
                             </div>
                         </div>

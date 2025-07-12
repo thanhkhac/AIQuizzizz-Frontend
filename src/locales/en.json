@@ -266,7 +266,8 @@
             "MultipleChoice": "Multiple choice",
             "Matching": "Matching",
             "Ordering": "Ordering",
-            "ShortText": "Short text"
+            "ShortText": "Short text",
+            "All": "All"
         },
         "question": {
             "question": "Question",
@@ -322,6 +323,8 @@
         }
     },
     "share_modal": {
+        "title": "Share Quiz",
+        "sub_title": "Share this quiz with students, colleagues, or on social media",
         "visibility": {
             "public": {
                 "mode": "Public",
@@ -345,6 +348,38 @@
                 "mode": "view",
                 "explain": "View only"
             }
+        },
+        "buttons": {
+            "copy_link": "Copy link",
+            "check_all": "Check all ({number})",
+            "done": "Done",
+            "yes": "Yes",
+            "no": "No"
+        },
+        "component_title": {
+            "visibility": "Visibility",
+            "share_with_email": "Share with email",
+            "people_with_access": "People with access",
+            "share_with_class": "Share with your classes"
+        },
+        "other": {
+            "search_email_placeholder": "Add people, group members, or keep it yourself",
+            "delete_warning": "Are your sure to remove this user?"
+        }
+    },
+    "detail_QS": {
+        "buttons": {
+            "share_quiz": "Share quiz",
+            "learn": "Learn",
+            "test": "Test",
+            "assign_to_class": "Assisng to class",
+            "download": "Download"
+        },
+        "other": {
+            "library": "Library",
+            "created_by": "Created by {username}",
+            "reviews": "reviews",
+            "questions": "Questions ({number})"
         }
     }
 }
