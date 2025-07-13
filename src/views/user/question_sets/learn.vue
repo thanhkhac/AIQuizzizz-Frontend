@@ -6,6 +6,7 @@ import type { Question } from "@/models/response/question";
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
 
 const QUESTION_FORMAT = {
     HTML: "HTML",
@@ -17,8 +18,47 @@ const quiz = {
     title: "Programming fundamental",
     description: "Basic knowledge about programming.",
     totalQuestion: 30,
-    completed: 1,
+    completed: 0,
     question: [
+        {
+            id: "11111111-aaaa-aaaa-aaaa-111111111111",
+            questionSetId: "11111111-1111-1111-1111-111111111111",
+            type: "MultipleChoice",
+            textFormat: "HTML",
+            questionText:
+                "Which of the following are valid variable declarations in JavaScript?<br/><pre>let x = 5;<br>const y = 'hello';<br>var 1name = 'error';</pre>",
+            score: 10.0,
+            scoreGraded: 0.0,
+            explainText:
+                "Variables in JavaScript cannot start with a number. 'let x = 5' and 'const y = \"hello\"' are valid, but 'var 1name = \"error\"' is invalid.",
+            questionData: {
+                multipleChoice: [
+                    {
+                        id: "a1",
+                        text: "Giữ vững địa vị thống trị của giai cấp công nhân thông qua Đảng Cộng sản Việt Nam trong mối liên minh giai cấp",
+                        isAnswer: true,
+                    },
+                    {
+                        id: "a2",
+                        text: "Giữ vững lập trường chính trị - tư tưởng của giai cấp công nhân, vai trò lãnh đạo của Đảng Cộng sản Việt Nam, giữ vững độc lập dân tộc và định hướng đi lên chủ nghĩa xã hội",
+                        isAnswer: true,
+                    },
+                    {
+                        id: "a3",
+                        text: "Giữ vững nền kinh tế thị trường theo hướng hiện đại, kiên định con đường đi lên chủ nghĩa xã hội",
+                        isAnswer: false,
+                    },
+                    {
+                        id: "a4",
+                        text: "Giữ vững nền kinh tế thị trường theo hướng hiện đại, kiên định con đường đi lên chủ nghĩa xã hội",
+                        isAnswer: false,
+                    },
+                ],
+                matching: null,
+                ordering: null,
+                shortText: null,
+            },
+        },
         {
             id: "44444444-dddd-dddd-dddd-444444444444",
             questionSetId: "11111111-1111-1111-1111-111111111111",
@@ -68,28 +108,6 @@ const quiz = {
                         { leftId: "l3", rightId: "r3" },
                     ],
                 },
-            },
-        },
-        {
-            id: "11111111-aaaa-aaaa-aaaa-111111111111",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "MultipleChoice",
-            textFormat: "HTML",
-            questionText:
-                "Which of the following are valid variable declarations in JavaScript?<br/><pre>let x = 5;<br>const y = 'hello';<br>var 1name = 'error';</pre>",
-            score: 10.0,
-            scoreGraded: 0.0,
-            explainText:
-                "Variables in JavaScript cannot start with a number. 'let x = 5' and 'const y = \"hello\"' are valid, but 'var 1name = \"error\"' is invalid.",
-            questionData: {
-                multipleChoice: [
-                    { id: "a1", text: "let x = 5", isAnswer: true },
-                    { id: "a2", text: "const y = 'hello';", isAnswer: true },
-                    { id: "a3", text: "var 1name = 'error';", isAnswer: false },
-                ],
-                matching: null,
-                ordering: null,
-                shortText: null,
             },
         },
         {
@@ -314,18 +332,24 @@ const totalCompleted = ref(quiz.completed); //for total
 
 const completed = ref<Question[]>([]); // for session
 
-const incorrect = ref<Question[]>([]); // for session
+const incorrect = ref<Set<Question>>(new Set()); // for session
 
-const currentSession = ref<Question[]>([]); // for session
+const currentSession = ref<Question[]>(quiz.question as Question[]); // for session
+const isCurrentSessionReLearn = ref(false);
 
 const currentQuestionIndex = ref(0);
-const currentQuestion = ref<Question>(quiz.question[0] as Question);
+const currentQuestion = ref<Question>(currentSession.value[0]);
 
 const currentQuestionInstruction = ref("");
 const currentQuestionIsSubmitted = ref(false);
 const currentQuestionIsSkipped = ref(false);
 
 const userAnswerMultipleChoice = ref<string[]>([]);
+
+/* adjust multiple choice layout */
+const isOptionExceed = computed(() => {
+    return currentQuestion.value.questionData.multipleChoice?.some((x) => x.text.length >= 100);
+});
 
 const userAnswerMatchingLeft = ref<any[]>([]);
 const userAnswerMatchingRight = ref<any[]>([]);
@@ -370,17 +394,6 @@ const resetUserAnswer = () => {
             break;
         }
     }
-};
-
-const onNextQuestion = () => {
-    currentQuestionIndex.value = clamp((currentQuestionIndex.value += 1), 0, quiz.question.length);
-    currentQuestion.value = quiz.question[currentQuestionIndex.value] as Question;
-
-    currentQuestionIsSubmitted.value = false;
-    currentQuestionIsSkipped.value = false;
-
-    resetUserAnswer();
-    toggleExplainModal();
 };
 
 const checkMultipleChoice = () => {
@@ -464,7 +477,34 @@ const onCloseCommentModal = () => {
     //reset comment list
 };
 
+/* final modal full screen */
+const finalModalOpen = ref(false);
+const openFinalModal = () => {
+    setTimeout(() => {
+        finalModalOpen.value = true;
+    }, 2000);
+};
+
+const closeFinalModal = () => {
+    finalModalOpen.value = false;
+};
+
+const triggerFinalModal = () => {
+    if (currentSession.value.length <= 0 && !isCurrentSessionReLearn.value) {
+        //append 1st incorrect question - re-try incorrect
+        isCurrentSessionReLearn.value = true;
+        currentSession.value = Array.from(incorrect.value);
+    } else if (currentSession.value.length <= 0 && isCurrentSessionReLearn.value) {
+        //re-tried - send 2nd incorrect to backend
+        //trigger open final modal
+        message.success("Done");
+        openFinalModal();
+        return;
+    }
+};
+
 const onSubmitAnswer = () => {
+    triggerFinalModal();
     toggleExplainModal();
     currentQuestionIsSubmitted.value = true;
 
@@ -498,6 +538,16 @@ const onSubmitAnswer = () => {
             break;
         }
     }
+
+    //if hasn't re-tried and incorrect
+    if (!currentQuestionResult.value.result && !isCurrentSessionReLearn.value) {
+        incorrect.value.add(currentQuestion.value);
+    } else if (currentQuestionResult.value.result && isCurrentSessionReLearn.value) {
+        //if re-tried and correct
+        incorrect.value.delete(currentQuestion.value);
+    } else if (currentQuestionResult.value.result === false) {
+        incorrect.value.add(currentQuestion.value);
+    }
 };
 
 const onSkipQuestion = (event: MouseEvent) => {
@@ -511,6 +561,9 @@ const onSkipQuestion = (event: MouseEvent) => {
         result: false,
         resultText: "Skipped",
     };
+
+    //false by default
+    incorrect.value.add(currentQuestion.value);
 
     switch (currentQuestion.value.type) {
         case QUESTION_TYPE.MULTIPLE_CHOICE: {
@@ -540,6 +593,16 @@ const onSkipQuestion = (event: MouseEvent) => {
             break;
         }
     }
+};
+
+const onNextQuestion = () => {
+    currentQuestion.value = currentSession.value.shift()!;
+
+    currentQuestionIsSubmitted.value = false;
+    currentQuestionIsSkipped.value = false;
+
+    resetUserAnswer();
+    toggleExplainModal(); // turn off explain modal
 };
 
 const dragOptions = {
@@ -583,6 +646,9 @@ onMounted(() => {
     resetUserAnswer();
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
+
+    currentSession.value = quiz.question.splice(0, 7) as Question[];
+    currentSession.value.shift();
 });
 </script>
 
@@ -659,7 +725,10 @@ onMounted(() => {
                         <template v-if="currentQuestion.type === QUESTION_TYPE.MULTIPLE_CHOICE">
                             <a-checkbox-group
                                 v-model:value="userAnswerMultipleChoice"
-                                class="answer-option-container"
+                                :class="[
+                                    'answer-option-container multiplechoice',
+                                    isOptionExceed ? 'column' : '',
+                                ]"
                             >
                                 <template
                                     v-for="option in currentQuestion.questionData.multipleChoice"
@@ -668,7 +737,7 @@ onMounted(() => {
                                         v-model:value="option.id"
                                         :disabled="currentQuestionIsSubmitted"
                                         :class="[
-                                            'answer-option',
+                                            'answer-option answer-option-multiplechoice',
                                             currentQuestionIsSubmitted &&
                                             userAnswerMultipleChoice.includes(option.id) &&
                                             option.isAnswer
@@ -908,6 +977,17 @@ onMounted(() => {
                         >
                             Submit
                         </a-button>
+                        <a-button
+                            :class="[
+                                'main-color-btn',
+                                currentQuestionIsSubmitted ? 'main-color-btn-disabled' : '',
+                            ]"
+                            type="primary"
+                            size="large"
+                            @click="openFinalModal"
+                        >
+                            Final
+                        </a-button>
                     </div>
                 </div>
             </div>
@@ -970,6 +1050,19 @@ onMounted(() => {
             </a-drawer>
         </div>
     </div>
+
+    <a-drawer
+        :open="finalModalOpen"
+        placement="top"
+        :height="'100vh'"
+        :closable="false"
+        @close="closeFinalModal"
+        :body-style="{ padding: 0, height: '100%', overflow: 'hidden' }"
+    >
+        <template #title>Full Screen Drawer</template>
+
+        <div style="height: 100%; background: #f0f2f5">Your Content</div>
+    </a-drawer>
 </template>
 <style>
 .ant-drawer-content {
@@ -995,7 +1088,7 @@ onMounted(() => {
 }
 
 .progress-bar-container {
-    width: 95vw;
+    width: 70%;
     margin: auto;
 }
 
@@ -1020,6 +1113,12 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     font-size: 14px;
+    font-weight: 600;
+}
+
+.content-item {
+    width: 70%;
+    margin: 10px auto;
 }
 
 .section {
@@ -1050,12 +1149,23 @@ onMounted(() => {
     border-top-right-radius: 8px;
 }
 
+.answer-option-container.multiplechoice {
+    padding-top: 10px;
+    display: grid;
+    grid-gap: 16px;
+    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 16px;
+}
+
+.answer-option-container.multiplechoice.column {
+    grid-template-columns: 1fr;
+}
+
 .answer-option {
-    width: calc(100% / 2 - 100px);
     border: 2px solid var(--form-item-border-color);
     background-color: var(--content-item-background-color);
-    padding: 20px;
-    margin: 10px 0px;
+    padding: 10px;
     border-radius: 8px;
     font-size: 1.1em;
     cursor: pointer;
@@ -1073,17 +1183,17 @@ onMounted(() => {
     font-size: 1.1em;
     color: var(--text-color);
     margin-left: 10px;
-    max-height: 160px;
     overflow-y: auto;
     padding: 10px 0px;
 }
 
 .answer-option .answer-option-content::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
 }
 .answer-option .answer-option-content::-webkit-scrollbar-thumb {
     background-color: var(--main-color);
     padding: 5px 0px;
+    border-radius: 10px;
 }
 
 ::v-deep(.ant-checkbox-wrapper span:last-of-type) {
@@ -1277,6 +1387,7 @@ onMounted(() => {
 }
 
 .answer-option-ordering {
+    margin: 10px 0px;
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -1325,8 +1436,9 @@ onMounted(() => {
     position: relative;
 }
 
-.answer-option.answer-option-matching {
-    width: calc(100vw / 2 - 120px);
+.answer-option-matching {
+    margin: 10px 0px;
+    width: calc(100vw / 3 - 80px);
     display: flex;
     justify-content: space-between;
     align-items: center;
