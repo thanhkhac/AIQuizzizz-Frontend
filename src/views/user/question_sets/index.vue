@@ -162,7 +162,7 @@ onMounted(() => {
                                 {{ $t("question_sets_index.navigators.quiz") }}
                             </RouterLink>
                             <RouterLink class="navigator-item" :t="{ name: '' }">
-                                {{ $t("question_sets_index.navigators.test") }}
+                                Draft
                             </RouterLink>
                         </div>
                     </div>
@@ -205,7 +205,7 @@ onMounted(() => {
                                 </div>
                                 <div class="quiz-item-progress">
                                     <a-progress
-                                        stroke-color="#7C3AED"
+                                        stroke-color="var(--main-color)"
                                         status="active"
                                         :percent="
                                             getPercentageComplete(

@@ -835,4 +835,9 @@ pre {
     border-color: var(--main-sub-color);
 }
 
+.ant-modal-footer {
+    display: flex;
+    justify-content: end;
+}
+
 /* ========================================Modal-Folder====================================================== */

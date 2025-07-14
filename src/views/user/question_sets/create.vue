@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { message } from "ant-design-vue";
+import { message, Modal } from "ant-design-vue";
+
+import dayjs from "dayjs";
+import { onBeforeRouteLeave } from "vue-router";
 
 import type { Question } from "@/models/request/question";
 
@@ -14,7 +17,7 @@ import Ordering from "@/shared/components/Questions/Ordering.vue";
 import ShortText from "@/shared/components/Questions/ShortText.vue";
 
 interface FormState {
-    title: string;
+    name: string;
     description: string;
     tags: string[];
     questions: Question[]; // or specify the type if you know it
@@ -25,7 +28,7 @@ const { t } = useI18n();
 const formRef = ref();
 
 const formState = reactive<FormState>({
-    title: "",
+    name: "",
     description: "",
     tags: [],
     questions: [],
@@ -89,7 +92,7 @@ const question_data_raw = [
         questionText: "What is the capital of France ?",
         questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
         explainText: "Paris is the capital city of France.",
-        score: 1,
+        score: 10,
         multipleChoices: [
             { id: "1", text: "Paris", isAnswer: true },
             { id: "2", text: "London", isAnswer: false },
@@ -105,7 +108,7 @@ const question_data_raw = [
         questionText: "Match the countries to their capitals.",
         questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
         explainText: "Each country must be paired with its capital.",
-        score: 2,
+        score: 10,
         multipleChoices: [],
         matchingPairs: [
             { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
@@ -122,7 +125,7 @@ const question_data_raw = [
         questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
         explainText:
             "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
-        score: 2,
+        score: 10,
         multipleChoices: [],
         matchingPairs: [],
         orderingItems: [
@@ -139,7 +142,7 @@ const question_data_raw = [
         questionText: "What is the chemical symbol for water?",
         questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
         explainText: "H2O is the formula for water.",
-        score: 1,
+        score: 10,
         multipleChoices: [],
         matchingPairs: [],
         orderingItems: [],
@@ -151,7 +154,7 @@ const question_data_raw = [
         questionText: "Which planet is known as the Red Planet?",
         questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
         explainText: "Mars is often called the Red Planet due to its reddish appearance.",
-        score: 1,
+        score: 10,
         multipleChoices: [
             { id: "1", text: "Mars", isAnswer: true },
             { id: "2", text: "Venus", isAnswer: false },
@@ -170,9 +173,11 @@ const addTag = () => {
         message.warning("Limit : 5 tags");
         return;
     }
-    if (tagContent.value) {
+    if (tagContent.value && tagContent.value.trim().length <= 50) {
         formState.tags.push(tagContent.value);
         tagContent.value = "";
+    } else {
+        message.warning("Invalid tag content");
     }
 };
 
@@ -224,8 +229,115 @@ const onRemoveQuestion = (index: number) => {
     formState.questions.splice(index, 1);
 };
 
-const check = () => {
-    console.log(formState.questions);
+const onFinish = () => {
+    let isInvalid = false;
+    let msg = "Invalid question.";
+    let invalidQuestion = new Set<Question>();
+
+    if (formState.name.trim().length > 100 || formState.name.trim().length === 0) {
+        isInvalid = true;
+        msg = "Invalid title.";
+        message.error(msg);
+        return;
+    }
+
+    if (formState.description.trim().length > 250) {
+        isInvalid = true;
+        msg = "Invalid description.";
+        message.error(msg);
+        return;
+    }
+
+    const validation: Question[][] = [
+        //invalid question text
+        formState.questions.filter((x) => {
+            const questionText = x.questionText
+                .replace(/^<p>/, "") //replace <p> at the start
+                .replace(/<\/p>$/, "") //replace </p> at the end
+                .trim();
+
+            return 0 === questionText.length || questionText.length >= 500;
+        }),
+
+        //invalid explain text
+        formState.questions.filter((x) => {
+            const questionText = x.explainText
+                .replace(/^<p>/, "")
+                .replace(/<\/p>$/, "")
+                .trim();
+
+            return questionText.length >= 500;
+        }),
+
+        //invalid multiplechoice
+        formState.questions.filter(
+            (x) =>
+                x.type === QUESTION_TYPE.MULTIPLE_CHOICE &&
+                (x.multipleChoices.some(
+                    (x) => x.text.trim().length === 0 || x.text.trim().length > 500,
+                ) ||
+                    x.multipleChoices.filter((x) => x.isAnswer).length === 0),
+        ),
+
+        //invalid matching
+        formState.questions.filter(
+            (x) =>
+                x.type === QUESTION_TYPE.MATCHING &&
+                (x.matchingPairs.some(
+                    (x) => x.leftItem.trim().length === 0 || x.leftItem.trim().length > 500,
+                ) ||
+                    x.matchingPairs.some(
+                        (x) => x.rightItem.trim().length === 0 || x.rightItem.trim().length > 500,
+                    )),
+        ),
+
+        //invalid ordering
+        formState.questions.filter(
+            (x) =>
+                x.type === QUESTION_TYPE.ORDERING &&
+                x.orderingItems.some(
+                    (x) => x.text.trim().length === 0 || x.text.trim().length > 500,
+                ),
+        ),
+
+        //invalid short text
+        formState.questions.filter(
+            (x) =>
+                x.type === QUESTION_TYPE.SHORT_TEXT &&
+                (x.shortAnswer.trim().length === 0 || x.shortAnswer.trim().length > 500),
+        ),
+    ];
+
+    validation.forEach((x) => {
+        if (x.length > 0) {
+            isInvalid = true;
+            x.forEach((y) => invalidQuestion.add(y));
+        }
+    });
+
+    let indexes = Array.from(invalidQuestion).map((x) => formState.questions.indexOf(x) + 1);
+
+    if (isInvalid) {
+        Modal.error({
+            title: "Cannot create new question set!",
+            content: "There are errors at questions: " + indexes.sort().join(", "),
+        });
+    } else {
+        showModalConfirmation();
+    }
+};
+
+const showModalConfirmation = () => {
+    Modal.confirm({
+        title: "Create new quiz!",
+        content: "Make sure to review your contents before proceeding.",
+        centered: true,
+        onOk: async () => {
+            //logic here
+            //remove draft
+            localStorage.removeItem(storage_draft_key);
+        },
+    });
 };
 
 //import modal
@@ -238,6 +350,7 @@ const onOpenImportModal = () => {
 
 //generate modal
 import GenerateQSModal from "@/shared/modals/GenerateQSModal.vue";
+import QUESTION_TYPE from "@/constants/questionTypes";
 const generateModalRef = ref<InstanceType<typeof GenerateQSModal> | null>(null);
 
 const openGenerateAIModal = () => {
@@ -249,8 +362,41 @@ const onModalImport = (selected: Question[]) => {
     formState.questions.push(...selected);
 };
 
+/* auto-save */
+const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
+const intervalId = ref<number>();
+
+const saveDraft = () => {
+    localStorage.setItem(storage_draft_key, JSON.stringify(formState));
+    message.info("Auto saved");
+};
+
+onBeforeRouteLeave((to, from, next) => {
+    Modal.confirm({
+        title: "Leave already?",
+        content: "You have unsaved changes.",
+        onOk: () => {
+            localStorage.removeItem(storage_draft_key);
+            next();
+        },
+        onCancel: () => next(false),
+    });
+});
+
+function handleBeforeUnload(e: BeforeUnloadEvent) {
+    e.preventDefault();
+    e.returnValue = "";
+}
+
 onMounted(() => {
     formState.questions.push(...(question_data_raw as Question[]));
+    intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
+    window.addEventListener("beforeunload", handleBeforeUnload);
+});
+
+onUnmounted(() => {
+    clearInterval(intervalId.value);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 </script>
 <template>
@@ -281,17 +427,18 @@ onMounted(() => {
                     </div>
                     <Input
                         class="question-input-item"
-                        v-model="formState.title"
+                        v-model="formState.name"
                         :isRequired="true"
                         :placeholder="t('question_sets_index.search_placeholder')"
                         :label="t('create_QS.quiz.title')"
+                        :max-length="100"
                     />
                     <div class="d-flex">
                         <TextArea
                             class="question-input-item"
                             v-model="formState.description"
                             placeholder="textarea with clear icon"
-                            :max-length="500"
+                            :max-length="250"
                             :label="t('create_QS.quiz.description')"
                         />
                         <div class="form-item">
@@ -310,6 +457,7 @@ onMounted(() => {
                                 <Input
                                     v-model="tagContent"
                                     :placeholder="t('question_sets_index.search_placeholder')"
+                                    :max-length="50"
                                 >
                                     <template #icon>
                                         <i class="bx bx-purchase-tag-alt"></i>
@@ -342,7 +490,7 @@ onMounted(() => {
                                 {{ $t("create_QS.buttons.generated_by_ai") }}
                                 <i class="bx bx-upload"></i>
                             </RouterLink>
-                            <div class="import-button" @click="check">
+                            <div class="import-button" @click="onFinish">
                                 {{ $t("create_QS.buttons.create") }}
                             </div>
                             <div class="import-button">
@@ -375,8 +523,8 @@ onMounted(() => {
         </div>
     </div>
 
-    <ImportQSModal ref="importModalRef" :title="formState.title" @import="onModalImport" />
-    <GenerateQSModal ref="generateModalRef" :title="formState.title" @import="onModalImport" />
+    <ImportQSModal ref="importModalRef" :title="formState.name" @import="onModalImport" />
+    <GenerateQSModal ref="generateModalRef" :title="formState.name" @import="onModalImport" />
 </template>
 
 <style scoped>

@@ -353,9 +353,13 @@ onMounted(() => {
                         </a-form-item>
 
                         <a-form-item class="generate-ai-btn-container">
-                            <a-button size="large" class="w-100 main-color-btn" type="primary"
-                                >✨ Generate</a-button
+                            <a-button
+                                size="large"
+                                class="w-100 main-color-btn generate_ai"
+                                type="primary"
                             >
+                                ✨ Generate
+                            </a-button>
                         </a-form-item>
                     </a-form>
                 </div>
@@ -506,3 +510,8 @@ onMounted(() => {
         </template>
     </a-modal>
 </template>
+<style scoped>
+.main-color-btn.generate_ai {
+    display: block;
+}
+</style>

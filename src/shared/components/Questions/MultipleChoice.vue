@@ -96,9 +96,12 @@ const { validateInfos } = Form.useForm(props.question, {
     ],
 });
 
-const haveAnswer = () => {
+const checkHaveAnswer = () => {
     const haveAnswer = props.question.multipleChoices.filter((item) => item.isAnswer);
-    return haveAnswer.length > 0;
+    const yes = haveAnswer.length > 0;
+    let message = yes ? "" : "This type of question need at least one correct answer";
+
+    return { yes, message };
 };
 
 const onCheckHaveAnswer = () => {
@@ -159,39 +162,44 @@ const onCheckHaveAnswer = () => {
                     />
                     <div class="option-section">
                         <div class="option-title">{{ $t("create_QS.question.answer_option") }}</div>
-                        <div
-                            :class="[
-                                'option-list-container',
-                                !haveAnswer() ? 'option-list-container-error' : '',
-                            ]"
+                        <a-tooltip
+                            :title="!checkHaveAnswer().yes ? checkHaveAnswer().message : null"
+                            :color="'red'"
                         >
                             <div
-                                class="option-item"
-                                v-for="(option, index) in props.question.multipleChoices"
-                                :key="option.id"
+                                :class="[
+                                    'option-list-container',
+                                    !checkHaveAnswer().yes ? 'option-list-container-error' : '',
+                                ]"
                             >
-                                <a-checkbox
-                                    @change="onCheckHaveAnswer"
-                                    class="option-item-checkbox"
-                                    v-model:checked="option.isAnswer"
-                                ></a-checkbox>
-                                <div class="option-item-input">
-                                    <TextArea
-                                        v-model="option.text"
-                                        :placeholder="
-                                            t('create_QS.question.answer_option_placeholder')
-                                        "
-                                        :isRequired="true"
-                                        :maxLength="500"
-                                    />
+                                <div
+                                    class="option-item"
+                                    v-for="(option, index) in props.question.multipleChoices"
+                                    :key="option.id"
+                                >
+                                    <a-checkbox
+                                        @change="onCheckHaveAnswer"
+                                        class="option-item-checkbox"
+                                        v-model:checked="option.isAnswer"
+                                    ></a-checkbox>
+                                    <div class="option-item-input">
+                                        <TextArea
+                                            v-model="option.text"
+                                            :placeholder="
+                                                t('create_QS.question.answer_option_placeholder')
+                                            "
+                                            :isRequired="true"
+                                            :maxLength="500"
+                                        />
+                                    </div>
+                                    <i class="bx bx-minus-circle" @click="removeOption(index)"></i>
                                 </div>
-                                <i class="bx bx-minus-circle" @click="removeOption(index)"></i>
+                                <div class="add-option" @click="addOption">
+                                    <i class="bx bx-plus"></i>
+                                    {{ $t("create_QS.buttons.add_option") }}
+                                </div>
                             </div>
-                            <div class="add-option" @click="addOption">
-                                <i class="bx bx-plus"></i>
-                                {{ $t("create_QS.buttons.add_option") }}
-                            </div>
-                        </div>
+                        </a-tooltip>
                     </div>
                 </div>
             </div>

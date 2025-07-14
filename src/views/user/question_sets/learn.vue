@@ -32,7 +32,7 @@ const quiz = {
             type: "MultipleChoice",
             textFormat: "HTML",
             questionText:
-                "Which of the following are valid variable declarations in JavaScript?<br/><pre>let x = 5;<br>const y = 'hello';<br>var 1name = 'error';</pre>",
+                "<p>Which of the following are valid variable declarations in JavaScript?<br/><pre>let x = 5;<br>const y = 'hello';<br>var 1name = 'error';</pre></p>",
             score: 10.0,
             scoreGraded: 0.0,
             explainText:
