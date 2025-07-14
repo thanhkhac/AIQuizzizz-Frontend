@@ -2,11 +2,17 @@
 import { ref, reactive, computed, watch, onMounted, nextTick, readonly } from "vue";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
+import { QUOTES } from "@/constants/quote";
+
 import type { Question } from "@/models/response/question";
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
+
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const QUESTION_FORMAT = {
     HTML: "HTML",
@@ -18,7 +24,7 @@ const quiz = {
     title: "Programming fundamental",
     description: "Basic knowledge about programming.",
     totalQuestion: 30,
-    completed: 0,
+    completed: 8,
     question: [
         {
             id: "11111111-aaaa-aaaa-aaaa-111111111111",
@@ -335,9 +341,8 @@ const completed = ref<Question[]>([]); // for session
 const incorrect = ref<Set<Question>>(new Set()); // for session
 
 const currentSession = ref<Question[]>(quiz.question as Question[]); // for session
-const isCurrentSessionReLearn = ref(false);
+const isCurrentSessionReLearn = ref(false); //to check whether current session re-learn incorrect
 
-const currentQuestionIndex = ref(0);
 const currentQuestion = ref<Question>(currentSession.value[0]);
 
 const currentQuestionInstruction = ref("");
@@ -366,36 +371,7 @@ const completionPercentage = computed(() => {
     return Math.floor((quiz.completed / quiz.question.length) * 100);
 });
 
-function clamp(value: number, min: number, max: number): number {
-    return Math.max(min, Math.min(max, value));
-}
-
-const resetUserAnswer = () => {
-    switch (currentQuestion.value.type) {
-        case QUESTION_TYPE.MULTIPLE_CHOICE: {
-            currentQuestionInstruction.value = `Choose (${currentQuestion.value.questionData.multipleChoice?.filter((x) => x.isAnswer).length}) options.`;
-            userAnswerMultipleChoice.value = [];
-            break;
-        }
-        case QUESTION_TYPE.ORDERING: {
-            currentQuestionInstruction.value = `Arrange these options to their correct order.`;
-            userAnswerOrdering.value = currentQuestion.value.questionData.ordering!;
-            break;
-        }
-        case QUESTION_TYPE.MATCHING: {
-            currentQuestionInstruction.value = `Arrange the items to align with their correct matches.`;
-            userAnswerMatchingLeft.value = currentQuestion.value.questionData.matching!.leftItems;
-            userAnswerMatchingRight.value = currentQuestion.value.questionData.matching!.rightItems;
-            break;
-        }
-        case QUESTION_TYPE.SHORT_TEXT: {
-            currentQuestionInstruction.value = `Fill in the blank the correct answer.`;
-            userAnswerShortText.value = "";
-            break;
-        }
-    }
-};
-
+//#region check user answer
 const checkMultipleChoice = () => {
     let correctAnswer = currentQuestion.value.questionData.multipleChoice
         ?.filter((x) => x.isAnswer)
@@ -457,6 +433,9 @@ const checkShortText = () => {
     );
 };
 
+//#endregion
+
+//#region explain modal
 /* explain modal bottom */
 const explainModal = ref<HTMLElement | null>(null);
 const explainModalOpen = ref(false);
@@ -464,6 +443,9 @@ const toggleExplainModal = () => {
     explainModalOpen.value = !explainModalOpen.value;
 };
 
+//#endregion
+
+//#region comment modal
 /* comment modal right */
 const commentModalOpen = ref(false);
 
@@ -476,10 +458,18 @@ const onCloseCommentModal = () => {
     commentModalOpen.value = false;
     //reset comment list
 };
+//#endregion
 
+//#region final modal
 /* final modal full screen */
+
 const finalModalOpen = ref(false);
+const finalModalQuote = ref("");
 const openFinalModal = () => {
+    finalModalQuote.value = t(
+        `learn_QS.final_modal.quotes.${QUOTES[Math.floor(Math.random() * QUOTES.length)].id}`,
+    );
+
     setTimeout(() => {
         finalModalOpen.value = true;
     }, 2000);
@@ -503,6 +493,20 @@ const triggerFinalModal = () => {
     }
 };
 
+//preview completed question in final modal
+const toggleDisplayAnswer = (index: number, button: EventTarget) => {
+    let $button = $(button);
+
+    $button.toggleClass("bx-chevron-down bx-chevron-up");
+
+    const answer = $(`#question-item-answer-${index}`);
+    if (answer) $(answer).slideToggle();
+};
+
+//#endregion
+
+//#region logic complete question
+/* handle logic complete question */
 const onSubmitAnswer = () => {
     triggerFinalModal();
     toggleExplainModal();
@@ -545,12 +549,16 @@ const onSubmitAnswer = () => {
     } else if (currentQuestionResult.value.result && isCurrentSessionReLearn.value) {
         //if re-tried and correct
         incorrect.value.delete(currentQuestion.value);
+        completed.value.push(currentQuestion.value);
     } else if (currentQuestionResult.value.result === false) {
         incorrect.value.add(currentQuestion.value);
+    } else {
+        completed.value.push(currentQuestion.value);
     }
 };
 
 const onSkipQuestion = (event: MouseEvent) => {
+    triggerFinalModal();
     toggleExplainModal();
 
     //change result
@@ -595,7 +603,36 @@ const onSkipQuestion = (event: MouseEvent) => {
     }
 };
 
+const resetUserAnswer = () => {
+    switch (currentQuestion.value.type) {
+        case QUESTION_TYPE.MULTIPLE_CHOICE: {
+            currentQuestionInstruction.value = `Choose (${currentQuestion.value.questionData.multipleChoice?.filter((x) => x.isAnswer).length}) options.`;
+            userAnswerMultipleChoice.value = [];
+            break;
+        }
+        case QUESTION_TYPE.ORDERING: {
+            currentQuestionInstruction.value = `Arrange these options to their correct order.`;
+            userAnswerOrdering.value = currentQuestion.value.questionData.ordering!;
+            break;
+        }
+        case QUESTION_TYPE.MATCHING: {
+            currentQuestionInstruction.value = `Arrange the items to align with their correct matches.`;
+            userAnswerMatchingLeft.value = currentQuestion.value.questionData.matching!.leftItems;
+            userAnswerMatchingRight.value = currentQuestion.value.questionData.matching!.rightItems;
+            break;
+        }
+        case QUESTION_TYPE.SHORT_TEXT: {
+            currentQuestionInstruction.value = `Fill in the blank the correct answer.`;
+            userAnswerShortText.value = "";
+            break;
+        }
+    }
+};
+
 const onNextQuestion = () => {
+    triggerFinalModal();
+    if (currentSession.value.length <= 0) return;
+
     currentQuestion.value = currentSession.value.shift()!;
 
     currentQuestionIsSubmitted.value = false;
@@ -604,6 +641,7 @@ const onNextQuestion = () => {
     resetUserAnswer();
     toggleExplainModal(); // turn off explain modal
 };
+//#endregion
 
 const dragOptions = {
     scroll: true,
@@ -672,9 +710,12 @@ onMounted(() => {
         <div class="progress-bar-container">
             <div class="progress-info">
                 <div class="progress-info-number">
-                    Question {{ totalCompleted + 1 }} of {{ quiz.question.length }}
+                    Question {{ totalCompleted + 1 }} of {{ quiz.totalQuestion }}
                 </div>
-                <div class="progress-info-percentage">{{ completionPercentage }}% Completed</div>
+                <div class="progress-info-percentage">
+                    <span>{{ completionPercentage }}</span>
+                    % Completed
+                </div>
             </div>
             <a-progress
                 :show-info="false"
@@ -1057,11 +1098,141 @@ onMounted(() => {
         :height="'100vh'"
         :closable="false"
         @close="closeFinalModal"
-        :body-style="{ padding: 0, height: '100%', overflow: 'hidden' }"
+        :body-style="{ padding: 0, height: '100%' }"
     >
-        <template #title>Full Screen Drawer</template>
+        <template #title>
+            <div class="title-container">
+                <a-row class="w-100 d-flex align-items-center">
+                    <a-col :span="1">
+                        <RouterLink :to="{ name: 'User_Library' }">
+                            <i class="bx bx-chevron-left navigator-back-button"></i>
+                        </RouterLink>
+                    </a-col>
+                    <a-col class="main-title" :span="23">
+                        <span> {{ quiz.title }}</span> <br />
+                    </a-col>
+                </a-row>
+            </div>
+        </template>
 
-        <div style="height: 100%; background: #f0f2f5">Your Content</div>
+        <div class="content-item modal-final-container">
+            <div class="final-modal-quote">
+                {{ finalModalQuote }}
+            </div>
+        </div>
+        <div class="progress-bar-container final">
+            <div class="progress-info">
+                <div class="progress-info-percentage">
+                    Total set progress:
+                    <span>{{ completionPercentage }}%</span>
+                </div>
+            </div>
+            <a-progress
+                :show-info="false"
+                stroke-color="#7C3AED"
+                status="active"
+                :percent="completionPercentage"
+            />
+            <div class="progress-info">
+                <div class="progress-info-percentage">
+                    Completed:
+                    <span>{{ quiz.completed }}</span>
+                </div>
+                <div class="progress-info-percentage">
+                    Total question:
+                    <span>{{ quiz.totalQuestion }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="content-item modal-final-container">
+            <a-divider style="background-color: var(--content-item-border-color)"></a-divider>
+            <div class="preview-question-title">Questions completed in this session</div>
+            <div class="preview-question-container">
+                <div class="preview-question-item" v-for="(question, index) in completed">
+                    <div class="question-item-content">
+                        <div
+                            v-if="question.textFormat === QUESTION_FORMAT.HTML"
+                            class="question-html"
+                            v-html="question.questionText"
+                        ></div>
+                        <div v-else class="question-text">
+                            {{ question.questionText }}
+                        </div>
+                        <div class="question-item-answer" :id="`question-item-answer-${index}`">
+                            <template v-if="question.type === QUESTION_TYPE.MULTIPLE_CHOICE">
+                                <div class="multiple-choice-answer">
+                                    <ul>
+                                        <li v-for="option in question.questionData.multipleChoice">
+                                            {{ option.text }}
+                                            <span class="text-success" v-if="option.isAnswer">
+                                                ({{ option.isAnswer }})
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </template>
+                            <template v-if="question.type === QUESTION_TYPE.MATCHING">
+                                <div
+                                    class="pair-answer"
+                                    v-for="option in question.questionData.matching?.matches"
+                                >
+                                    <span class="pair-answer-item">
+                                        {{
+                                            question.questionData.matching?.leftItems.find(
+                                                (x) => x.id === option.leftId,
+                                            )?.text
+                                        }}
+                                    </span>
+                                    <i class="bx bx-right-arrow-alt"></i>
+                                    <span class="pair-answer-item">
+                                        {{
+                                            question.questionData.matching?.rightItems.find(
+                                                (x) => x.id === option.rightId,
+                                            )?.text
+                                        }}
+                                    </span>
+                                </div>
+                            </template>
+                            <template v-if="question.type === QUESTION_TYPE.ORDERING">
+                                <div class="ordering-answer">
+                                    <div class="ordering-answer-item">
+                                        <div v-for="option in question.questionData.ordering">
+                                            {{ option.text }}
+                                        </div>
+                                    </div>
+                                    <i class="bx bx-right-arrow-alt"></i>
+                                    <div class="ordering-answer-item">
+                                        <div
+                                            class="ordering-answer-item"
+                                            v-for="(
+                                                option, index
+                                            ) in question.questionData.ordering?.sort(
+                                                (asc, desc) => asc.correctOrder - desc.correctOrder,
+                                            )"
+                                        >
+                                            <span>#{{ option.correctOrder }}</span> -
+                                            {{ option.text }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            <template v-if="question.type === QUESTION_TYPE.SHORT_TEXT">
+                                <span>Answer:</span>
+                                <div class="short-text-answer">
+                                    {{ question.questionData.shortText }}
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="question-item-toogle-btn">
+                        <i
+                            class="bx bx-chevron-up"
+                            @click="toggleDisplayAnswer(index, $event.currentTarget!)"
+                        ></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </a-drawer>
 </template>
 <style>
@@ -1494,5 +1665,32 @@ onMounted(() => {
 
 ::v-deep(.answer-incorrect textarea) {
     border-color: #e74c3c;
+}
+
+/* final modal */
+
+.modal-final-container {
+    border-color: transparent;
+    padding: 10px 0px;
+}
+
+.final-modal-quote {
+    font-size: 36px;
+    font-weight: bolder;
+}
+.progress-info-percentage span {
+    color: #2ecc71;
+}
+
+.progress-bar-container.final .progress-info {
+    font-size: 16px !important;
+}
+
+.modal-final-container .question-text {
+    margin-bottom: 5px;
+}
+.preview-question-title {
+    font-size: 16px;
+    font-weight: 500;
 }
 </style>

@@ -381,5 +381,21 @@
             "reviews": "reviews",
             "questions": "Questions ({number})"
         }
+    },
+    "learn_QS": {
+        "final_modal": {
+            "quotes": {
+                "q1": "Keep pushing. You're almost there!",
+                "q2": "Stay focused. You've got this!",
+                "q3": "One step at a time. Keep going!",
+                "q4": "You're doing great. Don't stop now!",
+                "q5": "Every effort counts. Keep it up!",
+                "q6": "Strong mind. Strong progress.",
+                "q7": "Momentum is yours. Own it!",
+                "q8": "Eyes forward. Energy up!",
+                "q9": "You're closer than you think.",
+                "q10": "Rise up. Power through!"
+            }
+        }
     }
 }

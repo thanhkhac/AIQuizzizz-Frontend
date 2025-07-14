@@ -381,5 +381,21 @@
             "reviews": "đánh giá",
             "questions": "Câu hỏi ({number})"
         }
+    },
+    "learn_QS": {
+        "final_modal": {
+            "quotes": {
+                "q1": "Cố thêm chút nữa, sắp xong rồi!",
+                "q2": "Tập trung nào, bạn làm được!",
+                "q3": "Từng bước một, cứ đi tiếp!",
+                "q4": "Làm tốt lắm, đừng dừng lại!",
+                "q5": "Mỗi chút cố gắng đều đáng giá!",
+                "q6": "Vững tâm thì sẽ tiến xa.",
+                "q7": "Đà đang tốt, giữ vững nhé!",
+                "q8": "Nhìn về phía trước, tiếp tục thôi!",
+                "q9": "Bạn gần tới đích rồi đấy.",
+                "q10": "Đứng dậy và làm tiếp!"
+            }
+        }
     }
 }
