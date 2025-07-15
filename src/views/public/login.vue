@@ -9,6 +9,8 @@ import { message } from "ant-design-vue";
 import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
 import { useI18n } from "vue-i18n";
 
+const google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
 const { t } = useI18n();
 
 const authStore = useAuthStore();
@@ -56,6 +58,12 @@ const onFinish = async () => {
         button_loading.value = false;
     }
 };
+const onGoogleLogin = async () => {
+    const origin = window.location.origin;
+    window.location
+        .assign(`https://accounts.google.com/o/oauth2/v2/auth?client_id=${google_client_id}&redirect_uri=${origin}/google-authentication-callback&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent
+`);
+};
 </script>
 <template>
     <div class="authentication-item">
@@ -65,7 +73,7 @@ const onFinish = async () => {
         </div>
 
         <div class="authentication-item-external-login">
-            <div class="external-login external-login-google">
+            <div class="external-login external-login-google" @click="onGoogleLogin">
                 <div :style="{ backgroundImage: `url(${google_logo})` }"></div>
                 <div>Google</div>
             </div>

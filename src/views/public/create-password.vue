@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import google_logo from "@/assets/google_logo.png";
-import facebook_logo from "@/assets/facebook_logo.png";
-
 import { reactive, ref } from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
 import { notification } from "ant-design-vue";
 import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-
-const google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const { t } = useI18n();
 
@@ -76,58 +71,29 @@ const showNotification = (type: NotificationType, message: string, description: 
 const onFinish = async () => {
     try {
         button_loading.value = true;
-        let register_result = await ApiAuthentication.Register({
+        let result = await ApiAuthentication.Register({
             email: formState.email,
             password: formState.password,
         });
-        if (!register_result.data.success) return;
-
-        let send_email_result = await ApiAuthentication.RequestEmailVerification({
-            email: formState.email,
-        });
-
-        if (send_email_result.data.success) {
-            showNotification("success", "Register result", "Success");
-
-            sessionStorage.setItem("email", formState.email);
-            router.push({ name: "verify-email" });
+        if (result.data.success) {
+            showNotification("success", "Set password result", "Success");
+            router.push({ name: "home" });
             return;
         }
-        showNotification("error", "Register result", "ERROR");
+        showNotification("error", "Set password result", "ERROR");
     } catch (error) {
         console.log(error);
     } finally {
         button_loading.value = false;
     }
 };
-
-const onGoogleRegister = async () => {
-    const origin = window.location.origin;
-    window.location
-        .assign(`https://accounts.google.com/o/oauth2/v2/auth?client_id=${google_client_id}&redirect_uri=${origin}/google-authentication-callback&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent
-`);
-};
 </script>
 <template>
     <div class="authentication-item">
         <div class="authentication-item-title">
-            <span> {{ $t("auth.greetings.signUp") }}</span> <br />
-            <span>{{ $t("auth.instructions.signUp") }}</span>
+            <span> {{ $t("auth.greetings.create_password") }}</span> <br />
+            <span>{{ $t("auth.instructions.create_password") }}</span>
         </div>
-
-        <div class="authentication-item-external-login" @click="onGoogleRegister">
-            <div class="external-login external-login-google">
-                <div :style="{ backgroundImage: `url(${google_logo})` }"></div>
-                <div>Google</div>
-            </div>
-            <div class="external-login external-login-facebook">
-                <div :style="{ backgroundImage: `url(${facebook_logo})` }"></div>
-                <div>Facebook</div>
-            </div>
-        </div>
-        <a-divider style="height: 1px; background-color: #d9d9d9">
-            <span style="background-color: #fff; padding: 0px 10px">OR</span>
-        </a-divider>
         <a-form
             class="authentication-item-form"
             ref="formRef"
@@ -148,6 +114,7 @@ const onGoogleRegister = async () => {
                     </template>
                 </a-input>
             </a-form-item>
+
             <a-form-item label="" name="password">
                 <label>{{ $t("auth.inputs.password") }}</label>
                 <a-input-password
@@ -180,14 +147,13 @@ const onGoogleRegister = async () => {
                     type="primary"
                     style="background-color: #9823f5; width: 100%"
                 >
-                    {{ $t("auth.buttons.signUp") }}
+                    {{ $t("auth.buttons.create") }}
                 </a-button>
             </a-form-item>
         </a-form>
         <div class="authentication-item-navigator">
-            {{ $t("auth.navigators.signUp_signIn_ins") }}
-            <RouterLink :to="{ name: 'login' }">
-                {{ $t("auth.navigators.signIn_link") }}
+            <RouterLink :to="{ name: 'home' }">
+                {{ $t("auth.navigators.skip_home") }}
             </RouterLink>
         </div>
     </div>

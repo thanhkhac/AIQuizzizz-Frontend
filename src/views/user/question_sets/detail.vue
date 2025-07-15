@@ -189,6 +189,10 @@ const onRedirectToLearn = () => {
     router.push({ name: "User_QuestionSet_Learn", params: { id: quiz.value.id } });
 };
 
+const triggerPrint = () => {
+    window.print();
+};
+
 onMounted(() => {
     //get api quiz + check visibility to current user
     //format url
@@ -292,7 +296,7 @@ onMounted(() => {
                     {{ $t("detail_QS.buttons.assign_to_class") }}
                     <i class="bx bx-calendar-exclamation"></i>
                 </div>
-                <div class="action-item">
+                <div class="action-item" @click="triggerPrint">
                     {{ $t("detail_QS.buttons.download") }}
                     <i class="bx bx-download"></i>
                 </div>

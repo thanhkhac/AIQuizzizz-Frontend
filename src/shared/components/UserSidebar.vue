@@ -45,7 +45,9 @@ const onSignOut = () => {
         centered: true,
         okText: t("sidebar.buttons.ok"),
         cancelText: t("sidebar.buttons.cancel"),
-        onOk: () => {},
+        onOk: () => {
+            authStore.logOut();
+        },
         onCancel: () => {},
     });
 };

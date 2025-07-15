@@ -165,7 +165,7 @@ const { validateInfos } = Form.useForm(props.question, {
                                 >
                                     <div class="option-item-order">
                                         <i class="bx bx-hash"></i>
-                                        {{ option.correctOrder }}
+                                        {{ option.correctOrder + 1 }}
                                     </div>
                                     <div class="option-item-input">
                                         <TextArea

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ApiQuestionSet from "@/api/ApiQuestionSet";
+
 import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
@@ -129,10 +131,10 @@ const question_data_raw = [
         multipleChoices: [],
         matchingPairs: [],
         orderingItems: [
-            { id: "1", text: "Evaporation", correctOrder: 1 },
-            { id: "2", text: "Condensation", correctOrder: 2 },
-            { id: "3", text: "Precipitation", correctOrder: 3 },
-            { id: "4", text: "Collection", correctOrder: 4 },
+            { id: "1", text: "Evaporation", correctOrder: 0 },
+            { id: "2", text: "Condensation", correctOrder: 1 },
+            { id: "3", text: "Precipitation", correctOrder: 2 },
+            { id: "4", text: "Collection", correctOrder: 3 },
         ],
         shortAnswer: "",
     },
@@ -203,10 +205,10 @@ const createQuestionTemplate = (): Question => ({
         { id: (Date.now() + 2).toString(), leftItem: "", rightItem: "" },
     ],
     orderingItems: [
-        { id: (Date.now() + 1).toString(), text: "", correctOrder: 1 },
-        { id: (Date.now() + 2).toString(), text: "", correctOrder: 2 },
-        { id: (Date.now() + 3).toString(), text: "", correctOrder: 3 },
-        { id: (Date.now() + 4).toString(), text: "", correctOrder: 4 },
+        { id: (Date.now() + 1).toString(), text: "", correctOrder: 0 },
+        { id: (Date.now() + 2).toString(), text: "", correctOrder: 1 },
+        { id: (Date.now() + 3).toString(), text: "", correctOrder: 2 },
+        { id: (Date.now() + 4).toString(), text: "", correctOrder: 3 },
     ],
     shortAnswer: "",
 });
@@ -335,6 +337,10 @@ const showModalConfirmation = () => {
         onOk: async () => {
             //logic here
             //remove draft
+            let result = await ApiQuestionSet.Create(formState);
+            if (result.data.success) {
+                message.success(result.data.data);
+            }
             localStorage.removeItem(storage_draft_key);
         },
     });
@@ -367,7 +373,7 @@ const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
 const intervalId = ref<number>();
 
 const saveDraft = () => {
-    localStorage.setItem(storage_draft_key, JSON.stringify(formState));
+    // localStorage.setItem(storage_draft_key, JSON.stringify(formState));
     message.info("Auto saved");
 };
 

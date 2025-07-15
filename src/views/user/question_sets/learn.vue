@@ -1232,6 +1232,18 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
+            <div class="content-item final-modal-footer">
+                <div>Press button to continues</div>
+                <a-button
+                    :class="['main-color-btn']"
+                    type="primary"
+                    size="large"
+                    shape="round"
+                    @click="onNextQuestion"
+                >
+                    Continue
+                </a-button>
+            </div>
         </div>
     </a-drawer>
 </template>
@@ -1692,5 +1704,19 @@ onMounted(() => {
 .preview-question-title {
     font-size: 16px;
     font-weight: 500;
+}
+
+.final-modal-footer {
+    margin: 0px;
+    padding-bottom: 10px;
+    position: fixed;
+    bottom: 0px;
+    background-color: var(--content-item-background-color);
+    border-color: transparent;
+    border-radius: 0px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 -20px 20px 1px var(--content-item-background-color);
 }
 </style>

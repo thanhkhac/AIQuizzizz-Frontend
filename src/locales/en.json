@@ -5,7 +5,8 @@
             "signUp": "Create Account",
             "forgotPassword": "Forgot your password ?",
             "resetPassword": "You're finally here 😄. Let's reset your password !",
-            "verify_email": "The verification email has been sent."
+            "verify_email": "The verification email has been sent.",
+            "create_password": "Welcome to AIQuizizz!"
         },
         "instructions": {
             "signIn": "Enter your credentials to access your account",
@@ -13,7 +14,8 @@
             "forgotPassword": "Don't worry we got you 😉. Enter your email address and we will send you instructions to reset your password.",
             "resetPassword": "Enter a new password below to change your password.",
             "verify_email": "We have sent an OTP to your email {email}. Please check your inbox 📬",
-            "send_email_result": "Email sent successfully!"
+            "send_email_result": "Email sent successfully!",
+            "create_password": "This step offers an alternative way to log in to our system. Feel free to skip this step if it doesn't apply to you."
         },
         "inputs": {
             "username": "Username",
@@ -32,7 +34,8 @@
             "signUp": "Sign Up",
             "send": "Send",
             "resetPassword": "Reset Password",
-            "resend": "Re-send"
+            "resend": "Re-send",
+            "create": "Create"
         },
         "navigators": {
             "signUp_signIn_ins": "Already have an account?",
@@ -43,7 +46,8 @@
             "signIn_link": "Sign In",
             "signUp_link": "Sign Up",
             "back_signIn_link": "Back to Sign In",
-            "resend_email": "Didn't receive any email?"
+            "resend_email": "Didn't receive any email?",
+            "skip_home": "Skip this step"
         },
         "others": {
             "or": "OR"

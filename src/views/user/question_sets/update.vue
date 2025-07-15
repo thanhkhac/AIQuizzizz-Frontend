@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import ApiQuestionSet from "@/api/ApiQuestionSet";
+
+import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
+
+import dayjs from "dayjs";
+import { onBeforeRouteLeave } from "vue-router";
+import { useRoute } from "vue-router";
 
 import type { Question } from "@/models/request/question";
 
@@ -19,6 +25,9 @@ interface FormState {
     tags: string[];
     questions: Question[]; // or specify the type if you know it
 }
+
+const route = useRoute();
+const questionSetId = ref(route.params.id as string);
 
 const { t } = useI18n();
 
@@ -126,10 +135,10 @@ const question_data_raw = [
         multipleChoices: [],
         matchingPairs: [],
         orderingItems: [
-            { id: "1", text: "Evaporation", correctOrder: 1 },
-            { id: "2", text: "Condensation", correctOrder: 2 },
-            { id: "3", text: "Precipitation", correctOrder: 3 },
-            { id: "4", text: "Collection", correctOrder: 4 },
+            { id: "1", text: "Evaporation", correctOrder: 0 },
+            { id: "2", text: "Condensation", correctOrder: 1 },
+            { id: "3", text: "Precipitation", correctOrder: 2 },
+            { id: "4", text: "Collection", correctOrder: 3 },
         ],
         shortAnswer: "",
     },
@@ -200,10 +209,10 @@ const createQuestionTemplate = (): Question => ({
         { id: (Date.now() + 2).toString(), leftItem: "", rightItem: "" },
     ],
     orderingItems: [
-        { id: (Date.now() + 1).toString(), text: "", correctOrder: 1 },
-        { id: (Date.now() + 2).toString(), text: "", correctOrder: 2 },
-        { id: (Date.now() + 3).toString(), text: "", correctOrder: 3 },
-        { id: (Date.now() + 4).toString(), text: "", correctOrder: 4 },
+        { id: (Date.now() + 1).toString(), text: "", correctOrder: 0 },
+        { id: (Date.now() + 2).toString(), text: "", correctOrder: 1 },
+        { id: (Date.now() + 3).toString(), text: "", correctOrder: 2 },
+        { id: (Date.now() + 4).toString(), text: "", correctOrder: 3 },
     ],
     shortAnswer: "",
 });
@@ -331,7 +340,12 @@ const showModalConfirmation = () => {
         centered: true,
         onOk: async () => {
             //logic here
-            console.log(formState);
+            //remove draft
+            let result = await ApiQuestionSet.Update(questionSetId.value, formState);
+            if (result.data.success) {
+                message.success(result.data.data);
+            }
+            localStorage.removeItem(storage_draft_key);
         },
     });
 };
@@ -358,8 +372,43 @@ const onModalImport = (selected: Question[]) => {
     formState.questions.push(...selected);
 };
 
+/* auto-save */
+const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
+const intervalId = ref<number>();
+
+const saveDraft = () => {
+    // localStorage.setItem(storage_draft_key, JSON.stringify(formState));
+    message.info("Auto saved");
+};
+
+onBeforeRouteLeave((to, from, next) => {
+    Modal.confirm({
+        title: "Leave already?",
+        content: "You have unsaved changes.",
+        onOk: () => {
+            localStorage.removeItem(storage_draft_key);
+            next();
+        },
+        onCancel: () => next(false),
+    });
+});
+
+function handleBeforeUnload(e: BeforeUnloadEvent) {
+    e.preventDefault();
+    e.returnValue = "";
+}
+
 onMounted(() => {
     formState.questions.push(...(question_data_raw as Question[]));
+    intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    //handle get by id
+});
+
+onUnmounted(() => {
+    clearInterval(intervalId.value);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 </script>
 <template>

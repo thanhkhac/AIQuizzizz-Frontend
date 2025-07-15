@@ -41,10 +41,18 @@ const indexRoutes = [
         meta: { title: "forgot-password", layout: "authentication" },
     },
     {
-        path: "/reset-password",
-        name: "reset-password",
-        component: () => import("@/views/public/reset-password.vue"),
-        meta: { title: "reset-password", layout: "authentication" },
+        //call back after google register
+        path: "/create-password",
+        name: "create-password",
+        component: () => import("@/views/public/create-password.vue"),
+        meta: { title: "forgot-password", layout: "authentication" },
+    },
+    {
+        //call back after google login
+        path: "/google-authentication-callback",
+        name: "google-authentication-callback",
+        component: () => import("@/views/public/google-authentication-callback.vue"),
+        meta: { title: "" },
     },
     {
         path: "/:pathMatch(.*)*",
@@ -60,6 +68,8 @@ const publicRoutes = [
     "verify-email",
     "forgot-password",
     "reset-password",
+    "create-password",
+    "google-authentication-callback",
 ];
 // const authRoutes = [];
 
@@ -85,7 +95,10 @@ router.beforeEach(async (to, from, next) => {
 
     //test redirect
     // authRoutes.includes(to.name?.toString() ?? "")
-    if (to.name === "login" && useAuthStore().checkUser()) {
+    if (
+        (to.name === "login" || to.name === "google-authentication-callback") &&
+        useAuthStore().checkUser()
+    ) {
         if (useAuthStore().user_info.claims.includes("Admin_Dashboard_View")) {
             next({ name: "Admin_Dashboards_View" });
         } else {
