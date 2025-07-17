@@ -45,36 +45,6 @@ const data: Student[] = [
         position: "",
         image: "",
     },
-    {
-        name: "Nguyen Manh Hieu",
-        email: "hieunm@gmail.com",
-        position: "Owner",
-        image: "",
-    },
-    {
-        name: "Nguyen Khach Thanh",
-        email: "thanhnk@gmail.com",
-        position: "",
-        image: "",
-    },
-    {
-        name: "Nguyen Tan Duc",
-        email: "ducnt@gmail.com",
-        position: "",
-        image: "",
-    },
-    {
-        name: "Nguyen Manh Duong",
-        email: "duongnm@gmail.com",
-        position: "",
-        image: "",
-    },
-    {
-        name: "Pham Xuan Triuong",
-        email: "truongpx@gmail.com",
-        position: "",
-        image: "",
-    },
 ];
 
 type MyColumn = TableColumnType<Student>;
@@ -178,10 +148,10 @@ onMounted(() => {
                             <RouterLink class="navigator-item" :to="{ name: 'User_Class_Exam' }">
                                 Exam
                             </RouterLink>
-                            <RouterLink class="navigator-item" :to="{ name: 'User_Class_Quiz' }">
+                            <RouterLink class="navigator-item navigator-active" :to="{ name: '' }">
                                 Quiz
                             </RouterLink>
-                            <RouterLink class="navigator-item navigator-active" :to="{ name: '' }">
+                            <RouterLink class="navigator-item" :to="{ name: 'User_Class_Student' }">
                                 Student
                             </RouterLink>
                         </div>
@@ -228,11 +198,11 @@ onMounted(() => {
                                         <a-menu class="drop-down-container">
                                             <a-menu-item key="1">
                                                 <i class="bx bxs-id-card"></i>
-                                                Assign lecturer
+                                                {{ $t("question_sets_index.buttons.edit") }}
                                             </a-menu-item>
                                             <a-menu-item key="2">
                                                 <i class="bx bx-history"></i>
-                                                History test
+                                                {{ $t("question_sets_index.buttons.dublicate") }}
                                             </a-menu-item>
                                             <a-menu-divider style="background-color: #ddd" />
                                             <a-menu-item key="3">
@@ -249,24 +219,6 @@ onMounted(() => {
                     </template>
                 </a-table>
             </div>
-            <div class="mt-4 content-item">
-                <div class="content-item-title">
-                    <div>
-                        <span class="text-danger">Danger Zone</span>
-                        <span>Irreversible actions for your class</span>
-                    </div>
-                </div>
-                <div class="danger-zone mt-3 p-4">
-                    <div class="text-danger fs-6 fw-bold">Delete class</div>
-                    <div class="text-secondary">
-                        Once you delete your class, there is no going back. All your data will be
-                        permanently removed
-                    </div>
-                    <a-button class="mt-3" type="primary" danger size="large">
-                        Delete account
-                    </a-button>
-                </div>
-            </div>
         </div>
     </div>
 </template>
@@ -279,10 +231,5 @@ a {
 
 .navigator-item {
     font-size: 14px !important;
-}
-
-.danger-zone {
-    background-color: #ef44441a;
-    border-radius: 8px;
 }
 </style>

@@ -401,5 +401,21 @@
                 "q10": "Đứng dậy và làm tiếp!"
             }
         }
+    },
+    "class_index": {
+        "select_option": {
+            "All": "Tất cả",
+            "Teacher": "Là giáo viên",
+            "Student": "Là học sinh",
+            "Owner": "Là chủ"
+        }
+    },
+    "class_exam": {
+        "select_option": {
+            "All": "All",
+            "Upcoming": "Sắp diễn ra",
+            "Active": "Đang diễn ra",
+            "Completed": "Đã kết thúc"
+        }
     }
 }

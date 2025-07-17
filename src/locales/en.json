@@ -401,5 +401,21 @@
                 "q10": "Rise up. Power through!"
             }
         }
+    },
+    "class_index": {
+        "select_option": {
+            "All": "All",
+            "Teacher": "Teacher",
+            "Student": "Student",
+            "Owner": "Owner"
+        }
+    },
+    "class_exam": {
+        "select_option": {
+            "All": "All",
+            "Upcoming": "Upcoming",
+            "Active": "Active",
+            "Completed": "Completed"
+        }
     }
 }

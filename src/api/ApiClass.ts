@@ -1,17 +1,13 @@
 import Api from "@/api/Api";
+import type ClassPageParams from "@/models/request/class/class";
+
 const END_POINTS = {
     CREATE: "Class",
+    GET_ALL_BY_LIMIT: "Class",
+    GET_BY_ID: "Class",
     CREATE_INVITATION: "Class/{ClassID}/Invitations",
-    GET_ALL_BY_LIMIT: "Class/Classes",
     JOIN_CLASS: "Class/Students",
 };
-
-interface ClassPageParams {
-    pageNumber: number;
-    pageSize: number;
-    name: string;
-    shareMode: string;
-}
 
 class ApiUser {
     async Create(formState: object) {

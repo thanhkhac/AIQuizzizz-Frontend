@@ -70,6 +70,24 @@ const userRoutes = [
                     title: "student",
                 },
             },
+            {
+                name: "User_Class_Exam",
+                path: "/user/class/exam", //test
+                // path: "/user/class/:id/exam", //real
+                component: () => import("@/views/user/class/exam.vue"),
+                meta: {
+                    title: "exam",
+                },
+            },
+            {
+                name: "User_Class_Quiz",
+                path: "/user/class/quiz", //test
+                // path: "/user/class/:id/quiz", //real
+                component: () => import("@/views/user/class/quiz.vue"),
+                meta: {
+                    title: "quiz",
+                },
+            },
         ],
     },
     {
