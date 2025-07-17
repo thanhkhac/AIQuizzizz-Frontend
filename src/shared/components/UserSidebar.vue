@@ -89,7 +89,7 @@ const onSignOut = () => {
                     </RouterLink>
                 </li>
                 <li :class="['sidebar-listItem', { active: activeItem === 'class' }]">
-                    <RouterLink :to="{}">
+                    <RouterLink :to="{ name: 'User_Class' }">
                         <i class="bx bx-group"></i>
                         <span class="sidebar-listItemText">
                             {{ $t("sidebar.navigators.class") }}

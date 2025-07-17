@@ -77,6 +77,7 @@ import {
     Tabs,
     Drawer,
     Spin,
+    Table
 } from "ant-design-vue";
 
 /**
@@ -166,6 +167,7 @@ if (colors.includes(storedColorClass)) {
     app.use(Tabs);
     app.use(Drawer);
     app.use(Spin);
+    app.use(Table);
 
     app.use(HighchartsVue);
 

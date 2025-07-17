@@ -53,6 +53,23 @@ const userRoutes = [
                     title: "updateQS",
                 },
             },
+            {
+                name: "User_Class",
+                path: "/user/class",
+                component: () => import("@/views/user/class/index.vue"),
+                meta: {
+                    title: "class",
+                },
+            },
+            {
+                name: "User_Class_Student",
+                path: "/user/class/student", //test
+                // path: "/user/class/:id/student", //real
+                component: () => import("@/views/user/class/student.vue"),
+                meta: {
+                    title: "student",
+                },
+            },
         ],
     },
     {

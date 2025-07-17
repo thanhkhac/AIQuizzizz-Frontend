@@ -83,7 +83,7 @@ const router = createRouter({
 //check claim before redirect
 router.beforeEach(async (to, from, next) => {
     //meta-title
-    document.title = "AIQuizizz-" + to.meta.title;
+    document.title = "AIQuizizz | " + to.meta.title;
 
     //check authentication + returnURL
     if (!useAuthStore().checkUser() && !publicRoutes.includes(to.name as string)) {

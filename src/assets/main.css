@@ -444,6 +444,10 @@ Custome a-select
     transform: translateY(1px);
 }
 
+.main-color-btn span {
+    color: var(--text-color) !important;
+}
+
 .ant-dropdown-link {
     padding: 6px;
     border-radius: 8px;
