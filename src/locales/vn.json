@@ -417,5 +417,11 @@
             "Active": "Đang diễn ra",
             "Completed": "Đã kết thúc"
         }
+    },
+    "class_student": {
+        "select_option": {
+            "FullName": "Theo tên",
+            "Email": "Theo email"
+        }
     }
 }

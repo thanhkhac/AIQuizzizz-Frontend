@@ -642,6 +642,39 @@ pre {
     background-color: var(--main-color);
 }
 
+.ant-form-item-label label {
+    color: var(--text-color) !important;
+}
+
+.ant-pagination {
+    color: var(--text-color);
+}
+
+.ant-pagination-item-link {
+    color: var(--text-color) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.ant-pagination-item {
+    background-color: var(--content-item-background-color) !important;
+}
+
+.ant-pagination-item-active {
+    color: var(--main-color) !important;
+    border-color: var(--main-color) !important;
+}
+
+.ant-pagination-disabled {
+    opacity: 0.5 !important;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+}
+
 /* ========================================UserClass-Children====================================================== */
 /****/
 /* ========================================Modal-Folder====================================================== */

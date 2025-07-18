@@ -63,8 +63,8 @@ const userRoutes = [
             },
             {
                 name: "User_Class_Student",
-                path: "/user/class/student", //test
-                // path: "/user/class/:id/student", //real
+                // path: "/user/class/student", //test
+                path: "/user/class/:id/student", //real
                 component: () => import("@/views/user/class/student.vue"),
                 meta: {
                     title: "student",
@@ -72,8 +72,7 @@ const userRoutes = [
             },
             {
                 name: "User_Class_Exam",
-                path: "/user/class/exam", //test
-                // path: "/user/class/:id/exam", //real
+                path: "/user/class/:id/exam", //real
                 component: () => import("@/views/user/class/exam.vue"),
                 meta: {
                     title: "exam",

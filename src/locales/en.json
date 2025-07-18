@@ -417,5 +417,11 @@
             "Active": "Active",
             "Completed": "Completed"
         }
+    },
+    "class_student": {
+        "select_option": {
+            "FullName": "Full name",
+            "Email": "Email"
+        }
     }
 }

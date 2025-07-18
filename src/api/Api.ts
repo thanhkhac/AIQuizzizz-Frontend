@@ -34,7 +34,7 @@ instance.interceptors.response.use(
 
             notification["error"]({
                 message: "ERROR",
-                description: error.response,
+                description: "INVALID TOKEN",
             });
 
             //token expired -> renew

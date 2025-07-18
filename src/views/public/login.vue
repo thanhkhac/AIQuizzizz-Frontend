@@ -59,6 +59,7 @@ const onFinish = async () => {
     }
 };
 const onGoogleLogin = async () => {
+    sessionStorage.setItem("returnURL", authStore.returnURL); //set before leave
     const origin = window.location.origin;
     window.location
         .assign(`https://accounts.google.com/o/oauth2/v2/auth?client_id=${google_client_id}&redirect_uri=${origin}/google-authentication-callback&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent

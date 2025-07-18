@@ -21,7 +21,10 @@ const formState = reactive({
 });
 
 onMounted(async () => {
+    const returnURL = sessionStorage.getItem("returnURL") || "";
+
     if (!formState.authorizationCode) {
+        sessionStorage.setItem("returnURL", returnURL); //set before leave
         window.location.assign(`https://accounts.google.com/o/oauth2/v2/auth
             ?client_id=${google_client_id}
             &redirect_uri=${formState.redirectUri}
@@ -40,6 +43,9 @@ onMounted(async () => {
             return;
         }
         message.success("Login successfully. Redirecting...");
+
+        //cannot use returnURL of authStore 'cause its new instance
+        authStore.returnURL = returnURL;
         authStore.LoginSuccessful();
     } else {
         message.success("Login with google failed!");

@@ -1,10 +1,14 @@
 import Api from "@/api/Api";
-import type ClassPageParams from "@/models/request/class/class";
+import type ClassPageParams from "@/models/request/class/classPageParams";
+import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
+import type ClassStudentPageParams from "@/models/request/class/classStudentPageParams";
 
 const END_POINTS = {
     CREATE: "Class",
     GET_ALL_BY_LIMIT: "Class",
-    GET_BY_ID: "Class",
+    GET_ALL_EXAM_BY_LIMIT: "Class/{ClassId}/Tests",
+    GET_ALL_STUDENT_BY_LIMIT: "Class/{ClassId}/Students",
+    GET_BY_ID: "Class/{ClassId}",
     CREATE_INVITATION: "Class/{ClassID}/Invitations",
     JOIN_CLASS: "Class/Students",
 };
@@ -25,6 +29,35 @@ class ApiUser {
                 pageSize: pageParams.pageSize || 10,
                 name: pageParams.name || "",
                 shareMode: pageParams.shareMode || "",
+            },
+        });
+    }
+
+    async GetById(classId: string) {
+        const url = END_POINTS.GET_BY_ID.replace("{ClassId}", classId);
+        return await Api.get(url);
+    }
+
+    async GetAllExamByLimit(classId: string, pageParams: ClassExamPageParams) {
+        const url = END_POINTS.GET_ALL_EXAM_BY_LIMIT.replace("{ClassId}", classId);
+        return await Api.get(url, {
+            params: {
+                pageNumber: pageParams.pageNumber || 1,
+                pageSize: pageParams.pageSize || 10,
+                testName: pageParams.testName || "",
+                status: pageParams.status || "",
+            },
+        });
+    }
+
+    async GetAllStudentByLimit(classId: string, pageParams: ClassStudentPageParams) {
+        const url = END_POINTS.GET_ALL_STUDENT_BY_LIMIT.replace("{ClassId}", classId);
+        return await Api.get(url, {
+            params: {
+                pageNumber: pageParams.pageNumber || 1,
+                pageSize: pageParams.pageSize || 10,
+                keyword: pageParams.keyword || "",
+                fieldName: pageParams.fieldName || "",
             },
         });
     }

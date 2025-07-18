@@ -137,25 +137,27 @@ const rules = {
 const modal_join_class_open = ref(false);
 
 const joinClassFormRef = ref();
-const joinClassFornState = reactive({
+const joinClassFormState = reactive({
     code: "",
 });
 
+const isJoinLoading = ref(false);
 const onJoinClass = async () => {
-    joinClassFormRef.value
-        .validate()
-        .then(async () => {
-            let result = await ApiClass.JoinClass(createClassFormState);
-            if (!result.data.success) {
-                message.error("Join class failed");
-            }
-            message.success("Join class successfully.");
-            await getData();
-        })
-        .catch((error) => {
-            message.error("Invalid field.");
-        });
-    //call api
+    isJoinLoading.value = true;
+    try {
+        await joinClassFormRef.value.validate(); //this will throw err to catch
+        const result = await ApiClass.JoinClass(joinClassFormState);
+        if (!result.data.success) {
+            message.error("Join class failed");
+            return;
+        }
+        message.success("Join class successfully.");
+        await getData();
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isJoinLoading.value = false;
+    }
 };
 
 /* create modal */
@@ -168,28 +170,32 @@ const createClassFormState = reactive({
 });
 
 const isCreateLoading = ref(false);
-const toggleCreateButtonLoading = () => {
-    isCreateLoading.value = !isCreateLoading.value;
+const onCreateClass = async () => {
+    isCreateLoading.value = true;
+    try {
+        await createClassFormRef.value.validate(); //this will throw err to catch
+        let result = await ApiClass.Create(createClassFormState);
+        if (!result.data.success) {
+            message.error("Create class failed");
+            return;
+        }
+        message.success("Create class successfully.");
+        await getData();
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isCreateLoading.value = false;
+        modal_create_class_open.value = false;
+    }
 };
 
-const onCreateClass = async () => {
-    createClassFormRef.value
-        .validate()
-        .then(async () => {
-            toggleCreateButtonLoading();
-            let result = await ApiClass.Create(createClassFormState);
-            if (!result.data.success) {
-                message.error("Create class failed");
-            }
-            message.success("Create class successfully.");
-
-            await getData();
-            toggleCreateButtonLoading();
-            modal_create_class_open.value = false;
-        })
-        .catch(() => {
-            message.error("Invalid field.");
-        });
+const onRedirectToClassDetail = (classId) => {
+    router.push({
+        name: "User_Class_Exam",
+        params: {
+            id: classId,
+        },
+    });
 };
 
 onMounted(async () => {
@@ -261,7 +267,11 @@ onMounted(async () => {
                 </div>
                 <div class="class-container">
                     <template v-if="class_data.length > 0">
-                        <div class="class-item" v-for="item in class_data">
+                        <div
+                            class="class-item"
+                            v-for="item in class_data"
+                            @click="onRedirectToClassDetail(item.classId)"
+                        >
                             <div class="class-item-name">{{ item.name }}</div>
                             <div class="class-item-topic">{{ item.topic }}</div>
                             <div class="class-item-owner">
@@ -315,10 +325,15 @@ onMounted(async () => {
                     </a-col>
                 </a-row>
             </div>
-            <a-form layout="vertical" :rules="rules">
+            <a-form
+                ref="joinClassFormRef"
+                :model="joinClassFormState"
+                layout="vertical"
+                :rules="rules"
+            >
                 <a-form-item label="Class code" name="code">
                     <Input
-                        v-model:value="joinClassFornState.code"
+                        v-model:value="joinClassFormState.code"
                         :placeholder="'Invitaion code'"
                         :is-required="true"
                     ></Input>
@@ -326,7 +341,13 @@ onMounted(async () => {
             </a-form>
         </div>
         <template #footer>
-            <a-button class="main-color-btn" key="submit" type="primary" @click="onJoinClass">
+            <a-button
+                :loading="isJoinLoading"
+                class="main-color-btn"
+                key="submit"
+                type="primary"
+                @click="onJoinClass"
+            >
                 Join
             </a-button>
         </template>
@@ -461,39 +482,6 @@ onMounted(async () => {
 .class-item-owner i {
     font-size: 20px;
     margin-right: 10px;
-}
-
-::v-deep(.ant-form-item-label label) {
-    color: var(--text-color);
-}
-
-::v-deep(.ant-pagination) {
-    color: var(--text-color);
-}
-
-::v-deep(.ant-pagination-item-link) {
-    color: var(--text-color) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-::v-deep(.ant-pagination-item) {
-    background-color: var(--content-item-background-color) !important;
-}
-
-::v-deep(.ant-pagination-item-active) {
-    color: var(--main-color) !important;
-    border-color: var(--main-color) !important;
-}
-
-::v-deep(.ant-pagination-disabled) {
-    opacity: 0.5 !important;
-}
-
-.pagination-container {
-    display: flex;
-    justify-content: center;
 }
 
 ::v-deep(.ant-empty-footer) {

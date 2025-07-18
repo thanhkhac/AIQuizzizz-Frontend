@@ -1,8 +1,8 @@
-const CLASS_SHARE_MODE = {
+const CLASS_EXAM_STATUS = {
     ALL: "All",
     UPCOMING: "Upcoming",
     ACTIVE: "Active",
     COMPLETED: "Completed",
 };
 
-export default CLASS_SHARE_MODE;
+export default CLASS_EXAM_STATUS;

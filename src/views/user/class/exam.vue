@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import ApiClass from "@/api/ApiClass";
-import CLASS_SHARE_MODE from "@/constants/classShareMode";
+import CLASS_EXAM_STATUS from "@/constants/classExamStatus";
+import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
+import type { Class } from "@/models/response/class/class";
+import type { ClassExam } from "@/models/response/class/classExam";
 
 import { ref, onMounted, reactive, computed, onUpdated } from "vue";
 import { useI18n } from "vue-i18n";
@@ -16,7 +19,34 @@ const router = useRouter();
 const { t } = useI18n();
 const emit = defineEmits(["updateSidebar"]);
 
-const exam_data = [
+const classId = ref(route.params.id || "");
+const classData = ref<Class>({
+    classId: "",
+    name: "",
+    topic: "",
+});
+
+const optionKeys = Object.values(CLASS_EXAM_STATUS);
+
+const exam_status_options = computed(() =>
+    optionKeys.map((key) => ({
+        label: t(`class_exam.select_option.${key}`),
+        value: key !== CLASS_EXAM_STATUS.ALL ? key : "",
+    })),
+);
+
+const pageParams = reactive({
+    pageNumber: route.query.pageNumber || 1,
+    pageSize: route.query.pageSize || 10,
+    testName: route.query.testName?.toString() || "",
+    status: route.query.status || exam_status_options.value[0].value,
+    totalCount: 0,
+    statusFilter: false, //serve as a flag to check if pageParams is in url
+});
+
+const exam_data = ref<ClassExam[]>([]);
+
+const exam_data_sample = [
     {
         testId: "123123123",
         name: "Assignment 1",
@@ -79,6 +109,92 @@ const exam_data = [
     },
 ];
 
+const getClassData = async () => {
+    try {
+        if (!classId.value) router.push({ name: "404" });
+
+        let result = await ApiClass.GetById(classId.value.toString());
+        if (!result.data.success) router.push({ name: "404" });
+
+        classData.value = result.data.data;
+    } catch (error) {
+        console.log("ERROR: GETBYID class: " + error);
+    }
+};
+
+const getData = async () => {
+    try {
+        let result = await ApiClass.GetAllExamByLimit(
+            classId.value.toString(),
+            pageParams as ClassExamPageParams,
+        );
+        if (result.data.success) {
+            let resultData = result.data.data;
+            exam_data.value = resultData.items;
+            pageParams.pageNumber = resultData.pageNumber;
+            pageParams.pageSize = resultData.pageSize;
+            pageParams.totalCount = resultData.totalCount;
+
+            if (pageParams.statusFilter) {
+                //check if filter is active
+                if (pageParams.pageNumber > resultData.totalPages && pageParams.totalCount > 0) {
+                    pageParams.pageNumber = 1;
+
+                    router.push({
+                        name: "User_Class_Exam",
+                        params: {
+                            id: classId.value,
+                        },
+                        query: {
+                            pageNumber: 1,
+                            pageSize: pageParams.pageSize,
+                            testName: pageParams.testName,
+                            status: pageParams.status,
+                        },
+                    });
+                } else {
+                    router.push({
+                        name: "User_Class_Exam",
+                        params: {
+                            id: classId.value,
+                        },
+                        query: {
+                            pageNumber: pageParams.pageNumber,
+                            pageSize: pageParams.pageSize,
+                            testName: pageParams.testName,
+                            status: pageParams.status,
+                        },
+                    });
+                }
+                pageParams.statusFilter = !pageParams.statusFilter; //toggle filter status
+            }
+        }
+    } catch (error) {
+        console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+    }
+};
+
+//update when page change (url)
+onUpdated(() => {
+    if (Object.keys(route.query).length === 0) {
+        pageParams.pageNumber = route.query.pageNumber || 1;
+        pageParams.pageSize = route.query.pageSize || 10;
+        pageParams.testName = route.query.testName?.toString() || "";
+        pageParams.status = route.query.status || exam_status_options.value[0].value;
+        pageParams.statusFilter = true;
+
+        getData();
+    }
+});
+
+//change when page change (pageParams)
+const onPaginationChange = (page: any, pageSize: any) => {
+    pageParams.pageNumber = page;
+    pageParams.pageSize = pageSize;
+    pageParams.statusFilter = true;
+    getData();
+};
+
 const getFormattedRelativeTime = (hoursAgo: number) => {
     if (hoursAgo < 24) {
         return `${hoursAgo} hour${hoursAgo !== 1 ? "s" : ""} ago`;
@@ -111,23 +227,12 @@ const getTagColor = (status: string) => {
     }
 };
 
-const optionKeys = ["all", "createdByMe", "sharedWithMe"];
-
-const quiz_credit_options = computed(() =>
-    optionKeys.map((key) => ({
-        label: t(`question_sets_index.credit.${key}`),
-        value: key,
-    })),
-);
-
-const searchValue = ref("");
-const selected_credit_option = ref();
-
-const onFilter = () => {};
-
-onMounted(() => {
+onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
+
+    await getClassData();
+    await getData();
 });
 </script>
 <template>
@@ -143,8 +248,8 @@ onMounted(() => {
                     </li>
                     <li class="title-breadcrumb-item">
                         <RouterLink :to="{ name: '' }" class="breadcrumb-item-class">
-                            <span> SEP490 </span>
-                            <span class="breadcrumb-item-topic"> Capstone project </span>
+                            <span> {{ classData.name }} </span>
+                            <span class="breadcrumb-item-topic"> {{ classData.topic }} </span>
                         </RouterLink>
                     </li>
                 </ul>
@@ -178,12 +283,12 @@ onMounted(() => {
                         </div>
                     </div>
                     <a-select
-                        v-model:value="selected_credit_option"
+                        v-model:value="pageParams.status"
                         style="width: 200px"
-                        @change="onFilter"
+                        @change="getData"
                     >
                         <a-select-option
-                            v-for="option in quiz_credit_options"
+                            v-for="option in exam_status_options"
                             :value="option.value"
                         >
                             {{ option.label }}
@@ -191,8 +296,8 @@ onMounted(() => {
                     </a-select>
                     <div style="width: 300px; padding: 0px">
                         <Input
-                            @input="onFilter"
-                            v-model="searchValue"
+                            @input="getData"
+                            v-model="pageParams.testName"
                             :placeholder="t('question_sets_index.search_placeholder')"
                         >
                             <template #icon>
@@ -200,6 +305,20 @@ onMounted(() => {
                             </template>
                         </Input>
                     </div>
+                </div>
+                <div class="pagination-container">
+                    <a-pagination
+                        @change="onPaginationChange"
+                        v-model:current="pageParams.pageNumber"
+                        :total="pageParams.totalCount"
+                        :pageSize="pageParams.pageSize"
+                        :show-total="
+                            (total: any, range: any) => `${range[0]}-${range[1]} of ${total} items`
+                        "
+                        show-size-changer
+                        show-quick-jumper
+                        class="crud-layout-pagination"
+                    ></a-pagination>
                 </div>
                 <div v-if="exam_data.length > 0" class="exam-item-container">
                     <div class="exam-item" v-for="exam in exam_data">
@@ -266,6 +385,15 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
+                <template v-else>
+                    <div class="w-100 d-flex justify-content-center">
+                        <a-empty>
+                            <template #description>
+                                <span> No data matches. </span>
+                            </template>
+                        </a-empty>
+                    </div>
+                </template>
             </div>
         </div>
     </div>

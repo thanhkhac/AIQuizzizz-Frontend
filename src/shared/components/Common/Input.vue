@@ -8,6 +8,7 @@ const name = defineModel<string>("name");
 
 const isRequired = defineModel<boolean>("isRequired");
 const maxLength = defineModel<number>("maxLength");
+const readonly = defineModel<boolean>("readonly");
 
 const emit = defineEmits(["update:value", "change"]);
 
@@ -41,6 +42,7 @@ const checkInvalid = () => {
     <a-form-item :label="label" :name="name" class="input-item">
         <a-tooltip :title="checkInvalid().isInvalid ? checkInvalid().message : null" :color="'red'">
             <a-input
+                :readonly="readonly"
                 v-model:value="modelValue"
                 @input="onUpdate()"
                 :placeholder="placeholder"
