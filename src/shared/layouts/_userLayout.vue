@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import UserSidebar from "../components/UserSidebar.vue";
-import Header from "../components/Header.vue";
+import UserSidebar from "@/shared/components/UserSidebar.vue";
+import Header from "@/shared/components/Header.vue";
 import { ref } from "vue";
 
 const sidebarItem = ref("dashboard");
