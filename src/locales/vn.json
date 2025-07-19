@@ -403,25 +403,95 @@
         }
     },
     "class_index": {
+        "title": "Lớp học",
+        "sub_title": "Tạo dựng, theo dõi và nghiên cứu lớp học của bạn từ đầu đến cuối",
         "select_option": {
             "All": "Tất cả",
-            "Teacher": "Là giáo viên",
-            "Student": "Là học sinh",
-            "Owner": "Là chủ"
+            "Teacher": "Là Giáo viên",
+            "Student": "Là Học sinh",
+            "Owner": "Là Chủ lớp"
+        },
+        "buttons": {
+            "join_class": "Tham gia lớp học",
+            "join": "Tham gia",
+            "create_class": "Tạo lớp học",
+            "create": "Tạo"
+        },
+        "modal": {
+            "join_title": "Tham gia lớp bằng mã",
+            "join_class_code_label": "Mã lớp",
+            "join_class_code_placeholder": "Mã lớp",
+            "create_title": "Tạo lớp học mới",
+            "create_class_name_label": "Tên lớp",
+            "create_class_name_placeholder": "Tên cho lớp học mới",
+            "create_class_topic_label": "Chủ đề",
+            "create_class_topic_placeholder": "Chủ đề, môn học, hoặc mô tả lớp"
+        },
+        "other": {
+            "search_class_placeholder": "Tìm lớp học theo tên...",
+            "no_data_matches": "Không có dữ liệu phù hợp.",
+            "items": "lớp",
+            "pages": " / trang"
+        },
+        "navigators": {
+            "exam": "Bài kiểm tra",
+            "quiz": "Thư viện quiz",
+            "member": "Thành viên"
         }
     },
     "class_exam": {
+        "title": "Bài kiểm tra",
+        "sub_title": "Xem và quản lý các bài kiểm tra trong lớp của bạn",
         "select_option": {
-            "All": "All",
+            "All": "Tất cả",
             "Upcoming": "Sắp diễn ra",
             "Active": "Đang diễn ra",
-            "Completed": "Đã kết thúc"
+            "Completed": "Đã hoàn thành"
+        },
+        "buttons": {
+            "assign_test": "Giao bài kiểm tra"
+        },
+        "other": {
+            "search_placeholder": "Tìm kiếm bài kiểm tra...",
+            "items": "bài kiểm tra",
+            "min": "phút",
+            "completions": "lượt hoàn thành",
+            "assigned": "Đã giao"
         }
     },
-    "class_student": {
+    "class_member": {
+        "title": "Thành viên",
+        "sub_title": "Giám sát và quản lý thành viên trong lớp của bạn",
         "select_option": {
-            "FullName": "Theo tên",
-            "Email": "Theo email"
+            "FullName": "Họ và tên",
+            "Email": "Email"
+        },
+        "buttons": {
+            "invite_member": "Mời thành viên",
+            "assign_lecturer": "Phân công giảng viên",
+            "history_test": "Lịch sử kiểm tra",
+            "delete_class": "Xóa lớp",
+            "reset_code": "Đặt lại mã"
+        },
+        "other": {
+            "search_placeholder": "Tìm kiếm thành viên lớp...",
+            "items": "thành viên",
+            "day_singular": " ngày",
+            "day_plural": " ngày"
+        },
+        "danger_zone": {
+            "title": "Vùng nguy hiểm",
+            "sub_title": "Các thao tác không thể hoàn tác cho lớp học của bạn",
+            "warning": "Xóa lớp",
+            "warning_explain": "Sau khi bạn xóa lớp học, sẽ không thể khôi phục. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn."
+        },
+        "modal": {
+            "title": "Mời thành viên",
+            "sub_title": "Chia sẻ liên kết, mã QR hoặc mã mời để mời họ.",
+            "class_code_label": "Mã lớp",
+            "invitation_link": "Liên kết mời",
+            "or": "HOẶC",
+            "time_limit_label": "Thời gian giới hạn"
         }
     }
 }

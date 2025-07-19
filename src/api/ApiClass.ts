@@ -9,8 +9,10 @@ const END_POINTS = {
     GET_ALL_EXAM_BY_LIMIT: "Class/{ClassId}/Tests",
     GET_ALL_STUDENT_BY_LIMIT: "Class/{ClassId}/Students",
     GET_BY_ID: "Class/{ClassId}",
-    CREATE_INVITATION: "Class/{ClassID}/Invitations",
+    CREATE_INVITATION: "Class/{ClassId}/Invitations",
     JOIN_CLASS: "Class/Students",
+    DELETE_CLASS: "Class/{ClassId}",
+    DELETE_CLASS_MEMBER: "Class/{ClassId}/Members/{UserId}",
 };
 
 class ApiUser {
@@ -60,6 +62,19 @@ class ApiUser {
                 fieldName: pageParams.fieldName || "",
             },
         });
+    }
+
+    async Delete(classId: string) {
+        const url = END_POINTS.DELETE_CLASS.replace("{ClassId}", classId);
+        return await Api.delete(url);
+    }
+    async DeleteClassMember(classId: string, userId: string) {
+        const url = END_POINTS.DELETE_CLASS_MEMBER.replace("{ClassId}", classId).replace(
+            "{UserId}",
+            userId,
+        );
+
+        return await Api.delete(url);
     }
 }
 

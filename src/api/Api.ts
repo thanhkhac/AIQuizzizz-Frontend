@@ -42,7 +42,7 @@ instance.interceptors.response.use(
                 originalConfig._retry = true; //marked as renewed to avoid loop
                 try {
                     let renew_token_result = await ApiAuthentication.RenewToken();
-                    if (!renew_token_result.data.isSucceeded) {
+                    if (!renew_token_result.data.success) {
                         useAuthStore().logOut();
                     }
 

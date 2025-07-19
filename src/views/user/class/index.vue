@@ -208,10 +208,10 @@ onMounted(async () => {
 <template>
     <div class="page-container">
         <div class="title-container">
-            <div>
-                <span>{{ $t("question_sets_index.title") }}</span> <br />
+            <div class="main-title">
+                <span>{{ $t("class_index.title") }}</span> <br />
                 <span>
-                    {{ $t("question_sets_index.sub_title") }}
+                    {{ $t("class_index.sub_title") }}
                 </span>
             </div>
             <div class="title-button-container">
@@ -221,7 +221,7 @@ onMounted(async () => {
                     size="large"
                     @click="modal_join_class_open = true"
                 >
-                    Join class
+                    {{ $t("class_index.buttons.join_class") }}
                     <i class="bx bx-log-in"></i>
                 </a-button>
                 <a-button
@@ -230,7 +230,7 @@ onMounted(async () => {
                     size="large"
                     @click="modal_create_class_open = true"
                 >
-                    Create class
+                    {{ $t("class_index.buttons.create_class") }}
                     <i class="bx bx-plus"></i>
                 </a-button>
             </div>
@@ -256,7 +256,7 @@ onMounted(async () => {
                             <Input
                                 @input="getData"
                                 v-model="pageParams.name"
-                                :placeholder="t('question_sets_index.search_placeholder')"
+                                :placeholder="t('class_index.other.search_class_placeholder')"
                             >
                                 <template #icon>
                                     <i class="bx bx-search"></i>
@@ -284,7 +284,7 @@ onMounted(async () => {
                         <div class="w-100 m-2 d-flex justify-content-center">
                             <a-empty>
                                 <template #description>
-                                    <span> No data matches. </span>
+                                    <span> {{ $t("class_index.other.no_data_matches") }}</span>
                                 </template>
                             </a-empty>
                         </div>
@@ -296,10 +296,16 @@ onMounted(async () => {
                         v-model:current="pageParams.pageNumber"
                         :total="pageParams.totalCount"
                         :pageSize="pageParams.pageSize"
-                        :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
+                        :show-total="
+                            (total, range) =>
+                                `${range[0]}-${range[1]} of ${total} ${t('class_index.other.items')}`
+                        "
                         show-size-changer
                         show-quick-jumper
                         class="crud-layout-pagination"
+                        :locale="{
+                            items_per_page: t('class_index.other.pages'),
+                        }"
                     ></a-pagination>
                 </div>
             </div>
@@ -321,7 +327,7 @@ onMounted(async () => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="20">
-                        <span>Join class</span>
+                        <span>{{ t("class_index.modal.join_title") }}</span>
                     </a-col>
                 </a-row>
             </div>
@@ -331,10 +337,10 @@ onMounted(async () => {
                 layout="vertical"
                 :rules="rules"
             >
-                <a-form-item label="Class code" name="code">
+                <a-form-item :label="t('class_index.modal.join_class_code_label')" name="code">
                     <Input
                         v-model:value="joinClassFormState.code"
-                        :placeholder="'Invitaion code'"
+                        :placeholder="t('class_index.modal.join_class_code_placeholder')"
                         :is-required="true"
                     ></Input>
                 </a-form-item>
@@ -348,7 +354,7 @@ onMounted(async () => {
                 type="primary"
                 @click="onJoinClass"
             >
-                Join
+                {{ t("class_index.buttons.join") }}
             </a-button>
         </template>
     </a-modal>
@@ -369,7 +375,7 @@ onMounted(async () => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="20">
-                        <span>Create new class</span>
+                        <span>{{ t("class_index.modal.create_title") }}</span>
                     </a-col>
                 </a-row>
             </div>
@@ -379,18 +385,18 @@ onMounted(async () => {
                 :rules="rules"
                 :model="createClassFormState"
             >
-                <a-form-item label="Class name" name="name">
+                <a-form-item :label="t('class_index.modal.create_class_name_label')" name="name">
                     <Input
                         v-model:value="createClassFormState.name"
-                        :placeholder="'Class name'"
+                        :placeholder="t('class_index.modal.create_class_name_placeholder')"
                         :is-required="true"
                         :max-length="100"
                     ></Input>
                 </a-form-item>
-                <a-form-item label="Topic" name="topic">
+                <a-form-item :label="t('class_index.modal.create_class_topic_label')" name="topic">
                     <Input
                         v-model:value="createClassFormState.topic"
-                        :placeholder="'Subject, topic, description,...'"
+                        :placeholder="t('class_index.modal.create_class_topic_placeholder')"
                         :max-length="100"
                     ></Input>
                 </a-form-item>
@@ -404,13 +410,17 @@ onMounted(async () => {
                 type="primary"
                 @click="onCreateClass"
             >
-                Create
+                {{ t("class_index.buttons.create") }}
             </a-button>
         </template>
     </a-modal>
 </template>
 
 <style scoped>
+.title-container {
+    width: auto;
+}
+
 .title-button-container {
     display: flex;
     margin-right: 36px;

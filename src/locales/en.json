@@ -403,25 +403,95 @@
         }
     },
     "class_index": {
+        "title": "Class",
+        "sub_title": "Shape, supervise, and study your classes from start to finish",
         "select_option": {
             "All": "All",
             "Teacher": "Teacher",
             "Student": "Student",
             "Owner": "Owner"
+        },
+        "buttons": {
+            "join_class": "Join class",
+            "join": "Join",
+            "create_class": "Create class",
+            "create": "Create"
+        },
+        "modal": {
+            "join_title": "Join class with code",
+            "join_class_code_label": "Class code",
+            "join_class_code_placeholder": "Class code",
+            "create_title": "Create new class",
+            "create_class_name_label": "Class name",
+            "create_class_name_placeholder": "New class name",
+            "create_class_topic_label": "Topic",
+            "create_class_topic_placeholder": "Topic, subject, or class description"
+        },
+        "other": {
+            "search_class_placeholder": "Search class by name...",
+            "no_data_matches": "No data matches.",
+            "items": "classes",
+            "pages": " / pages"
+        },
+        "navigators": {
+            "exam": "Exam",
+            "quiz": "Quiz",
+            "member": "Member"
         }
     },
     "class_exam": {
+        "title": "Exam",
+        "sub_title": "Browse and control exams within your class",
         "select_option": {
             "All": "All",
             "Upcoming": "Upcoming",
             "Active": "Active",
             "Completed": "Completed"
+        },
+        "buttons": {
+            "assign_test": "Assign test"
+        },
+        "other": {
+            "search_placeholder": "Search exam...",
+            "items": "exams",
+            "min": "min",
+            "completions": "completions",
+            "assigned": "Assigned"
         }
     },
-    "class_student": {
+    "class_member": {
+        "title": "Member",
+        "sub_title": "Monitor and manage your class member",
         "select_option": {
             "FullName": "Full name",
             "Email": "Email"
+        },
+        "buttons": {
+            "invite_member": "Invite member",
+            "assign_lecturer": "Assign lecturer",
+            "history_test": "History test",
+            "delete_class": "Delete class",
+            "reset_code": " Reset code"
+        },
+        "other": {
+            "search_placeholder": "Search class member...",
+            "items": "members",
+            "day_singular": " day",
+            "day_plural": " days"
+        },
+        "danger_zone": {
+            "title": "Danger Zone",
+            "sub_title": "Irreversible actions for your class",
+            "warning": "Delete class",
+            "warning_explain": "Once you delete your class, there is no going back. All your data will be permanently removed"
+        },
+        "modal": {
+            "title": "Invite members",
+            "sub_title": "Share link, QR code or invitation code to invite them.",
+            "class_code_label": "Class code",
+            "invitation_link": "Invitation link",
+            "or": "OR",
+            "time_limit_label": "Time limit"
         }
     }
 }

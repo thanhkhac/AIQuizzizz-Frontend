@@ -242,7 +242,7 @@ onMounted(async () => {
                 <ul>
                     <li class="title-breadcrumb-item">
                         <RouterLink :to="{ name: 'User_Class' }">
-                            <span> Class </span>
+                            <span>{{ $t("class_index.title") }}</span> <br />
                         </RouterLink>
                         <i class="bx bx-chevron-right"></i>
                     </li>
@@ -259,26 +259,26 @@ onMounted(async () => {
             <div class="content-item">
                 <div class="content-item-title">
                     <div>
-                        <span>Exam</span>
-                        <span>View and manage exams in your class</span>
+                        <span>{{ $t("class_index.title") }}</span>
+                        <span>{{ $t("class_exam.sub_title") }}</span>
                     </div>
 
                     <a-button class="main-color-btn" type="primary" size="large">
                         <i class="me-2 bx bx-list-plus"></i>
-                        Assign test
+                        {{ $t("class_exam.buttons.assign_test") }}
                     </a-button>
                 </div>
                 <div class="content-item-functions">
                     <div class="content-item-navigators">
                         <div class="navigator-container">
                             <RouterLink class="navigator-item navigator-active" :to="{ name: '' }">
-                                Exam
+                                {{ $t("class_index.navigators.exam") }}
                             </RouterLink>
                             <RouterLink class="navigator-item" :to="{ name: 'User_Class_Quiz' }">
-                                Quiz
+                                {{ $t("class_index.navigators.quiz") }}
                             </RouterLink>
                             <RouterLink class="navigator-item" :to="{ name: 'User_Class_Student' }">
-                                Student
+                                {{ $t("class_index.navigators.member") }}
                             </RouterLink>
                         </div>
                     </div>
@@ -298,7 +298,7 @@ onMounted(async () => {
                         <Input
                             @input="getData"
                             v-model="pageParams.testName"
-                            :placeholder="t('question_sets_index.search_placeholder')"
+                            :placeholder="t('class_exam.other.search_placeholder')"
                         >
                             <template #icon>
                                 <i class="bx bx-search"></i>
@@ -313,11 +313,15 @@ onMounted(async () => {
                         :total="pageParams.totalCount"
                         :pageSize="pageParams.pageSize"
                         :show-total="
-                            (total: any, range: any) => `${range[0]}-${range[1]} of ${total} items`
+                            (total: any, range: any) =>
+                                `${range[0]}-${range[1]} of ${total} ${t('class_exam.other.items')}`
                         "
                         show-size-changer
                         show-quick-jumper
                         class="crud-layout-pagination"
+                        :locale="{
+                            items_per_page: t('class_index.other.pages'),
+                        }"
                     ></a-pagination>
                 </div>
                 <div v-if="exam_data.length > 0" class="exam-item-container">
@@ -345,13 +349,15 @@ onMounted(async () => {
                                 <div class="exam-item-time">
                                     <i class="bx bx-time-five"></i>
                                     {{ exam.timeLimit }}
-                                    min
+                                    {{ $t("class_exam.other.min") }}
                                 </div>
                                 <span class="exam-item-assigned completion">
-                                    {{ exam.numberOfCompletion }} completions
+                                    {{ exam.numberOfCompletion }}
+                                    {{ $t("class_exam.other.completions") }}
                                 </span>
                                 <span class="exam-item-assigned">
-                                    Assigned {{ getFormattedRelativeTime(exam.relativeTime) }}
+                                    {{ $t("class_exam.other.assigned") }}
+                                    {{ getFormattedRelativeTime(exam.relativeTime) }}
                                 </span>
                             </div>
                         </div>
@@ -389,7 +395,7 @@ onMounted(async () => {
                     <div class="w-100 d-flex justify-content-center">
                         <a-empty>
                             <template #description>
-                                <span> No data matches. </span>
+                                <span> {{ $t("class_index.other.no_data_matches") }}</span>
                             </template>
                         </a-empty>
                     </div>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import ApiClass from "@/api/ApiClass";
 
-import { ref, onMounted, reactive, computed, onUpdated } from "vue";
+import { ref, onMounted, reactive, computed, onUpdated, h } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
 
-import type { TableColumnType } from "ant-design-vue";
+import { message, Modal, type TableColumnType } from "ant-design-vue";
 import type { Class } from "@/models/response/class/class";
 import type { ClassStudent } from "@/models/response/class/classStudent";
 import CLASS_STUDENT_SELECT_FIELD from "@/constants/classSelectFieldName";
@@ -23,7 +23,7 @@ const optionKeys = Object.values(CLASS_STUDENT_SELECT_FIELD);
 
 const class_position_options = computed(() =>
     optionKeys.map((key) => ({
-        label: t(`class_student.select_option.${key}`),
+        label: t(`class_member.select_option.${key}`),
         value: key,
     })),
 );
@@ -165,7 +165,9 @@ const optionDays = [1, 3, 5, 7, 30];
 
 const code_limit_time = computed(() =>
     optionDays.map((key) => ({
-        label: key + (key === 1 ? " day" : " days"),
+        label:
+            key +
+            (key === 1 ? t("class_member.other.day_singular") : t("class_member.other.day_plural")),
         value: key,
     })),
 );
@@ -186,6 +188,73 @@ const onOpenInvitationModal = () => {
 
 const onResetInvitation = () => {};
 
+const onCopyInvitationCode = () => {
+    navigator.clipboard
+        .writeText(invitationFormState.code)
+        .then(() => {
+            message.success("Copied");
+        })
+        .catch(() => {
+            message.error("code empty");
+        });
+};
+
+const onCopyInvitationLink = () => {
+    navigator.clipboard
+        .writeText(invitationFormState.code)
+        .then(() => {
+            message.success("Copied");
+        })
+        .catch(() => {
+            message.error("code empty");
+        });
+};
+
+/* delete class member */
+const onConfirmDeleteMember = (userId: string) => {
+    Modal.confirm({
+        title: "Are you sure to remove this user from class?",
+        content: "This action is inreversible, every related data will be erased forever. Careful!",
+        centered: true,
+        okText: "Confirm",
+        onOk: async () => {
+            let result = await ApiClass.DeleteClassMember(
+                classId.value.toString(),
+                userId.toString(),
+            );
+            if (!result.data.success) {
+                message.success("Remove failed.");
+                return;
+            }
+            message.success("Remove successfully.");
+            await getData();
+        },
+    });
+};
+
+/* delete class */
+const onOpenConfirmDelete = () => {
+    Modal.confirm({
+        title: "Are you sure to delete this class?",
+        content: h(
+            "div",
+            { style: "color: red" },
+            "This action is inreversible, every related data will be erased forever. Careful!",
+        ),
+        centered: true,
+        okText: "Confirm",
+        onOk: async () => {
+            let result = await ApiClass.Delete(classId.value.toString());
+            if (!result.data.success) {
+                message.success("Delete class failed.");
+                return;
+            }
+            message.success("Delete class successfully.");
+            router.push({ name: "User_Class" });
+        },
+    });
+};
+
 onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
@@ -201,7 +270,7 @@ onMounted(async () => {
                 <ul>
                     <li class="title-breadcrumb-item">
                         <RouterLink :to="{ name: 'User_Class' }">
-                            <span> Class </span>
+                            <span>{{ $t("class_index.title") }}</span> <br />
                         </RouterLink>
                         <i class="bx bx-chevron-right"></i>
                     </li>
@@ -218,8 +287,8 @@ onMounted(async () => {
             <div class="content-item">
                 <div class="content-item-title">
                     <div>
-                        <span>Student Directory</span>
-                        <span>View and manage all your students</span>
+                        <span>{{ $t("class_member.title") }}</span>
+                        <span>{{ $t("class_member.sub_title") }}</span>
                     </div>
                     <a-button
                         class="main-color-btn"
@@ -228,20 +297,20 @@ onMounted(async () => {
                         @click="onOpenInvitationModal"
                     >
                         <i class="me-2 bx bx-user-plus"></i>
-                        Invite student
+                        {{ $t("class_member.buttons.invite_member") }}
                     </a-button>
                 </div>
                 <div class="content-item-functions">
                     <div class="content-item-navigators">
                         <div class="navigator-container">
                             <RouterLink class="navigator-item" :to="{ name: 'User_Class_Exam' }">
-                                Exam
+                                {{ $t("class_index.navigators.exam") }}
                             </RouterLink>
                             <RouterLink class="navigator-item" :to="{ name: 'User_Class_Quiz' }">
-                                Quiz
+                                {{ $t("class_index.navigators.quiz") }}
                             </RouterLink>
                             <RouterLink class="navigator-item navigator-active" :to="{ name: '' }">
-                                Student
+                                {{ $t("class_index.navigators.member") }}
                             </RouterLink>
                         </div>
                     </div>
@@ -261,7 +330,7 @@ onMounted(async () => {
                         <Input
                             @input="getData"
                             v-model="pageParams.keyword"
-                            :placeholder="t('question_sets_index.search_placeholder')"
+                            :placeholder="t('class_member.other.search_placeholder')"
                         >
                             <template #icon>
                                 <i class="bx bx-search"></i>
@@ -292,14 +361,17 @@ onMounted(async () => {
                                         <a-menu class="drop-down-container">
                                             <a-menu-item key="1">
                                                 <i class="bx bxs-id-card"></i>
-                                                Assign lecturer
+                                                {{ $t("class_member.buttons.assign_lecturer") }}
                                             </a-menu-item>
                                             <a-menu-item key="2">
                                                 <i class="bx bx-history"></i>
-                                                History test
+                                                {{ $t("class_member.buttons.history_test") }}
                                             </a-menu-item>
                                             <a-menu-divider style="background-color: #ddd" />
-                                            <a-menu-item key="3">
+                                            <a-menu-item
+                                                key="3"
+                                                @click="onConfirmDeleteMember(record.studentId)"
+                                            >
                                                 <span class="d-flex align-items-center">
                                                     <i class="bx bx-trash-alt"></i>
                                                     {{ $t("question_sets_index.buttons.delete") }}
@@ -319,29 +391,40 @@ onMounted(async () => {
                         :total="pageParams.totalCount"
                         :pageSize="pageParams.pageSize"
                         :show-total="
-                            (total: any, range: any) => `${range[0]}-${range[1]} of ${total} items`
+                            (total: any, range: any) =>
+                                `${range[0]}-${range[1]} of ${total} ${t('class_member.other.items')}`
                         "
                         show-size-changer
                         show-quick-jumper
                         class="crud-layout-pagination"
+                        :locale="{
+                            items_per_page: t('class_index.other.pages'),
+                        }"
                     ></a-pagination>
                 </div>
             </div>
             <div class="mt-4 content-item">
                 <div class="content-item-title">
                     <div>
-                        <span class="text-danger">Danger Zone</span>
-                        <span>Irreversible actions for your class</span>
+                        <span class="text-danger">{{ $t("class_member.danger_zone.title") }}</span>
+                        <span>{{ $t("class_member.danger_zone.sub_title") }}</span>
                     </div>
                 </div>
                 <div class="danger-zone mt-3 p-4">
-                    <div class="text-danger fs-6 fw-bold">Delete class</div>
-                    <div class="text-secondary">
-                        Once you delete your class, there is no going back. All your data will be
-                        permanently removed
+                    <div class="text-danger fs-6 fw-bold">
+                        {{ $t("class_member.danger_zone.warning") }}
                     </div>
-                    <a-button class="mt-3" type="primary" danger size="large">
-                        Delete account
+                    <div class="text-secondary">
+                        {{ $t("class_member.danger_zone.warning_explain") }}
+                    </div>
+                    <a-button
+                        class="mt-3"
+                        type="primary"
+                        danger
+                        size="large"
+                        @click="onOpenConfirmDelete"
+                    >
+                        {{ $t("class_member.buttons.delete_class") }}
                     </a-button>
                 </div>
             </div>
@@ -364,15 +447,15 @@ onMounted(async () => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="22">
-                        <span>Invite members</span> <br />
-                        <span>Share link, QR code or invitation code to invite them.</span>
+                        <span>{{ $t("class_member.modal.title") }}</span> <br />
+                        <span>{{ $t("class_member.modal.sub_title") }}</span>
                     </a-col>
                 </a-row>
             </div>
             <div class="modal-invitation-body">
                 <a-qrcode :value="invitationFormState.code" class="invitation-body-qrcode" />
                 <a-form layout="vertical" class="invitation-body-link">
-                    <a-form-item label="Class code">
+                    <a-form-item :label="t('class_member.modal.class_code_label')">
                         <div class="invitation-code-container">
                             <Input
                                 v-model="invitationFormState.code"
@@ -380,10 +463,10 @@ onMounted(async () => {
                                 :max-length="100"
                                 :readonly="true"
                             ></Input>
-                            <i class="bx bx-copy"></i>
+                            <i class="bx bx-copy" @click="onCopyInvitationCode"></i>
                         </div>
                     </a-form-item>
-                    <a-form-item label="Invitation link">
+                    <a-form-item :label="t('class_member.modal.invitation_link')">
                         <div class="invitation-code-container">
                             <Input
                                 v-model="invitationFormState.code"
@@ -391,16 +474,16 @@ onMounted(async () => {
                                 :max-length="100"
                                 :readonly="true"
                             ></Input>
-                            <i class="bx bx-copy"></i>
+                            <i class="bx bx-copy" @click="onCopyInvitationLink"></i>
                         </div>
                     </a-form-item>
                 </a-form>
             </div>
-            <a-divider>OR</a-divider>
+            <a-divider>{{ $t("class_member.modal.or") }}</a-divider>
         </div>
         <template #footer>
             <a-form layout="vertical" class="w-100 d-flex align-items-end justify-content-between">
-                <a-form-item label="Time limit">
+                <a-form-item :label="t('class_member.modal.time_limit_label')">
                     <a-select
                         v-model:value="invitationFormState.expiredTime"
                         style="width: 200px"
@@ -419,7 +502,7 @@ onMounted(async () => {
                         type="primary"
                         @click="onResetInvitation"
                     >
-                        Reset code
+                        {{ $t("class_member.buttons.reset_code") }}
                     </a-button>
                 </a-form-item>
             </a-form>
@@ -489,5 +572,9 @@ a {
 
 ::v-deep(.ant-divider-inner-text) {
     color: var(--text-color);
+}
+
+::v-deep(.ant-empty-description) {
+    color: var(--text-color) !important;
 }
 </style>

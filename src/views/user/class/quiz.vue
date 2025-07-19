@@ -1,113 +1,238 @@
 <script setup lang="ts">
+import ApiClass from "@/api/ApiClass";
+import CLASS_EXAM_STATUS from "@/constants/classExamStatus";
+import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
+import type { Class } from "@/models/response/class/class";
+import type { ClassExam } from "@/models/response/class/classExam";
+
 import { ref, onMounted, reactive, computed, onUpdated } from "vue";
 import { useI18n } from "vue-i18n";
+import dayjs from "dayjs";
+
+import { useRoute, useRouter } from "vue-router";
+
 import Input from "@/shared/components/Common/Input.vue";
-import type { TableColumnType } from "ant-design-vue";
+
+const route = useRoute();
+const router = useRouter();
 
 const { t } = useI18n();
 const emit = defineEmits(["updateSidebar"]);
 
-interface Student {
-    name: string;
-    email: string;
-    position: string;
-    image: string;
-}
+const classId = ref(route.params.id || "");
+const classData = ref<Class>({
+    classId: "",
+    name: "",
+    topic: "",
+});
 
-const data: Student[] = [
-    {
-        name: "Nguyen Manh Hieu",
-        email: "hieunm@gmail.com",
-        position: "Owner",
-        image: "",
-    },
-    {
-        name: "Nguyen Khach Thanh",
-        email: "thanhnk@gmail.com",
-        position: "",
-        image: "",
-    },
-    {
-        name: "Nguyen Tan Duc",
-        email: "ducnt@gmail.com",
-        position: "",
-        image: "",
-    },
-    {
-        name: "Nguyen Manh Duong",
-        email: "duongnm@gmail.com",
-        position: "",
-        image: "",
-    },
-    {
-        name: "Pham Xuan Triuong",
-        email: "truongpx@gmail.com",
-        position: "",
-        image: "",
-    },
-];
+const optionKeys = Object.values(CLASS_EXAM_STATUS);
 
-type MyColumn = TableColumnType<Student>;
-
-const columns: MyColumn[] = [
-    {
-        title: "No",
-        key: "no",
-        customRender: (info: { index: number }) => info.index + 1,
-    },
-    {
-        title: "Name",
-        dataIndex: "name",
-        key: "name",
-        sorter: (a: any, b: any) => a.name.localeCompare(b.name),
-    },
-    {
-        title: "Email",
-        dataIndex: "email",
-        key: "email",
-        sorter: (a: any, b: any) => a.name.localeCompare(b.email),
-    },
-    {
-        title: "Position",
-        dataIndex: "position",
-        key: "position",
-    },
-    {
-        key: "action",
-    },
-];
-
-const optionKeys = ["all", "createdByMe", "sharedWithMe"];
-
-const quiz_credit_options = computed(() =>
+const exam_status_options = computed(() =>
     optionKeys.map((key) => ({
-        label: t(`question_sets_index.credit.${key}`),
-        value: key,
+        label: t(`class_exam.select_option.${key}`),
+        value: key !== CLASS_EXAM_STATUS.ALL ? key : "",
     })),
 );
 
-const searchValue = ref("");
-const selected_credit_option = ref();
+const pageParams = reactive({
+    pageNumber: route.query.pageNumber || 1,
+    pageSize: route.query.pageSize || 10,
+    testName: route.query.testName?.toString() || "",
+    status: route.query.status || exam_status_options.value[0].value,
+    totalCount: 0,
+    statusFilter: false, //serve as a flag to check if pageParams is in url
+});
 
-const onFilter = () => {
-    // const filtered_data = quiz_data_raw.value.filter((quiz) => {
-    //     const matchesSearch = quiz.title.toLowerCase().includes(searchValue.value.toLowerCase());
-    //     if (!matchesSearch) return false;
-    //     switch (selected_credit_option.value) {
-    //         case "createdByMe":
-    //             return quiz.createdBy === "me";
-    //         case "sharedWithMe":
-    //             return quiz.createdBy !== "me";
-    //         default:
-    //             return true;
-    //     }
-    // });
-    // quiz_data.value = filtered_data;
+const exam_data = ref<ClassExam[]>([]);
+
+const exam_data_sample = [
+    {
+        testId: "123123123",
+        name: "Assignment 1",
+        numberOfQuestions: 25,
+        timeLimit: 30,
+        relativeTime: 800,
+        numberOfCompletion: 30,
+        status: "active",
+        date: "2025-07-13T20:00:00.000Z",
+    },
+    {
+        testId: "234234234",
+        name: "Quiz 1",
+        numberOfQuestions: 10,
+        timeLimit: 15,
+        relativeTime: 240,
+        numberOfCompletion: 10,
+        status: "upcoming",
+        date: "2025-07-07T20:00:00.000Z",
+    },
+    {
+        testId: "345345345",
+        name: "Midterm Exam",
+        numberOfQuestions: 40,
+        timeLimit: 60,
+        relativeTime: 26,
+        numberOfCompletion: 25,
+        status: "completed",
+        date: "2025-07-16T10:00:00.000Z",
+    },
+    {
+        testId: "456456456",
+        name: "Final Exam",
+        numberOfQuestions: 50,
+        timeLimit: 90,
+        relativeTime: 24,
+        numberOfCompletion: 0,
+        status: "upcoming",
+        date: "2025-07-16T12:00:00.000Z",
+    },
+    {
+        testId: "567567567",
+        name: "Assignment 2",
+        numberOfQuestions: 20,
+        timeLimit: 25,
+        relativeTime: 500,
+        numberOfCompletion: 15,
+        status: "active",
+        date: "2025-06-26T04:00:00.000Z",
+    },
+    {
+        testId: "678678678",
+        name: "Pop Quiz",
+        numberOfQuestions: 5,
+        timeLimit: 50,
+        relativeTime: 9000,
+        numberOfCompletion: 5,
+        status: "completed",
+        date: "2024-12-29T12:00:00.000Z",
+    },
+];
+
+const getClassData = async () => {
+    try {
+        if (!classId.value) router.push({ name: "404" });
+
+        let result = await ApiClass.GetById(classId.value.toString());
+        if (!result.data.success) router.push({ name: "404" });
+
+        classData.value = result.data.data;
+    } catch (error) {
+        console.log("ERROR: GETBYID class: " + error);
+    }
 };
 
-onMounted(() => {
+const getData = async () => {
+    try {
+        let result = await ApiClass.GetAllExamByLimit(
+            classId.value.toString(),
+            pageParams as ClassExamPageParams,
+        );
+        if (result.data.success) {
+            let resultData = result.data.data;
+            exam_data.value = resultData.items;
+            pageParams.pageNumber = resultData.pageNumber;
+            pageParams.pageSize = resultData.pageSize;
+            pageParams.totalCount = resultData.totalCount;
+
+            if (pageParams.statusFilter) {
+                //check if filter is active
+                if (pageParams.pageNumber > resultData.totalPages && pageParams.totalCount > 0) {
+                    pageParams.pageNumber = 1;
+
+                    router.push({
+                        name: "User_Class_Quiz",
+                        params: {
+                            id: classId.value,
+                        },
+                        query: {
+                            pageNumber: 1,
+                            pageSize: pageParams.pageSize,
+                            testName: pageParams.testName,
+                            status: pageParams.status,
+                        },
+                    });
+                } else {
+                    router.push({
+                        name: "User_Class_Quiz",
+                        params: {
+                            id: classId.value,
+                        },
+                        query: {
+                            pageNumber: pageParams.pageNumber,
+                            pageSize: pageParams.pageSize,
+                            testName: pageParams.testName,
+                            status: pageParams.status,
+                        },
+                    });
+                }
+                pageParams.statusFilter = !pageParams.statusFilter; //toggle filter status
+            }
+        }
+    } catch (error) {
+        console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+    }
+};
+
+//update when page change (url)
+onUpdated(() => {
+    if (Object.keys(route.query).length === 0) {
+        pageParams.pageNumber = route.query.pageNumber || 1;
+        pageParams.pageSize = route.query.pageSize || 10;
+        pageParams.testName = route.query.testName?.toString() || "";
+        pageParams.status = route.query.status || exam_status_options.value[0].value;
+        pageParams.statusFilter = true;
+
+        getData();
+    }
+});
+
+//change when page change (pageParams)
+const onPaginationChange = (page: any, pageSize: any) => {
+    pageParams.pageNumber = page;
+    pageParams.pageSize = pageSize;
+    pageParams.statusFilter = true;
+    getData();
+};
+
+const getFormattedRelativeTime = (hoursAgo: number) => {
+    if (hoursAgo < 24) {
+        return `${hoursAgo} hour${hoursAgo !== 1 ? "s" : ""} ago`;
+    } else if (hoursAgo < 24 * 7) {
+        const days = Math.floor(hoursAgo / 24);
+        return `${days} day${days !== 1 ? "s" : ""} ago`;
+    } else if (hoursAgo < 24 * 30) {
+        const weeks = Math.floor(hoursAgo / (24 * 7));
+        return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
+    } else if (hoursAgo < 24 * 365) {
+        const months = Math.floor(hoursAgo / (24 * 30));
+        return `${months} month${months !== 1 ? "s" : ""} ago`;
+    } else {
+        const years = Math.floor(hoursAgo / (24 * 365));
+        return `${years} year${years !== 1 ? "s" : ""} ago`;
+    }
+};
+
+const getTagColor = (status: string) => {
+    switch (status.toLowerCase()) {
+        case "completed": {
+            return "#3b82f6";
+        }
+        case "active": {
+            return "#22C55E";
+        }
+        case "upcoming": {
+            return "#f59e0b";
+        }
+    }
+};
+
+onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
+
+    await getClassData();
+    await getData();
 });
 </script>
 <template>
@@ -123,8 +248,8 @@ onMounted(() => {
                     </li>
                     <li class="title-breadcrumb-item">
                         <RouterLink :to="{ name: '' }" class="breadcrumb-item-class">
-                            <span> SEP490 </span>
-                            <span class="breadcrumb-item-topic"> Capstone project </span>
+                            <span> {{ classData.name }} </span>
+                            <span class="breadcrumb-item-topic"> {{ classData.topic }} </span>
                         </RouterLink>
                     </li>
                 </ul>
@@ -134,13 +259,9 @@ onMounted(() => {
             <div class="content-item">
                 <div class="content-item-title">
                     <div>
-                        <span>Student Directory</span>
-                        <span>View and manage all your students</span>
+                        <span>Quiz</span>
+                        <span>View and manage quizes in your class</span>
                     </div>
-                    <a-button class="main-color-btn" type="primary" size="large">
-                        <i class="me-2 bx bx-user-plus"></i>
-                        Invite student
-                    </a-button>
                 </div>
                 <div class="content-item-functions">
                     <div class="content-item-navigators">
@@ -157,12 +278,12 @@ onMounted(() => {
                         </div>
                     </div>
                     <a-select
-                        v-model:value="selected_credit_option"
+                        v-model:value="pageParams.status"
                         style="width: 200px"
-                        @change="onFilter"
+                        @change="getData"
                     >
                         <a-select-option
-                            v-for="option in quiz_credit_options"
+                            v-for="option in exam_status_options"
                             :value="option.value"
                         >
                             {{ option.label }}
@@ -170,8 +291,8 @@ onMounted(() => {
                     </a-select>
                     <div style="width: 300px; padding: 0px">
                         <Input
-                            @input="onFilter"
-                            v-model="searchValue"
+                            @input="getData"
+                            v-model="pageParams.testName"
                             :placeholder="t('question_sets_index.search_placeholder')"
                         >
                             <template #icon>
@@ -180,44 +301,94 @@ onMounted(() => {
                         </Input>
                     </div>
                 </div>
-                <a-table :columns="columns" :data-source="data" row-key="key" :pagination="false">
-                    <template #bodyCell="{ column, record }">
-                        <template v-if="column.key === 'name'">
-                            <div class="student-name-container">
-                                <img class="student-image" :src="record.image" alt="" />
-                                <div class="student-name">{{ record.name }}</div>
+                <div class="pagination-container">
+                    <a-pagination
+                        @change="onPaginationChange"
+                        v-model:current="pageParams.pageNumber"
+                        :total="pageParams.totalCount"
+                        :pageSize="pageParams.pageSize"
+                        :show-total="
+                            (total: any, range: any) => `${range[0]}-${range[1]} of ${total} items`
+                        "
+                        show-size-changer
+                        show-quick-jumper
+                        class="crud-layout-pagination"
+                    ></a-pagination>
+                </div>
+                <div v-if="exam_data.length > 0" class="exam-item-container">
+                    <div class="exam-item" v-for="exam in exam_data">
+                        <i class="bx bx-book-open exam-item-icon"></i>
+                        <div>
+                            <div class="exam-item-title">
+                                {{ exam.name }}
+                                <a-tag :color="getTagColor(exam.status)">
+                                    {{ exam.status }}
+                                </a-tag>
                             </div>
-                        </template>
-                        <template v-if="column.key === 'action'">
-                            <div class="student-action">
-                                <a-dropdown :trigger="['click']" :placement="'bottomRight'">
-                                    <i
-                                        class="bx bx-dots-vertical-rounded student-action-dropdown"
-                                    ></i>
-                                    <template #overlay>
-                                        <a-menu class="drop-down-container">
-                                            <a-menu-item key="1">
-                                                <i class="bx bxs-id-card"></i>
-                                                {{ $t("question_sets_index.buttons.edit") }}
-                                            </a-menu-item>
-                                            <a-menu-item key="2">
-                                                <i class="bx bx-history"></i>
-                                                {{ $t("question_sets_index.buttons.dublicate") }}
-                                            </a-menu-item>
-                                            <a-menu-divider style="background-color: #ddd" />
-                                            <a-menu-item key="3">
-                                                <span class="d-flex align-items-center">
-                                                    <i class="bx bx-trash-alt"></i>
-                                                    {{ $t("question_sets_index.buttons.delete") }}
-                                                </span>
-                                            </a-menu-item>
-                                        </a-menu>
-                                    </template>
-                                </a-dropdown>
+                            <div class="exam-item-info exam-item-date">
+                                <div>
+                                    <i class="bx bx-calendar"></i>
+                                    {{ dayjs(exam.date).format("DD/MM/YYYY HH:mm A") }}
+                                </div>
                             </div>
-                        </template>
-                    </template>
-                </a-table>
+                            <div class="exam-item-info exam-info-detail">
+                                <div class="exam-item-questions">
+                                    <i class="bx bx-message-square-edit bx-rotate-270"></i>
+                                    {{ exam.numberOfQuestions }}
+                                    {{ $t("dashboards.list_items.quiz.questions") }}
+                                </div>
+                                <div class="exam-item-time">
+                                    <i class="bx bx-time-five"></i>
+                                    {{ exam.timeLimit }}
+                                    min
+                                </div>
+                                <span class="exam-item-assigned completion">
+                                    {{ exam.numberOfCompletion }} completions
+                                </span>
+                                <span class="exam-item-assigned">
+                                    Assigned {{ getFormattedRelativeTime(exam.relativeTime) }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="exam-item-actions">
+                            <a-dropdown :trigger="['click']">
+                                <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
+                                <template #overlay>
+                                    <a-menu class="drop-down-container">
+                                        <a-menu-item key="0">
+                                            <i class="bx bx-info-circle"></i>
+                                            {{ $t("question_sets_index.buttons.detail") }}
+                                        </a-menu-item>
+                                        <a-menu-item key="1">
+                                            <i class="bx bx-edit"></i>
+                                            {{ $t("question_sets_index.buttons.edit") }}
+                                        </a-menu-item>
+                                        <a-menu-item key="2">
+                                            <i class="bx bx-copy"></i>
+                                            {{ $t("question_sets_index.buttons.dublicate") }}
+                                        </a-menu-item>
+                                        <a-menu-divider style="background-color: #ddd" />
+                                        <a-menu-item key="3">
+                                            <span class="d-flex align-items-center">
+                                                <i class="bx bx-trash-alt"></i>
+                                                {{ $t("question_sets_index.buttons.delete") }}
+                                            </span>
+                                        </a-menu-item>
+                                    </a-menu>
+                                </template>
+                            </a-dropdown>
+                        </div>
+                    </div>
+                </div>
+                <template v-else>
+                    <div class="w-100 d-flex justify-content-center">
+                        <a-empty>
+                            <template #description>
+                                <span> No data matches. </span>
+                            </template>
+                        </a-empty>
+                    </div>
+                </template>
             </div>
         </div>
     </div>
@@ -231,5 +402,84 @@ a {
 
 .navigator-item {
     font-size: 14px !important;
+}
+
+.exam-item {
+    background-color: var(--content-item-children-background-color);
+    margin: 10px 0px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.exam-item:hover {
+    border: 1px solid var(--main-color);
+}
+
+.exam-item i {
+    font-size: 18px;
+}
+
+.exam-item-icon {
+    display: flex;
+    width: 35px;
+    height: 35px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    aspect-ratio: 1/1;
+    font-size: 16px;
+    border-radius: 50%;
+    background: #221a32;
+    color: #7c3aed;
+    margin-right: 12px;
+}
+
+.exam-item-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.exam-item-info {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.exam-item-info i {
+    font-size: 14px;
+}
+
+.exam-item-date {
+    font-size: 14px;
+    color: #ccc;
+}
+.exam-info-detail {
+    border-top: 1px solid var(--border-color);
+    margin-top: 5px;
+    padding-top: 5px;
+}
+
+.exam-item-time {
+    margin: 0px 20px;
+}
+
+.exam-item-assigned {
+    color: var(--text-color-grey);
+}
+
+.exam-item-assigned.completion {
+    margin-right: 10px;
+}
+
+.exam-item-actions {
+    flex: 1;
+    display: flex;
+    justify-content: end;
+    align-items: center;
 }
 </style>
