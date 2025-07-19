@@ -1,0 +1,1 @@
+import{_ as o,a as r,o as s,t as a}from"./index-BJp-CaMM.js";const n={};function t(e,c){return s(),r("h1",null,a(e.$t("message.hello")),1)}const i=o(n,[["render",t],["__scopeId","data-v-d9130f84"],["__file","/home/runner/work/AIQuizzizz-Frontend/AIQuizzizz-Frontend/src/views/admin/dashboards.vue"]]);export{i as default};
