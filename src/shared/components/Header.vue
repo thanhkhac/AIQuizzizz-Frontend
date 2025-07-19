@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
 import SUPPORTED_LOCALES from "@/constants/languages";
@@ -13,10 +13,10 @@ const isUserLogged = authStore.checkUser();
 
 const navbarFunction = () => {
     let x = document.getElementById("header");
-    if (x.className === "header") {
-        x.className += " responsive";
+    if (x!.className === "header") {
+        x!.className += " responsive";
     } else {
-        x.className = "header";
+        x!.className = "header";
     }
 };
 
@@ -24,7 +24,7 @@ onMounted(() => {
     selectedLocale.value = localStorage.getItem("locale") || "en";
 });
 
-async function switchLanguage(selectedLocale) {
+async function switchLanguage(selectedLocale: string) {
     if (!availableLocales.includes(selectedLocale)) {
         const messages = await import(`@/locales/${selectedLocale}.json`);
         setLocaleMessage(selectedLocale, messages);
