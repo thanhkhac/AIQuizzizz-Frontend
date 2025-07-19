@@ -8,13 +8,15 @@ const name = defineModel<string>("name");
 
 const isRequired = defineModel<boolean>("isRequired");
 const maxLength = defineModel<number>("maxLength");
+const readonly = defineModel<boolean>("readonly");
 
 const emit = defineEmits(["update:value", "change"]);
 
-// const isTouched = ref(false); // disable is-invalid at first
-//     if (!isTouched.value) isTouched.value = true;
+const isTouched = ref(false); // disable is-invalid at first
 
 const onUpdate = () => {
+    if (!isTouched.value) isTouched.value = true;
+
     emit("update:value", modelValue.value);
     emit("change", modelValue.value);
 };
@@ -27,7 +29,7 @@ const checkInvalid = () => {
     const isEmpty = !modelValue.value;
 
     const isOutOfRange = valueLength > max;
-    const isInvalid = (required && isEmpty) || isOutOfRange;
+    const isInvalid = (required && isEmpty && isTouched.value) || isOutOfRange;
 
     let message = "This field is required";
     if (isOutOfRange) message = `Limit: ${max} characters.`;
@@ -40,6 +42,7 @@ const checkInvalid = () => {
     <a-form-item :label="label" :name="name" class="input-item">
         <a-tooltip :title="checkInvalid().isInvalid ? checkInvalid().message : null" :color="'red'">
             <a-input
+                :readonly="readonly"
                 v-model:value="modelValue"
                 @input="onUpdate()"
                 :placeholder="placeholder"
@@ -68,9 +71,8 @@ const checkInvalid = () => {
 .input {
     height: 35px;
     padding: 5px 10px;
-    border: none;
-    background: var(--input-item-background-color);
-    border: 1px solid var(--input-item-border-color);
+    background-color: var(--content-item-children-background-color);
+    border: 1px solid var(--form-item-border-color);
     color: var(--text-color-white);
 }
 
@@ -79,7 +81,7 @@ const checkInvalid = () => {
 }
 
 .input:hover {
-    border: 1px solid var(--input-item-border-color);
+    border: 1px solid var(--form-item-border-color);
 }
 
 .input::placeholder {
@@ -94,12 +96,12 @@ const checkInvalid = () => {
 /*---*/
 
 ::v-deep(.input input) {
-    color: var(--text-color-white);
-    background: var(--input-item-background-color);
+    color: var(--text-color);
+    background-color: var(--content-item-children-background-color);
 }
 
 ::v-deep(.ant-form-item-label > label) {
-    color: var(--text-color-white); /* or any custom color */
+    color: var(--text-color);
     font-weight: 500;
     font-size: 14px;
 }

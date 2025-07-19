@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {useRoute} from "vue-router";
-import {computed} from "vue";
+import { useRoute } from "vue-router";
+import { computed } from "vue";
 import AuthenticationLayout from "@/shared/layouts/_authenticationLayout.vue";
 
 const route = useRoute();
@@ -29,7 +29,7 @@ const layoutComponent = computed(() => {
 </template>
 <style scoped>
 .layout-body {
-    background-color: #000;
+    background-color: var(--background-color);
     width: 100vw;
     position: relative;
     z-index: 0;
@@ -42,7 +42,7 @@ const layoutComponent = computed(() => {
     width: 100%;
     position: absolute;
     top: 50%;
-    z-index: -1;
+    z-index: -1000;
 }
 
 .eclipse {

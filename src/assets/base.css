@@ -1,27 +1,36 @@
 :root {
     --background-color: #000;
-    --background-color-white: #fff;
-    --background-color-white-hovered: #eee;
+    --background-color-hovered: #313131;
+    --background-color-selected: #2a2a2e;
+
+    --background-color-contrast: #fff;
+    --background-color-contrast-hovered: #eee;
+
     --background-color-gradient: linear-gradient(150deg, #5813c1 20%, #c45037 100%);
 
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-color-contrast: rgba(255, 255, 255, 0.8);
+
     --content-item-background-color: #151518;
-    --content-item-border-color: #27272A;
+    --content-item-border-color: #27272a;
 
-    --input-item-background-color: #1F1F20;
-    --input-item-border-color: #424242;
+    --content-item-children-background-color: #19191b;
 
-    --background-sub-color1: #ac63e6;
-    --background-sub-color2: #c45037;
+    --form-item-background-color: #1f1f20;
+    --form-item-border-color: #424242;
 
     --sidebar-background-color: #101010;
 
-    --text-color-white: #fff;
-    --text-color-sub-white: #a1a1aa;
+    --text-color: #fff;
+    --text-color-sub-white: #ccc;
+    --text-color-contrast: #000;
+
     --text-color-grey: #757575;
+    --text-color-white: #fff;
     --text-color-black: #000;
 
-    --main-color: #7c3aed;
-    --main-sub-color: #9823f5;
+    --background-sub-color1: #ac63e6;
+    --background-sub-color2: #c45037;
 
     --category-1st-color: #3b82f6;
     --category-2st-color: #22c55e;
@@ -29,6 +38,98 @@
     --category-4st-color: #ec4899;
     --category-5st-color: #f59e0b;
     --category-6st-color: #ef4444;
+}
+
+.theme-dark {
+    --background-color: #000;
+    --background-color-hovered: #313131;
+    --background-color-selected: #2a2a2e;
+
+    --background-color-contrast: #fff;
+    --background-color-contrast-hovered: #eee;
+
+    --background-color-gradient: linear-gradient(150deg, #5813c1 20%, #c45037 100%);
+
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-color-contrast: rgba(255, 255, 255, 0.8);
+
+    --content-item-background-color: #151518;
+    --content-item-border-color: #27272a;
+
+    --content-item-children-background-color: #19191b;
+
+    --form-item-background-color: #1f1f20;
+    --form-item-border-color: #424242;
+
+    --sidebar-background-color: #101010;
+
+    --text-color: #fff;
+    --text-color-sub-white: #fff;
+    --text-color-contrast: #000;
+
+    --background-sub-color1: #ac63e6;
+    --background-sub-color2: #c45037;
+}
+
+.theme-light {
+    --background-color: #F2F3F5;
+    --background-color-hovered: #f5f5f5;
+    --background-color-selected: #e8e8ea;
+
+    --background-color-contrast: #000;
+    --background-color-contrast-hovered: #222;
+
+    --background-color-gradient: linear-gradient(150deg, #fff 20%, #fff 100%);
+
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-color-contrast: rgba(0, 0, 0, 0.8);
+
+    --content-item-background-color: #f9f9f9;
+    --content-item-border-color: #dcdcdc;
+
+    --content-item-children-background-color: #f0f0f0;
+
+    --form-item-background-color: #ffffff;
+    --form-item-border-color: #cccccc;
+
+    --sidebar-background-color: #fafafa;
+
+    --text-color: #000;
+    --text-color-sub-white: #333;
+    --text-color-contrast: #fff;
+
+    --background-sub-color1: #fff;
+    --background-sub-color2: #fff;
+}
+
+.purple {
+    --main-color: #7c3aed;
+    --main-sub-color: #9823f5;
+}
+
+.blue {
+    --main-color: #3b82f6;
+    --main-sub-color: #60a5fa;
+}
+
+.green {
+    --main-color: #22c55e;
+    --main-sub-color: #4ade80;
+}
+
+.red {
+    --main-color: #ef4444;
+    --main-sub-color: #f87171;
+}
+
+.amber {
+    --main-color: #f59e0b;
+    --main-sub-color: #fbbf24;
+}
+
+.pink {
+    --main-color: #ec4899;
+    --main-sub-color: #f472b6;
 }
 
 /* color palette from <https://github.com/vuejs/theme> */

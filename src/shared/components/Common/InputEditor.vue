@@ -138,8 +138,8 @@ watch(modelValue, (newValue) => {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--input-item-background-color);
-    border: 1px solid var(--input-item-border-color);
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     overflow: hidden;
@@ -147,10 +147,10 @@ watch(modelValue, (newValue) => {
 }
 .toolbar-button {
     padding: 10px;
-    background-color: var(--input-item-background-color);
+    background-color: var(--form-item-background-color);
     border: none;
     margin: 0px 10px;
-    color: var(--text-color-white);
+    color: var(--text-color);
     height: 100% !important;
     border-radius: 5px;
     display: flex;
@@ -169,39 +169,40 @@ watch(modelValue, (newValue) => {
 }
 .is-disabled:hover {
     cursor: default;
-    background-color: var(--input-item-background-color);
+    background-color: var(--form-item-background-color);
 }
 .is-active {
     background-color: var(--main-color);
 }
 
 .ProseMirror {
-    border: 1px solid var(--input-item-border-color);
+    background-color:  var(--content-item-children-background-color);
+    border: 1px solid var(--form-item-border-color);
     padding: 10px;
     height: 100%;
     min-height: 100px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 .ProseMirror:focus {
-    border: 1px solid var(--input-item-border-color);
+    border: 1px solid var(--form-item-border-color);
     outline: none;
     box-shadow: none;
 }
 
 .ProseMirror pre {
-    background-color: var(--input-item-background-color);
-    border: 1px solid var(--input-item-border-color);
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
     padding: 10px;
     border-radius: 5px;
 }
 
 pre {
-    background-color: var(--input-item-background-color);
-    color: var(--text-color-white);
-    border: 1px solid var(--input-item-border-color);
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
+    color: var(--text-color);
     padding: 10px;
     border-radius: 5px;
 }
@@ -211,7 +212,7 @@ pre {
 }
 
 .ant-form-item-label > label {
-    color: var(--text-color-white) !important; /* or any custom color */
+    color: var(--text-color) !important; /* or any custom color */
     font-weight: 500;
     font-size: 14px;
 }

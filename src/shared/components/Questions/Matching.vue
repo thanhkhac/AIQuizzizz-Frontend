@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { Form, message } from "ant-design-vue";
 
-import type { Question } from "@/models/question";
+import type { Question } from "@/models/request/question";
 import { useI18n } from "vue-i18n";
 
 import { QuestionCircleOutlined } from "@ant-design/icons-vue";
@@ -214,13 +214,11 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #1f1f20;
-    border: 1px solid var(--content-item-border-color);
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
     margin: 10px 0px;
 
     border-radius: 5px;
-    border: 1px solid #27272a;
-    background: #1f1f20;
 }
 
 .pair-item-input {
@@ -236,7 +234,7 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
 }
 
 .pair-icon:hover {
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 .remove-btn {

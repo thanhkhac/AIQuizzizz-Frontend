@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
-import { useAuthStore } from "@/stores/AuthStore";
-import ApiAuthentication from "@/api/ApiAuthentication";
-import { message, notification } from "ant-design-vue";
-import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
+import google_logo from "@/assets/google_logo.png";
+import facebook_logo from "@/assets/facebook_logo.png";
 
+import { reactive, ref } from "vue";
+import ApiAuthentication from "@/api/ApiAuthentication";
+import { notification } from "ant-design-vue";
+import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+
+const google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+const { t } = useI18n();
 
 const router = useRouter();
-const authStore = useAuthStore();
 
 const formState = reactive({
     email: "",
@@ -22,25 +27,24 @@ const rules = {
     email: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
         {
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: "Vui lòng nhập đúng định dạng email",
+            message: t("auth.validation.email"),
             trigger: "change",
         },
     ],
     password: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
         {
             pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
-            message:
-                "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.",
+            message: t("auth.validation.password"),
             trigger: "change",
         },
     ],
@@ -48,7 +52,7 @@ const rules = {
         {
             validator: (rule: any, value: string) => {
                 if (value !== formState.password) {
-                    return Promise.reject("Mật khẩu xác nhận không khớp.");
+                    return Promise.reject(t("auth.validation.confirm_password"));
                 }
                 return Promise.resolve();
             },
@@ -72,13 +76,13 @@ const showNotification = (type: NotificationType, message: string, description: 
 const onFinish = async () => {
     try {
         button_loading.value = true;
-        var register_result = await ApiAuthentication.Register({
+        let register_result = await ApiAuthentication.Register({
             email: formState.email,
             password: formState.password,
         });
         if (!register_result.data.success) return;
 
-        var send_email_result = await ApiAuthentication.RequestEmailVerification({
+        let send_email_result = await ApiAuthentication.RequestEmailVerification({
             email: formState.email,
         });
 
@@ -96,6 +100,13 @@ const onFinish = async () => {
         button_loading.value = false;
     }
 };
+
+const onGoogleRegister = async () => {
+    const origin = window.location.origin;
+    window.location
+        .assign(`https://accounts.google.com/o/oauth2/v2/auth?client_id=${google_client_id}&redirect_uri=${origin}/google-authentication-callback&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent
+`);
+};
 </script>
 <template>
     <div class="authentication-item">
@@ -104,13 +115,13 @@ const onFinish = async () => {
             <span>{{ $t("auth.instructions.signUp") }}</span>
         </div>
 
-        <div class="authentication-item-external-login">
+        <div class="authentication-item-external-login" @click="onGoogleRegister">
             <div class="external-login external-login-google">
-                <div></div>
+                <div :style="{ backgroundImage: `url(${google_logo})` }"></div>
                 <div>Google</div>
             </div>
             <div class="external-login external-login-facebook">
-                <div></div>
+                <div :style="{ backgroundImage: `url(${facebook_logo})` }"></div>
                 <div>Facebook</div>
             </div>
         </div>

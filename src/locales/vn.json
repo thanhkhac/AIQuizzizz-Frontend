@@ -5,7 +5,8 @@
             "signUp": "Tạo tài khoản",
             "forgotPassword": "Quên mật khẩu?",
             "resetPassword": "Cuối cùng bạn cũng tới rồi 😄. Đặt lại mật khẩu thôi nào!",
-            "verify_email": "Email xác thực tài khoản đã được gửi."
+            "verify_email": "Email xác thực tài khoản đã được gửi.",
+            "create_password": "Chào mừng đến với AIQuizizz!"
         },
         "instructions": {
             "signIn": "Nhập thông tin của bạn để đăng nhập vào tài khoản",
@@ -13,7 +14,8 @@
             "forgotPassword": "Đừng lo, có chúng tôi ở đây rồi 😉. Nhập email và chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu cho bạn nha.",
             "resetPassword": "Nhập mật khẩu mới bên dưới để đổi mật khẩu nha.",
             "verify_email": "Chúng tôi đã gửi mã OTP đến địa chỉ email của bạn {email}. Hãy chú ý kiểm tra hộp thư 📬",
-            "send_email_result": "Đã gửi email thành công!"
+            "send_email_result": "Đã gửi email thành công!",
+            "create_password": "Bước này giúp bạn có tạo thêm một phương thức khác để đăng nhập vào hệ thống. Bạn hoàn toàn có thể bỏ qua nếu không cần thiết."
         },
         "inputs": {
             "username": "Tên đăng nhập",
@@ -32,7 +34,8 @@
             "signUp": "Đăng ký",
             "send": "Gửi",
             "resetPassword": "Đặt lại mật khẩu",
-            "resend": "Gửi lại"
+            "resend": "Gửi lại",
+            "create": "Tạo"
         },
         "navigators": {
             "signUp_signIn_ins": "Đã có tài khoản?",
@@ -43,10 +46,18 @@
             "signIn_link": "Đăng nhập",
             "signUp_link": "Đăng ký",
             "back_signIn_link": "Quay lại đăng nhập",
-            "resend_email": "Bạn không nhận được email?"
+            "resend_email": "Bạn không nhận được email?",
+            "skip_home": "Bỏ qua bước này"
         },
         "others": {
             "or": "HOẶC"
+        },
+        "validation": {
+            "required": "Trường này là bắt buộc",
+            "out_of_range": "Giới hạn: {max_length} ký tự",
+            "email": "Trường này yêu cầu định dạng email hợp lệ",
+            "password": "Mật khẩu phải có ít nhất 8 ký tự (1 chữ hoa, 1 chữ thường, 1 số, 1 ký tự đặc biệt).",
+            "confirm_password": "Xác nhận mật khẩu phải trùng với mật khẩu"
         }
     },
     "homepage": {
@@ -259,7 +270,8 @@
             "MultipleChoice": "Trắc nghiệm",
             "Matching": "Ghép đôi",
             "Ordering": "Sắp xếp",
-            "ShortText": "Tự luận ngắn"
+            "ShortText": "Tự luận ngắn",
+            "All": "Tất cả"
         },
         "question": {
             "question": "Câu hỏi",
@@ -286,6 +298,130 @@
             "minimum_options": "Mỗi câu hỏi phải có ít nhất 2 lựa chọn",
             "maximum_options": "Mỗi câu hỏi có tối đa 10 lựa chọn",
             "maximum_tag": "Tối đa {tag} thẻ"
+        }
+    },
+    "settings": {
+        "title": "Cài đặt",
+        "sub_title": "Quản lý cài đặt tài khoản và tùy chọn của bạn",
+        "tabs": {
+            "profile": "Hồ sơ",
+            "security": "Bảo mật",
+            "appearance": "Giao diện",
+            "subscription": "Gói đăng ký"
+        },
+        "profile": {
+            "title": "Thông tin hồ sơ",
+            "sub_title": "Cập nhật thông tin và chi tiết hiển thị công khai của bạn"
+        },
+        "security": {
+            "title": "Bảo mật tài khoản",
+            "sub_title": "Cập nhật mật khẩu và các cài đặt bảo mật"
+        },
+        "appearance": {
+            "title": "Giao diện",
+            "sub_title": "Tùy chỉnh giao diện AIQuizizz theo sở thích của bạn"
+        },
+        "subscription": {
+            "title": "Gói đăng ký",
+            "sub_title": "Quản lý gói đăng ký và thông tin thanh toán của bạn"
+        }
+    },
+    "share_modal": {
+        "title": "Chia sẻ bộ câu hỏi",
+        "sub_title": "Chia sẻ bộ câu hỏi này với học sinh, đồng nghiệp hoặc trên mạng xã hội",
+        "visibility": {
+            "public": {
+                "mode": "Công khai",
+                "explain": "Chỉ bạn và những người được chia sẻ mới có thể truy cập"
+            },
+            "private": {
+                "mode": "Riêng tư",
+                "explain": "Mọi người đều có thể truy cập"
+            },
+            "in_class": {
+                "mode": "Trong lớp",
+                "explain": "Chỉ có thể truy cập qua lớp sau khi đã chia sẻ trong lớp"
+            }
+        },
+        "permission": {
+            "edit": {
+                "mode": "Chỉnh sửa",
+                "explain": "Sắp xếp, thêm và chỉnh sửa"
+            },
+            "view": {
+                "mode": "Xem",
+                "explain": "Chỉ được xem"
+            }
+        },
+        "buttons": {
+            "copy_link": "Sao chép liên kết",
+            "check_all": "Chọn tất cả ({number})",
+            "done": "Hoàn tất",
+            "yes": "Có",
+            "no": "Không"
+        },
+        "component_title": {
+            "visibility": "Quyền hiển thị",
+            "share_with_email": "Chia sẻ qua email",
+            "people_with_access": "Người có quyền truy cập",
+            "share_with_class": "Chia sẻ với lớp của bạn"
+        },
+        "other": {
+            "search_email_placeholder": "Thêm người, thành viên nhóm, hoặc giữ cho riêng bạn",
+            "delete_warning": "Bạn có chắc chắn muốn xóa người dùng này không?"
+        }
+    },
+    "detail_QS": {
+        "buttons": {
+            "share_quiz": "Chia sẻ",
+            "learn": "Học",
+            "test": "Kiểm tra",
+            "assign_to_class": "Giao cho lớp",
+            "download": "Tải xuống"
+        },
+        "other": {
+            "library": "Thư viện",
+            "created_by": "Tạo bởi {username}",
+            "reviews": "đánh giá",
+            "questions": "Câu hỏi ({number})"
+        }
+    },
+    "learn_QS": {
+        "final_modal": {
+            "quotes": {
+                "q1": "Cố thêm chút nữa, sắp xong rồi!",
+                "q2": "Tập trung nào, bạn làm được!",
+                "q3": "Từng bước một, cứ đi tiếp!",
+                "q4": "Làm tốt lắm, đừng dừng lại!",
+                "q5": "Mỗi chút cố gắng đều đáng giá!",
+                "q6": "Vững tâm thì sẽ tiến xa.",
+                "q7": "Đà đang tốt, giữ vững nhé!",
+                "q8": "Nhìn về phía trước, tiếp tục thôi!",
+                "q9": "Bạn gần tới đích rồi đấy.",
+                "q10": "Đứng dậy và làm tiếp!"
+            }
+        }
+    },
+    "class_index": {
+        "select_option": {
+            "All": "Tất cả",
+            "Teacher": "Là giáo viên",
+            "Student": "Là học sinh",
+            "Owner": "Là chủ"
+        }
+    },
+    "class_exam": {
+        "select_option": {
+            "All": "All",
+            "Upcoming": "Sắp diễn ra",
+            "Active": "Đang diễn ra",
+            "Completed": "Đã kết thúc"
+        }
+    },
+    "class_student": {
+        "select_option": {
+            "FullName": "Theo tên",
+            "Email": "Theo email"
         }
     }
 }

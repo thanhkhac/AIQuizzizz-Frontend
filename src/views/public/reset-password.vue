@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
-import ApiUser from "@/api/ApiUser";
-import { message, notification } from "ant-design-vue";
-import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons-vue";
+import { notification } from "ant-design-vue";
+import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const formRef = ref();
 const labelCol = { span: 24 };
 const wrapperCol = { span: 24 };
@@ -22,12 +23,12 @@ const rules = {
     email: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
         {
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: "Vui lòng nhập đúng định dạng email",
+            message: t("auth.validation.email"),
             trigger: "change",
         },
     ],
@@ -35,7 +36,7 @@ const rules = {
     resetCode: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
     ],
@@ -43,13 +44,12 @@ const rules = {
     password: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
         {
             pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
-            message:
-                "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.",
+            message: t("auth.validation.password"),
             trigger: "change",
         },
     ],
@@ -58,7 +58,7 @@ const rules = {
         {
             validator: (rule: any, value: string) => {
                 if (value !== formState.password) {
-                    return Promise.reject("Mật khẩu xác nhận không khớp.");
+                    return Promise.reject(t("auth.validation.confirm_password"));
                 }
                 return Promise.resolve();
             },
@@ -78,6 +78,7 @@ const showNotification = (type: NotificationType, message: string, description: 
 const onFinish = async () => {
     try {
         button_loading.value = true;
+        debugger
         const result = await ApiAuthentication.ResetPassword({
             email: formState.email,
             resetCode: formState.resetCode,
@@ -89,6 +90,7 @@ const onFinish = async () => {
         }
         showNotification("error", "Reset password result", "ERROR");
     } catch (error) {
+        console.log(error);
     } finally {
         button_loading.value = false;
     }

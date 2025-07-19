@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
-import { message, notification } from "ant-design-vue";
+import { notification } from "ant-design-vue";
 import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
-
 import { useRouter } from "vue-router";
-const router = useRouter();
-
 import { useI18n } from "vue-i18n";
+
 const { t } = useI18n();
+
+const router = useRouter();
 
 const sessionEmail = sessionStorage.getItem("email");
 
@@ -25,19 +25,19 @@ const rules = {
     email: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
         {
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: "Vui lòng nhập đúng định dạng email",
+            message: t("auth.validation.email"),
             trigger: "change",
         },
     ],
     verificationCode: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
     ],
@@ -64,7 +64,7 @@ const showNotification = (type: NotificationType, message: string, description: 
 const onRequestEmailVerification = async () => {
     try {
         send_button_loading.value = true;
-        var send_email_result = await ApiAuthentication.RequestEmailVerification({
+        let send_email_result = await ApiAuthentication.RequestEmailVerification({
             email: resentFormState.email,
         });
         if (send_email_result.data.success) {
@@ -85,7 +85,7 @@ const onFinish = async () => {
     try {
         verify_button_loading.value = true;
 
-        var result = await ApiAuthentication.VerifyEmail(formState);
+        let result = await ApiAuthentication.VerifyEmail(formState);
 
         if (!result.data.success) {
             showNotification("error", "Send email result", "ERROR");

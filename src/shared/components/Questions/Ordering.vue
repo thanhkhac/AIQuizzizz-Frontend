@@ -5,7 +5,7 @@ import { Form } from "ant-design-vue";
 import { VueDraggable } from "vue-draggable-plus";
 import type { SortableEvent } from "vue-draggable-plus";
 
-import type { Question } from "@/models/question";
+import type { Question } from "@/models/request/question";
 import { useI18n } from "vue-i18n";
 
 import { QuestionCircleOutlined } from "@ant-design/icons-vue";
@@ -98,7 +98,6 @@ const { validateInfos } = Form.useForm(props.question, {
         },
     ],
 });
-
 </script>
 <template>
     <a-form :layout="'vertical'" :rules="validateInfos" :model="props.question">
@@ -166,7 +165,7 @@ const { validateInfos } = Form.useForm(props.question, {
                                 >
                                     <div class="option-item-order">
                                         <i class="bx bx-hash"></i>
-                                        {{ option.correctOrder }}
+                                        {{ option.correctOrder + 1 }}
                                     </div>
                                     <div class="option-item-input">
                                         <TextArea
@@ -201,13 +200,11 @@ const { validateInfos } = Form.useForm(props.question, {
 .option-item {
     padding: 5px 10px;
     display: flex;
-    background-color: #1f1f20;
-    border: 1px solid var(--content-item-border-color);
+    background-color: var(--content-item-children-background-color);
+    border: 1px solid var(--form-item-border-color);
     margin: 10px 0px;
 
     border-radius: 5px;
-    border: 1px solid #27272a;
-    background: #1f1f20;
 }
 
 .option-item-checkbox {

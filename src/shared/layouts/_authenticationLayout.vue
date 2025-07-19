@@ -1,12 +1,22 @@
+<script setup lang="ts">
+import home_vector from "@/assets/home_vector.png";
+</script>
+
 <template>
     <div class="authentication-container">
         <div class="authentication-item">
             <div>
-                <div class="pattern pattern-top"></div>
-                <div class="pattern pattern-bottom"></div>
+                <div
+                    class="pattern pattern-top"
+                    :style="{ backgroundImage: `url(${home_vector})` }"
+                ></div>
+                <div
+                    class="pattern pattern-bottom"
+                    :style="{ backgroundImage: `url(${home_vector})` }"
+                ></div>
             </div>
             <div class="authentication-item-text">
-                <RouterLink :to="{name: 'home'}">AIQuizizz</RouterLink>
+                <RouterLink :to="{ name: 'home' }">AIQuizizz</RouterLink>
             </div>
         </div>
         <RouterView />
@@ -24,7 +34,6 @@
     position: absolute;
     width: 100%;
     height: 300px;
-    background-image: url("src/assets/home_vector.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -125,12 +134,12 @@
     background-repeat: no-repeat;
 }
 
-.external-login-google div:nth-child(1) {
+/* .external-login-google div:nth-child(1) {
     background-image: url("src/assets/google_logo.png");
 }
 .external-login-facebook div:nth-child(1) {
     background-image: url("src/assets/facebook_logo.png");
-}
+} */
 
 .authentication-item-form button {
     margin: 10px 0px;

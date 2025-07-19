@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import google_logo from "@/assets/google_logo.png";
+import facebook_logo from "@/assets/facebook_logo.png";
+
+import { reactive, ref } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
 import ApiAuthentication from "@/api/ApiAuthentication";
-import ApiUser from "@/api/ApiUser";
 import { message } from "ant-design-vue";
-import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons-vue";
+import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
+import { useI18n } from "vue-i18n";
+
+const google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+const { t } = useI18n();
 
 const authStore = useAuthStore();
 
@@ -23,14 +30,14 @@ const rules = {
     email: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
     ],
     password: [
         {
             required: true,
-            message: "Vui lòng không để trống mục này.",
+            message: t("auth.validation.required"),
             trigger: "change",
         },
     ],
@@ -39,16 +46,24 @@ const rules = {
 const onFinish = async () => {
     try {
         button_loading.value = true;
-        var login_result = await ApiAuthentication.Login(formState);
-        console.log(login_result);
-        if (login_result.data.isSucceeded) {
-            message.success(login_result.data.message);
+        let login_result = await ApiAuthentication.Login(formState);
+
+        if (login_result.data.success) {
+            message.success("Login successfully. Redirecting...");
             authStore.LoginSuccessful();
         }
     } catch (error) {
+        console.log(error);
     } finally {
         button_loading.value = false;
     }
+};
+const onGoogleLogin = async () => {
+    sessionStorage.setItem("returnURL", authStore.returnURL); //set before leave
+    const origin = window.location.origin;
+    window.location
+        .assign(`https://accounts.google.com/o/oauth2/v2/auth?client_id=${google_client_id}&redirect_uri=${origin}/google-authentication-callback&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent
+`);
 };
 </script>
 <template>
@@ -59,12 +74,12 @@ const onFinish = async () => {
         </div>
 
         <div class="authentication-item-external-login">
-            <div class="external-login external-login-google">
-                <div></div>
+            <div class="external-login external-login-google" @click="onGoogleLogin">
+                <div :style="{ backgroundImage: `url(${google_logo})` }"></div>
                 <div>Google</div>
             </div>
             <div class="external-login external-login-facebook">
-                <div></div>
+                <div :style="{ backgroundImage: `url(${facebook_logo})` }"></div>
                 <div>Facebook</div>
             </div>
         </div>

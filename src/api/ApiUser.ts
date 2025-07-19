@@ -1,6 +1,6 @@
 import Api from "@/api/Api";
 const END_POINTS = {
-    ME: "User/Me",
+    ME: "Account/Profile",
 };
 
 class ApiUser {

@@ -5,7 +5,8 @@
             "signUp": "Create Account",
             "forgotPassword": "Forgot your password ?",
             "resetPassword": "You're finally here 😄. Let's reset your password !",
-            "verify_email": "The verification email has been sent."
+            "verify_email": "The verification email has been sent.",
+            "create_password": "Welcome to AIQuizizz!"
         },
         "instructions": {
             "signIn": "Enter your credentials to access your account",
@@ -13,10 +14,11 @@
             "forgotPassword": "Don't worry we got you 😉. Enter your email address and we will send you instructions to reset your password.",
             "resetPassword": "Enter a new password below to change your password.",
             "verify_email": "We have sent an OTP to your email {email}. Please check your inbox 📬",
-            "send_email_result": "Email sent successfully!"
+            "send_email_result": "Email sent successfully!",
+            "create_password": "This step offers an alternative way to log in to our system. Feel free to skip this step if it doesn't apply to you."
         },
         "inputs": {
-            "username": "Tên đăng nhập",
+            "username": "Username",
             "fullName": "Full Name",
             "email": "Email",
             "emailPlaceholder": "name@example.com",
@@ -32,7 +34,8 @@
             "signUp": "Sign Up",
             "send": "Send",
             "resetPassword": "Reset Password",
-            "resend": "Re-send"
+            "resend": "Re-send",
+            "create": "Create"
         },
         "navigators": {
             "signUp_signIn_ins": "Already have an account?",
@@ -43,10 +46,18 @@
             "signIn_link": "Sign In",
             "signUp_link": "Sign Up",
             "back_signIn_link": "Back to Sign In",
-            "resend_email": "Didn't receive any email?"
+            "resend_email": "Didn't receive any email?",
+            "skip_home": "Skip this step"
         },
         "others": {
             "or": "OR"
+        },
+        "validation": {
+            "required": "This field is required",
+            "out_of_range": "Limit: {max_length} characters",
+            "email": "This field requires correct email format",
+            "password": "Password must be at least 8 characters(1 upper, 1 lower, 1 number, 1 special character).",
+            "confirm_password": "Confirm password must match with password"
         }
     },
     "homepage": {
@@ -259,7 +270,8 @@
             "MultipleChoice": "Multiple choice",
             "Matching": "Matching",
             "Ordering": "Ordering",
-            "ShortText": "Short text"
+            "ShortText": "Short text",
+            "All": "All"
         },
         "question": {
             "question": "Question",
@@ -286,6 +298,130 @@
             "minimum_options": "Each question must have at least 2 options",
             "maximum_options": "Each question must have at most 10 options",
             "maximum_tag": "Limit {tag} tags"
+        }
+    },
+    "settings": {
+        "title": "Settings",
+        "sub_title": "Manage your account settings and preferences",
+        "tabs": {
+            "profile": "Profile",
+            "security": "Security",
+            "appearance": "Appearance",
+            "subscription": "Subscription"
+        },
+        "profile": {
+            "title": "Profile Information",
+            "sub_title": "Update your profile information and public details"
+        },
+        "security": {
+            "title": "Account Security",
+            "sub_title": "Update your password and security settings"
+        },
+        "appearance": {
+            "title": "Appearance",
+            "sub_title": "Customize how AIQuizizz looks for you"
+        },
+        "subscription": {
+            "title": "Subscription Plan",
+            "sub_title": "Manage your subscription and billing details"
+        }
+    },
+    "share_modal": {
+        "title": "Share Quiz",
+        "sub_title": "Share this quiz with students, colleagues, or on social media",
+        "visibility": {
+            "public": {
+                "mode": "Public",
+                "explain": "Only you and people you shared with can access"
+            },
+            "private": {
+                "mode": "Private",
+                "explain": "Everyone can access"
+            },
+            "in_class": {
+                "mode": "In Class",
+                "explain": "Can only access via class after shared in class"
+            }
+        },
+        "permission": {
+            "edit": {
+                "mode": "edit",
+                "explain": "Organise, add and edit"
+            },
+            "view": {
+                "mode": "view",
+                "explain": "View only"
+            }
+        },
+        "buttons": {
+            "copy_link": "Copy link",
+            "check_all": "Check all ({number})",
+            "done": "Done",
+            "yes": "Yes",
+            "no": "No"
+        },
+        "component_title": {
+            "visibility": "Visibility",
+            "share_with_email": "Share with email",
+            "people_with_access": "People with access",
+            "share_with_class": "Share with your classes"
+        },
+        "other": {
+            "search_email_placeholder": "Add people, group members, or keep it yourself",
+            "delete_warning": "Are your sure to remove this user?"
+        }
+    },
+    "detail_QS": {
+        "buttons": {
+            "share_quiz": "Share quiz",
+            "learn": "Learn",
+            "test": "Test",
+            "assign_to_class": "Assisng to class",
+            "download": "Download"
+        },
+        "other": {
+            "library": "Library",
+            "created_by": "Created by {username}",
+            "reviews": "reviews",
+            "questions": "Questions ({number})"
+        }
+    },
+    "learn_QS": {
+        "final_modal": {
+            "quotes": {
+                "q1": "Keep pushing. You're almost there!",
+                "q2": "Stay focused. You've got this!",
+                "q3": "One step at a time. Keep going!",
+                "q4": "You're doing great. Don't stop now!",
+                "q5": "Every effort counts. Keep it up!",
+                "q6": "Strong mind. Strong progress.",
+                "q7": "Momentum is yours. Own it!",
+                "q8": "Eyes forward. Energy up!",
+                "q9": "You're closer than you think.",
+                "q10": "Rise up. Power through!"
+            }
+        }
+    },
+    "class_index": {
+        "select_option": {
+            "All": "All",
+            "Teacher": "Teacher",
+            "Student": "Student",
+            "Owner": "Owner"
+        }
+    },
+    "class_exam": {
+        "select_option": {
+            "All": "All",
+            "Upcoming": "Upcoming",
+            "Active": "Active",
+            "Completed": "Completed"
+        }
+    },
+    "class_student": {
+        "select_option": {
+            "FullName": "Full name",
+            "Email": "Email"
         }
     }
 }

@@ -1,8 +1,11 @@
 <script setup>
-import { onMounted, ref, computed, watch } from "vue";
+import { onMounted, ref, computed } from "vue";
+import { useRouter } from "vue-router";
+
 import { useI18n } from "vue-i18n";
-import { DownOutlined } from "@ant-design/icons-vue";
 import Input from "@/shared/components/Common/Input.vue";
+
+const router = useRouter();
 
 const { t } = useI18n();
 
@@ -26,6 +29,7 @@ const quiz_data = ref([]);
 
 const quiz_data_raw = ref([
     {
+        id: "1",
         title: "Introduction to Biology",
         numberOfQuestions: 56,
         compeletedQuestion: 24,
@@ -33,6 +37,7 @@ const quiz_data_raw = ref([
         visibility: "Private",
     },
     {
+        id: "2",
         title: "Fundamental programming",
         numberOfQuestions: 76,
         compeletedQuestion: 0,
@@ -40,6 +45,7 @@ const quiz_data_raw = ref([
         visibility: "Public",
     },
     {
+        id: "3",
         title: "World History Basics",
         numberOfQuestions: 40,
         compeletedQuestion: 15,
@@ -47,6 +53,7 @@ const quiz_data_raw = ref([
         visibility: "Public",
     },
     {
+        id: "3",
         title: "Advanced Mathematics",
         numberOfQuestions: 100,
         compeletedQuestion: 88,
@@ -54,6 +61,7 @@ const quiz_data_raw = ref([
         visibility: "Private",
     },
     {
+        id: "4",
         title: "Chemistry 101",
         numberOfQuestions: 50,
         compeletedQuestion: 25,
@@ -61,6 +69,7 @@ const quiz_data_raw = ref([
         visibility: "Private",
     },
     {
+        id: "5",
         title: "English Grammar Essentials",
         numberOfQuestions: 30,
         compeletedQuestion: 10,
@@ -68,6 +77,7 @@ const quiz_data_raw = ref([
         visibility: "Public",
     },
     {
+        id: "5",
         title: "Introduction to Psychology",
         numberOfQuestions: 60,
         compeletedQuestion: 0,
@@ -107,6 +117,10 @@ const onFilter = () => {
     quiz_data.value = filtered_data;
 };
 
+const onRedirectToEdit = (id, title) => {
+    router.push({ name: "User_QuestionSet_Detail", params: { id: id } });
+};
+
 onMounted(() => {
     const sidebarActiveItem = "library";
     emit("updateSidebar", sidebarActiveItem);
@@ -133,10 +147,13 @@ onMounted(() => {
                         <span>{{ $t("question_sets_index.sections.quiz.sub_title") }}</span>
                     </div>
 
-                    <button class="content-item-button">
+                    <RouterLink
+                        class="content-item-button"
+                        :to="{ name: 'User_QuestionSet_Create' }"
+                    >
                         {{ $t("dashboards.buttons.createNewQuiz") }}
                         <i class="bx bx-plus"></i>
-                    </button>
+                    </RouterLink>
                 </div>
                 <div class="content-item-functions">
                     <div class="content-item-navigators">
@@ -145,7 +162,7 @@ onMounted(() => {
                                 {{ $t("question_sets_index.navigators.quiz") }}
                             </RouterLink>
                             <RouterLink class="navigator-item" :t="{ name: '' }">
-                                {{ $t("question_sets_index.navigators.test") }}
+                                Draft
                             </RouterLink>
                         </div>
                     </div>
@@ -188,7 +205,7 @@ onMounted(() => {
                                 </div>
                                 <div class="quiz-item-progress">
                                     <a-progress
-                                        stroke-color="#7C3AED"
+                                        stroke-color="var(--main-color)"
                                         status="active"
                                         :percent="
                                             getPercentageComplete(
@@ -218,7 +235,10 @@ onMounted(() => {
                                 <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
                                 <template #overlay>
                                     <a-menu class="drop-down-container">
-                                        <a-menu-item key="0">
+                                        <a-menu-item
+                                            key="0"
+                                            @click="onRedirectToEdit(quiz.id, quiz.title)"
+                                        >
                                             <i class="bx bx-info-circle"></i>
                                             {{ $t("question_sets_index.buttons.detail") }}
                                         </a-menu-item>
@@ -267,12 +287,15 @@ onMounted(() => {
     border-radius: 5px;
     padding: 8px 10px;
     font-size: 16px;
-    color: var(--text-color-white);
+    color: var(--text-color);
     transition: all 0.2s ease-in-out;
     margin-right: 20px;
+    height: 40px;
+    text-decoration: none;
 }
+
 .content-item-button:hover {
-    background-color: var(--main-color);
+    background-color: var(--main-sub-color);
 }
 
 .content-item-button i {
@@ -285,13 +308,13 @@ onMounted(() => {
     padding: 10px;
     display: flex;
     flex-wrap: wrap;
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 .quiz-item {
-    background-color: #19191b;
+    background-color: var(--content-item-children-background-color);
     margin: 10px 0px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 10px;
     display: flex;
@@ -330,7 +353,7 @@ onMounted(() => {
 
 .quiz-item-info {
     font-size: 14px;
-    color: var(--text-color--sub-white);
+    color: var(--text-color-sub-white);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -347,7 +370,7 @@ onMounted(() => {
     margin-left: 10px;
 }
 .quiz-item-credit {
-    color: #ccc;
+    color: var(--text-color-sub-white);
     font-size: 12px;
     font-weight: 400;
     display: flex;
@@ -373,10 +396,10 @@ onMounted(() => {
 }
 
 ::v-deep(.ant-progress-text) {
-    color: var(--text-color-white) !important;
+    color: var(--text-color) !important;
 }
 ::v-deep(.ant-progress-inner) {
-    background-color: #27272a;
+    background-color: var(--content-item-border-color);
 }
 ::v-deep(.ant-tag) {
     font-size: 14px !important;
@@ -386,16 +409,16 @@ onMounted(() => {
 .ant-dropdown-link {
     padding: 6px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .drop-down-container {
-    background: #101010 !important;
+    background: var(--content-item-background-color) !important;
     border: 1px solid var(--main-color);
 }
 
 ::v-deep(.ant-dropdown-menu-item) {
-    color: #fff !important;
+    color: var(--text-color) !important;
     font-weight: 400 !important;
 }
 
@@ -409,7 +432,7 @@ onMounted(() => {
 
 ::v-deep(.ant-dropdown-menu-item):hover {
     background-color: var(--main-color) !important;
-    color: var(--text-color-white) !important;
+    color: var(--text-color) !important;
 }
 
 ::v-deep(.ant-dropdown-menu-item):last-child:hover {
@@ -441,12 +464,12 @@ onMounted(() => {
 .navigator-container {
     height: 40px;
     border-radius: 8px;
-    border: 1px solid #27272a;
+    background-color: var(--content-item-children-background-color);
+    border: 1px solid var(--content-item-border-color);
     display: flex;
-    background-color: #19191b;
 }
 .navigator-item {
-    color: var(--text-color-white);
+    color: var(--text-color);
     text-decoration: none;
     height: 100%;
     width: 100px;

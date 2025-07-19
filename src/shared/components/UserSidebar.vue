@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import {ref, onBeforeMount} from "vue";
-import {useAuthStore} from "@/stores/AuthStore";
-import {Modal} from "ant-design-vue";
-import {useI18n} from "vue-i18n";
+import { ref, onBeforeMount } from "vue";
+import { useAuthStore } from "@/stores/AuthStore";
+import { Modal } from "ant-design-vue";
+import { useI18n } from "vue-i18n";
 
 interface type_user {
     id: string;
@@ -22,9 +22,9 @@ const user = ref<type_user>({
     dob: "",
 });
 
-const {t} = useI18n();
+const { t } = useI18n();
 
-const {activeItem} = defineProps(["activeItem"]);
+const { activeItem } = defineProps(["activeItem"]);
 
 const isShrinkView = ref(false);
 
@@ -45,13 +45,15 @@ const onSignOut = () => {
         centered: true,
         okText: t("sidebar.buttons.ok"),
         cancelText: t("sidebar.buttons.cancel"),
-        onOk: () => {},
+        onOk: () => {
+            authStore.logOut();
+        },
         onCancel: () => {},
     });
 };
 </script>
 <template>
-    <div :class="['sidebar-container', {shrink: isShrinkView}]">
+    <div :class="['sidebar-container', { shrink: isShrinkView }]">
         <button
             class="sidebar-viewButton"
             type="button"
@@ -62,23 +64,23 @@ const onSignOut = () => {
         </button>
         <div class="sidebar-wrapper">
             <ul class="sidebar-list">
-                <li :class="['sidebar-listItem', {active: activeItem === 'dashboard'}]">
-                    <RouterLink :to="{name: 'User_Dashboard'}">
+                <li :class="['sidebar-listItem', { active: activeItem === 'dashboard' }]">
+                    <RouterLink :to="{ name: 'User_Dashboard' }">
                         <i class="bx bxs-dashboard"></i>
                         <span class="sidebar-listItemText">
                             {{ $t("sidebar.navigators.dashboards") }}
                         </span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', {active: activeItem === 'library'}]">
-                    <RouterLink :to="{name: 'User_Library'}">
+                <li :class="['sidebar-listItem', { active: activeItem === 'library' }]">
+                    <RouterLink :to="{ name: 'User_Library' }">
                         <i class="bx bx-book-open"></i>
                         <span class="sidebar-listItemText">
                             {{ $t("sidebar.navigators.quiz") }}
                         </span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', {active: activeItem === 'user'}]">
+                <li :class="['sidebar-listItem', { active: activeItem === 'schedule' }]">
                     <RouterLink :to="{}">
                         <i class="bx bxs-calendar"></i>
                         <span class="sidebar-listItemText">
@@ -86,8 +88,8 @@ const onSignOut = () => {
                         </span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', {active: activeItem === 'doctor'}]">
-                    <RouterLink :to="{}">
+                <li :class="['sidebar-listItem', { active: activeItem === 'class' }]">
+                    <RouterLink :to="{ name: 'User_Class' }">
                         <i class="bx bx-group"></i>
                         <span class="sidebar-listItemText">
                             {{ $t("sidebar.navigators.class") }}
@@ -104,8 +106,8 @@ const onSignOut = () => {
                 </a-divider>
                 <a-divider class="divider" style="margin-top: 0px; background-color: #fff" />
 
-                <li :class="['sidebar-listItem', {active: activeItem === 'specialty'}]">
-                    <RouterLink :to="{}">
+                <li :class="['sidebar-listItem', { active: activeItem === 'settings' }]">
+                    <RouterLink :to="{ name: 'User_Settings' }">
                         <i class="bx bx-cog"></i>
                         <span class="sidebar-listItemText">
                             {{ $t("sidebar.navigators.settings") }}
@@ -113,7 +115,7 @@ const onSignOut = () => {
                     </RouterLink>
                 </li>
                 <li
-                    :class="['sidebar-listItem sign-out', {active: activeItem === 'specialty'}]"
+                    :class="['sidebar-listItem sign-out', { active: activeItem === 'specialty' }]"
                     @click="onSignOut"
                 >
                     <RouterLink :to="{}">
@@ -140,190 +142,5 @@ const onSignOut = () => {
 <style scoped>
 * {
     box-sizing: border-box;
-}
-
-.sidebar-container {
-    background-color: var(--sidebar-background-color);
-    padding: 16px;
-    transition: width 0.3s ease-in-out;
-    width: 240px;
-    height: calc(100vh - 60px);
-    position: relative;
-    z-index: 1;
-    position: sticky;
-    top: 60px;
-}
-
-.sidebar-container.shrink {
-    width: 85px;
-}
-
-.sidebar-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    position: relative;
-    justify-content: space-between;
-}
-
-.sidebar-viewButton {
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    right: -20px;
-    top: 40%;
-    background-color: var(--main-color);
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 1px 1px 10px var(--main-color);
-    z-index: 1;
-}
-
-.sidebar-container.shrink .sidebar-viewButton {
-    transform: rotate(180deg);
-}
-
-.sidebar-list {
-    list-style: none;
-    padding: 0;
-    margin: 12px 0 0;
-}
-
-.sidebar-listItem {
-    display: flex;
-    align-items: center;
-    border-radius: 4px;
-    margin: 5px 0px;
-}
-
-.sidebar-listItem.active {
-    background-color: var(--main-color);
-    color: var(--text-color-white) !important;
-}
-
-.sidebar-listItem a {
-    width: 100%;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-weight: 500;
-    text-decoration: none;
-    color: #ccc;
-    font-size: 14px;
-}
-
-.sidebar-listItem.active a,
-.sidebar-listItem.active i {
-    color: var(--text-color-white);
-}
-
-.sidebar-listItem i {
-    color: #ccc;
-    font-size: 22px;
-    margin-right: 8px;
-    width: 18px;
-    text-align: center;
-}
-
-.sidebar-listItem:hover {
-    background-color: var(--main-color);
-}
-
-.sidebar-listItem:hover i,
-.sidebar-listItem:hover a {
-    color: var(--text-color-white) !important;
-}
-
-.shrink .sidebar-listItem i {
-    margin-right: 0;
-}
-
-.sidebar-listItemText {
-    white-space: nowrap;
-    opacity: 1;
-    visibility: visible;
-    display: block;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-.shrink .sidebar-listItemText {
-    visibility: hidden;
-    opacity: 0;
-}
-
-.sidebar-profileSection {
-    height: 80px;
-    display: flex;
-    align-items: center;
-    color: var(--text-color-white);
-}
-
-.sidebar-profileSection img {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
-    min-height: 60px;
-    border-radius: 50%;
-    margin-right: 15px;
-    border: 1px solid var(--main-color);
-    padding: 2px;
-}
-
-.sidebar-profileSection div {
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar-profileSection span {
-    visibility: visible;
-    opacity: 1;
-    transition: all 0.2s ease-in-out;
-    font-weight: 500;
-}
-
-.shrink .sidebar-profileSection span {
-    visibility: hidden;
-    opacity: 0;
-}
-
-.divider {
-    transition: all 0.2s ease-in-out;
-}
-
-.shrink .divider {
-    opacity: 0;
-}
-
-.sign-out {
-    display: none;
-}
-
-.shrink .sign-out {
-    display: block;
-}
-
-.sign-out-btn {
-    margin: 3px 0px;
-    padding: 5px 10px;
-    border-radius: 3px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.sign-out-btn i {
-    font-size: 20px;
-}
-
-.sign-out-btn:hover {
-    background-color: var(--main-color);
 }
 </style>

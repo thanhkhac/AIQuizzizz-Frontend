@@ -74,6 +74,10 @@ import {
     Steps,
     Progress,
     Result,
+    Tabs,
+    Drawer,
+    Spin,
+    Table
 } from "ant-design-vue";
 
 /**
@@ -93,7 +97,13 @@ const i18n = createI18n({
 });
 
 async function loadLocale(locale: string): Promise<void> {
-    const messages = (await import(`./locales/${locale}.json`)).default;
+    var messages;
+    try {
+        messages = (await import(`./locales/${locale}.json`)).default;
+    } catch (error) {
+        messages = (await import(`./locales/en.json`)).default;
+    }
+
     i18n.global.setLocaleMessage(locale, messages);
     i18n.global.locale.value = locale;
 }
@@ -101,6 +111,24 @@ async function loadLocale(locale: string): Promise<void> {
 async function initLocale(): Promise<void> {
     const savedLocale: string = localStorage.getItem("locale") || "en";
     await loadLocale(savedLocale);
+}
+
+const colors = ["purple", "blue", "green", "red", "amber", "pink"];
+
+const storedThemeClass = localStorage.getItem("theme") || "theme-dark";
+const isDarkSystem = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+const themeClass =
+    storedThemeClass === "theme-system"
+        ? isDarkSystem
+            ? "theme-dark"
+            : "theme-light"
+        : storedThemeClass;
+document.documentElement.classList.add(themeClass);
+
+const storedColorClass = localStorage.getItem("accent_color") || "purple";
+if (colors.includes(storedColorClass)) {
+    document.documentElement.classList.add(storedColorClass);
 }
 
 (async () => {
@@ -136,6 +164,10 @@ async function initLocale(): Promise<void> {
     app.use(Steps);
     app.use(Progress);
     app.use(Result);
+    app.use(Tabs);
+    app.use(Drawer);
+    app.use(Spin);
+    app.use(Table);
 
     app.use(HighchartsVue);
 
