@@ -36,6 +36,9 @@ jobs:
       - name: Fix GitHub Pages History Mode
         run: cp dist/index.html dist/404.html
 
+      - name: Disable Jekyll
+        run: touch dist/.nojekyll 
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
