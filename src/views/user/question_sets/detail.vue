@@ -189,6 +189,10 @@ const onRedirectToLearn = () => {
     router.push({ name: "User_QuestionSet_Learn", params: { id: quiz.value.id } });
 };
 
+const onRedirectToTest = () => {
+    router.push({ name: "User_QuestionSet_Test", params: { id: quiz.value.id } });
+};
+
 const triggerPrint = () => {
     window.print();
 };
@@ -288,7 +292,7 @@ onMounted(() => {
                     {{ $t("detail_QS.buttons.learn") }}
                     <i class="bx bx-analyse"></i>
                 </div>
-                <div class="action-item">
+                <div class="action-item" @click="onRedirectToTest">
                     {{ $t("detail_QS.buttons.test") }}
                     <i class="bx bx-detail"></i>
                 </div>

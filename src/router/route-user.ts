@@ -103,6 +103,14 @@ const userRoutes = [
             title: "learn",
         },
     },
+    {
+        name: "User_QuestionSet_Test",
+        path: "/user/test/:id",
+        component: () => import("@/views/user/question_sets/test.vue"),
+        meta: {
+            title: "test",
+        },
+    },
 ];
 
 export default userRoutes;

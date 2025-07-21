@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted, nextTick, readonly } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import { QUOTES } from "@/constants/quote";
@@ -8,11 +8,24 @@ import type { Question } from "@/models/response/question";
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
-import { message } from "ant-design-vue";
+import { Modal } from "ant-design-vue";
 
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
+
+interface UserAnswer {
+    questionId: string;
+    type: string;
+    isSkipped: boolean;
+    result: boolean;
+    resultText: string;
+    multipleChoices: string[] | null;
+    matchingLeft: any[] | null;
+    matchingRight: any[] | null;
+    ordering: any[] | null;
+    shortText: string;
+}
 
 const QUESTION_FORMAT = {
     HTML: "HTML",
@@ -251,110 +264,22 @@ const quiz = {
     ],
 };
 
-const comment_sample = [
-    {
-        id: "1",
-        user: {
-            userName: "NguyenTanDuc",
-        },
-        content: "D",
-        lastModified: "09/07/2025 10:12AM",
-    },
-    {
-        id: "2",
-        user: {
-            userName: "NguyenManhDuong",
-        },
-        content: "Phải là A mới đúng",
-        lastModified: "09/07/2025 10:15AM",
-    },
-    {
-        id: "3",
-        user: {
-            userName: "PhamXuanTruong",
-        },
-        content: "A",
-        lastModified: "09/07/2025 10:18AM",
-    },
-    {
-        id: "4",
-        user: {
-            userName: "NguyenManhHieu",
-        },
-        content: "D",
-        lastModified: "09/07/2025 10:20AM",
-    },
-    {
-        id: "5",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-    {
-        id: "6",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-    {
-        id: "7",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-    {
-        id: "8",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-    {
-        id: "9",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-    {
-        id: "10",
-        user: {
-            userName: "NguyenDucTan123",
-        },
-        content: "It's d for sure",
-        lastModified: "09/07/2025 10:25AM",
-    },
-];
-
-const totalCompleted = ref(quiz.completed); //for total
-
 const completed = ref<Question[]>([]); // for session
 
 const incorrect = ref<Set<Question>>(new Set()); // for session
 
-const currentSession = ref<Question[]>(quiz.question as Question[]); // for session
-const isCurrentSessionReLearn = ref(false); //to check whether current session re-learn incorrect
-
-const currentQuestion = ref<Question>(currentSession.value[0]);
+const currentQuestion = ref<Question>(quiz.question[0] as Question);
 
 const currentQuestionInstruction = ref("");
-const currentQuestionIsSubmitted = ref(false);
 const currentQuestionIsSkipped = ref(false);
-
-const userAnswerMultipleChoice = ref<string[]>([]);
+const isSubmitted = ref(false);
 
 /* adjust multiple choice layout */
 const isOptionExceed = computed(() => {
     return currentQuestion.value.questionData.multipleChoice?.some((x) => x.text.length >= 100);
 });
+
+const userAnswerMultipleChoice = ref<string[]>([]);
 
 const userAnswerMatchingLeft = ref<any[]>([]);
 const userAnswerMatchingRight = ref<any[]>([]);
@@ -362,40 +287,66 @@ const userAnswerMatchingRight = ref<any[]>([]);
 const userAnswerOrdering = ref<any[]>([]);
 const userAnswerShortText = ref<string>("");
 
+const userAnswer = ref<UserAnswer[]>([]);
+
 const currentQuestionResult = ref({
     result: false,
     resultText: "Wrong answer!",
 });
 
-const completionPercentage = computed(() => {
-    return Math.floor((quiz.completed / quiz.question.length) * 100);
-});
-
 //#region check user answer
-const checkMultipleChoice = () => {
-    let correctAnswer = currentQuestion.value.questionData.multipleChoice
+const checkMultipleChoice = (id: string, answer: string[]) => {
+    const index = quiz.question.findIndex((x) => x.id === id);
+    if (index === -1) return false;
+
+    let correctAnswer = quiz.question[index].questionData.multipleChoice
         ?.filter((x) => x.isAnswer)
         .map((x) => x.id || [])
         .sort();
 
-    let sortedUserAnswer = userAnswerMultipleChoice.value.sort();
-    if (userAnswerMultipleChoice.value.length !== correctAnswer?.length) return false;
+    let sortedUserAnswer = answer.sort();
+    if (answer.length !== correctAnswer?.length) return false;
     return sortedUserAnswer.every((value: string, i: number) => value === correctAnswer[i]);
 };
 
-const checkOrdering = () => {
-    let correctAnswer =
-        currentQuestion.value.questionData.ordering?.map((x) => x.correctOrder).sort() || [];
+/* use this for checking answer after submit */
+const checkMultipleChoiceAnswerCorrect = (option: any) => {
+    //only 2 cases allowed to display result: correct and user_answer + incorrect
 
-    let userAnswer = userAnswerOrdering.value.map((x) => x.correctOrder);
+    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+    let correctAnswer = quiz.question[index].questionData.multipleChoice
+        ?.filter((x) => x.isAnswer)
+        .map((x) => x.id || []);
+
+    const useAnswerIndex = userAnswer.value.findIndex(
+        (x) => x.questionId === currentQuestion.value.id,
+    );
+    let user_answer = userAnswer.value[useAnswerIndex].multipleChoices;
+
+    if (correctAnswer?.includes(option.id)) return true; //case 1
+    if (user_answer?.includes(option.id) && !option.isAnswer) return false; //case 2
+
+    return true;
+};
+
+const checkOrdering = (id: string, answer: any[]) => {
+    const index = quiz.question.findIndex((x) => x.id === id);
+    if (index === -1) return false;
+
+    let correctAnswer =
+        quiz.question[index].questionData.ordering?.map((x) => x.correctOrder).sort() || [];
+
+    let userAnswer = answer.map((x) => x.correctOrder);
     return userAnswer.every((value: number, i: number) => value === correctAnswer[i]);
 };
 
-const checkMatching = () => {
-    let correctMatch = currentQuestion.value.questionData.matching!.matches;
+const checkMatching = (id: string, answerLeft: any[], answerRight: any[]) => {
+    const index = quiz.question.findIndex((x) => x.id === id);
+    if (index === -1) return false;
+    let correctMatch = quiz.question[index].questionData.matching!.matches;
 
-    let userAnswerLeft = userAnswerMatchingLeft.value.map((x) => x.id);
-    let userAnswerRight = userAnswerMatchingRight.value.map((x) => x.id);
+    let userAnswerLeft = answerLeft.map((x) => x.id);
+    let userAnswerRight = answerRight.map((x) => x.id);
 
     let userAnswerMatches = userAnswerLeft.map((leftId: string, i: number) => ({
         leftId,
@@ -426,11 +377,10 @@ const checkMatchingAnswerCorrect = (id: string) => {
         : userAnswerMatchingLeft.value[index]?.id === correctMatch.leftId;
 };
 
-const checkShortText = () => {
-    return (
-        userAnswerShortText.value.trim().toLowerCase() ===
-        currentQuestion.value.questionData.shortText
-    );
+const checkShortText = (id: string, answer: string) => {
+    const index = quiz.question.findIndex((x) => x.id === id);
+    if (index === -1) return false;
+    return answer.trim().toLowerCase() === quiz.question[index].questionData.shortText;
 };
 
 //#endregion
@@ -479,19 +429,19 @@ const closeFinalModal = () => {
     finalModalOpen.value = false;
 };
 
-const triggerFinalModal = () => {
-    if (currentSession.value.length <= 0 && !isCurrentSessionReLearn.value) {
-        //append 1st incorrect question - re-try incorrect
-        isCurrentSessionReLearn.value = true;
-        currentSession.value = Array.from(incorrect.value);
-    } else if (currentSession.value.length <= 0 && isCurrentSessionReLearn.value) {
-        //re-tried - send 2nd incorrect to backend
-        //trigger open final modal
-        message.success("Done");
-        openFinalModal();
-        return;
-    }
-};
+// const triggerFinalModal = () => {
+//     if (currentSession.value.length <= 0 && !isCurrentSessionReLearn.value) {
+//         //append 1st incorrect question - re-try incorrect
+//         isCurrentSessionReLearn.value = true;
+//         currentSession.value = Array.from(incorrect.value);
+//     } else if (currentSession.value.length <= 0 && isCurrentSessionReLearn.value) {
+//         //re-tried - send 2nd incorrect to backend
+//         //trigger open final modal
+//         message.success("Done");
+//         openFinalModal();
+//         return;
+//     }
+// };
 
 //preview completed question in final modal
 const toggleDisplayAnswer = (index: number, button: EventTarget) => {
@@ -507,140 +457,319 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 
 //#region logic complete question
 /* handle logic complete question */
-const onSubmitAnswer = () => {
-    triggerFinalModal();
-    toggleExplainModal();
-    currentQuestionIsSubmitted.value = true;
-
-    switch (currentQuestion.value.type) {
-        case QUESTION_TYPE.MULTIPLE_CHOICE: {
-            currentQuestionResult.value = {
-                result: checkMultipleChoice(),
-                resultText: checkMultipleChoice() ? "Correct!" : "Wrong answer!",
-            };
-            break;
-        }
-        case QUESTION_TYPE.ORDERING: {
-            currentQuestionResult.value = {
-                result: checkOrdering(),
-                resultText: checkOrdering() ? "Correct!" : "Wrong answer!",
-            };
-            break;
-        }
-        case QUESTION_TYPE.MATCHING: {
-            currentQuestionResult.value = {
-                result: checkMatching(),
-                resultText: checkMatching() ? "Correct!" : "Wrong answer!",
-            };
-            break;
-        }
-        case QUESTION_TYPE.SHORT_TEXT: {
-            currentQuestionResult.value = {
-                result: checkShortText(),
-                resultText: checkShortText() ? "Correct!" : "Wrong answer!",
-            };
-            break;
-        }
-    }
-
-    //if hasn't re-tried and incorrect
-    if (!currentQuestionResult.value.result && !isCurrentSessionReLearn.value) {
-        incorrect.value.add(currentQuestion.value);
-    } else if (currentQuestionResult.value.result && isCurrentSessionReLearn.value) {
-        //if re-tried and correct
-        incorrect.value.delete(currentQuestion.value);
-        completed.value.push(currentQuestion.value);
-    } else if (currentQuestionResult.value.result === false) {
-        incorrect.value.add(currentQuestion.value);
+const updateUserAnswer = (index: number, newAnswer: UserAnswer) => {
+    if (index === -1) {
+        userAnswer.value.push(newAnswer);
     } else {
-        completed.value.push(currentQuestion.value);
+        userAnswer.value[index] = newAnswer;
     }
 };
 
-const onSkipQuestion = (event: MouseEvent) => {
-    triggerFinalModal();
-    toggleExplainModal();
+//track change when user perform actions on questions
+const onUserAnswerChange = () => {
+    const index = userAnswer.value.findIndex((x) => x.questionId === currentQuestion.value.id);
 
-    //change result
-    currentQuestionIsSubmitted.value = true;
+    const isSkipped = currentQuestionIsSkipped.value;
+    const resultText = currentQuestionIsSkipped.value ? "Skipped" : "";
+
+    switch (currentQuestion.value.type) {
+        case QUESTION_TYPE.MULTIPLE_CHOICE: {
+            if (userAnswerMultipleChoice.value.length > 0) {
+                updateUserAnswer(index, {
+                    questionId: currentQuestion.value.id,
+                    type: currentQuestion.value.type,
+                    isSkipped: isSkipped,
+                    result: false,
+                    resultText: resultText,
+                    multipleChoices: [...userAnswerMultipleChoice.value],
+                    matchingLeft: null,
+                    matchingRight: null,
+                    ordering: null,
+                    shortText: "",
+                });
+            } else if (index !== -1) {
+                userAnswer.value.splice(index, 1);
+            }
+            break;
+        }
+        case QUESTION_TYPE.MATCHING: {
+            updateUserAnswer(index, {
+                questionId: currentQuestion.value.id,
+                type: currentQuestion.value.type,
+                isSkipped: isSkipped,
+                result: false,
+                resultText: resultText,
+                multipleChoices: null,
+                matchingLeft: [...userAnswerMatchingLeft.value],
+                matchingRight: [...userAnswerMatchingRight.value],
+                ordering: null,
+                shortText: "",
+            });
+            break;
+        }
+        case QUESTION_TYPE.ORDERING: {
+            updateUserAnswer(index, {
+                questionId: currentQuestion.value.id,
+                type: currentQuestion.value.type,
+                isSkipped: isSkipped,
+                result: false,
+                resultText: resultText,
+                multipleChoices: null,
+                matchingLeft: null,
+                matchingRight: null,
+                ordering: [...userAnswerOrdering.value],
+                shortText: "",
+            });
+            break;
+        }
+        case QUESTION_TYPE.SHORT_TEXT: {
+            if (userAnswerShortText.value.trim()) {
+                updateUserAnswer(index, {
+                    questionId: currentQuestion.value.id,
+                    type: currentQuestion.value.type,
+                    isSkipped: isSkipped,
+                    result: false,
+                    resultText: resultText,
+                    multipleChoices: null,
+                    matchingLeft: null,
+                    matchingRight: null,
+                    ordering: null,
+                    shortText: userAnswerShortText.value.trim(),
+                });
+            } else if (index !== -1) {
+                userAnswer.value.splice(index, 1);
+            }
+            break;
+        }
+    }
+};
+
+//logic handle submit
+const onSubmitAnswer = () => {
+    isSubmitted.value = true;
+    if (userAnswer.value.length < quiz.question.length) {
+        Modal.confirm({
+            title: `You missed ${quiz.question.length - userAnswer.value.length} questions.`,
+            content: "Are you certain about this decision?",
+            onOk: () => {
+                //import all left over question from quiz in to userAnswer
+                quiz.question.forEach((x) => {
+                    if (!userAnswer.value.some((answer) => answer.questionId === x.id)) {
+                        switch (x.type) {
+                            case QUESTION_TYPE.MULTIPLE_CHOICE: {
+                                userAnswer.value.push({
+                                    questionId: x.id,
+                                    type: x.type,
+                                    isSkipped: true,
+                                    result: false,
+                                    resultText: "Skipped",
+                                    multipleChoices: x.questionData.multipleChoice
+                                        ?.filter((x) => x.isAnswer)
+                                        .map((x) => x.id)!,
+                                    matchingLeft: null,
+                                    matchingRight: null,
+                                    ordering: null,
+                                    shortText: "",
+                                });
+                                break;
+                            }
+                            case QUESTION_TYPE.MATCHING: {
+                                userAnswer.value.push({
+                                    questionId: x.id,
+                                    type: x.type,
+                                    isSkipped: true,
+                                    result: false,
+                                    resultText: "Skipped",
+                                    multipleChoices: null,
+                                    matchingLeft: x.questionData.matching?.leftItems!,
+                                    matchingRight: x.questionData.matching?.rightItems!,
+                                    ordering: null,
+                                    shortText: "",
+                                });
+                                break;
+                            }
+                            case QUESTION_TYPE.ORDERING: {
+                                userAnswer.value.push({
+                                    questionId: x.id,
+                                    type: x.type,
+                                    isSkipped: true,
+                                    result: false,
+                                    resultText: "Skipped",
+                                    multipleChoices: null,
+                                    matchingLeft: null,
+                                    matchingRight: null,
+                                    ordering: x.questionData.ordering,
+                                    shortText: "",
+                                });
+                                break;
+                            }
+                            case QUESTION_TYPE.SHORT_TEXT: {
+                                userAnswer.value.push({
+                                    questionId: x.id,
+                                    type: x.type,
+                                    isSkipped: true,
+                                    result: false,
+                                    resultText: "Skipped",
+                                    multipleChoices: null,
+                                    matchingLeft: null,
+                                    matchingRight: null,
+                                    ordering: null,
+                                    shortText: x.questionData.shortText!,
+                                });
+                                break;
+                            }
+                        }
+                    }
+                });
+                getUserAnswerResult();
+            },
+        });
+        return;
+    }
+    getUserAnswerResult();
+};
+
+//calculate user result
+const getUserAnswerResult = () => {
+    userAnswer.value
+        .filter((x) => x.isSkipped === false)
+        .forEach((answer: UserAnswer) => {
+            let result;
+            switch (answer.type) {
+                case QUESTION_TYPE.MULTIPLE_CHOICE: {
+                    result = checkMultipleChoice(answer.questionId, answer.multipleChoices!);
+                    answer.result = result;
+                    answer.resultText = result ? "Correct!" : "Wrong answer";
+                    break;
+                }
+                case QUESTION_TYPE.MATCHING: {
+                    result = checkMatching(
+                        answer.questionId,
+                        answer.matchingLeft!,
+                        answer.matchingRight!,
+                    );
+                    answer.result = result;
+                    answer.resultText = result ? "Correct!" : "Wrong answer";
+                    break;
+                }
+                case QUESTION_TYPE.ORDERING: {
+                    result = checkOrdering(answer.questionId, answer.ordering!);
+                    answer.result = result;
+                    answer.resultText = result ? "Correct!" : "Wrong answer";
+                    break;
+                }
+                case QUESTION_TYPE.SHORT_TEXT: {
+                    result = checkShortText(answer.questionId, answer.shortText);
+                    answer.result = result;
+                    answer.resultText = result ? "Correct!" : "Wrong answer";
+                    break;
+                }
+            }
+        });
+};
+
+const onSkipQuestion = () => {
     currentQuestionIsSkipped.value = true;
 
-    currentQuestionResult.value = {
+    const index = userAnswer.value.findIndex((x) => x.questionId === currentQuestion.value.id);
+    updateUserAnswer(index, {
+        questionId: currentQuestion.value.id,
+        type: currentQuestion.value.type,
+        isSkipped: true,
         result: false,
         resultText: "Skipped",
-    };
-
-    //false by default
-    incorrect.value.add(currentQuestion.value);
-
-    switch (currentQuestion.value.type) {
-        case QUESTION_TYPE.MULTIPLE_CHOICE: {
-            userAnswerMultipleChoice.value = currentQuestion.value.questionData.multipleChoice
-                ?.filter((x) => x.isAnswer)
-                .map((x) => x.id)!;
-            break;
-        }
-
-        //reset to let user know the correct answer if skip
-        case QUESTION_TYPE.MATCHING: {
-            userAnswerMatchingLeft.value = currentQuestion.value.questionData.matching?.leftItems!;
-            userAnswerMatchingRight.value =
-                currentQuestion.value.questionData.matching?.rightItems!;
-            break;
-        }
-
-        case QUESTION_TYPE.ORDERING: {
-            userAnswerOrdering.value = userAnswerOrdering.value.sort(
-                (asc, desc) => asc.correctOrder - desc.correctOrder,
-            );
-            break;
-        }
-
-        case QUESTION_TYPE.SHORT_TEXT: {
-            userAnswerShortText.value = currentQuestion.value.questionData.shortText;
-            break;
-        }
-    }
+        multipleChoices: userAnswerMultipleChoice.value,
+        matchingLeft: userAnswerMatchingLeft.value,
+        matchingRight: userAnswerMatchingRight.value,
+        ordering: userAnswerOrdering.value,
+        shortText: userAnswerShortText.value,
+    });
 };
 
-const resetUserAnswer = () => {
+const onLoadCurrentQuestion = (index: number) => {
+    currentQuestionIsSkipped.value = false;
+
+    currentQuestion.value = quiz.question[index] as Question;
+    const answer = userAnswer.value.find((x) => x.questionId === currentQuestion.value.id);
+
     switch (currentQuestion.value.type) {
         case QUESTION_TYPE.MULTIPLE_CHOICE: {
             currentQuestionInstruction.value = `Choose (${currentQuestion.value.questionData.multipleChoice?.filter((x) => x.isAnswer).length}) options.`;
-            userAnswerMultipleChoice.value = [];
+            userAnswerMultipleChoice.value = answer ? answer?.multipleChoices! : [];
             break;
         }
+
         case QUESTION_TYPE.ORDERING: {
             currentQuestionInstruction.value = `Arrange these options to their correct order.`;
-            userAnswerOrdering.value = currentQuestion.value.questionData.ordering!;
+            userAnswerOrdering.value = answer
+                ? answer?.ordering!
+                : currentQuestion.value.questionData.ordering!;
             break;
         }
+
         case QUESTION_TYPE.MATCHING: {
             currentQuestionInstruction.value = `Arrange the items to align with their correct matches.`;
-            userAnswerMatchingLeft.value = currentQuestion.value.questionData.matching!.leftItems;
-            userAnswerMatchingRight.value = currentQuestion.value.questionData.matching!.rightItems;
+            userAnswerMatchingLeft.value = answer
+                ? answer?.matchingLeft!
+                : currentQuestion.value.questionData.matching!.leftItems;
+
+            userAnswerMatchingRight.value = answer
+                ? answer?.matchingRight!
+                : currentQuestion.value.questionData.matching!.rightItems;
+
             break;
         }
+
         case QUESTION_TYPE.SHORT_TEXT: {
             currentQuestionInstruction.value = `Fill in the blank the correct answer.`;
-            userAnswerShortText.value = "";
+            userAnswerShortText.value = answer ? answer?.shortText! : "";
             break;
         }
     }
 };
 
 const onNextQuestion = () => {
-    triggerFinalModal();
-    if (currentSession.value.length <= 0) return;
-
-    currentQuestion.value = currentSession.value.shift()!;
-
-    currentQuestionIsSubmitted.value = false;
     currentQuestionIsSkipped.value = false;
 
-    resetUserAnswer();
-    toggleExplainModal(); // turn off explain modal
+    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+
+    if (index < quiz.question.length - 1) {
+        onLoadCurrentQuestion(index + 1);
+    }
 };
+
+const onPreviousQuestion = () => {
+    currentQuestionIsSkipped.value = false;
+
+    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+
+    if (index > 0) {
+        onLoadCurrentQuestion(index - 1);
+    }
+};
+
+const userAnswerContainQuestion = (questionId: string) => {
+    return Array.from(userAnswer.value).some((x) => x.questionId === questionId);
+};
+
+const userAnswerCurrentQuestionSkipped = computed(() => {
+    return userAnswer.value.some((x) => x.questionId === currentQuestion.value.id && x.isSkipped);
+});
+
+const userAnswerCurrentQuestionResult = computed(() => {
+    return userAnswer.value.find((x) => x.questionId === currentQuestion.value.id)?.resultText;
+});
+
+const hasNextQuestion = computed(() => {
+    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+    return index !== -1 && index < quiz.question.length - 1;
+});
+
+const hasPreviousQuestion = computed(() => {
+    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+    return index !== -1 && index > 0;
+});
+
 //#endregion
 
 const dragOptions = {
@@ -681,18 +810,15 @@ function syncMatchingHeights() {
 }
 
 onMounted(() => {
-    resetUserAnswer();
+    onLoadCurrentQuestion(0);
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
-
-    currentSession.value = quiz.question.splice(0, 7) as Question[];
-    currentSession.value.shift();
 });
 </script>
 
 <template>
     <div class="page-container">
-        <div class="title-container">
+        <div class="title-container title-container-header">
             <a-row class="w-100 d-flex align-items-center">
                 <a-col :span="1">
                     <RouterLink :to="{ name: 'User_Library' }">
@@ -707,25 +833,27 @@ onMounted(() => {
                 </a-col>
             </a-row>
         </div>
-        <div class="progress-bar-container">
-            <div class="progress-info">
-                <div class="progress-info-number">
-                    Question {{ totalCompleted + 1 }} of {{ quiz.totalQuestion }}
-                </div>
-                <div class="progress-info-percentage">
-                    <span>{{ completionPercentage }}</span>
-                    % Completed
-                </div>
-            </div>
-            <a-progress
-                :show-info="false"
-                stroke-color="#7C3AED"
-                status="active"
-                :percent="completionPercentage"
-            />
-        </div>
 
-        <div class="content">
+        <div class="content content-test">
+            <div class="content-item question-navigators">
+                <div class="question-navigator-title">Question list</div>
+                <div class="question-navigator-container">
+                    <div
+                        :class="[
+                            'question-navigator-item',
+                            currentQuestion.id === item.id ? 'current-question' : '',
+                            userAnswerContainQuestion(item.id) ? 'completed-question' : '',
+                        ]"
+                        v-for="(item, index) in quiz.question"
+                        @click="onLoadCurrentQuestion(index)"
+                    >
+                        <span> {{ index + 1 }} </span>
+                    </div>
+                </div>
+                <a-button type="primary" class="main-color-btn" @click="onSubmitAnswer">
+                    Submit
+                </a-button>
+            </div>
             <div class="content-item">
                 <div class="section question-section">
                     <div
@@ -751,20 +879,23 @@ onMounted(() => {
                             <div
                                 :class="[
                                     'ms-3 learn-question-result',
-                                    !currentQuestionIsSubmitted ? 'd-none' : '',
-                                    currentQuestionIsSubmitted
+                                    !userAnswerCurrentQuestionSkipped && isSubmitted
+                                        ? 'd-none'
+                                        : '',
+                                    isSubmitted
                                         ? currentQuestionResult.result
                                             ? 'result-correct'
                                             : 'result-incorrect'
                                         : '',
-                                    currentQuestionIsSkipped ? 'result-skipped' : '',
+                                    userAnswerCurrentQuestionSkipped ? 'result-skipped' : '',
                                 ]"
                             >
-                                {{ currentQuestionResult.resultText }}
+                                {{ userAnswerCurrentQuestionResult }}
                             </div>
                         </div>
                         <template v-if="currentQuestion.type === QUESTION_TYPE.MULTIPLE_CHOICE">
                             <a-checkbox-group
+                                @change="onUserAnswerChange"
                                 v-model:value="userAnswerMultipleChoice"
                                 :class="[
                                     'answer-option-container multiplechoice',
@@ -772,20 +903,21 @@ onMounted(() => {
                                 ]"
                             >
                                 <template
-                                    v-for="option in currentQuestion.questionData.multipleChoice"
+                                    v-for="(option, index) in currentQuestion.questionData
+                                        .multipleChoice"
                                 >
                                     <a-checkbox
                                         v-model:value="option.id"
-                                        :disabled="currentQuestionIsSubmitted"
+                                        :disabled="userAnswerCurrentQuestionSkipped || isSubmitted"
                                         :class="[
                                             'answer-option answer-option-multiplechoice',
-                                            currentQuestionIsSubmitted &&
-                                            userAnswerMultipleChoice.includes(option.id) &&
+                                            isSubmitted &&
+                                            checkMultipleChoiceAnswerCorrect(option) &&
                                             option.isAnswer
                                                 ? 'answer-correct'
                                                 : '',
-                                            currentQuestionIsSubmitted &&
-                                            userAnswerMultipleChoice.includes(option.id) &&
+                                            isSubmitted &&
+                                            !checkMultipleChoiceAnswerCorrect(option) &&
                                             !option.isAnswer
                                                 ? 'answer-incorrect'
                                                 : '',
@@ -797,16 +929,16 @@ onMounted(() => {
 
                                         <i
                                             v-if="
-                                                currentQuestionIsSubmitted &&
-                                                userAnswerMultipleChoice.includes(option.id) &&
+                                                isSubmitted &&
+                                                checkMultipleChoiceAnswerCorrect(option) &&
                                                 option.isAnswer
                                             "
                                             class="bx bx-check answer-icon"
                                         ></i>
                                         <i
                                             v-if="
-                                                currentQuestionIsSubmitted &&
-                                                userAnswerMultipleChoice.includes(option.id) &&
+                                                isSubmitted &&
+                                                !checkMultipleChoiceAnswerCorrect(option) &&
                                                 !option.isAnswer
                                             "
                                             class="bx bx-x answer-icon"
@@ -820,17 +952,18 @@ onMounted(() => {
                             <div class="answer-option-container matching">
                                 <div class="matching-option-container left">
                                     <VueDraggable
-                                        :disabled="currentQuestionIsSubmitted"
+                                        :disabled="userAnswerCurrentQuestionSkipped || isSubmitted"
                                         v-model="userAnswerMatchingLeft"
                                         :options="dragOptions"
                                         @end="syncMatchingHeights"
+                                        @vue:updated="onUserAnswerChange"
                                     >
                                         <template v-for="(option, index) in userAnswerMatchingLeft">
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     :class="[
                                                         'answer-option answer-option-matching',
-                                                        currentQuestionIsSubmitted
+                                                        isSubmitted
                                                             ? checkMatchingAnswerCorrect(option.id)
                                                                 ? 'answer-correct'
                                                                 : 'answer-incorrect'
@@ -847,7 +980,7 @@ onMounted(() => {
                                                 <i
                                                     :class="[
                                                         'bx bxs-label matching-icon',
-                                                        currentQuestionIsSubmitted
+                                                        isSubmitted
                                                             ? checkMatchingAnswerCorrect(option.id)
                                                                 ? 'answer-correct-icon'
                                                                 : 'answer-incorrect-icon'
@@ -860,10 +993,11 @@ onMounted(() => {
                                 </div>
                                 <div class="matching-option-container right">
                                     <VueDraggable
-                                        :disabled="currentQuestionIsSubmitted"
+                                        :disabled="userAnswerCurrentQuestionSkipped || isSubmitted"
                                         v-model="userAnswerMatchingRight"
                                         :options="dragOptions"
                                         @end="syncMatchingHeights"
+                                        @vue:updated="onUserAnswerChange"
                                     >
                                         <template
                                             v-for="(option, index) in userAnswerMatchingRight"
@@ -872,7 +1006,7 @@ onMounted(() => {
                                                 <i
                                                     :class="[
                                                         'bx bxs-label matching-icon',
-                                                        currentQuestionIsSubmitted
+                                                        isSubmitted
                                                             ? checkMatchingAnswerCorrect(option.id)
                                                                 ? 'answer-correct-icon'
                                                                 : 'answer-incorrect-icon'
@@ -882,7 +1016,7 @@ onMounted(() => {
                                                 <div
                                                     :class="[
                                                         'answer-option answer-option-matching',
-                                                        currentQuestionIsSubmitted
+                                                        isSubmitted
                                                             ? checkMatchingAnswerCorrect(option.id)
                                                                 ? 'answer-correct'
                                                                 : 'answer-incorrect'
@@ -906,15 +1040,16 @@ onMounted(() => {
                         <template v-if="currentQuestion.type === QUESTION_TYPE.ORDERING">
                             <div class="answer-option-container ordering">
                                 <VueDraggable
-                                    :disabled="currentQuestionIsSubmitted"
+                                    :disabled="userAnswerCurrentQuestionSkipped || isSubmitted"
                                     v-model="userAnswerOrdering"
                                     :options="dragOptions"
+                                    @vue:updated="onUserAnswerChange"
                                 >
                                     <template v-for="(option, index) in userAnswerOrdering">
                                         <div
                                             :class="[
                                                 'answer-option answer-option-ordering',
-                                                currentQuestionIsSubmitted
+                                                isSubmitted
                                                     ? index + 1 === option.correctOrder
                                                         ? 'answer-correct'
                                                         : 'answer-incorrect'
@@ -931,7 +1066,7 @@ onMounted(() => {
                                             <div
                                                 :class="[
                                                     'answer-option-order answer-icon',
-                                                    !currentQuestionIsSubmitted ? 'd-none' : '',
+                                                    !isSubmitted ? 'd-none' : '',
                                                 ]"
                                             >
                                                 <i class="bx bx-hash answer-icon"></i>
@@ -949,85 +1084,65 @@ onMounted(() => {
                                     layout="vertical"
                                     :class="[
                                         'answer-short-text',
-                                        currentQuestionIsSubmitted
-                                            ? checkShortText()
+                                        isSubmitted
+                                            ? true
                                                 ? 'answer-correct'
                                                 : 'answer-incorrect'
                                             : '',
                                     ]"
                                 >
                                     <TextArea
-                                        :readonly="currentQuestionIsSubmitted"
+                                        :readonly="userAnswerCurrentQuestionSkipped || isSubmitted"
                                         :placeholder="'Enter your answer...'"
                                         v-model="userAnswerShortText"
+                                        @change="onUserAnswerChange"
                                     />
                                     <i
-                                        v-if="currentQuestionIsSubmitted && checkShortText()"
+                                        v-if="isSubmitted && true"
                                         class="bx bx-check answer-icon"
                                     ></i>
-                                    <i
-                                        v-if="currentQuestionIsSubmitted && !checkShortText()"
-                                        class="bx bx-x answer-icon"
-                                    ></i>
+                                    <i v-if="isSubmitted && !true" class="bx bx-x answer-icon"></i>
                                 </div>
                             </div>
                         </template>
                     </div>
                 </div>
                 <div class="learn-question-footer">
+                    <a-button
+                        :class="[
+                            'main-color-btn',
+                            !hasPreviousQuestion ? 'main-color-btn-disabled' : '',
+                        ]"
+                        type="primary"
+                        size="large"
+                        @click="onPreviousQuestion"
+                    >
+                        <i class="bx bx-chevron-left"></i>
+                        Previous question
+                    </a-button>
                     <div
                         :class="[
                             'main-color-btn-ghost',
-                            currentQuestionIsSubmitted ? 'main-color-btn-ghost-disabled' : '',
+                            userAnswerCurrentQuestionSkipped || isSubmitted
+                                ? 'main-color-btn-ghost-disabled'
+                                : '',
                         ]"
-                        @click="onSkipQuestion($event)"
+                        @click="onSkipQuestion()"
                     >
                         Don't know?
                     </div>
                     <div class="d-flex">
-                        <div
-                            :class="[
-                                'main-color-btn-ghost me-3',
-                                !currentQuestionIsSubmitted ? 'd-none' : '',
-                            ]"
-                            @click="onOpenCommentModal"
-                        >
-                            <i class="bx bx-conversation me-2"></i>
-                            Comments
-                        </div>
-
-                        <div
-                            :class="[
-                                'main-color-btn-ghost me-3',
-                                !currentQuestionIsSubmitted ? 'd-none' : '',
-                            ]"
-                            @click="toggleExplainModal"
-                        >
-                            <i class="bx bx-bulb me-2"></i>
-                            Explaination
-                        </div>
-
                         <a-button
                             :class="[
                                 'main-color-btn',
-                                currentQuestionIsSubmitted ? 'main-color-btn-disabled' : '',
+                                !hasNextQuestion ? 'main-color-btn-disabled' : '',
                             ]"
                             type="primary"
                             size="large"
-                            @click="onSubmitAnswer"
+                            @click="onNextQuestion"
                         >
-                            Submit
-                        </a-button>
-                        <a-button
-                            :class="[
-                                'main-color-btn',
-                                currentQuestionIsSubmitted ? 'main-color-btn-disabled' : '',
-                            ]"
-                            type="primary"
-                            size="large"
-                            @click="openFinalModal"
-                        >
-                            Final
+                            Next question
+                            <i class="bx bx-chevron-right"></i>
                         </a-button>
                     </div>
                 </div>
@@ -1058,37 +1173,6 @@ onMounted(() => {
                     <i class="bx bx-chevron-right"></i>
                 </a-button>
             </div>
-            <a-drawer
-                :width="500"
-                title="Comment section"
-                :placement="'right'"
-                :open="commentModalOpen"
-                @close="onCloseCommentModal"
-            >
-                <div class="comment-section">
-                    <div class="comment-container">
-                        <div class="comment-item" v-for="comment in comment_sample">
-                            <img class="comment-user-img" src="" alt="" />
-                            <div>
-                                <div class="comment-content-info">
-                                    {{ comment.user.userName }}
-                                    <span>{{ comment.lastModified }}</span>
-                                </div>
-                                <div class="comment-content">{{ comment.content }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <a-form layout="vertical" class="comment-form">
-                        <TextArea :label="'Your comment'" :placeholder="'Add a comment'" />
-                        <div class="comment-form-footer">
-                            <div class="me-3 main-color-btn-ghost">Cancel</div>
-                            <a-button type="primary" shape="round" class="main-color-btn">
-                                Comment
-                            </a-button>
-                        </div>
-                    </a-form>
-                </div>
-            </a-drawer>
         </div>
     </div>
 
@@ -1120,30 +1204,7 @@ onMounted(() => {
                 {{ finalModalQuote }}
             </div>
         </div>
-        <div class="progress-bar-container final">
-            <div class="progress-info">
-                <div class="progress-info-percentage">
-                    Total set progress:
-                    <span>{{ completionPercentage }}%</span>
-                </div>
-            </div>
-            <a-progress
-                :show-info="false"
-                stroke-color="#7C3AED"
-                status="active"
-                :percent="completionPercentage"
-            />
-            <div class="progress-info">
-                <div class="progress-info-percentage">
-                    Completed:
-                    <span>{{ quiz.completed }}</span>
-                </div>
-                <div class="progress-info-percentage">
-                    Total question:
-                    <span>{{ quiz.totalQuestion }}</span>
-                </div>
-            </div>
-        </div>
+
         <div class="content-item modal-final-container">
             <a-divider style="background-color: var(--content-item-border-color)"></a-divider>
             <div class="preview-question-title">Questions completed in this session</div>
@@ -1247,30 +1308,73 @@ onMounted(() => {
         </div>
     </a-drawer>
 </template>
-<style>
-.ant-drawer-content {
-    background-color: var(--content-item-background-color) !important;
-    border-color: var(--content-item-border-color) !important;
-    color: var(--text-color) !important;
-}
-
-.ant-drawer-close {
-    color: var(--text-color) !important;
-}
-.ant-drawer-title {
-    color: var(--text-color) !important;
-}
-.ant-drawer-header {
-    border-bottom-color: var(--content-item-border-color) !important;
-}
-</style>
-
+<!-- /* for test */ -->
 <style scoped>
-.page-container {
-    height: 100vh;
+.content-test {
+    display: flex;
+    flex-direction: row;
 }
+
+.title-container-header {
+    background-color: var(--content-item-background-color);
+    border-bottom: 1px solid var(--content-item-border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin: 0;
+    padding: 10px;
+}
+
+.page-container {
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+}
+
+.content {
+    flex-direction: row;
+}
+
 .content-item {
     width: 70%;
     margin: 10px auto;
+}
+
+.content-item.question-navigators {
+    width: auto;
+    height: fit-content;
+    margin: 10px 0px 0px 10px;
+}
+
+.question-navigator-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 10px 0px;
+}
+.question-navigator-item {
+    width: calc(100% / 5 - 8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0px 0px 3px 3px;
+    padding: 3px 5px;
+    border: 1px solid var(--form-item-border-color);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.question-navigator-item:hover {
+    border-color: var(--main-color);
+}
+
+.current-question {
+    border-color: var(--main-color);
+    color: var(--main-color);
+}
+
+.completed-question {
+    background-color: var(--main-color);
+    color: var(--text-color);
 }
 </style>
