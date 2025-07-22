@@ -3,7 +3,10 @@ import { reactive, ref } from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
 import { notification } from "ant-design-vue";
 import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
+import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+
+const router = useRouter();
 
 const { t } = useI18n();
 const formRef = ref();
@@ -56,6 +59,11 @@ const rules = {
 
     confirmationPassword: [
         {
+            required: true,
+            message: t("auth.validation.required"),
+            trigger: "change",
+        },
+        {
             validator: (rule: any, value: string) => {
                 if (value !== formState.password) {
                     return Promise.reject(t("auth.validation.confirm_password"));
@@ -75,25 +83,29 @@ const showNotification = (type: NotificationType, message: string, description: 
     });
 };
 
-const onFinish = async () => {
-    try {
-        button_loading.value = true;
-        debugger
-        const result = await ApiAuthentication.ResetPassword({
-            email: formState.email,
-            resetCode: formState.resetCode,
-            newPassword: formState.password,
-        });
-        if (result.data.success) {
-            showNotification("success", "Reset password result", "Success");
-            return;
+const onFinish = () => {
+    formRef.value.validate().then(async () => {
+        try {
+            button_loading.value = true;
+            const result = await ApiAuthentication.ResetPassword({
+                email: formState.email,
+                resetCode: formState.resetCode,
+                newPassword: formState.password,
+            });
+            if (result.data.success) {
+                showNotification("success", "Reset password result", "Success");
+                setTimeout(() => {
+                    router.push({ name: "login" });
+                }, 5000);
+                return;
+            }
+            showNotification("error", "Reset password result", "ERROR");
+        } catch (error) {
+            console.log(error);
+        } finally {
+            button_loading.value = false;
         }
-        showNotification("error", "Reset password result", "ERROR");
-    } catch (error) {
-        console.log(error);
-    } finally {
-        button_loading.value = false;
-    }
+    });
 };
 </script>
 <template>
@@ -124,7 +136,7 @@ const onFinish = async () => {
                 </a-input>
             </a-form-item>
 
-            <a-form-item label="" name="code">
+            <a-form-item label="" name="resetCode">
                 <label>{{ $t("auth.inputs.code") }}</label>
                 <a-input
                     size="large"

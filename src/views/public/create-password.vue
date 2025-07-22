@@ -68,24 +68,26 @@ const showNotification = (type: NotificationType, message: string, description: 
     });
 };
 
-const onFinish = async () => {
-    try {
-        button_loading.value = true;
-        let result = await ApiAuthentication.Register({
-            email: formState.email,
-            password: formState.password,
-        });
-        if (result.data.success) {
-            showNotification("success", "Set password result", "Success");
-            router.push({ name: "home" });
-            return;
+const onFinish = () => {
+    formRef.value.validate().then(async () => {
+        try {
+            button_loading.value = true;
+            let result = await ApiAuthentication.Register({
+                email: formState.email,
+                password: formState.password,
+            });
+            if (result.data.success) {
+                showNotification("success", "Set password result", "Success");
+                router.push({ name: "home" });
+                return;
+            }
+            showNotification("error", "Set password result", "ERROR");
+        } catch (error) {
+            console.log(error);
+        } finally {
+            button_loading.value = false;
         }
-        showNotification("error", "Set password result", "ERROR");
-    } catch (error) {
-        console.log(error);
-    } finally {
-        button_loading.value = false;
-    }
+    });
 };
 </script>
 <template>

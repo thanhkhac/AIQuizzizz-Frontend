@@ -110,7 +110,7 @@ import home_vector from "@/assets/home_vector.png";
     justify-content: space-between;
 }
 .external-login {
-    width: calc(100% / 2 - 10px);
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;

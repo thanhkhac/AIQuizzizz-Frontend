@@ -35,7 +35,8 @@
             "send": "Gửi",
             "resetPassword": "Đặt lại mật khẩu",
             "resend": "Gửi lại",
-            "create": "Tạo"
+            "create": "Tạo",
+            "verify": "Xác minh"
         },
         "navigators": {
             "signUp_signIn_ins": "Đã có tài khoản?",

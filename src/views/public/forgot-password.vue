@@ -43,23 +43,25 @@ const showNotification = (type: NotificationType, message: string, description: 
     });
 };
 
-const onFinish = async () => {
-    try {
-        button_loading.value = true;
-        const result = await ApiAuthentication.ForgotPassword(formState);
-        if (result.data.success) {
-            showNotification("success", "Register result", "Success");
-            setTimeout(() => {
-                router.push({ name: "reset-password" });
-            }, 3000);
-            return;
+const onFinish = () => {
+    formRef.value.validate().then(async () => {
+        try {
+            button_loading.value = true;
+            const result = await ApiAuthentication.ForgotPassword(formState);
+            if (result.data.success) {
+                showNotification("success", "Forgot-password result", "Success");
+                setTimeout(() => {
+                    router.push({ name: "reset-password" });
+                }, 3000);
+                return;
+            }
+            showNotification("error", "Register result", "ERROR");
+        } catch (error) {
+            console.log(error);
+        } finally {
+            button_loading.value = false;
         }
-        showNotification("error", "Register result", "ERROR");
-    } catch (error) {
-        console.log(error);
-    } finally {
-        button_loading.value = false;
-    }
+    });
 };
 </script>
 <template>

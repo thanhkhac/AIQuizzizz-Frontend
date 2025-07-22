@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
+import SUPPORTED_LOCALES from "@/constants/languages";
+import { useI18n } from "vue-i18n";
+
 const ACCENT_COLOR = "accent_color";
 const THEME = "theme";
 
@@ -105,6 +108,19 @@ const toggleColor = (colorClass: string) => {
     applyColor(colorClass);
 };
 
+/* Language switcher */
+const { availableLocales, locale, setLocaleMessage } = useI18n();
+const selectedLocale = ref("");
+
+async function switchLanguage(selectedLocale: string) {
+    if (!availableLocales.includes(selectedLocale)) {
+        const messages = await import(`@/locales/${selectedLocale}.json`);
+        setLocaleMessage(selectedLocale, messages);
+    }
+    locale.value = selectedLocale;
+    localStorage.setItem("locale", selectedLocale);
+}
+
 onMounted(() => {
     media.addEventListener("change", (e) => {
         isSystemDark.value = e.matches;
@@ -116,8 +132,7 @@ onMounted(() => {
     applyTheme(theme_active.value);
     applyColor(color_active.value);
 
-    console.log(theme_active.value);
-    console.log(color_active.value);
+    selectedLocale.value = localStorage.getItem("locale") || "en";
 });
 </script>
 
@@ -179,14 +194,25 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
-
-            <a-row>
-                <a-col class="mt-4 mb-2 d-flex justify-content-end" :span="24">
-                    <a-button class="main-color-btn" type="primary" size="large">
-                        Save preferences
-                    </a-button>
-                </a-col>
-            </a-row>
+            <div class="appearance-section">
+                <div>Language</div>
+                <div class="language-select-container">
+                    <a-select
+                        @change="switchLanguage"
+                        class="language-select"
+                        v-model:value="selectedLocale"
+                    >
+                        <a-select-option
+                            v-for="locale in SUPPORTED_LOCALES"
+                            :key="`locale-${locale.code}`"
+                            :value="locale.code"
+                        >
+                            <img class="language-img" :src="locale.imagePath" alt="img" />
+                            {{ locale.label }}
+                        </a-select-option>
+                    </a-select>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -320,5 +346,38 @@ onMounted(() => {
     width: 40px;
     height: 40px;
     border-radius: 50%;
+}
+
+/* Language */
+.language-select-container {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+
+}
+
+.language-select {
+    width: 200px;
+    height: 100%;
+    background-color: var(--background-color);
+    margin-top: 20px;
+}
+
+.language-img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.language-select .ant-select-selector {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+::v-deep(.ant-select-selector) {
+    padding: 5px 10px !important;
+    height: auto !important;
 }
 </style>

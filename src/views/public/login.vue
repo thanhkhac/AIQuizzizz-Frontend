@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import google_logo from "@/assets/google_logo.png";
-import facebook_logo from "@/assets/facebook_logo.png";
 
 import { reactive, ref } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
@@ -43,20 +42,22 @@ const rules = {
     ],
 };
 
-const onFinish = async () => {
-    try {
-        button_loading.value = true;
-        let login_result = await ApiAuthentication.Login(formState);
+const onFinish = () => {
+    formRef.value.validate().then(async () => {
+        try {
+            button_loading.value = true;
+            let login_result = await ApiAuthentication.Login(formState);
 
-        if (login_result.data.success) {
-            message.success("Login successfully. Redirecting...");
-            authStore.LoginSuccessful();
+            if (login_result.data.success) {
+                message.success("Login successfully. Redirecting...");
+                authStore.LoginSuccessful();
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            button_loading.value = false;
         }
-    } catch (error) {
-        console.log(error);
-    } finally {
-        button_loading.value = false;
-    }
+    });
 };
 const onGoogleLogin = async () => {
     sessionStorage.setItem("returnURL", authStore.returnURL); //set before leave
@@ -78,10 +79,6 @@ const onGoogleLogin = async () => {
                 <div :style="{ backgroundImage: `url(${google_logo})` }"></div>
                 <div>Google</div>
             </div>
-            <div class="external-login external-login-facebook">
-                <div :style="{ backgroundImage: `url(${facebook_logo})` }"></div>
-                <div>Facebook</div>
-            </div>
         </div>
         <a-divider style="height: 1px; background-color: #d9d9d9">
             <span style="background-color: #fff; padding: 0px 10px">OR</span>
@@ -94,7 +91,7 @@ const onGoogleLogin = async () => {
             :wrapperCol="wrapperCol"
             :rules="rules"
         >
-            <a-form-item label="" name="username">
+            <a-form-item label="" name="email">
                 <label>{{ $t("auth.inputs.email") }}</label>
                 <a-input
                     size="large"

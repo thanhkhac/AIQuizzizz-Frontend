@@ -41,6 +41,12 @@ const indexRoutes = [
         meta: { title: "forgot-password", layout: "authentication" },
     },
     {
+        path: "/reset-password",
+        name: "reset-password",
+        component: () => import("@/views/public/reset-password.vue"),
+        meta: { title: "reset-password", layout: "authentication" },
+    },
+    {
         //call back after google register
         path: "/create-password",
         name: "create-password",

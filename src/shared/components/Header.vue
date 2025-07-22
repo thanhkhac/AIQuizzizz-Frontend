@@ -1,54 +1,18 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
-import SUPPORTED_LOCALES from "@/constants/languages";
-import { useI18n } from "vue-i18n";
-
-const { availableLocales, locale, setLocaleMessage } = useI18n();
-const selectedLocale = ref("");
 
 const authStore = useAuthStore();
 
 const isUserLogged = authStore.checkUser();
 
-const navbarFunction = () => {
-    let x = document.getElementById("header");
-    if (x!.className === "header") {
-        x!.className += " responsive";
-    } else {
-        x!.className = "header";
-    }
-};
-
-onMounted(() => {
-    selectedLocale.value = localStorage.getItem("locale") || "en";
-});
-
-async function switchLanguage(selectedLocale: string) {
-    if (!availableLocales.includes(selectedLocale)) {
-        const messages = await import(`@/locales/${selectedLocale}.json`);
-        setLocaleMessage(selectedLocale, messages);
-    }
-    locale.value = selectedLocale;
-    localStorage.setItem("locale", selectedLocale);
-}
+onMounted(() => {});
 </script>
 <template>
     <div class="header">
         <div class="header-logo">
             <RouterLink :to="{ name: 'home' }">AIQuizizz</RouterLink>
         </div>
-        <ul class="header-navigator">
-            <li>Quiz</li>
-            <li>Weekly Quiz</li>
-            <li>Rewards</li>
-            <li>About</li>
-            <li>
-                <a href="javascript:void(0);" class="icon" @click="navbarFunction">
-                    <i class="fa fa-bars"></i>
-                </a>
-            </li>
-        </ul>
         <div
             class="header-authentication-navigator"
             :style="isUserLogged ? { display: 'none' } : {}"
@@ -56,21 +20,6 @@ async function switchLanguage(selectedLocale: string) {
             <RouterLink :to="{ name: 'login' }">Sign In</RouterLink>
             <RouterLink :to="{ name: 'register' }">Register</RouterLink>
         </div>
-        <a-select
-            @change="switchLanguage"
-            class="language-select"
-            v-model:value="selectedLocale"
-            :style="!isUserLogged ? { display: 'none' } : {}"
-        >
-            <a-select-option
-                v-for="locale in SUPPORTED_LOCALES"
-                :key="`locale-${locale.code}`"
-                :value="locale.code"
-            >
-                <img class="language-img" :src="locale.imagePath" alt="img" />
-                {{ locale.label }}
-            </a-select-option>
-        </a-select>
     </div>
 </template>
 <style scoped>
@@ -159,27 +108,5 @@ async function switchLanguage(selectedLocale: string) {
     }
 }
 
-.language-select {
-    width: 200px;
-    height: 100%;
-    background-color: var(--background-color);
-}
 
-.language-img {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.language-select .ant-select-selector {
-    background-color: var(--background-color);
-    color: var(--text-color);
-    border-color: var(--border-color);
-}
-
-::v-deep(.ant-select-selector) {
-    padding: 5px 10px !important;
-    height: auto !important;
-}
 </style>

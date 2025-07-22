@@ -35,7 +35,8 @@
             "send": "Send",
             "resetPassword": "Reset Password",
             "resend": "Re-send",
-            "create": "Create"
+            "create": "Create",
+            "verify": "Verify"
         },
         "navigators": {
             "signUp_signIn_ins": "Already have an account?",

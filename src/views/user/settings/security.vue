@@ -5,7 +5,6 @@ import { message, Modal } from "ant-design-vue";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
 
 import google_logo from "@/assets/google_logo.png";
-import facebook_logo from "@/assets/facebook_logo.png";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
@@ -152,16 +151,6 @@ const showModalConfirmation = () => {
                         <div class="ms-3 d-flex flex-column">
                             <div class="fs-6 fw-bold">Google</div>
                             <div class="text-secondary">Connect your Google account</div>
-                        </div>
-                    </div>
-                    <a-button class="main-color-btn" type="primary" size="large">Connect</a-button>
-                </a-col>
-                <a-col :span="24" class="mt-3 d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <img class="external-service-item" :src="facebook_logo" alt="" />
-                        <div class="ms-3 d-flex flex-column">
-                            <div class="fs-6 fw-bold">Facebook</div>
-                            <div class="text-secondary">Connect your Facebook account</div>
                         </div>
                     </div>
                     <a-button class="main-color-btn" type="primary" size="large">Connect</a-button>

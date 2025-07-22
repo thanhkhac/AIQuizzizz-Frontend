@@ -61,48 +61,51 @@ const showNotification = (type: NotificationType, message: string, description: 
     });
 };
 
-const onRequestEmailVerification = async () => {
-    try {
-        send_button_loading.value = true;
-        let send_email_result = await ApiAuthentication.RequestEmailVerification({
-            email: resentFormState.email,
-        });
-        if (send_email_result.data.success) {
-            showNotification("success", "Send email result", "Success");
-            sessionStorage.setItem("email", resentFormState.email ? resentFormState.email : "");
-            modal_is_success.value = true;
-            return;
+const onRequestEmailVerification = () => {
+    formRef.value.validate().then(async () => {
+        try {
+            send_button_loading.value = true;
+            let send_email_result = await ApiAuthentication.RequestEmailVerification({
+                email: resentFormState.email,
+            });
+            if (send_email_result.data.success) {
+                showNotification("success", "Send email result", "Success");
+                sessionStorage.setItem("email", resentFormState.email ? resentFormState.email : "");
+                modal_is_success.value = true;
+                return;
+            }
+            showNotification("error", "Send email result", "ERROR");
+        } catch (error) {
+            console.log(error);
+        } finally {
+            send_button_loading.value = false;
         }
-        showNotification("error", "Send email result", "ERROR");
-    } catch (error) {
-        console.log(error);
-    } finally {
-        send_button_loading.value = false;
-    }
+    });
 };
 
-const onFinish = async () => {
-    try {
-        verify_button_loading.value = true;
+const onFinish = () => {
+    formRef.value.validate().then(async () => {
+        try {
+            verify_button_loading.value = true;
 
-        let result = await ApiAuthentication.VerifyEmail(formState);
+            let result = await ApiAuthentication.VerifyEmail(formState);
 
-        if (!result.data.success) {
-            showNotification("error", "Send email result", "ERROR");
-            return;
+            if (!result.data.success) {
+                showNotification("error", "Send email result", "ERROR");
+                return;
+            }
+
+            showNotification("success", "Send email result", "Success. Redirecting...");
+            //wait 3sec before go to login
+            setTimeout(() => {
+                router.push({ name: "login" });
+            }, 3000);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            verify_button_loading.value = false;
         }
-
-        showNotification("success", "Send email result", "Success. Redirecting...");
-    } catch (error) {
-        console.log(error);
-    } finally {
-        verify_button_loading.value = false;
-    }
-
-    //wait 3sec before go to login
-    setTimeout(() => {
-        router.push({ name: "login" });
-    }, 3000);
+    });
 };
 </script>
 <template>
@@ -152,7 +155,7 @@ const onFinish = async () => {
                     type="primary"
                     style="background-color: #9823f5; width: 100%"
                 >
-                    {{ $t("auth.buttons.signUp") }}
+                    {{ $t("auth.buttons.verify") }}
                 </a-button>
             </a-form-item>
         </a-form>

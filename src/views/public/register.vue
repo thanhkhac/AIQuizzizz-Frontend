@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import google_logo from "@/assets/google_logo.png";
-import facebook_logo from "@/assets/facebook_logo.png";
 
 import { reactive, ref } from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
@@ -50,6 +49,11 @@ const rules = {
     ],
     confirmationPassword: [
         {
+            required: true,
+            message: t("auth.validation.required"),
+            trigger: "change",
+        },
+        {
             validator: (rule: any, value: string) => {
                 if (value !== formState.password) {
                     return Promise.reject(t("auth.validation.confirm_password"));
@@ -73,32 +77,34 @@ const showNotification = (type: NotificationType, message: string, description: 
     });
 };
 
-const onFinish = async () => {
-    try {
-        button_loading.value = true;
-        let register_result = await ApiAuthentication.Register({
-            email: formState.email,
-            password: formState.password,
-        });
-        if (!register_result.data.success) return;
+const onFinish = () => {
+    formRef.value.validate().then(async () => {
+        try {
+            button_loading.value = true;
+            let register_result = await ApiAuthentication.Register({
+                email: formState.email,
+                password: formState.password,
+            });
+            if (!register_result.data.success) return;
 
-        let send_email_result = await ApiAuthentication.RequestEmailVerification({
-            email: formState.email,
-        });
+            let send_email_result = await ApiAuthentication.RequestEmailVerification({
+                email: formState.email,
+            });
 
-        if (send_email_result.data.success) {
-            showNotification("success", "Register result", "Success");
+            if (send_email_result.data.success) {
+                showNotification("success", "Register result", "Success");
 
-            sessionStorage.setItem("email", formState.email);
-            router.push({ name: "verify-email" });
-            return;
+                sessionStorage.setItem("email", formState.email);
+                router.push({ name: "verify-email" });
+                return;
+            }
+            showNotification("error", "Register result", "ERROR");
+        } catch (error) {
+            console.log(error);
+        } finally {
+            button_loading.value = false;
         }
-        showNotification("error", "Register result", "ERROR");
-    } catch (error) {
-        console.log(error);
-    } finally {
-        button_loading.value = false;
-    }
+    });
 };
 
 const onGoogleRegister = async () => {
@@ -119,10 +125,6 @@ const onGoogleRegister = async () => {
             <div class="external-login external-login-google">
                 <div :style="{ backgroundImage: `url(${google_logo})` }"></div>
                 <div>Google</div>
-            </div>
-            <div class="external-login external-login-facebook">
-                <div :style="{ backgroundImage: `url(${facebook_logo})` }"></div>
-                <div>Facebook</div>
             </div>
         </div>
         <a-divider style="height: 1px; background-color: #d9d9d9">
