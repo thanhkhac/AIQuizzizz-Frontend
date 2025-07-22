@@ -9,6 +9,7 @@ import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import { Modal } from "ant-design-vue";
+import Highcharts from "highcharts";
 
 import { useI18n } from "vue-i18n";
 
@@ -266,7 +267,10 @@ const quiz = {
 
 const completed = ref<Question[]>([]); // for session
 
-const incorrect = ref<Set<Question>>(new Set()); // for session
+// const incorrect = ref<Set<UserAnswer>>(new Set());
+const incorrect = computed((): UserAnswer[] => {
+    return userAnswer.value.filter((x) => x.result === false);
+});
 
 const currentQuestion = ref<Question>(quiz.question[0] as Question);
 
@@ -288,11 +292,6 @@ const userAnswerOrdering = ref<any[]>([]);
 const userAnswerShortText = ref<string>("");
 
 const userAnswer = ref<UserAnswer[]>([]);
-
-const currentQuestionResult = ref({
-    result: false,
-    resultText: "Wrong answer!",
-});
 
 //#region check user answer
 const checkMultipleChoice = (id: string, answer: string[]) => {
@@ -395,62 +394,16 @@ const toggleExplainModal = () => {
 
 //#endregion
 
-//#region comment modal
-/* comment modal right */
-const commentModalOpen = ref(false);
-
-const onOpenCommentModal = () => {
-    commentModalOpen.value = true;
-    //get api comment
-};
-
-const onCloseCommentModal = () => {
-    commentModalOpen.value = false;
-    //reset comment list
-};
-//#endregion
-
 //#region final modal
-/* final modal full screen */
+/* setting modal  */
+const setting_modal_open = ref(false);
 
-const finalModalOpen = ref(false);
-const finalModalQuote = ref("");
-const openFinalModal = () => {
-    finalModalQuote.value = t(
-        `learn_QS.final_modal.quotes.${QUOTES[Math.floor(Math.random() * QUOTES.length)].id}`,
-    );
-
-    setTimeout(() => {
-        finalModalOpen.value = true;
-    }, 2000);
+const openSettingModal = () => {
+    setting_modal_open.value = true;
 };
 
-const closeFinalModal = () => {
-    finalModalOpen.value = false;
-};
-
-// const triggerFinalModal = () => {
-//     if (currentSession.value.length <= 0 && !isCurrentSessionReLearn.value) {
-//         //append 1st incorrect question - re-try incorrect
-//         isCurrentSessionReLearn.value = true;
-//         currentSession.value = Array.from(incorrect.value);
-//     } else if (currentSession.value.length <= 0 && isCurrentSessionReLearn.value) {
-//         //re-tried - send 2nd incorrect to backend
-//         //trigger open final modal
-//         message.success("Done");
-//         openFinalModal();
-//         return;
-//     }
-// };
-
-//preview completed question in final modal
-const toggleDisplayAnswer = (index: number, button: EventTarget) => {
-    let $button = $(button);
-
-    $button.toggleClass("bx-chevron-down bx-chevron-up");
-
-    const answer = $(`#question-item-answer-${index}`);
-    if (answer) $(answer).slideToggle();
+const closeSettingModal = () => {
+    setting_modal_open.value = false;
 };
 
 //#endregion
@@ -467,8 +420,11 @@ const updateUserAnswer = (index: number, newAnswer: UserAnswer) => {
 
 //track change when user perform actions on questions
 const onUserAnswerChange = () => {
+    if (isSubmitted.value) return; //prevent change detected after submit and re-format user answer
+
     const index = userAnswer.value.findIndex((x) => x.questionId === currentQuestion.value.id);
 
+    //user changed but still chose to skip
     const isSkipped = currentQuestionIsSkipped.value;
     const resultText = currentQuestionIsSkipped.value ? "Skipped" : "";
 
@@ -502,6 +458,8 @@ const onUserAnswerChange = () => {
                 multipleChoices: null,
                 matchingLeft: [...userAnswerMatchingLeft.value],
                 matchingRight: [...userAnswerMatchingRight.value],
+                // matchingLeft: userAnswerMatchingLeft.value.map((x) => x),
+                // matchingRight: userAnswerMatchingRight.value.map((x) => x),
                 ordering: null,
                 shortText: "",
             });
@@ -518,6 +476,7 @@ const onUserAnswerChange = () => {
                 matchingLeft: null,
                 matchingRight: null,
                 ordering: [...userAnswerOrdering.value],
+                // ordering: userAnswerOrdering.value.map((x) => x),
                 shortText: "",
             });
             break;
@@ -546,74 +505,71 @@ const onUserAnswerChange = () => {
 
 //logic handle submit
 const onSubmitAnswer = () => {
-    isSubmitted.value = true;
+    onUserAnswerChange();
     if (userAnswer.value.length < quiz.question.length) {
         Modal.confirm({
             title: `You missed ${quiz.question.length - userAnswer.value.length} questions.`,
             content: "Are you certain about this decision?",
-            onOk: () => {
+            onOk: async () => {
                 //import all left over question from quiz in to userAnswer
+                isSubmitted.value = true;
                 quiz.question.forEach((x) => {
                     if (!userAnswer.value.some((answer) => answer.questionId === x.id)) {
+                        const skippedAnswer = {
+                            questionId: x.id,
+                            type: x.type,
+                            isSkipped: true,
+                            result: false,
+                            resultText: "Skipped",
+                            multipleChoices: null,
+                            matchingLeft: null,
+                            matchingRight: null,
+                            ordering: null,
+                            shortText: "",
+                        };
                         switch (x.type) {
                             case QUESTION_TYPE.MULTIPLE_CHOICE: {
                                 userAnswer.value.push({
-                                    questionId: x.id,
-                                    type: x.type,
-                                    isSkipped: true,
-                                    result: false,
-                                    resultText: "Skipped",
+                                    ...skippedAnswer,
                                     multipleChoices: x.questionData.multipleChoice
                                         ?.filter((x) => x.isAnswer)
                                         .map((x) => x.id)!,
-                                    matchingLeft: null,
-                                    matchingRight: null,
-                                    ordering: null,
-                                    shortText: "",
                                 });
                                 break;
                             }
                             case QUESTION_TYPE.MATCHING: {
+                                //get matching answer by matches order
+                                const matching = x.questionData.matching;
+                                const matches = matching?.matches ?? [];
+                                const leftItems = matching?.leftItems ?? [];
+                                const rightItems = matching?.rightItems ?? [];
+
+                                const matchingLeft = matches.map((match) =>
+                                    leftItems.find((item) => item.id == match.leftId),
+                                );
+                                const matchingRight = matches.map((match) =>
+                                    rightItems.find((item) => item.id == match.rightId),
+                                );
+
                                 userAnswer.value.push({
-                                    questionId: x.id,
-                                    type: x.type,
-                                    isSkipped: true,
-                                    result: false,
-                                    resultText: "Skipped",
-                                    multipleChoices: null,
-                                    matchingLeft: x.questionData.matching?.leftItems!,
-                                    matchingRight: x.questionData.matching?.rightItems!,
-                                    ordering: null,
-                                    shortText: "",
+                                    ...skippedAnswer,
+                                    matchingLeft,
+                                    matchingRight,
                                 });
                                 break;
                             }
                             case QUESTION_TYPE.ORDERING: {
                                 userAnswer.value.push({
-                                    questionId: x.id,
-                                    type: x.type,
-                                    isSkipped: true,
-                                    result: false,
-                                    resultText: "Skipped",
-                                    multipleChoices: null,
-                                    matchingLeft: null,
-                                    matchingRight: null,
-                                    ordering: x.questionData.ordering,
-                                    shortText: "",
+                                    ...skippedAnswer,
+                                    ordering: x.questionData.ordering
+                                        ?.slice()
+                                        .sort((a, b) => a.correctOrder - b.correctOrder)!,
                                 });
                                 break;
                             }
                             case QUESTION_TYPE.SHORT_TEXT: {
                                 userAnswer.value.push({
-                                    questionId: x.id,
-                                    type: x.type,
-                                    isSkipped: true,
-                                    result: false,
-                                    resultText: "Skipped",
-                                    multipleChoices: null,
-                                    matchingLeft: null,
-                                    matchingRight: null,
-                                    ordering: null,
+                                    ...skippedAnswer,
                                     shortText: x.questionData.shortText!,
                                 });
                                 break;
@@ -624,9 +580,10 @@ const onSubmitAnswer = () => {
                 getUserAnswerResult();
             },
         });
-        return;
+    } else {
+        isSubmitted.value = true;
+        getUserAnswerResult();
     }
-    getUserAnswerResult();
 };
 
 //calculate user result
@@ -666,9 +623,12 @@ const getUserAnswerResult = () => {
                 }
             }
         });
+
+    generateChart();
 };
 
 const onSkipQuestion = () => {
+    //skip single current question
     currentQuestionIsSkipped.value = true;
 
     const index = userAnswer.value.findIndex((x) => x.questionId === currentQuestion.value.id);
@@ -703,7 +663,7 @@ const onLoadCurrentQuestion = (index: number) => {
             currentQuestionInstruction.value = `Arrange these options to their correct order.`;
             userAnswerOrdering.value = answer
                 ? answer?.ordering!
-                : currentQuestion.value.questionData.ordering!;
+                : currentQuestion.value.questionData.ordering?.map((x) => x) || [];
             break;
         }
 
@@ -711,11 +671,11 @@ const onLoadCurrentQuestion = (index: number) => {
             currentQuestionInstruction.value = `Arrange the items to align with their correct matches.`;
             userAnswerMatchingLeft.value = answer
                 ? answer?.matchingLeft!
-                : currentQuestion.value.questionData.matching!.leftItems;
+                : currentQuestion.value.questionData.matching!.leftItems.map((x) => x) || [];
 
             userAnswerMatchingRight.value = answer
                 ? answer?.matchingRight!
-                : currentQuestion.value.questionData.matching!.rightItems;
+                : currentQuestion.value.questionData.matching!.rightItems.map((x) => x) || {};
 
             break;
         }
@@ -752,12 +712,20 @@ const userAnswerContainQuestion = (questionId: string) => {
     return Array.from(userAnswer.value).some((x) => x.questionId === questionId);
 };
 
+const getUserAnswerResultById = (id: string) => {
+    return userAnswer.value.find((x) => x.questionId === id && !x.isSkipped)?.result;
+};
+
 const userAnswerCurrentQuestionSkipped = computed(() => {
     return userAnswer.value.some((x) => x.questionId === currentQuestion.value.id && x.isSkipped);
 });
 
 const userAnswerCurrentQuestionResult = computed(() => {
-    return userAnswer.value.find((x) => x.questionId === currentQuestion.value.id)?.resultText;
+    const result = userAnswer.value.find((x) => x.questionId === currentQuestion.value.id);
+    return {
+        result: result?.result,
+        resultText: result?.resultText,
+    };
 });
 
 const hasNextQuestion = computed(() => {
@@ -770,6 +738,107 @@ const hasPreviousQuestion = computed(() => {
     return index !== -1 && index > 0;
 });
 
+//#endregion
+
+//#region final chart
+const getCorrectPercentage = () => {
+    return Math.floor(
+        ((quiz.question.length - incorrect.value.length) / quiz.question.length) * 100,
+    );
+};
+
+const getInCorrectPercentage = () => {
+    return Math.floor((incorrect.value.length / quiz.question.length) * 100);
+};
+
+const generateChart = () => {
+    const content_item_result = $(".content-item-test-result");
+    if (content_item_result) $(content_item_result).slideToggle();
+
+    Highcharts.setOptions({
+        lang: {
+            decimalPoint: ".",
+            thousandsSep: ",",
+        },
+    });
+    Highcharts.chart("result_chart_container", {
+        chart: {
+            type: "pie",
+            custom: {} as any,
+            events: {
+                render: function (this: Highcharts.Chart) {
+                    const chart = this;
+                    const series = chart.series[0] as Highcharts.Series & {
+                        center: [number, number];
+                    };
+                    let customLabel = (chart.options.chart as any).custom.label as
+                        | Highcharts.SVGElement
+                        | undefined;
+
+                    if (!customLabel) {
+                        customLabel = (chart.options.chart as any).custom.label = chart.renderer
+                            .label(`<strong>${getCorrectPercentage()}%</strong>`, 0, 0)
+                            .css({
+                                color: "var(--text-color)",
+                                textAnchor: "middle",
+                            })
+                            .add();
+                    }
+
+                    const x = series.center[0] + chart.plotLeft,
+                        y =
+                            series.center[1] +
+                            chart.plotTop -
+                            (customLabel.attr("height") as number) / 2;
+
+                    customLabel.attr({
+                        x,
+                        y,
+                    });
+                    // adjust font size based on chart width
+                    customLabel.css({
+                        fontSize: `${series.center[2] / 8}px`,
+                    });
+                },
+            },
+        },
+        credits: {
+            enabled: false,
+        },
+        plotOptions: {
+            pie: {
+                borderWidth: 0,
+                borderRadius: 3,
+            },
+        },
+        tooltip: {
+            pointFormat: "{series.name}: <b>{point.percentage:.0f}%</b>",
+        },
+        series: [
+            {
+                type: "pie",
+                name: "Result",
+                colorByPoint: true,
+                innerSize: "75%",
+                dataLabels: {
+                    enabled: false,
+                },
+                data: [
+                    {
+                        name: "Correct",
+                        y: getCorrectPercentage(),
+                        color: "var(--correct-answer-color)",
+                    },
+                    {
+                        name: "Incorrect",
+                        y: getInCorrectPercentage(),
+                        color: "var(--incorrect-answer-color)",
+                    },
+                ],
+            },
+        ] as any,
+    } as Highcharts.Options);
+};
 //#endregion
 
 const dragOptions = {
@@ -825,34 +894,95 @@ onMounted(() => {
                         <i class="bx bx-chevron-left navigator-back-button"></i>
                     </RouterLink>
                 </a-col>
-                <a-col class="main-title" :span="23">
+                <a-col class="main-title" :span="22">
                     <span> {{ quiz.title }}</span> <br />
                     <span>
                         {{ quiz.description }}
                     </span>
                 </a-col>
+                <a-col :span="1">
+                    <i class="bx bx-cog test-setting-btn" @click="openSettingModal"></i>
+                </a-col>
             </a-row>
         </div>
 
-        <div class="content content-test">
-            <div class="content-item question-navigators">
-                <div class="question-navigator-title">Question list</div>
-                <div class="question-navigator-container">
-                    <div
-                        :class="[
-                            'question-navigator-item',
-                            currentQuestion.id === item.id ? 'current-question' : '',
-                            userAnswerContainQuestion(item.id) ? 'completed-question' : '',
-                        ]"
-                        v-for="(item, index) in quiz.question"
-                        @click="onLoadCurrentQuestion(index)"
+        <div class="content content-test d-flex flex-column">
+            <div class="d-flex">
+                <div class="content-item question-navigators">
+                    <div class="question-navigator-title">Question list</div>
+                    <div class="question-navigator-container">
+                        <div
+                            :class="[
+                                'question-navigator-item',
+                                currentQuestion.id === item.id ? 'current-question' : '',
+                                userAnswerContainQuestion(item.id) ? 'completed-question' : '',
+                                isSubmitted
+                                    ? getUserAnswerResultById(item.id)
+                                        ? 'correct'
+                                        : 'incorrect'
+                                    : '',
+                            ]"
+                            v-for="(item, index) in quiz.question"
+                            @click="onLoadCurrentQuestion(index)"
+                        >
+                            <span> {{ index + 1 }} </span>
+                        </div>
+                    </div>
+                    <a-button
+                        type="primary"
+                        :class="['main-color-btn', isSubmitted ? 'main-color-btn-disabled' : '']"
+                        @click="onSubmitAnswer"
                     >
-                        <span> {{ index + 1 }} </span>
+                        Submit
+                    </a-button>
+                </div>
+                <div class="content-item content-item-test-result">
+                    <div class="result-container">
+                        <div id="result_chart_container"></div>
+                        <div class="result-text-container">
+                            <div class="result-text correct">
+                                Correct:
+                                <span>{{ quiz.question.length - incorrect.length }}</span>
+                            </div>
+                            <div class="result-text incorrect">
+                                Incorrect:
+                                <span> {{ incorrect.length }}</span>
+                            </div>
+                        </div>
+                        <div class="result-buttons-container">
+                            <div class="result-button">
+                                <i class="bx bxs-news"></i>
+                                <div>
+                                    <div class="result-button-title">New test</div>
+                                    <div class="result-button-content">
+                                        Attempt new test with current options
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="result-button">
+                                <i class="bx bx-analyse"></i>
+                                <div>
+                                    <div class="result-button-title">Practice in learn mode</div>
+                                    <div class="result-button-content">
+                                        Learn these questions in a different way build you
+                                        knowledge.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="result-button">
+                                <i class="bx bx-reset"></i>
+                                <div>
+                                    <div class="result-button-title">
+                                        Retest using incorrect questions
+                                    </div>
+                                    <div class="result-button-content">
+                                        Test yourself again on the questions you got wrong.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <a-button type="primary" class="main-color-btn" @click="onSubmitAnswer">
-                    Submit
-                </a-button>
             </div>
             <div class="content-item">
                 <div class="section question-section">
@@ -879,18 +1009,15 @@ onMounted(() => {
                             <div
                                 :class="[
                                     'ms-3 learn-question-result',
-                                    !userAnswerCurrentQuestionSkipped && isSubmitted
-                                        ? 'd-none'
-                                        : '',
                                     isSubmitted
-                                        ? currentQuestionResult.result
+                                        ? userAnswerCurrentQuestionResult.result
                                             ? 'result-correct'
                                             : 'result-incorrect'
                                         : '',
                                     userAnswerCurrentQuestionSkipped ? 'result-skipped' : '',
                                 ]"
                             >
-                                {{ userAnswerCurrentQuestionResult }}
+                                {{ userAnswerCurrentQuestionResult.resultText }}
                             </div>
                         </div>
                         <template v-if="currentQuestion.type === QUESTION_TYPE.MULTIPLE_CHOICE">
@@ -1085,7 +1212,7 @@ onMounted(() => {
                                     :class="[
                                         'answer-short-text',
                                         isSubmitted
-                                            ? true
+                                            ? userAnswerCurrentQuestionResult.result
                                                 ? 'answer-correct'
                                                 : 'answer-incorrect'
                                             : '',
@@ -1106,44 +1233,44 @@ onMounted(() => {
                             </div>
                         </template>
                     </div>
-                </div>
-                <div class="learn-question-footer">
-                    <a-button
-                        :class="[
-                            'main-color-btn',
-                            !hasPreviousQuestion ? 'main-color-btn-disabled' : '',
-                        ]"
-                        type="primary"
-                        size="large"
-                        @click="onPreviousQuestion"
-                    >
-                        <i class="bx bx-chevron-left"></i>
-                        Previous question
-                    </a-button>
-                    <div
-                        :class="[
-                            'main-color-btn-ghost',
-                            userAnswerCurrentQuestionSkipped || isSubmitted
-                                ? 'main-color-btn-ghost-disabled'
-                                : '',
-                        ]"
-                        @click="onSkipQuestion()"
-                    >
-                        Don't know?
-                    </div>
-                    <div class="d-flex">
+                    <div class="learn-question-footer">
                         <a-button
                             :class="[
                                 'main-color-btn',
-                                !hasNextQuestion ? 'main-color-btn-disabled' : '',
+                                !hasPreviousQuestion ? 'main-color-btn-disabled' : '',
                             ]"
                             type="primary"
                             size="large"
-                            @click="onNextQuestion"
+                            @click="onPreviousQuestion"
                         >
-                            Next question
-                            <i class="bx bx-chevron-right"></i>
+                            <i class="bx bx-chevron-left"></i>
+                            Previous question
                         </a-button>
+                        <div
+                            :class="[
+                                'main-color-btn-ghost',
+                                userAnswerCurrentQuestionSkipped || isSubmitted
+                                    ? 'main-color-btn-ghost-disabled'
+                                    : '',
+                            ]"
+                            @click="onSkipQuestion()"
+                        >
+                            Don't know?
+                        </div>
+                        <div class="d-flex">
+                            <a-button
+                                :class="[
+                                    'main-color-btn',
+                                    !hasNextQuestion ? 'main-color-btn-disabled' : '',
+                                ]"
+                                type="primary"
+                                size="large"
+                                @click="onNextQuestion"
+                            >
+                                Next question
+                                <i class="bx bx-chevron-right"></i>
+                            </a-button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1173,141 +1300,39 @@ onMounted(() => {
                     <i class="bx bx-chevron-right"></i>
                 </a-button>
             </div>
+
+            <a-modal
+                centered
+                wrap-class-name="medium-modal"
+                :open="setting_modal_open"
+                @cancel="closeSettingModal"
+            >
+                <template #footer>
+                    <a-button type="primary" class="main-color-btn" size="large" shape="round">
+                        Create new test
+                    </a-button>
+                </template>
+            </a-modal>
         </div>
     </div>
-
-    <a-drawer
-        :open="finalModalOpen"
-        placement="top"
-        :height="'100vh'"
-        :closable="false"
-        @close="closeFinalModal"
-        :body-style="{ padding: 0, height: '100%' }"
-    >
-        <template #title>
-            <div class="title-container">
-                <a-row class="w-100 d-flex align-items-center">
-                    <a-col :span="1">
-                        <RouterLink :to="{ name: 'User_Library' }">
-                            <i class="bx bx-chevron-left navigator-back-button"></i>
-                        </RouterLink>
-                    </a-col>
-                    <a-col class="main-title" :span="23">
-                        <span> {{ quiz.title }}</span> <br />
-                    </a-col>
-                </a-row>
-            </div>
-        </template>
-
-        <div class="content-item modal-final-container">
-            <div class="final-modal-quote">
-                {{ finalModalQuote }}
-            </div>
-        </div>
-
-        <div class="content-item modal-final-container">
-            <a-divider style="background-color: var(--content-item-border-color)"></a-divider>
-            <div class="preview-question-title">Questions completed in this session</div>
-            <div class="preview-question-container">
-                <div class="preview-question-item" v-for="(question, index) in completed">
-                    <div class="question-item-content">
-                        <div
-                            v-if="question.textFormat === QUESTION_FORMAT.HTML"
-                            class="question-html"
-                            v-html="question.questionText"
-                        ></div>
-                        <div v-else class="question-text">
-                            {{ question.questionText }}
-                        </div>
-                        <div class="question-item-answer" :id="`question-item-answer-${index}`">
-                            <template v-if="question.type === QUESTION_TYPE.MULTIPLE_CHOICE">
-                                <div class="multiple-choice-answer">
-                                    <ul>
-                                        <li v-for="option in question.questionData.multipleChoice">
-                                            {{ option.text }}
-                                            <span class="text-success" v-if="option.isAnswer">
-                                                ({{ option.isAnswer }})
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </template>
-                            <template v-if="question.type === QUESTION_TYPE.MATCHING">
-                                <div
-                                    class="pair-answer"
-                                    v-for="option in question.questionData.matching?.matches"
-                                >
-                                    <span class="pair-answer-item">
-                                        {{
-                                            question.questionData.matching?.leftItems.find(
-                                                (x) => x.id === option.leftId,
-                                            )?.text
-                                        }}
-                                    </span>
-                                    <i class="bx bx-right-arrow-alt"></i>
-                                    <span class="pair-answer-item">
-                                        {{
-                                            question.questionData.matching?.rightItems.find(
-                                                (x) => x.id === option.rightId,
-                                            )?.text
-                                        }}
-                                    </span>
-                                </div>
-                            </template>
-                            <template v-if="question.type === QUESTION_TYPE.ORDERING">
-                                <div class="ordering-answer">
-                                    <div class="ordering-answer-item">
-                                        <div v-for="option in question.questionData.ordering">
-                                            {{ option.text }}
-                                        </div>
-                                    </div>
-                                    <i class="bx bx-right-arrow-alt"></i>
-                                    <div class="ordering-answer-item">
-                                        <div
-                                            class="ordering-answer-item"
-                                            v-for="(
-                                                option, index
-                                            ) in question.questionData.ordering?.sort(
-                                                (asc, desc) => asc.correctOrder - desc.correctOrder,
-                                            )"
-                                        >
-                                            <span>#{{ option.correctOrder }}</span> -
-                                            {{ option.text }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                            <template v-if="question.type === QUESTION_TYPE.SHORT_TEXT">
-                                <span>Answer:</span>
-                                <div class="short-text-answer">
-                                    {{ question.questionData.shortText }}
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="question-item-toogle-btn">
-                        <i
-                            class="bx bx-chevron-up"
-                            @click="toggleDisplayAnswer(index, $event.currentTarget!)"
-                        ></i>
-                    </div>
-                </div>
-            </div>
-            <div class="content-item final-modal-footer">
-                <div>Press button to continues</div>
-                <a-button
-                    :class="['main-color-btn']"
-                    type="primary"
-                    size="large"
-                    shape="round"
-                    @click="onNextQuestion"
-                >
-                    Continue
-                </a-button>
-            </div>
-        </div>
-    </a-drawer>
 </template>
+<style>
+.ant-drawer-content {
+    background-color: var(--content-item-background-color) !important;
+    border-color: var(--content-item-border-color) !important;
+    color: var(--text-color) !important;
+}
+
+.ant-drawer-close {
+    color: var(--text-color) !important;
+}
+.ant-drawer-title {
+    color: var(--text-color) !important;
+}
+.ant-drawer-header {
+    border-bottom-color: var(--content-item-border-color) !important;
+}
+</style>
 <!-- /* for test */ -->
 <style scoped>
 .content-test {
@@ -1341,7 +1366,9 @@ onMounted(() => {
 }
 
 .content-item.question-navigators {
-    width: auto;
+    position: absolute;
+    top: 75px;
+    width: 200px;
     height: fit-content;
     margin: 10px 0px 0px 10px;
 }
@@ -1352,12 +1379,12 @@ onMounted(() => {
     margin: 10px 0px;
 }
 .question-navigator-item {
-    width: calc(100% / 5 - 8px);
+    width: calc(100% / 4 - 8px);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0px 0px 3px 3px;
-    padding: 3px 5px;
+    padding: 5px;
     border: 1px solid var(--form-item-border-color);
     border-radius: 5px;
     cursor: pointer;
@@ -1375,6 +1402,128 @@ onMounted(() => {
 
 .completed-question {
     background-color: var(--main-color);
+    color: var(--text-color);
+}
+
+.completed-question.correct {
+    background-color: var(--correct-answer-color);
+    border-color: var(--correct-answer-color);
+}
+.completed-question.incorrect {
+    background-color: var(--incorrect-answer-color);
+    border-color: var(--incorrect-answer-color);
+}
+
+#result_chart_container {
+    width: 200px;
+    height: 200px;
+}
+
+::v-deep(.highcharts-background) {
+    fill: transparent;
+}
+
+::v-deep(.highcharts-title) {
+    display: none;
+}
+
+.content-item-test-result {
+    display: none;
+}
+.result-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.result-text-container {
+    font-size: 18px;
+}
+.result-text {
+    margin: 20px 10px;
+    width: 160px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+}
+.result-text span {
+    padding: 0px 20px;
+    border: 2px solid transparent;
+    border-radius: 500px;
+}
+.result-text.correct {
+    color: var(--correct-answer-color);
+}
+.result-text.correct span {
+    border-color: var(--correct-answer-color);
+}
+
+.result-text.incorrect {
+    color: var(--incorrect-answer-color);
+}
+
+.result-text.incorrect span {
+    border-color: var(--incorrect-answer-color);
+}
+
+::v-deep(.answer-correct textarea) {
+    border-color: var(--correct-answer-color);
+}
+
+::v-deep(.answer-incorrect textarea) {
+    border-color: var(--incorrect-answer-color);
+}
+.test-setting-btn {
+    font-size: 30px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.test-setting-btn:hover {
+    font-size: 35px;
+    transform: rotate(180deg);
+}
+
+.result-buttons-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: end;
+}
+.result-button {
+    display: flex;
+    align-items: center;
+    width: 400px;
+    margin: 10px 0px;
+    padding: 5px;
+    height: 80px;
+    max-height: 80px;
+    max-width: 400px;
+    border: 1px solid var(--main-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.result-button:hover {
+    background-color: var(--main-color);
+}
+.result-button:hover .result-button-title {
+    color: var(--text-color);
+}
+
+.result-button i {
+    margin: 10px;
+    font-size: 30px;
+}
+
+.result-button-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--main-color);
+    transition: all 0.2s ease-in-out;
+}
+
+.result-button-content {
+    font-size: 15px;
     color: var(--text-color);
 }
 </style>

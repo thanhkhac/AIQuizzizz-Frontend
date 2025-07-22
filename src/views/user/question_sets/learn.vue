@@ -1273,4 +1273,11 @@ onMounted(() => {
     width: 70%;
     margin: 10px auto;
 }
+::v-deep(.answer-correct textarea) {
+    border-color: #2ecc71;
+}
+
+::v-deep(.answer-incorrect textarea) {
+    border-color: #e74c3c;
+}
 </style>
