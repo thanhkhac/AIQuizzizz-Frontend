@@ -470,6 +470,7 @@
         "buttons": {
             "invite_member": "Invite member",
             "assign_lecturer": "Assign lecturer",
+            "remove_lecturer": "Remove lecturer",
             "history_test": "History test",
             "delete_class": "Delete class",
             "reset_code": " Reset code"

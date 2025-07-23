@@ -9,6 +9,7 @@ import { message, Modal, type TableColumnType } from "ant-design-vue";
 import type { Class } from "@/models/response/class/class";
 import type { ClassStudent } from "@/models/response/class/classStudent";
 import CLASS_STUDENT_SELECT_FIELD from "@/constants/classSelectFieldName";
+import CLASS_STUDENT_POSITION from "@/constants/classStudentPosition";
 
 import { useRoute, useRouter } from "vue-router";
 import type ClassStudentPageParams from "@/models/request/class/classStudentPageParams";
@@ -232,6 +233,28 @@ const onConfirmDeleteMember = (userId: string) => {
     });
 };
 
+const onConfirmUpdateMemberPosition = (userId: string, position: string) => {
+    Modal.confirm({
+        title: "Are you sure to update this user position from class?",
+        content: "Please make sure to double check the important information!.",
+        centered: true,
+        okText: "Confirm",
+        onOk: async () => {
+            let result = await ApiClass.UpdateClassMemberPosition(
+                classId.value.toString(),
+                userId.toString(),
+                position,
+            );
+            if (!result.data.success) {
+                message.success("Update failed.");
+                return;
+            }
+            message.success("Update successfully.");
+            await getData();
+        },
+    });
+};
+
 /* delete class */
 const onOpenConfirmDelete = () => {
     Modal.confirm({
@@ -359,17 +382,42 @@ onMounted(async () => {
                                     ></i>
                                     <template #overlay>
                                         <a-menu class="drop-down-container">
-                                            <a-menu-item key="1">
+                                            <a-menu-item
+                                                key="1"
+                                                v-if="
+                                                    record.position ===
+                                                    CLASS_STUDENT_POSITION.STUDENT
+                                                "
+                                                @click="
+                                                    onConfirmUpdateMemberPosition(
+                                                        record.studentId,
+                                                        CLASS_STUDENT_POSITION.TEACHER,
+                                                    )
+                                                "
+                                            >
                                                 <i class="bx bxs-id-card"></i>
                                                 {{ $t("class_member.buttons.assign_lecturer") }}
                                             </a-menu-item>
-                                            <a-menu-item key="2">
+                                            <a-menu-item
+                                                v-else
+                                                key="2"
+                                                @click="
+                                                    onConfirmUpdateMemberPosition(
+                                                        record.studentId,
+                                                        CLASS_STUDENT_POSITION.STUDENT,
+                                                    )
+                                                "
+                                            >
+                                                <i class="bx bxs-id-card"></i>
+                                                {{ $t("class_member.buttons.remove_lecturer") }}
+                                            </a-menu-item>
+                                            <a-menu-item key="3">
                                                 <i class="bx bx-history"></i>
                                                 {{ $t("class_member.buttons.history_test") }}
                                             </a-menu-item>
                                             <a-menu-divider style="background-color: #ddd" />
                                             <a-menu-item
-                                                key="3"
+                                                key="4"
                                                 @click="onConfirmDeleteMember(record.studentId)"
                                             >
                                                 <span class="d-flex align-items-center">

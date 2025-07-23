@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, reactive } from "vue";
+import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 
+import { ref, computed, onMounted, nextTick, reactive } from "vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import { QUOTES } from "@/constants/quote";
-
 import type { Question } from "@/models/response/question";
+
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
@@ -267,7 +268,6 @@ const quiz = {
 
 const completed = ref<Question[]>([]); // for session
 
-// const incorrect = ref<Set<UserAnswer>>(new Set());
 const incorrect = computed((): UserAnswer[] => {
     return userAnswer.value.filter((x) => x.result === false);
 });
@@ -292,6 +292,21 @@ const userAnswerOrdering = ref<any[]>([]);
 const userAnswerShortText = ref<string>("");
 
 const userAnswer = ref<UserAnswer[]>([]);
+
+//#region animation
+const animationRef = ref();
+const isAnimationDisplaying = ref(false);
+
+const triggerAnimation = async () => {
+    isAnimationDisplaying.value = true;
+    await nextTick();
+    animationRef.value?.getDotLottieInstance()?.play();
+    setTimeout(() => {
+        isAnimationDisplaying.value = false;
+    }, 5000);
+};
+
+//#endregion
 
 //#region check user answer
 const checkMultipleChoice = (id: string, answer: string[]) => {
@@ -376,11 +391,48 @@ const checkMatchingAnswerCorrect = (id: string) => {
         : userAnswerMatchingLeft.value[index]?.id === correctMatch.leftId;
 };
 
+const cleanShortTextAnswer = (text: string) => {
+    return text
+        .trim()
+        .toLowerCase()
+        .normalize("NFKC")
+        .replace(/[\u2019\u2018\u201B\u0060]/g, "'")
+        .replace(/\s+/g, " ");
+};
+
+//get user answer result
 const checkShortText = (id: string, answer: string) => {
     const index = quiz.question.findIndex((x) => x.id === id);
     if (index === -1) return false;
-    return answer.trim().toLowerCase() === quiz.question[index].questionData.shortText;
+    return (
+        cleanShortTextAnswer(answer) ===
+        cleanShortTextAnswer(quiz.question[index].questionData.shortText!)
+    );
 };
+
+// get UI
+const checkShortextCorrect = () => {
+    const answer = userAnswer.value.find(
+        (x) => x.questionId === currentQuestion.value.id,
+    )?.shortText;
+    if (!answer) return false;
+
+    const correct = quiz.question.find((x) => x.id === currentQuestion.value.id)?.questionData
+        .shortText!;
+
+    return cleanShortTextAnswer(answer) === cleanShortTextAnswer(correct);
+};
+
+//get correct answer if user answer is incorrect
+const getShortTextCorrectAnswer = computed(() => {
+    if (
+        currentQuestion.value.type === QUESTION_TYPE.SHORT_TEXT &&
+        isSubmitted.value &&
+        !checkShortextCorrect()
+    ) {
+        return quiz.question.find((x) => x.id === currentQuestion.value.id)?.questionData.shortText;
+    }
+});
 
 //#endregion
 
@@ -539,81 +591,97 @@ const onUserAnswerChange = () => {
     }
 };
 
-//logic handle submit
+const refactorLeftOverUserAnswer = (quiz_answer: any, base: UserAnswer): UserAnswer => {
+    switch (quiz_answer.type) {
+        case QUESTION_TYPE.MULTIPLE_CHOICE:
+            return {
+                ...base,
+                multipleChoices:
+                    quiz_answer.questionData.multipleChoice
+                        ?.filter((x: any) => x.isAnswer)
+                        .map((x: any) => x.id) ?? [],
+            };
+        case QUESTION_TYPE.MATCHING: {
+            const matching = quiz_answer.questionData.matching;
+            const matches = matching?.matches ?? [];
+            const leftItems = matching?.leftItems ?? [];
+            const rightItems = matching?.rightItems ?? [];
+
+            const matchingLeft = matches.map((match: any) =>
+                leftItems.find((item: any) => item.id == match.leftId),
+            );
+            const matchingRight = matches.map((match: any) =>
+                rightItems.find((item: any) => item.id == match.rightId),
+            );
+
+            return {
+                ...base,
+                matchingLeft,
+                matchingRight,
+            };
+        }
+        case QUESTION_TYPE.ORDERING:
+            return {
+                ...base,
+                ordering:
+                    quiz_answer.questionData.ordering
+                        ?.slice()
+                        .sort((a: any, b: any) => a.correctOrder - b.correctOrder) ?? [],
+            };
+        case QUESTION_TYPE.SHORT_TEXT:
+            return {
+                ...base,
+                shortText: quiz_answer.questionData.shortText ?? "",
+            };
+        default:
+            return base;
+    }
+};
+
+const handleSkippedQuestion = () => {
+    quiz.question.forEach((x) => {
+        const base = {
+            questionId: x.id,
+            type: x.type,
+            isSkipped: true,
+            result: false,
+            resultText: "Skipped",
+            multipleChoices: null,
+            matchingLeft: null,
+            matchingRight: null,
+            ordering: null,
+            shortText: "",
+        };
+
+        let index = userAnswer.value.findIndex((answer) => answer.questionId === x.id);
+
+        //add leftover question
+        if (index === -1) {
+            userAnswer.value.push(refactorLeftOverUserAnswer(x, base));
+            index = userAnswer.value.length - 1; //update to the pushed index
+        }
+
+        //update skipped question by single (dontknow)
+        if (userAnswer.value[index].isSkipped) {
+            updateUserAnswer(index, {
+                ...userAnswer.value[index],
+                ...refactorLeftOverUserAnswer(x, {} as UserAnswer), //keep default base answer
+            });
+        }
+    });
+};
+
 const onSubmitAnswer = () => {
     timerEnd();
-    onUserAnswerChange();
+    // onUserAnswerChange();
     if (userAnswer.value.length < quiz.question.length) {
         Modal.confirm({
             title: `You missed ${quiz.question.length - userAnswer.value.length} questions.`,
             content: "Are you certain about this decision?",
-            onOk: async () => {
+            onOk: () => {
                 //import all left over question from quiz in to userAnswer
                 isSubmitted.value = true;
-                quiz.question.forEach((x) => {
-                    if (!userAnswer.value.some((answer) => answer.questionId === x.id)) {
-                        const skippedAnswer = {
-                            questionId: x.id,
-                            type: x.type,
-                            isSkipped: true,
-                            result: false,
-                            resultText: "Skipped",
-                            multipleChoices: null,
-                            matchingLeft: null,
-                            matchingRight: null,
-                            ordering: null,
-                            shortText: "",
-                        };
-                        switch (x.type) {
-                            case QUESTION_TYPE.MULTIPLE_CHOICE: {
-                                userAnswer.value.push({
-                                    ...skippedAnswer,
-                                    multipleChoices: x.questionData.multipleChoice
-                                        ?.filter((x) => x.isAnswer)
-                                        .map((x) => x.id)!,
-                                });
-                                break;
-                            }
-                            case QUESTION_TYPE.MATCHING: {
-                                //get matching answer by matches order
-                                const matching = x.questionData.matching;
-                                const matches = matching?.matches ?? [];
-                                const leftItems = matching?.leftItems ?? [];
-                                const rightItems = matching?.rightItems ?? [];
-
-                                const matchingLeft = matches.map((match) =>
-                                    leftItems.find((item) => item.id == match.leftId),
-                                );
-                                const matchingRight = matches.map((match) =>
-                                    rightItems.find((item) => item.id == match.rightId),
-                                );
-
-                                userAnswer.value.push({
-                                    ...skippedAnswer,
-                                    matchingLeft,
-                                    matchingRight,
-                                });
-                                break;
-                            }
-                            case QUESTION_TYPE.ORDERING: {
-                                userAnswer.value.push({
-                                    ...skippedAnswer,
-                                    ordering: x.questionData.ordering
-                                        ?.slice()
-                                        .sort((a, b) => a.correctOrder - b.correctOrder)!,
-                                });
-                                break;
-                            }
-                            case QUESTION_TYPE.SHORT_TEXT: {
-                                userAnswer.value.push({
-                                    ...skippedAnswer,
-                                    shortText: x.questionData.shortText!,
-                                });
-                                break;
-                            }
-                        }
-                    }
-                });
+                handleSkippedQuestion();
                 getUserAnswerResult();
             },
         });
@@ -625,6 +693,10 @@ const onSubmitAnswer = () => {
 
 //calculate user result
 const getUserAnswerResult = () => {
+    //incase user does not interact anything in currentquestion and skip => show them correct answer
+    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+    onLoadCurrentQuestion(index);
+
     userAnswer.value
         .filter((x) => x.isSkipped === false)
         .forEach((answer: UserAnswer) => {
@@ -662,10 +734,12 @@ const getUserAnswerResult = () => {
         });
 
     generateChart();
+
+    if (incorrect.value.length === 0) triggerAnimation();
 };
 
+//skip single current question
 const onSkipQuestion = () => {
-    //skip single current question
     currentQuestionIsSkipped.value = true;
 
     const index = userAnswer.value.findIndex((x) => x.questionId === currentQuestion.value.id);
@@ -959,6 +1033,14 @@ onMounted(() => {
 
 <template>
     <div class="page-container">
+        <DotLottieVue
+            v-if="isAnimationDisplaying"
+            :autoplay="isAnimationDisplaying"
+            ref="animationRef"
+            :class="['animation-container']"
+            @complete="isAnimationDisplaying = false"
+            src="/src/assets/confetti.lottie"
+        />
         <div class="title-container title-container-header">
             <a-row class="w-100 d-flex align-items-center">
                 <a-col :span="1">
@@ -1288,27 +1370,40 @@ onMounted(() => {
                         <template v-if="currentQuestion.type === QUESTION_TYPE.SHORT_TEXT">
                             <div class="answer-option-container">
                                 <div
-                                    layout="vertical"
                                     :class="[
                                         'answer-short-text',
                                         isSubmitted
-                                            ? userAnswerCurrentQuestionResult.result
+                                            ? checkShortextCorrect()
                                                 ? 'answer-correct'
                                                 : 'answer-incorrect'
                                             : '',
                                     ]"
                                 >
-                                    <TextArea
-                                        :readonly="userAnswerCurrentQuestionSkipped || isSubmitted"
-                                        :placeholder="'Enter your answer...'"
-                                        v-model="userAnswerShortText"
-                                        @change="onUserAnswerChange"
-                                    />
-                                    <i
-                                        v-if="isSubmitted && true"
-                                        class="bx bx-check answer-icon"
-                                    ></i>
-                                    <i v-if="isSubmitted && !true" class="bx bx-x answer-icon"></i>
+                                    <div class="w-100 d-flex align-items-center">
+                                        <TextArea
+                                            :readonly="
+                                                userAnswerCurrentQuestionSkipped || isSubmitted
+                                            "
+                                            :placeholder="'Enter your answer...'"
+                                            v-model="userAnswerShortText"
+                                            @change="onUserAnswerChange"
+                                        />
+                                        <i
+                                            v-if="isSubmitted && checkShortextCorrect()"
+                                            class="bx bx-check answer-icon"
+                                        ></i>
+                                        <i
+                                            v-if="isSubmitted && !checkShortextCorrect()"
+                                            class="bx bx-x answer-icon"
+                                        ></i>
+                                    </div>
+                                    <div
+                                        v-if="isSubmitted && !checkShortextCorrect()"
+                                        class="short-text-correct-answer"
+                                    >
+                                        Correct answer:
+                                        <span> {{ getShortTextCorrectAnswer }} </span>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -1530,6 +1625,21 @@ onMounted(() => {
     margin: 10px auto;
 }
 
+/* for test only */
+.answer-short-text {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+.short-text-correct-answer {
+    margin-top: 10px;
+}
+.short-text-correct-answer span {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--correct-answer-color);
+}
+
 .content-item.question-navigators {
     position: absolute;
     top: 75px;
@@ -1720,5 +1830,12 @@ onMounted(() => {
 .setting-form-switch {
     padding-bottom: 5px;
     border-bottom: 1px solid var(--form-item-border-color);
+}
+
+.animation-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
 }
 </style>

@@ -470,6 +470,7 @@
         "buttons": {
             "invite_member": "Mời thành viên",
             "assign_lecturer": "Phân công giảng viên",
+            "remove_lecturer": "Xóa giảng viên",
             "history_test": "Lịch sử kiểm tra",
             "delete_class": "Xóa lớp",
             "reset_code": "Đặt lại mã"

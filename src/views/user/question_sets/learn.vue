@@ -1280,4 +1280,19 @@ onMounted(() => {
 ::v-deep(.answer-incorrect textarea) {
     border-color: #e74c3c;
 }
+
+::v-deep(.ant-progress-bg) {
+    background-color: var(--main-color) !important;
+    height: 15px !important;
+}
+
+::v-deep(.ant-progress-text) {
+    color: var(--text-color) !important;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+::v-deep(.ant-progress-inner) {
+    background-color: var(--content-item-border-color);
+}
 </style>

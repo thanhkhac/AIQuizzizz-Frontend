@@ -13,6 +13,7 @@ const END_POINTS = {
     JOIN_CLASS: "Class/Students",
     DELETE_CLASS: "Class/{ClassId}",
     DELETE_CLASS_MEMBER: "Class/{ClassId}/Members/{UserId}",
+    UPDATE_CLASS_MEMBER_POSITION: "Class/{ClassId}/Members/{UserId}",
 };
 
 class ApiUser {
@@ -68,6 +69,7 @@ class ApiUser {
         const url = END_POINTS.DELETE_CLASS.replace("{ClassId}", classId);
         return await Api.delete(url);
     }
+
     async DeleteClassMember(classId: string, userId: string) {
         const url = END_POINTS.DELETE_CLASS_MEMBER.replace("{ClassId}", classId).replace(
             "{UserId}",
@@ -75,6 +77,17 @@ class ApiUser {
         );
 
         return await Api.delete(url);
+    }
+
+    async UpdateClassMemberPosition(classId: string, userId: string, position: string) {
+        const url = END_POINTS.UPDATE_CLASS_MEMBER_POSITION.replace("{ClassId}", classId).replace(
+            "{UserId}",
+            userId,
+        );
+
+        return await Api.patch(url, null, {
+            params: { position },
+        });
     }
 }
 
