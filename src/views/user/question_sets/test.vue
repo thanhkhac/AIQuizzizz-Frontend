@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick, reactive } from "vue";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import { QUOTES } from "@/constants/quote";
@@ -394,16 +394,52 @@ const toggleExplainModal = () => {
 
 //#endregion
 
-//#region final modal
+//#region setting modal
 /* setting modal  */
 const setting_modal_open = ref(false);
 
 const openSettingModal = () => {
     setting_modal_open.value = true;
+
+    //get settings from session or default
+    let session_settings = sessionStorage.getItem("test_settings");
+    if (!session_settings) return;
+
+    settingFormState.numberOfQuestion = JSON.parse(session_settings).numberOfQuestion;
+    settingFormState.questionTypes = JSON.parse(session_settings).questionTypes;
 };
 
 const closeSettingModal = () => {
     setting_modal_open.value = false;
+};
+
+const settingFormRef = ref();
+const settingFormState = reactive({
+    numberOfQuestion: 20,
+    questionTypes: [
+        QUESTION_TYPE.MULTIPLE_CHOICE,
+        QUESTION_TYPE.MATCHING,
+        QUESTION_TYPE.ORDERING,
+        QUESTION_TYPE.SHORT_TEXT,
+    ],
+});
+
+const toggleQuestionType = (type: string, checked: boolean) => {
+    if (checked) {
+        if (!settingFormState.questionTypes.includes(type)) {
+            settingFormState.questionTypes.push(type);
+        }
+    } else {
+        const index = settingFormState.questionTypes.indexOf(type);
+        if (index !== -1) {
+            settingFormState.questionTypes.splice(index, 1);
+        }
+    }
+};
+
+const onCreateNewTest = () => {
+    //save settings to session
+    sessionStorage.setItem("test_settings", JSON.stringify(settingFormState));
 };
 
 //#endregion
@@ -505,6 +541,7 @@ const onUserAnswerChange = () => {
 
 //logic handle submit
 const onSubmitAnswer = () => {
+    timerEnd();
     onUserAnswerChange();
     if (userAnswer.value.length < quiz.question.length) {
         Modal.confirm({
@@ -841,6 +878,39 @@ const generateChart = () => {
 };
 //#endregion
 
+//#region timer
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+dayjs.extend(duration);
+
+const startTime = ref<dayjs.Dayjs>();
+const timerResult = ref<string>("");
+
+const timerStart = () => {
+    startTime.value = dayjs();
+};
+
+const timerEnd = () => {
+    const endTime = dayjs();
+    const diffMs = endTime.diff(startTime.value); // get duration in milliseconds
+    const diffSeconds = Math.floor(diffMs / 1000); //convert to second
+
+    if (diffSeconds < 60) {
+        timerResult.value = `Your time: ${diffSeconds} second${diffSeconds === 1 ? "" : "s"}`;
+    } else {
+        const duration_ms = dayjs.duration(diffMs);
+        const hours = duration_ms.hours();
+        const minutes = duration_ms.minutes();
+
+        let result = "Your time: ";
+        if (hours > 0) result += `${hours} hour${hours > 1 ? "s" : ""} `;
+        if (minutes > 0) result += `${minutes} minute${minutes > 1 ? "s" : ""}`;
+        timerResult.value = result.trim();
+    }
+};
+
+//#endregion
+
 const dragOptions = {
     scroll: true,
     scrollSensitivity: 100,
@@ -882,6 +952,8 @@ onMounted(() => {
     onLoadCurrentQuestion(0);
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
+
+    timerStart();
 });
 </script>
 
@@ -938,18 +1010,26 @@ onMounted(() => {
                 </div>
                 <div class="content-item content-item-test-result">
                     <div class="result-container">
-                        <div id="result_chart_container"></div>
-                        <div class="result-text-container">
-                            <div class="result-text correct">
-                                Correct:
-                                <span>{{ quiz.question.length - incorrect.length }}</span>
+                        <div class="result-section">
+                            <div class="result-section-title">
+                                {{ timerResult }}
                             </div>
-                            <div class="result-text incorrect">
-                                Incorrect:
-                                <span> {{ incorrect.length }}</span>
+                            <div class="result-section-statistic">
+                                <div id="result_chart_container"></div>
+                                <div class="result-text-container">
+                                    <div class="result-text correct">
+                                        Correct:
+                                        <span>{{ quiz.question.length - incorrect.length }}</span>
+                                    </div>
+                                    <div class="result-text incorrect">
+                                        Incorrect:
+                                        <span> {{ incorrect.length }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="result-buttons-container">
+                        <div class="result-section result-section-buttons">
+                            <div class="result-section-title">Next steps</div>
                             <div class="result-button">
                                 <i class="bx bxs-news"></i>
                                 <div>
@@ -959,7 +1039,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                             </div>
-                            <div class="result-button">
+                            <div class="result-button" v-if="getInCorrectPercentage() <= 30">
                                 <i class="bx bx-analyse"></i>
                                 <div>
                                     <div class="result-button-title">Practice in learn mode</div>
@@ -969,7 +1049,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                             </div>
-                            <div class="result-button">
+                            <div class="result-button" v-if="getInCorrectPercentage() > 30">
                                 <i class="bx bx-reset"></i>
                                 <div>
                                     <div class="result-button-title">
@@ -1300,21 +1380,68 @@ onMounted(() => {
                     <i class="bx bx-chevron-right"></i>
                 </a-button>
             </div>
-
-            <a-modal
-                centered
-                wrap-class-name="medium-modal"
-                :open="setting_modal_open"
-                @cancel="closeSettingModal"
-            >
-                <template #footer>
-                    <a-button type="primary" class="main-color-btn" size="large" shape="round">
-                        Create new test
-                    </a-button>
-                </template>
-            </a-modal>
         </div>
     </div>
+
+    <a-modal
+        centered
+        wrap-class-name="medium-modal"
+        :open="setting_modal_open"
+        @cancel="closeSettingModal"
+    >
+        <div class="title-container">
+            <a-row class="w-100 d-flex align-items-center justify-content-between">
+                <a-col :span="1">
+                    <div @click="closeSettingModal">
+                        <i class="bx bx-chevron-left navigator-back-button"></i>
+                    </div>
+                </a-col>
+                <a-col class="main-title" :span="20">
+                    <span>Practice test settings</span> <br />
+                </a-col>
+            </a-row>
+        </div>
+        <a-form class="setting-form">
+            <a-form-item>
+                <div class="setting-form-item">
+                    <div>Number of question (max {{ quiz.question.length }}):</div>
+                    <a-input-number
+                        size="large"
+                        id="inputNumber"
+                        v-model:value="settingFormState.numberOfQuestion"
+                        :min="5"
+                        :max="quiz.totalQuestion"
+                    />
+                </div>
+            </a-form-item>
+            <a-divider style="background-color: var(--form-item-border-color)"></a-divider>
+            <a-form-item>
+                <div class="setting-form-item setting-form-switch" v-for="type in QUESTION_TYPE">
+                    <div>{{ type }}</div>
+                    <a-switch
+                        :disabled="
+                            settingFormState.questionTypes.length <= 1 &&
+                            settingFormState.questionTypes.includes(type)
+                        "
+                        :checked="settingFormState.questionTypes.includes(type)"
+                        @change="(checked: boolean) => toggleQuestionType(type, checked)"
+                    ></a-switch>
+                </div>
+            </a-form-item>
+        </a-form>
+
+        <template #footer>
+            <a-button
+                type="primary"
+                class="main-color-btn"
+                size="large"
+                shape="round"
+                @click="onCreateNewTest"
+            >
+                Create new test
+            </a-button>
+        </template>
+    </a-modal>
 </template>
 <style>
 .ant-drawer-content {
@@ -1331,6 +1458,44 @@ onMounted(() => {
 }
 .ant-drawer-header {
     border-bottom-color: var(--content-item-border-color) !important;
+}
+
+.ant-input-number {
+    background-color: var(--form-item-background-color);
+    border-color: var(--form-item-border-color);
+}
+
+.ant-input-number input {
+    color: var(--text-color) !important;
+}
+
+.ant-input-number:hover {
+    border-color: var(--main-color);
+}
+
+.ant-input-number-handler {
+    background-color: var(--form-item-background-color);
+    border-color: var(--form-item-border-color) !important;
+}
+
+.ant-input-number-handler .anticon {
+    color: var(--text-color) !important;
+}
+
+.ant-input-number-handler:hover .anticon {
+    color: var(--main-color) !important;
+}
+
+.ant-modal-content {
+    border: 1px solid var(--form-item-border-color) !important;
+}
+
+.ant-switch {
+    background-color: var(--form-item-border-color) !important;
+}
+.ant-switch-checked {
+    background-color: var(--main-color) !important;
+    border-color: var(--main-color) !important;
 }
 </style>
 <!-- /* for test */ -->
@@ -1432,7 +1597,7 @@ onMounted(() => {
 }
 .result-container {
     display: flex;
-    align-items: center;
+    align-items: start;
     justify-content: space-between;
 }
 .result-text-container {
@@ -1482,12 +1647,24 @@ onMounted(() => {
     transform: rotate(180deg);
 }
 
-.result-buttons-container {
-    flex: 1;
+.result-section-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-color-grey);
+    text-align: end;
+}
+
+.result-section-statistic {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.result-section-buttons {
     display: flex;
     flex-direction: column;
     justify-content: end;
-    align-items: end;
+    align-items: start;
 }
 .result-button {
     display: flex;
@@ -1525,5 +1702,23 @@ onMounted(() => {
 .result-button-content {
     font-size: 15px;
     color: var(--text-color);
+}
+
+.setting-form {
+    padding: 10px;
+}
+
+.setting-form-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 0px;
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: 500;
+}
+.setting-form-switch {
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--form-item-border-color);
 }
 </style>
