@@ -1,8 +1,0 @@
-import{d as g,q as _,l as f,h,j as m,s as w,A as z,k as a,v,L,_ as y,r as S,a as k,c as R,o as b}from"./index-CBe-xg3B.js";const A=g({__name:"google-authentication-callback",setup(d,{expose:c}){c();const s=void 0,t=window.location.origin,i=_(),o=f(),e=h(),n=m({authorizationCode:i.query.code||"",redirectUri:`${t}/google-authentication-callback`});w(async()=>{const u=sessionStorage.getItem("returnURL")||"";if(!n.authorizationCode){sessionStorage.setItem("returnURL",u),window.location.assign(`https://accounts.google.com/o/oauth2/v2/auth
-            ?client_id=${s}
-            &redirect_uri=${n.redirectUri}
-            &response_type=code
-            &scope=openid%20email%20profile
-            &access_type=offline
-            &prompt=consent
-        `);return}let l=await z.GoogleLogin(n);if(l.data.success){if(!l.data.data.hasPassword){a.success("Login successfully. Redirecting..."),o.push({name:"create-password"});return}a.success("Login successfully. Redirecting..."),e.returnURL=u,e.LoginSuccessful()}else a.success("Login with google failed!"),o.push({name:"login"})});const p=v(L,{style:{fontSize:"100px",color:"var(--main-color)"},spin:!0}),r={google_client_id:s,origin:t,route:i,router:o,authStore:e,formState:n,indicator:p};return Object.defineProperty(r,"__isScriptSetup",{enumerable:!1,value:!0}),r}}),x={style:{width:"100vw",height:"100vh"},class:"d-flex justify-content-center align-items-center"};function U(d,c,s,t,i,o){const e=S("a-spin");return b(),k("div",x,[R(e,{size:"large",indicator:t.indicator},null,8,["indicator"])])}const C=y(A,[["render",U],["__file","/home/runner/work/AIQuizzizz-Frontend/AIQuizzizz-Frontend/src/views/public/google-authentication-callback.vue"]]);export{C as default};
