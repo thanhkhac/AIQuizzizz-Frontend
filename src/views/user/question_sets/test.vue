@@ -3,7 +3,6 @@ import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 
 import { ref, computed, onMounted, nextTick, reactive } from "vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
-import { QUOTES } from "@/constants/quote";
 import type { Question } from "@/models/response/question";
 
 import TextArea from "@/shared/components/Common/TextArea.vue";
@@ -297,9 +296,8 @@ const userAnswer = ref<UserAnswer[]>([]);
 const animationRef = ref();
 const isAnimationDisplaying = ref(false);
 
-const triggerAnimation = async () => {
+const triggerAnimation = () => {
     isAnimationDisplaying.value = true;
-    await nextTick();
     animationRef.value?.getDotLottieInstance()?.play();
     setTimeout(() => {
         isAnimationDisplaying.value = false;

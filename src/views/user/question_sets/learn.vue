@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted, nextTick, readonly } from "vue";
+import ApiQuestionSet from "@/api/ApiQuestionSet";
+import { ref, computed, onMounted, nextTick } from "vue";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import { QUOTES } from "@/constants/quote";
@@ -9,6 +10,7 @@ import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
+import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 
 import { useI18n } from "vue-i18n";
 
@@ -19,236 +21,34 @@ const QUESTION_FORMAT = {
     PLAIN_TEXT: "PlainText",
 };
 
-const quiz = {
-    id: "123456",
-    title: "Programming fundamental",
-    description: "Basic knowledge about programming.",
-    totalQuestion: 30,
-    completed: 8,
-    question: [
-        {
-            id: "11111111-aaaa-aaaa-aaaa-111111111111",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "MultipleChoice",
-            textFormat: "HTML",
-            questionText:
-                "<p>Which of the following are valid variable declarations in JavaScript?<br/><pre>let x = 5;<br>const y = 'hello';<br>var 1name = 'error';</pre></p>",
-            score: 10.0,
-            scoreGraded: 0.0,
-            explainText:
-                "Variables in JavaScript cannot start with a number. 'let x = 5' and 'const y = \"hello\"' are valid, but 'var 1name = \"error\"' is invalid.",
-            questionData: {
-                multipleChoice: [
-                    {
-                        id: "a1",
-                        text: "Giữ vững địa vị thống trị của giai cấp công nhân thông qua Đảng Cộng sản Việt Nam trong mối liên minh giai cấp",
-                        isAnswer: true,
-                    },
-                    {
-                        id: "a2",
-                        text: "Giữ vững lập trường chính trị - tư tưởng của giai cấp công nhân, vai trò lãnh đạo của Đảng Cộng sản Việt Nam, giữ vững độc lập dân tộc và định hướng đi lên chủ nghĩa xã hội",
-                        isAnswer: true,
-                    },
-                    {
-                        id: "a3",
-                        text: "Giữ vững nền kinh tế thị trường theo hướng hiện đại, kiên định con đường đi lên chủ nghĩa xã hội",
-                        isAnswer: false,
-                    },
-                    {
-                        id: "a4",
-                        text: "Giữ vững nền kinh tế thị trường theo hướng hiện đại, kiên định con đường đi lên chủ nghĩa xã hội",
-                        isAnswer: false,
-                    },
-                ],
-                matching: null,
-                ordering: null,
-                shortText: null,
-            },
-        },
-        {
-            id: "44444444-dddd-dddd-dddd-444444444444",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "ShortText",
-            textFormat: "HTML",
-            questionText:
-                "What is the output of the following code?<br/><pre>console.log(typeof null);</pre>",
-            score: 5.0,
-            scoreGraded: 5.0,
-            explainText:
-                "`typeof null` returns `'object'` due to a historical bug in JavaScript that has been preserved for backward compatibility.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                ordering: null,
-                shortText: "object",
-            },
-        },
-        {
-            id: "22222222-bbbb-bbbb-bbbb-222222222222",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Matching",
-            textFormat: "PlainText",
-            questionText: "Match the data types with appropriate examples.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "A string is a series of characters like 'Hello World'. A boolean can be true or false. A number is a numeric value like 42.",
-            questionData: {
-                multipleChoice: null,
-                ordering: null,
-                shortText: null,
-                matching: {
-                    leftItems: [
-                        { id: "l1", text: "String" },
-                        { id: "l2", text: "Boolean" },
-                        { id: "l3", text: "Number" },
-                    ],
-                    rightItems: [
-                        { id: "r1", text: "'Hello World'" },
-                        { id: "r2", text: "true" },
-                        { id: "r3", text: "42" },
-                    ],
-                    matches: [
-                        { leftId: "l1", rightId: "r1" },
-                        { leftId: "l2", rightId: "r2" },
-                        { leftId: "l3", rightId: "r3" },
-                    ],
-                },
-            },
-        },
-        {
-            id: "33333333-cccc-cccc-cccc-333333333333",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Ordering",
-            textFormat: "PlainText",
-            questionText: "Arrange the steps of executing a JavaScript function.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "First, the function must be declared. Then it can be called, at which point the body of the function will execute.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                shortText: null,
-                ordering: [
-                    { id: "s2", text: "Function is called", correctOrder: 2 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s1", text: "Function is declared", correctOrder: 1 },
-                ],
-            },
-        },
-        {
-            id: "55555555-aaaa-aaaa-aaaa-555555555555",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "MultipleChoice",
-            textFormat: "HTML",
-            questionText:
-                "Which of the following statements correctly define a function in JavaScript?<br/><pre>function greet() { return 'Hi'; }</pre>",
-            score: 10.0,
-            scoreGraded: 0.0,
-            explainText:
-                "`function greet()` and `let greet = () => 'Hi';` are valid JavaScript function declarations. `def greet()` is Python syntax and not valid in JavaScript.",
-            questionData: {
-                multipleChoice: [
-                    { id: "f1", text: "function greet() { return 'Hi'; }", isAnswer: true },
-                    { id: "f2", text: "def greet(): return 'Hi'", isAnswer: false },
-                    { id: "f3", text: "let greet = () => 'Hi';", isAnswer: true },
-                ],
-                matching: null,
-                ordering: null,
-                shortText: null,
-            },
-        },
-        {
-            id: "66666666-bbbb-bbbb-bbbb-666666666666",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Matching",
-            textFormat: "PlainText",
-            questionText: "Match the loop type with its primary use case.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "`for` is used when the number of iterations is known, `while` is better when the condition is dynamic, and `forEach` is designed for arrays.",
-            questionData: {
-                multipleChoice: null,
-                ordering: null,
-                shortText: null,
-                matching: {
-                    leftItems: [
-                        { id: "lp1", text: "for loop" },
-                        { id: "lp2", text: "while loop" },
-                        { id: "lp3", text: "forEach loop" },
-                    ],
-                    rightItems: [
-                        { id: "ru1", text: "Known number of iterations" },
-                        { id: "ru2", text: "Iterating over array elements" },
-                        { id: "ru3", text: "Unknown loop condition" },
-                    ],
-                    matches: [
-                        { leftId: "lp1", rightId: "ru1" },
-                        { leftId: "lp2", rightId: "ru3" },
-                        { leftId: "lp3", rightId: "ru2" },
-                    ],
-                },
-            },
-        },
-        {
-            id: "77777777-cccc-cccc-cccc-777777777777",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Ordering",
-            textFormat: "PlainText",
-            questionText: "Arrange the steps for writing and running a basic JavaScript program.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "JavaScript code is typically written in a .js file, then linked in HTML, and finally run in the browser when the HTML is opened.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                shortText: null,
-                ordering: [
-                    { id: "j1", text: "Write code in a .js file", correctOrder: 1 },
-                    { id: "j2", text: "Link the file to an HTML document", correctOrder: 2 },
-                    { id: "j3", text: "Open the HTML file in a browser", correctOrder: 3 },
-                ],
-            },
-        },
-        {
-            id: "88888888-dddd-dddd-dddd-888888888888",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "ShortText",
-            textFormat: "HTML",
-            questionText:
-                "What will be the output of the following JavaScript code?<br/><pre>console.log(2 + '2');</pre>",
-            score: 5.0,
-            scoreGraded: 5.0,
-            explainText:
-                "When using `+` with a number and a string, JavaScript performs string concatenation. So `2 + '2'` becomes `'22'`.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                ordering: null,
-                shortText: "22",
-            },
-        },
-        {
-            id: "99999999-eeee-eeee-eeee-999999999999",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "ShortText",
-            textFormat: "PlainText",
-            questionText: "In programming, what does 'DRY' stand for?",
-            score: 5.0,
-            scoreGraded: 5.0,
-            explainText:
-                "DRY stands for 'Don't Repeat Yourself', a principle aimed at reducing code duplication and improving maintainability.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                ordering: null,
-                shortText: "Don't Repeat Yourself",
-            },
-        },
-    ],
+interface LearnQuizModel {
+    completedQuestionCount: number;
+    totalQuestionCount: number;
+    questions: Question[];
+}
+
+const quiz = ref<LearnQuizModel>({
+    completedQuestionCount: 0,
+    totalQuestionCount: 0,
+    questions: [],
+});
+
+
+const getQuizData = async () => {
+    //45c16e0c-5b92-4155-946f-ecab5daa60ca
+    //eabf4f24-dd83-416f-aeeb-351b7c3ad837
+    let result = await ApiQuestionSet.LearnQuestions("eabf4f24-dd83-416f-aeeb-351b7c3ad837", 7);
+
+    if (result.data.success) {
+        quiz.value = result.data.data;
+        if (quiz.value.completedQuestionCount === quiz.value.totalQuestionCount) {
+            openCompleteModal();
+            return;
+        }
+    }
+    currentSession.value = [...quiz.value.questions];
+    currentQuestion.value = currentSession.value[0];
+    currentSession.value.shift();
 };
 
 const comment_sample = [
@@ -334,16 +134,16 @@ const comment_sample = [
     },
 ];
 
-const totalCompleted = ref(quiz.completed); //for total
+const totalCompleted = ref(quiz.value.completedQuestionCount); //for total
 
 const completed = ref<Question[]>([]); // for session
 
 const incorrect = ref<Set<Question>>(new Set()); // for session
 
-const currentSession = ref<Question[]>(quiz.question as Question[]); // for session
+const currentSession = ref<Question[]>([]); // for session
 const isCurrentSessionReLearn = ref(false); //to check whether current session re-learn incorrect
 
-const currentQuestion = ref<Question>(currentSession.value[0]);
+const currentQuestion = ref<Question>({} as Question);
 
 const currentQuestionInstruction = ref("");
 const currentQuestionIsSubmitted = ref(false);
@@ -368,7 +168,7 @@ const currentQuestionResult = ref({
 });
 
 const completionPercentage = computed(() => {
-    return Math.floor((quiz.completed / quiz.question.length) * 100);
+    return Math.floor((quiz.value.completedQuestionCount / quiz.value.totalQuestionCount) * 100);
 });
 
 //#region check user answer
@@ -381,6 +181,23 @@ const checkMultipleChoice = () => {
     let sortedUserAnswer = userAnswerMultipleChoice.value.sort();
     if (userAnswerMultipleChoice.value.length !== correctAnswer?.length) return false;
     return sortedUserAnswer.every((value: string, i: number) => value === correctAnswer[i]);
+};
+
+/* use this for checking answer after submit */
+const checkMultipleChoiceAnswerCorrect = (option: any) => {
+    //only 2 cases allowed to display result: correct and user_answer + incorrect
+
+    const index = quiz.value.questions.findIndex((x) => x.id === currentQuestion.value.id);
+    let correctAnswer = quiz.value.questions[index].questionData.multipleChoice
+        ?.filter((x) => x.isAnswer)
+        .map((x) => x.id || []);
+
+    let user_answer = userAnswerMultipleChoice.value;
+
+    if (correctAnswer?.includes(option.id)) return true; //case 1
+    if (user_answer?.includes(option.id) && !option.isAnswer) return false; //case 2
+
+    return true;
 };
 
 const checkOrdering = () => {
@@ -426,10 +243,19 @@ const checkMatchingAnswerCorrect = (id: string) => {
         : userAnswerMatchingLeft.value[index]?.id === correctMatch.leftId;
 };
 
+const cleanShortTextAnswer = (text: string) => {
+    return text
+        .trim()
+        .toLowerCase()
+        .normalize("NFKC")
+        .replace(/[\u2019\u2018\u201B\u0060]/g, "'")
+        .replace(/\s+/g, " ");
+};
+
 const checkShortText = () => {
     return (
-        userAnswerShortText.value.trim().toLowerCase() ===
-        currentQuestion.value.questionData.shortText
+        cleanShortTextAnswer(userAnswerShortText.value) ===
+        cleanShortTextAnswer(currentQuestion.value.questionData.shortText)
     );
 };
 
@@ -460,55 +286,9 @@ const onCloseCommentModal = () => {
 };
 //#endregion
 
-//#region final modal
-/* final modal full screen */
-
-const finalModalOpen = ref(false);
-const finalModalQuote = ref("");
-const openFinalModal = () => {
-    finalModalQuote.value = t(
-        `learn_QS.final_modal.quotes.${QUOTES[Math.floor(Math.random() * QUOTES.length)].id}`,
-    );
-
-    setTimeout(() => {
-        finalModalOpen.value = true;
-    }, 2000);
-};
-
-const closeFinalModal = () => {
-    finalModalOpen.value = false;
-};
-
-const triggerFinalModal = () => {
-    if (currentSession.value.length <= 0 && !isCurrentSessionReLearn.value) {
-        //append 1st incorrect question - re-try incorrect
-        isCurrentSessionReLearn.value = true;
-        currentSession.value = Array.from(incorrect.value);
-    } else if (currentSession.value.length <= 0 && isCurrentSessionReLearn.value) {
-        //re-tried - send 2nd incorrect to backend
-        //trigger open final modal
-        message.success("Done");
-        openFinalModal();
-        return;
-    }
-};
-
-//preview completed question in final modal
-const toggleDisplayAnswer = (index: number, button: EventTarget) => {
-    let $button = $(button);
-
-    $button.toggleClass("bx-chevron-down bx-chevron-up");
-
-    const answer = $(`#question-item-answer-${index}`);
-    if (answer) $(answer).slideToggle();
-};
-
-//#endregion
-
 //#region logic complete question
 /* handle logic complete question */
 const onSubmitAnswer = () => {
-    triggerFinalModal();
     toggleExplainModal();
     currentQuestionIsSubmitted.value = true;
 
@@ -543,22 +323,25 @@ const onSubmitAnswer = () => {
         }
     }
 
-    //if hasn't re-tried and incorrect
-    if (!currentQuestionResult.value.result && !isCurrentSessionReLearn.value) {
+    debugger;
+    //if hasn't re-tried and has incorrect
+    if (currentQuestionResult.value.result === false && !isCurrentSessionReLearn.value) {
         incorrect.value.add(currentQuestion.value);
     } else if (currentQuestionResult.value.result && isCurrentSessionReLearn.value) {
         //if re-tried and correct
         incorrect.value.delete(currentQuestion.value);
         completed.value.push(currentQuestion.value);
+        quiz.value.completedQuestionCount += 1;
     } else if (currentQuestionResult.value.result === false) {
         incorrect.value.add(currentQuestion.value);
     } else {
         completed.value.push(currentQuestion.value);
+        quiz.value.completedQuestionCount += 1;
     }
+    triggerFinalModal();
 };
 
 const onSkipQuestion = (event: MouseEvent) => {
-    triggerFinalModal();
     toggleExplainModal();
 
     //change result
@@ -569,7 +352,6 @@ const onSkipQuestion = (event: MouseEvent) => {
         result: false,
         resultText: "Skipped",
     };
-
     //false by default
     incorrect.value.add(currentQuestion.value);
 
@@ -583,9 +365,20 @@ const onSkipQuestion = (event: MouseEvent) => {
 
         //reset to let user know the correct answer if skip
         case QUESTION_TYPE.MATCHING: {
-            userAnswerMatchingLeft.value = currentQuestion.value.questionData.matching?.leftItems!;
-            userAnswerMatchingRight.value =
-                currentQuestion.value.questionData.matching?.rightItems!;
+            const matching = currentQuestion.value.questionData.matching;
+            const matches = matching?.matches ?? [];
+            const leftItems = matching?.leftItems ?? [];
+            const rightItems = matching?.rightItems ?? [];
+
+            const matchingLeft = matches.map((match: any) =>
+                leftItems.find((item: any) => item.id == match.leftId),
+            );
+            const matchingRight = matches.map((match: any) =>
+                rightItems.find((item: any) => item.id == match.rightId),
+            );
+
+            userAnswerMatchingLeft.value = matchingLeft;
+            userAnswerMatchingRight.value = matchingRight;
             break;
         }
 
@@ -601,6 +394,7 @@ const onSkipQuestion = (event: MouseEvent) => {
             break;
         }
     }
+    triggerFinalModal();
 };
 
 const resetUserAnswer = () => {
@@ -643,6 +437,113 @@ const onNextQuestion = () => {
 };
 //#endregion
 
+//#region final modal
+/* final modal full screen */
+
+const finalModalOpen = ref(false);
+const finalModalQuote = ref("");
+const openFinalModal = () => {
+    finalModalQuote.value = t(
+        `learn_QS.final_modal.quotes.${QUOTES[Math.floor(Math.random() * QUOTES.length)].id}`,
+    );
+
+    setTimeout(() => {
+        finalModalOpen.value = true;
+    }, 1000);
+};
+
+const closeFinalModal = () => {
+    finalModalOpen.value = false;
+};
+
+const triggerFinalModal = async () => {
+    if (currentSession.value.length > 0) return;
+
+    //has incorrect and hasn't re-learned
+    if (incorrect.value.size > 0 && !isCurrentSessionReLearn.value) {
+        //append 1st incorrect question - re-try incorrect
+        isCurrentSessionReLearn.value = true;
+        currentSession.value = Array.from(incorrect.value);
+        message.info("Re-learn");
+    } else if (
+        (incorrect.value.size === 0 && !isCurrentSessionReLearn.value) ||
+        (incorrect.value.size > 0 && isCurrentSessionReLearn.value)
+    ) {
+        //has no incorrect OR re-learned but didnot correct all
+
+        //re-tried - send 2nd incorrect to backend
+        //trigger open final modal
+        const learnHistory = quiz.value.questions.map((x) => {
+            return {
+                questionId: x.id,
+                isCorrect: completed.value.some((c) => c.id === x.id),
+            };
+        });
+
+        await ApiQuestionSet.LearnHistory("eabf4f24-dd83-416f-aeeb-351b7c3ad837", learnHistory);
+        message.success("Done");
+        openFinalModal();
+        return;
+    }
+};
+
+//preview completed question in final modal
+const toggleDisplayAnswer = (index: number, button: EventTarget) => {
+    let $button = $(button);
+
+    $button.toggleClass("bx-chevron-down bx-chevron-up");
+
+    const answer = $(`#question-item-answer-${index}`);
+    if (answer) $(answer).slideToggle();
+};
+const onContinuesLearn = async () => {
+    await getQuizData();
+
+    isCurrentSessionReLearn.value = false;
+    currentQuestionIsSkipped.value = false;
+    currentQuestionIsSubmitted.value = false;
+    currentQuestionInstruction.value = "";
+    finalModalOpen.value = false;
+    incorrect.value = new Set();
+    completed.value = [];
+
+    toggleExplainModal();
+
+    resetUserAnswer();
+};
+
+//#endregion
+
+//#region complete modal
+import trophy_png from "@/assets/trophy.png";
+const completeModalOpen = ref(false);
+
+const openCompleteModal = () => {
+    completeModalOpen.value = true;
+    triggerAnimation();
+};
+
+const animationRef = ref();
+const isAnimationDisplaying = ref(false);
+
+const triggerAnimation = () => {
+    isAnimationDisplaying.value = true;
+    animationRef.value?.getDotLottieInstance()?.play();
+    setTimeout(() => {
+        isAnimationDisplaying.value = false;
+    }, 5000);
+};
+
+const onResetLearnHistory = async () => {
+    const result = await ApiQuestionSet.resetLearnHistory("eabf4f24-dd83-416f-aeeb-351b7c3ad837");
+    if (result.data.success) {
+        message.success("Learn mode reset!");
+        completeModalOpen.value = false;
+        await getQuizData();
+    }
+};
+
+//#endregion
 const dragOptions = {
     scroll: true,
     scrollSensitivity: 100,
@@ -680,13 +581,12 @@ function syncMatchingHeights() {
     });
 }
 
-onMounted(() => {
+onMounted(async () => {
+    await getQuizData();
+
     resetUserAnswer();
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
-
-    currentSession.value = quiz.question.splice(0, 7) as Question[];
-    currentSession.value.shift();
 });
 </script>
 
@@ -700,17 +600,19 @@ onMounted(() => {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="23">
-                    <span> {{ quiz.title }}</span> <br />
+                    <!-- <span> {{ quiz.title }}</span> <br />
                     <span>
                         {{ quiz.description }}
-                    </span>
+                    </span> -->
+                    <span>Quiz title</span> <br />
+                    <span> Quiz description </span>
                 </a-col>
             </a-row>
         </div>
         <div class="progress-bar-container">
             <div class="progress-info">
                 <div class="progress-info-number">
-                    Question {{ totalCompleted + 1 }} of {{ quiz.totalQuestion }}
+                    Question {{ totalCompleted + 1 }} of {{ quiz.totalQuestionCount }}
                 </div>
                 <div class="progress-info-percentage">
                     <span>{{ completionPercentage }}</span>
@@ -744,6 +646,9 @@ onMounted(() => {
                         {{ currentQuestion.questionText }}
                     </div>
                     <div class="section answer-section">
+                        <div v-if="isCurrentSessionReLearn" class="relearn-ins">
+                            Let's try this again
+                        </div>
                         <div class="d-flex align-items-center">
                             <div class="answer-section-ins">
                                 {{ currentQuestionInstruction }}
@@ -780,12 +685,12 @@ onMounted(() => {
                                         :class="[
                                             'answer-option answer-option-multiplechoice',
                                             currentQuestionIsSubmitted &&
-                                            userAnswerMultipleChoice.includes(option.id) &&
+                                            checkMultipleChoiceAnswerCorrect(option) &&
                                             option.isAnswer
                                                 ? 'answer-correct'
                                                 : '',
                                             currentQuestionIsSubmitted &&
-                                            userAnswerMultipleChoice.includes(option.id) &&
+                                            !checkMultipleChoiceAnswerCorrect(option) &&
                                             !option.isAnswer
                                                 ? 'answer-incorrect'
                                                 : '',
@@ -798,7 +703,7 @@ onMounted(() => {
                                         <i
                                             v-if="
                                                 currentQuestionIsSubmitted &&
-                                                userAnswerMultipleChoice.includes(option.id) &&
+                                                checkMultipleChoiceAnswerCorrect(option) &&
                                                 option.isAnswer
                                             "
                                             class="bx bx-check answer-icon"
@@ -806,7 +711,7 @@ onMounted(() => {
                                         <i
                                             v-if="
                                                 currentQuestionIsSubmitted &&
-                                                userAnswerMultipleChoice.includes(option.id) &&
+                                                !checkMultipleChoiceAnswerCorrect(option) &&
                                                 !option.isAnswer
                                             "
                                             class="bx bx-x answer-icon"
@@ -915,7 +820,7 @@ onMounted(() => {
                                             :class="[
                                                 'answer-option answer-option-ordering',
                                                 currentQuestionIsSubmitted
-                                                    ? index + 1 === option.correctOrder
+                                                    ? index === option.correctOrder
                                                         ? 'answer-correct'
                                                         : 'answer-incorrect'
                                                     : '',
@@ -956,19 +861,28 @@ onMounted(() => {
                                             : '',
                                     ]"
                                 >
-                                    <TextArea
-                                        :readonly="currentQuestionIsSubmitted"
-                                        :placeholder="'Enter your answer...'"
-                                        v-model="userAnswerShortText"
-                                    />
-                                    <i
-                                        v-if="currentQuestionIsSubmitted && checkShortText()"
-                                        class="bx bx-check answer-icon"
-                                    ></i>
-                                    <i
+                                    <div class="w-100 d-flex align-items-center">
+                                        <TextArea
+                                            :readonly="currentQuestionIsSubmitted"
+                                            :placeholder="'Enter your answer...'"
+                                            v-model="userAnswerShortText"
+                                        />
+                                        <i
+                                            v-if="currentQuestionIsSubmitted && checkShortText()"
+                                            class="bx bx-check answer-icon"
+                                        ></i>
+                                        <i
+                                            v-if="currentQuestionIsSubmitted && !checkShortText()"
+                                            class="bx bx-x answer-icon"
+                                        ></i>
+                                    </div>
+                                    <div
                                         v-if="currentQuestionIsSubmitted && !checkShortText()"
-                                        class="bx bx-x answer-icon"
-                                    ></i>
+                                        class="short-text-correct-answer"
+                                    >
+                                        Correct answer:
+                                        <span> {{ currentQuestion.questionData.shortText }} </span>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -1017,17 +931,6 @@ onMounted(() => {
                             @click="onSubmitAnswer"
                         >
                             Submit
-                        </a-button>
-                        <a-button
-                            :class="[
-                                'main-color-btn',
-                                currentQuestionIsSubmitted ? 'main-color-btn-disabled' : '',
-                            ]"
-                            type="primary"
-                            size="large"
-                            @click="openFinalModal"
-                        >
-                            Final
                         </a-button>
                     </div>
                 </div>
@@ -1109,7 +1012,8 @@ onMounted(() => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span> {{ quiz.title }}</span> <br />
+                        <span>Quiz title</span> <br />
+                        <!-- <span> {{ quiz.title }}</span> <br /> -->
                     </a-col>
                 </a-row>
             </div>
@@ -1136,11 +1040,11 @@ onMounted(() => {
             <div class="progress-info">
                 <div class="progress-info-percentage">
                     Completed:
-                    <span>{{ quiz.completed }}</span>
+                    <span>{{ quiz.completedQuestionCount }}</span>
                 </div>
                 <div class="progress-info-percentage">
                     Total question:
-                    <span>{{ quiz.totalQuestion }}</span>
+                    <span>{{ quiz.totalQuestionCount }}</span>
                 </div>
             </div>
         </div>
@@ -1239,10 +1143,55 @@ onMounted(() => {
                     type="primary"
                     size="large"
                     shape="round"
-                    @click="onNextQuestion"
+                    @click="onContinuesLearn"
                 >
                     Continue
                 </a-button>
+            </div>
+        </div>
+    </a-drawer>
+
+    <a-drawer
+        :open="completeModalOpen"
+        placement="top"
+        :height="'100vh'"
+        :closable="false"
+        @close="closeFinalModal"
+        :body-style="{ padding: 0, height: '100%' }"
+    >
+        <DotLottieVue
+            v-if="isAnimationDisplaying"
+            :autoplay="isAnimationDisplaying"
+            ref="animationRef"
+            :class="['animation-container']"
+            @complete="isAnimationDisplaying = false"
+            src="/src/assets/confetti.lottie"
+        />
+        <div class="modal-complete-container">
+            <div class="content-item modal-complete">
+                <img class="modal-complete-img" :src="trophy_png" alt="" />
+                <div class="modal-complete-content-container">
+                    <div class="modal-complete-content">Nice work! You've completed it!</div>
+                    <div class="modal-complete-content sub-content">
+                        Try another round to practice difficult questions, or test your knowledge!
+                    </div>
+                </div>
+                <div class="modal-complete-buttons-container">
+                    <a-button type="primary" class="main-color-btn ghost-btn" size="large">
+                        Back to home page
+                    </a-button>
+                    <a-button type="primary" class="main-color-btn" size="large">
+                        Take a test
+                    </a-button>
+                    <a-button
+                        type="primary"
+                        class="main-color-btn"
+                        size="large"
+                        @click="onResetLearnHistory"
+                    >
+                        Reset learn mode
+                    </a-button>
+                </div>
             </div>
         </div>
     </a-drawer>
@@ -1294,5 +1243,97 @@ onMounted(() => {
 
 ::v-deep(.ant-progress-inner) {
     background-color: var(--content-item-border-color);
+}
+.relearn-ins {
+    padding: 0px 10px;
+    background-color: #f39c12;
+    width: fit-content;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 10px 0px;
+}
+
+.answer-short-text {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+.short-text-correct-answer {
+    margin-top: 10px;
+}
+.short-text-correct-answer span {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--correct-answer-color);
+}
+
+.animation-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+.modal-complete-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-complete {
+    border-radius: 10px;
+    border: 1px solid var(--form-item-border-color);
+    background: var(--form-item-background-color);
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+    height: 80%;
+    width: 80%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.modal-complete-img {
+    width: 130px;
+    height: 130px;
+}
+
+.modal-complete-content-container {
+    margin: 20px 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-complete-content {
+    color: var(--text-color);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.293px;
+}
+.modal-complete-content.sub-content {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.modal-complete-buttons-container {
+    width: 40%;
+    display: flex;
+    justify-content: space-evenly;
+}
+.ghost-btn {
+    background-color: transparent;
+    border-color: var(--text-color);
+    color: var(--text-color);
+}
+.ghost-btn:hover {
+    background-color: transparent !important;
+    border-color: var(--text-color-grey) !important;
 }
 </style>
