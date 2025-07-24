@@ -85,6 +85,14 @@ const userRoutes = [
                     title: "quiz",
                 },
             },
+            {
+                name: "User_Folder",
+                path: "/user/folder",
+                component: () => import("@/views/user/folder/index.vue"),
+                meta: {
+                    title: "folder",
+                },
+            },
         ],
     },
     {

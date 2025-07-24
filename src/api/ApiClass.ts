@@ -2,12 +2,14 @@ import Api from "@/api/Api";
 import type ClassPageParams from "@/models/request/class/classPageParams";
 import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
 import type ClassStudentPageParams from "@/models/request/class/classStudentPageParams";
+import type ClassQuestionSetPageParams from "@/models/request/class/classQSPageParams";
 
 const END_POINTS = {
     CREATE: "Class",
     GET_ALL_BY_LIMIT: "Class",
     GET_ALL_EXAM_BY_LIMIT: "Class/{ClassId}/Tests",
     GET_ALL_STUDENT_BY_LIMIT: "Class/{ClassId}/Students",
+    GET_ALL_QS_BY_LIMIT: "Class/{ClassId}/QuestionSets",
     GET_BY_ID: "Class/{ClassId}",
     CREATE_INVITATION: "Class/{ClassId}/Invitations",
     JOIN_CLASS: "Class/Students",
@@ -49,6 +51,18 @@ class ApiUser {
                 pageSize: pageParams.pageSize || 10,
                 testName: pageParams.testName || "",
                 status: pageParams.status || "",
+            },
+        });
+    }
+
+    async GetAllQSByLimit(classId: string, pageParams: ClassQuestionSetPageParams) {
+        const url = END_POINTS.GET_ALL_QS_BY_LIMIT.replace("{ClassId}", classId);
+        return await Api.get(url, {
+            params: {
+                pageNumber: pageParams.pageNumber || 1,
+                pageSize: pageParams.pageSize || 10,
+                name: pageParams.name || "",
+                shareMode: pageParams.shareMode || "",
             },
         });
     }

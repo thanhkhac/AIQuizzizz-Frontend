@@ -161,7 +161,8 @@
             "quiz": "Thư viện quiz",
             "examSchedule": "Lịch thi",
             "class": "Lớp học",
-            "settings": "Cài đặt"
+            "settings": "Cài đặt",
+            "folder": "Thư mục"
         },
         "buttons": {
             "signOut": "Đăng xuất",
@@ -494,6 +495,54 @@
             "invitation_link": "Liên kết mời",
             "or": "HOẶC",
             "time_limit_label": "Thời gian giới hạn"
+        }
+    },
+    "class_question_set": {
+        "title": "Bài kiểm tra",
+        "sub_title": "Sắp xếp bài kiểm tra thành tài liệu học tập trong lớp.",
+        "select_option": {
+            "All": "Tất cả",
+            "Owner": "Chủ sở hữu",
+            "Editable": "Có thể chỉnh sửa",
+            "ViewOnly": "Chỉ xem"
+        },
+        "buttons": {
+            "view": "Xem"
+        },
+        "other": {
+            "search_placeholder": "Tìm kiếm bài kiểm tra...",
+            "items": "bài kiểm tra",
+            "questions": "câu hỏi",
+            "created_by": "Tạo bởi"
+        }
+    },
+    "folder_index": {
+        "title": "Thư mục",
+        "sub_title": "Quản lý tài liệu học tập hiệu quả bằng cách sắp xếp theo thư mục.",
+        "select_option": {
+            "All": "Tất cả",
+            "Owner": "Chủ sở hữu",
+            "Editable": "Có thể chỉnh sửa",
+            "ViewOnly": "Chỉ xem"
+        },
+        "buttons": {
+            "create_folder": "Tạo thư mục",
+            "create": "Tạo"
+        },
+        "navigators": {
+            "folder": "Thư mục",
+            "test_template": "Mẫu đề thi"
+        },
+        "modal": {
+            "create_title": "Tạo thư mục mới",
+            "create_folder_name_label": "Tên thư mục",
+            "create_folder_name_placeholder": "Nhập tên thư mục mới"
+        },
+        "other": {
+            "search_class_placeholder": "Tìm thư mục theo tên...",
+            "no_data_matches": "Không có dữ liệu phù hợp.",
+            "items": "thư mục",
+            "pages": " / trang"
         }
     }
 }

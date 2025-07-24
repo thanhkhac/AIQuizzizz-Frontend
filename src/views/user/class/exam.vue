@@ -46,69 +46,6 @@ const pageParams = reactive({
 
 const exam_data = ref<ClassExam[]>([]);
 
-const exam_data_sample = [
-    {
-        testId: "123123123",
-        name: "Assignment 1",
-        numberOfQuestions: 25,
-        timeLimit: 30,
-        relativeTime: 800,
-        numberOfCompletion: 30,
-        status: "active",
-        date: "2025-07-13T20:00:00.000Z",
-    },
-    {
-        testId: "234234234",
-        name: "Quiz 1",
-        numberOfQuestions: 10,
-        timeLimit: 15,
-        relativeTime: 240,
-        numberOfCompletion: 10,
-        status: "upcoming",
-        date: "2025-07-07T20:00:00.000Z",
-    },
-    {
-        testId: "345345345",
-        name: "Midterm Exam",
-        numberOfQuestions: 40,
-        timeLimit: 60,
-        relativeTime: 26,
-        numberOfCompletion: 25,
-        status: "completed",
-        date: "2025-07-16T10:00:00.000Z",
-    },
-    {
-        testId: "456456456",
-        name: "Final Exam",
-        numberOfQuestions: 50,
-        timeLimit: 90,
-        relativeTime: 24,
-        numberOfCompletion: 0,
-        status: "upcoming",
-        date: "2025-07-16T12:00:00.000Z",
-    },
-    {
-        testId: "567567567",
-        name: "Assignment 2",
-        numberOfQuestions: 20,
-        timeLimit: 25,
-        relativeTime: 500,
-        numberOfCompletion: 15,
-        status: "active",
-        date: "2025-06-26T04:00:00.000Z",
-    },
-    {
-        testId: "678678678",
-        name: "Pop Quiz",
-        numberOfQuestions: 5,
-        timeLimit: 50,
-        relativeTime: 9000,
-        numberOfCompletion: 5,
-        status: "completed",
-        date: "2024-12-29T12:00:00.000Z",
-    },
-];
-
 const getClassData = async () => {
     try {
         if (!classId.value) router.push({ name: "404" });

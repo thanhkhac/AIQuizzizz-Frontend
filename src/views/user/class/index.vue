@@ -179,13 +179,13 @@ const onCreateClass = async () => {
             message.error("Create class failed");
             return;
         }
+        modal_create_class_open.value = false;
         message.success("Create class successfully.");
         await getData();
     } catch (error) {
         console.log(error);
     } finally {
         isCreateLoading.value = false;
-        modal_create_class_open.value = false;
     }
 };
 

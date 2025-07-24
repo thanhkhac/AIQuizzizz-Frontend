@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import ApiClass from "@/api/ApiClass";
-import CLASS_EXAM_STATUS from "@/constants/classExamStatus";
-import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
+// import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
+
+import CLASS_QUESTION_SET_SHARE_MODE from "@/constants/classQSShareMode";
+import type ClassQuestionSetPageParams from "@/models/request/class/classQSPageParams";
+
 import type { Class } from "@/models/response/class/class";
-import type { ClassExam } from "@/models/response/class/classExam";
+import type { ClassQuestionSet } from "@/models/response/class/classQuestionSet";
 
 import { ref, onMounted, reactive, computed, onUpdated } from "vue";
 import { useI18n } from "vue-i18n";
@@ -26,88 +29,25 @@ const classData = ref<Class>({
     topic: "",
 });
 
-const optionKeys = Object.values(CLASS_EXAM_STATUS);
+const optionKeys = Object.values(CLASS_QUESTION_SET_SHARE_MODE);
 
-const exam_status_options = computed(() =>
+const share_mode_options = computed(() =>
     optionKeys.map((key) => ({
-        label: t(`class_exam.select_option.${key}`),
-        value: key !== CLASS_EXAM_STATUS.ALL ? key : "",
+        label: t(`class_question_set.select_option.${key}`),
+        value: key !== CLASS_QUESTION_SET_SHARE_MODE.ALL ? key : "",
     })),
 );
 
 const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
     pageSize: route.query.pageSize || 10,
-    testName: route.query.testName?.toString() || "",
-    status: route.query.status || exam_status_options.value[0].value,
+    name: route.query.name?.toString() || "",
+    shareMode: route.query.shareMode || share_mode_options.value[0].value,
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
 
-const exam_data = ref<ClassExam[]>([]);
-
-const exam_data_sample = [
-    {
-        testId: "123123123",
-        name: "Assignment 1",
-        numberOfQuestions: 25,
-        timeLimit: 30,
-        relativeTime: 800,
-        numberOfCompletion: 30,
-        status: "active",
-        date: "2025-07-13T20:00:00.000Z",
-    },
-    {
-        testId: "234234234",
-        name: "Quiz 1",
-        numberOfQuestions: 10,
-        timeLimit: 15,
-        relativeTime: 240,
-        numberOfCompletion: 10,
-        status: "upcoming",
-        date: "2025-07-07T20:00:00.000Z",
-    },
-    {
-        testId: "345345345",
-        name: "Midterm Exam",
-        numberOfQuestions: 40,
-        timeLimit: 60,
-        relativeTime: 26,
-        numberOfCompletion: 25,
-        status: "completed",
-        date: "2025-07-16T10:00:00.000Z",
-    },
-    {
-        testId: "456456456",
-        name: "Final Exam",
-        numberOfQuestions: 50,
-        timeLimit: 90,
-        relativeTime: 24,
-        numberOfCompletion: 0,
-        status: "upcoming",
-        date: "2025-07-16T12:00:00.000Z",
-    },
-    {
-        testId: "567567567",
-        name: "Assignment 2",
-        numberOfQuestions: 20,
-        timeLimit: 25,
-        relativeTime: 500,
-        numberOfCompletion: 15,
-        status: "active",
-        date: "2025-06-26T04:00:00.000Z",
-    },
-    {
-        testId: "678678678",
-        name: "Pop Quiz",
-        numberOfQuestions: 5,
-        timeLimit: 50,
-        relativeTime: 9000,
-        numberOfCompletion: 5,
-        status: "completed",
-        date: "2024-12-29T12:00:00.000Z",
-    },
-];
+const question_set_data = ref<ClassQuestionSet[]>([]);
 
 const getClassData = async () => {
     try {
@@ -124,13 +64,13 @@ const getClassData = async () => {
 
 const getData = async () => {
     try {
-        let result = await ApiClass.GetAllExamByLimit(
+        let result = await ApiClass.GetAllQSByLimit(
             classId.value.toString(),
-            pageParams as ClassExamPageParams,
+            pageParams as ClassQuestionSetPageParams,
         );
         if (result.data.success) {
             let resultData = result.data.data;
-            exam_data.value = resultData.items;
+            question_set_data.value = resultData.items;
             pageParams.pageNumber = resultData.pageNumber;
             pageParams.pageSize = resultData.pageSize;
             pageParams.totalCount = resultData.totalCount;
@@ -148,8 +88,8 @@ const getData = async () => {
                         query: {
                             pageNumber: 1,
                             pageSize: pageParams.pageSize,
-                            testName: pageParams.testName,
-                            status: pageParams.status,
+                            name: pageParams.name,
+                            shareMode: pageParams.shareMode,
                         },
                     });
                 } else {
@@ -161,8 +101,8 @@ const getData = async () => {
                         query: {
                             pageNumber: pageParams.pageNumber,
                             pageSize: pageParams.pageSize,
-                            testName: pageParams.testName,
-                            status: pageParams.status,
+                            name: pageParams.name,
+                            shareMode: pageParams.shareMode,
                         },
                     });
                 }
@@ -170,7 +110,7 @@ const getData = async () => {
             }
         }
     } catch (error) {
-        console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+        console.log("ERROR: GETALLEXAMBYLIMIT class qs: " + error);
     }
 };
 
@@ -179,8 +119,8 @@ onUpdated(() => {
     if (Object.keys(route.query).length === 0) {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
-        pageParams.testName = route.query.testName?.toString() || "";
-        pageParams.status = route.query.status || exam_status_options.value[0].value;
+        pageParams.name = route.query.name?.toString() || "";
+        pageParams.shareMode = route.query.status || share_mode_options.value[0].value;
         pageParams.statusFilter = true;
 
         getData();
@@ -193,38 +133,6 @@ const onPaginationChange = (page: any, pageSize: any) => {
     pageParams.pageSize = pageSize;
     pageParams.statusFilter = true;
     getData();
-};
-
-const getFormattedRelativeTime = (hoursAgo: number) => {
-    if (hoursAgo < 24) {
-        return `${hoursAgo} hour${hoursAgo !== 1 ? "s" : ""} ago`;
-    } else if (hoursAgo < 24 * 7) {
-        const days = Math.floor(hoursAgo / 24);
-        return `${days} day${days !== 1 ? "s" : ""} ago`;
-    } else if (hoursAgo < 24 * 30) {
-        const weeks = Math.floor(hoursAgo / (24 * 7));
-        return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
-    } else if (hoursAgo < 24 * 365) {
-        const months = Math.floor(hoursAgo / (24 * 30));
-        return `${months} month${months !== 1 ? "s" : ""} ago`;
-    } else {
-        const years = Math.floor(hoursAgo / (24 * 365));
-        return `${years} year${years !== 1 ? "s" : ""} ago`;
-    }
-};
-
-const getTagColor = (status: string) => {
-    switch (status.toLowerCase()) {
-        case "completed": {
-            return "#3b82f6";
-        }
-        case "active": {
-            return "#22C55E";
-        }
-        case "upcoming": {
-            return "#f59e0b";
-        }
-    }
 };
 
 onMounted(async () => {
@@ -259,40 +167,37 @@ onMounted(async () => {
             <div class="content-item">
                 <div class="content-item-title">
                     <div>
-                        <span>Quiz</span>
-                        <span>View and manage quizes in your class</span>
+                        <span>{{ $t("class_question_set.title") }}</span>
+                        <span>{{ $t("class_question_set.sub_title") }}</span>
                     </div>
                 </div>
                 <div class="content-item-functions">
                     <div class="content-item-navigators">
                         <div class="navigator-container">
                             <RouterLink class="navigator-item" :to="{ name: 'User_Class_Exam' }">
-                                Exam
+                                {{ $t("class_index.navigators.exam") }}
                             </RouterLink>
                             <RouterLink class="navigator-item navigator-active" :to="{ name: '' }">
-                                Quiz
+                                {{ $t("class_index.navigators.quiz") }}
                             </RouterLink>
                             <RouterLink class="navigator-item" :to="{ name: 'User_Class_Student' }">
-                                Student
+                                {{ $t("class_index.navigators.member") }}
                             </RouterLink>
                         </div>
                     </div>
                     <a-select
-                        v-model:value="pageParams.status"
+                        v-model:value="pageParams.shareMode"
                         style="width: 200px"
                         @change="getData"
                     >
-                        <a-select-option
-                            v-for="option in exam_status_options"
-                            :value="option.value"
-                        >
+                        <a-select-option v-for="option in share_mode_options" :value="option.value">
                             {{ option.label }}
                         </a-select-option>
                     </a-select>
                     <div style="width: 300px; padding: 0px">
                         <Input
                             @input="getData"
-                            v-model="pageParams.testName"
+                            v-model="pageParams.name"
                             :placeholder="t('question_sets_index.search_placeholder')"
                         >
                             <template #icon>
@@ -308,66 +213,47 @@ onMounted(async () => {
                         :total="pageParams.totalCount"
                         :pageSize="pageParams.pageSize"
                         :show-total="
-                            (total: any, range: any) => `${range[0]}-${range[1]} of ${total} items`
+                            (total: any, range: any) =>
+                                `${range[0]}-${range[1]} of ${total} ${t('class_question_set.other.items')}`
                         "
                         show-size-changer
                         show-quick-jumper
                         class="crud-layout-pagination"
+                        :locale="{
+                            items_per_page: t('class_index.other.pages'),
+                        }"
                     ></a-pagination>
                 </div>
-                <div v-if="exam_data.length > 0" class="exam-item-container">
-                    <div class="exam-item" v-for="exam in exam_data">
-                        <i class="bx bx-book-open exam-item-icon"></i>
+                <div v-if="question_set_data.length > 0" class="quiz-item-container">
+                    <div class="quiz-item" v-for="exam in question_set_data">
+                        <i class="bx bx-book-open quiz-item-icon"></i>
                         <div>
-                            <div class="exam-item-title">
+                            <div class="quiz-item-title">
                                 {{ exam.name }}
-                                <a-tag :color="getTagColor(exam.status)">
-                                    {{ exam.status }}
-                                </a-tag>
                             </div>
-                            <div class="exam-item-info exam-item-date">
-                                <div>
-                                    <i class="bx bx-calendar"></i>
-                                    {{ dayjs(exam.date).format("DD/MM/YYYY HH:mm A") }}
-                                </div>
+                            <div class="quiz-item-description">
+                                {{ exam.description }}
                             </div>
-                            <div class="exam-item-info exam-info-detail">
-                                <div class="exam-item-questions">
+                            <div class="quiz-item-info quiz-info-detail">
+                                <div class="quiz-item-questions">
                                     <i class="bx bx-message-square-edit bx-rotate-270"></i>
                                     {{ exam.numberOfQuestions }}
                                     {{ $t("dashboards.list_items.quiz.questions") }}
                                 </div>
-                                <div class="exam-item-time">
-                                    <i class="bx bx-time-five"></i>
-                                    {{ exam.timeLimit }}
-                                    min
+                                <div class="quiz-item-created-by">
+                                    {{ $t("class_question_set.other.created_by") }}
+                                    {{ exam.createdBy }}
                                 </div>
-                                <span class="exam-item-assigned completion">
-                                    {{ exam.numberOfCompletion }} completions
-                                </span>
-                                <span class="exam-item-assigned">
-                                    Assigned {{ getFormattedRelativeTime(exam.relativeTime) }}
-                                </span>
                             </div>
                         </div>
                         <div class="exam-item-actions">
+                            <a-button type="primary" class="me-3 main-color-btn">
+                                {{ $t("class_question_set.buttons.view") }}
+                            </a-button>
                             <a-dropdown :trigger="['click']">
                                 <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
                                 <template #overlay>
                                     <a-menu class="drop-down-container">
-                                        <a-menu-item key="0">
-                                            <i class="bx bx-info-circle"></i>
-                                            {{ $t("question_sets_index.buttons.detail") }}
-                                        </a-menu-item>
-                                        <a-menu-item key="1">
-                                            <i class="bx bx-edit"></i>
-                                            {{ $t("question_sets_index.buttons.edit") }}
-                                        </a-menu-item>
-                                        <a-menu-item key="2">
-                                            <i class="bx bx-copy"></i>
-                                            {{ $t("question_sets_index.buttons.dublicate") }}
-                                        </a-menu-item>
-                                        <a-menu-divider style="background-color: #ddd" />
                                         <a-menu-item key="3">
                                             <span class="d-flex align-items-center">
                                                 <i class="bx bx-trash-alt"></i>
@@ -404,7 +290,7 @@ a {
     font-size: 14px !important;
 }
 
-.exam-item {
+.quiz-item {
     background-color: var(--content-item-children-background-color);
     margin: 10px 0px;
     border: 1px solid var(--border-color);
@@ -415,15 +301,15 @@ a {
     cursor: pointer;
 }
 
-.exam-item:hover {
+.quiz-item:hover {
     border: 1px solid var(--main-color);
 }
 
-.exam-item i {
+.quiz-item i {
     font-size: 18px;
 }
 
-.exam-item-icon {
+.quiz-item-icon {
     display: flex;
     width: 35px;
     height: 35px;
@@ -438,42 +324,41 @@ a {
     margin-right: 12px;
 }
 
-.exam-item-title {
+.quiz-item-title {
     font-size: 18px;
     font-weight: 600;
 }
 
-.exam-item-info {
+.quiz-item-description {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color-grey);
+}
+
+.quiz-item-info {
     font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.exam-item-info i {
+.quiz-item-info i {
     font-size: 14px;
 }
 
-.exam-item-date {
-    font-size: 14px;
-    color: #ccc;
-}
-.exam-info-detail {
-    border-top: 1px solid var(--border-color);
+.quiz-info-detail {
     margin-top: 5px;
     padding-top: 5px;
 }
 
-.exam-item-time {
-    margin: 0px 20px;
+.quiz-item-questions {
+    width: 120px;
 }
 
-.exam-item-assigned {
+.quiz-item-created-by {
+    flex: 1;
+    margin-left: 50px;
     color: var(--text-color-grey);
-}
-
-.exam-item-assigned.completion {
-    margin-right: 10px;
 }
 
 .exam-item-actions {

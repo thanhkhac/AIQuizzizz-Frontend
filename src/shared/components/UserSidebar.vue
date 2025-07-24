@@ -96,6 +96,14 @@ const onSignOut = () => {
                         </span>
                     </RouterLink>
                 </li>
+                <li :class="['sidebar-listItem', { active: activeItem === 'folder' }]">
+                    <RouterLink :to="{ name: 'User_Folder' }">
+                        <i class="bx bxs-folder-open"></i>
+                        <span class="sidebar-listItemText">
+                            {{ $t("sidebar.navigators.folder") }}
+                        </span>
+                    </RouterLink>
+                </li>
                 <a-divider
                     class="divider"
                     orientation="left"

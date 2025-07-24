@@ -161,7 +161,8 @@
             "quiz": "Quizzes",
             "examSchedule": "Exam schedule",
             "class": "Class",
-            "settings": "Settings"
+            "settings": "Settings",
+            "folder": "Folder"
         },
         "buttons": {
             "signOut": "Sign out",
@@ -494,6 +495,54 @@
             "invitation_link": "Invitation link",
             "or": "OR",
             "time_limit_label": "Time limit"
+        }
+    },
+    "class_question_set": {
+        "title": "Quiz",
+        "sub_title": "Organize quizzes as classroom learning materials.",
+        "select_option": {
+            "All": "All",
+            "Owner": "Owner",
+            "Editable": "Editable",
+            "ViewOnly": "ViewOnly"
+        },
+        "buttons": {
+            "view": "View"
+        },
+        "other": {
+            "search_placeholder": "Search quiz...",
+            "items": "quizzes",
+            "questions": "questions",
+            "created_by": "Created by"
+        }
+    },
+    "folder_index": {
+        "title": "Folder",
+        "sub_title": "Efficiently manage your learning resources by organizing them into folders.",
+        "select_option": {
+            "All": "All",
+            "Owner": "Owner",
+            "Editable": "Editable",
+            "ViewOnly": "ViewOnly"
+        },
+        "buttons": {
+            "create_folder": "Create folder",
+            "create": "Create"
+        },
+        "navigators": {
+            "folder": "Folder",
+            "test_template": "Test template"
+        },
+        "modal": {
+            "create_title": "Create new folder",
+            "create_folder_name_label": "Folder name",
+            "create_folder_name_placeholder": "New folder name"
+        },
+        "other": {
+            "search_class_placeholder": "Search folder by name...",
+            "no_data_matches": "No data matches.",
+            "items": "folders",
+            "pages": " / pages"
         }
     }
 }
