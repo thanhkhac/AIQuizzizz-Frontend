@@ -1,0 +1,1 @@
+import{_ as e}from"./index-B3og19O_.js";const n={};function r(i,o){return null}const _=e(n,[["render",r],["__file","/home/runner/work/AIQuizzizz-Frontend/AIQuizzizz-Frontend/src/views/admin/user/index.vue"]]);export{_ as default};
