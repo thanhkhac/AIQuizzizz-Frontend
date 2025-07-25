@@ -13,6 +13,7 @@ env:
   VITE_API_URL_PRODUCT: ${{ secrets.VITE_API_URL_PRODUCT }}
   NODE_ENV: ${{ secrets.NODE_ENV }}
   VITE_API_URL_LOCAL: ${{ secrets.VITE_API_URL_LOCAL }}
+  VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID}}
   
 
 jobs:
