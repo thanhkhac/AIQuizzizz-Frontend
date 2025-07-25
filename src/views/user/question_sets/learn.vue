@@ -11,6 +11,7 @@ import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
+const animationPath = new URL("@/assets/confetti.lottie", import.meta.url).href;
 
 import { useI18n } from "vue-i18n";
 
@@ -32,7 +33,6 @@ const quiz = ref<LearnQuizModel>({
     totalQuestionCount: 0,
     questions: [],
 });
-
 
 const getQuizData = async () => {
     //45c16e0c-5b92-4155-946f-ecab5daa60ca
@@ -1165,7 +1165,7 @@ onMounted(async () => {
             ref="animationRef"
             :class="['animation-container']"
             @complete="isAnimationDisplaying = false"
-            src="/src/assets/confetti.lottie"
+            :src="animationPath"
         />
         <div class="modal-complete-container">
             <div class="content-item modal-complete">

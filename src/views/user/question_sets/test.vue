@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
+const animationPath = new URL('@/assets/confetti.lottie', import.meta.url).href;
 
 import { ref, computed, onMounted, nextTick, reactive } from "vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
@@ -1037,7 +1038,7 @@ onMounted(() => {
             ref="animationRef"
             :class="['animation-container']"
             @complete="isAnimationDisplaying = false"
-            src="/src/assets/confetti.lottie"
+            :src="animationPath"
         />
         <div class="title-container title-container-header">
             <a-row class="w-100 d-flex align-items-center">
