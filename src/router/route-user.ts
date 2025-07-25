@@ -63,7 +63,7 @@ const userRoutes = [
             },
             {
                 name: "User_Class_Student",
-                path: "/user/class/:id/student", //real
+                path: "/user/class/:id/student",
                 component: () => import("@/views/user/class/student.vue"),
                 meta: {
                     title: "student",
@@ -71,7 +71,7 @@ const userRoutes = [
             },
             {
                 name: "User_Class_Exam",
-                path: "/user/class/:id/exam", //real
+                path: "/user/class/:id/exam",
                 component: () => import("@/views/user/class/exam.vue"),
                 meta: {
                     title: "exam",
@@ -79,7 +79,7 @@ const userRoutes = [
             },
             {
                 name: "User_Class_Quiz",
-                path: "/user/class/:id/quiz", //real
+                path: "/user/class/:id/quiz",
                 component: () => import("@/views/user/class/quiz.vue"),
                 meta: {
                     title: "quiz",
@@ -91,6 +91,14 @@ const userRoutes = [
                 component: () => import("@/views/user/folder/index.vue"),
                 meta: {
                     title: "folder",
+                },
+            },
+            {
+                name: "User_TestTemplate",
+                path: "/user/test-template",
+                component: () => import("@/views/user/test_template/index.vue"),
+                meta: {
+                    title: "test-template",
                 },
             },
         ],
@@ -117,6 +125,22 @@ const userRoutes = [
         component: () => import("@/views/user/question_sets/test.vue"),
         meta: {
             title: "test",
+        },
+    },
+    {
+        name: "User_TestTemplate_Create",
+        path: "/user/test-template/create",
+        component: () => import("@/views/user/test_template/create.vue"),
+        meta: {
+            title: "test-template-create",
+        },
+    },
+    {
+        name: "User_TestTemplate_Update",
+        path: "/user/test-template/:id/update",
+        component: () => import("@/views/user/test_template/update.vue"),
+        meta: {
+            title: "test-template-create",
         },
     },
 ];

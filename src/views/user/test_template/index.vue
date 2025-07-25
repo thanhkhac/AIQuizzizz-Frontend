@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import ApiFolder from "@/api/ApiFolder";
+import ApiTestTemplate from "@/api/ApiTestTemplate";
+
 import FOLDER_SHARE_MODE from "@/constants/folderShareMode";
-import type FolderPageParams from "@/models/request/folder/folderPageParams";
-import type { Folder } from "@/models/response/folder/folder";
+import type TestTemplatePageParams from "@/models/request/testTemplate/testTemplatePageParams";
+import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
 
 import { ref, onMounted, reactive, computed, onUpdated } from "vue";
 import { useI18n } from "vue-i18n";
@@ -22,28 +23,28 @@ const emit = defineEmits(["updateSidebar"]);
 
 const optionKeys = Object.values(FOLDER_SHARE_MODE);
 
-const folder_share_mode_options = computed(() =>
+const share_mode_options = computed(() =>
     optionKeys.map((key) => ({
         label: t(`folder_index.select_option.${key}`),
         value: key !== FOLDER_SHARE_MODE.ALL ? key : "",
     })),
 );
-
-const folder_data = ref<Folder[]>([]);
+const test_template_data = ref<TestTemplate[]>([]);
 const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
     pageSize: route.query.pageSize || 10,
-    folderName: route.query.folderName?.toString() || "",
-    shareMode: route.query.shareMode || folder_share_mode_options.value[0].value,
+    name: route.query.name?.toString() || "",
+    shareMode: route.query.shareMode || share_mode_options.value[0].value,
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
+
 const getData = async () => {
     try {
-        let result = await ApiFolder.GetAllByLimit(pageParams as FolderPageParams);
+        let result = await ApiTestTemplate.GetAllByLimit(pageParams as TestTemplatePageParams);
         if (result.data.success) {
             let resultData = result.data.data;
-            folder_data.value = resultData.items;
+            test_template_data.value = resultData.items;
             pageParams.pageNumber = resultData.pageNumber;
             pageParams.pageSize = resultData.pageSize;
             pageParams.totalCount = resultData.totalCount;
@@ -54,21 +55,21 @@ const getData = async () => {
                     pageParams.pageNumber = 1;
 
                     router.push({
-                        name: "User_Folder",
+                        name: "User_TestTemplate",
                         query: {
                             pageNumber: 1,
                             pageSize: pageParams.pageSize,
-                            folderName: pageParams.folderName,
+                            name: pageParams.name,
                             shareMode: pageParams.shareMode,
                         },
                     });
                 } else {
                     router.push({
-                        name: "User_Folder",
+                        name: "User_TestTemplate",
                         query: {
                             pageNumber: pageParams.pageNumber,
                             pageSize: pageParams.pageSize,
-                            folderName: pageParams.folderName,
+                            name: pageParams.name,
                             shareMode: pageParams.shareMode,
                         },
                     });
@@ -77,7 +78,7 @@ const getData = async () => {
             }
         }
     } catch (error) {
-        console.log("ERROR: GETALLBYLIMIT folder: " + error);
+        console.log("ERROR: GETALLBYLIMIT testtemplate: " + error);
     }
 };
 
@@ -86,8 +87,8 @@ onUpdated(() => {
     if (Object.keys(route.query).length === 0) {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
-        pageParams.folderName = route.query.folderName?.toString() || "";
-        pageParams.shareMode = route.query.shareMode || folder_share_mode_options.value[0].value;
+        pageParams.name = route.query.name?.toString() || "";
+        pageParams.shareMode = route.query.shareMode || share_mode_options.value[0].value;
         pageParams.statusFilter = true;
 
         getData();
@@ -102,57 +103,12 @@ const onPaginationChange = (page: number, pageSize: number) => {
     getData();
 };
 
-//rules for both modal
-const rules = {
-    folderName: [
-        {
-            required: true,
-            message: "This field is required.",
-            trigger: "change",
-        },
-        {
-            max: 100,
-            message: "Limit 100.",
-            trigger: "change",
-        },
-    ],
+const onRefirectToCreate = () => {
+    router.push({ name: "User_TestTemplate_Create" });
 };
 
-/* create modal */
-const modal_create_open = ref(false);
-
-const createFolderFormRef = ref();
-const createFolderFormState = reactive({
-    folderName: "",
-});
-
-const isCreateLoading = ref(false);
-const onCreateFolder = async () => {
-    isCreateLoading.value = true;
-    try {
-        await createFolderFormRef.value.validate(); //this will throw err to catch
-        let result = await ApiFolder.Create(createFolderFormState);
-        if (!result.data.success) {
-            message.error("Create folder failed");
-            return;
-        }
-        modal_create_open.value = false;
-        message.success("Create folder successfully.");
-        await getData();
-    } catch (error) {
-        console.log(error);
-    } finally {
-        isCreateLoading.value = false;
-    }
-};
-
-const onRedirectToFolderDetail = (folderId: string) => {
-    router.push({
-        name: "User_Folder_Detail",
-        params: {
-            id: folderId,
-        },
-    });
+const onRefirectToUpdate = (id: string) => {
+    router.push({ name: "User_TestTemplate_Update", params: { id } });
 };
 
 onMounted(async () => {
@@ -175,9 +131,9 @@ onMounted(async () => {
                     type="primary"
                     class="ms-3 main-color-btn"
                     size="large"
-                    @click="modal_create_open = true"
+                    @click="onRefirectToCreate"
                 >
-                    {{ $t("folder_index.buttons.create_folder") }}
+                    Create new template
                     <i class="bx bx-plus"></i>
                 </a-button>
             </div>
@@ -187,10 +143,10 @@ onMounted(async () => {
                 <div class="content-item-functions">
                     <div class="content-item-navigators">
                         <div class="navigator-container">
-                            <RouterLink class="navigator-item navigator-active" :to="{ name: '' }">
+                            <RouterLink class="navigator-item" :to="{ name: 'User_Folder' }">
                                 {{ $t("folder_index.navigators.folder") }}
                             </RouterLink>
-                            <RouterLink class="navigator-item" :to="{ name: 'User_TestTemplate' }">
+                            <RouterLink class="navigator-item navigator-active" :to="{ name: '' }">
                                 {{ $t("folder_index.navigators.test_template") }}
                             </RouterLink>
                         </div>
@@ -203,7 +159,7 @@ onMounted(async () => {
                             @change="getData"
                         >
                             <a-select-option
-                                v-for="option in folder_share_mode_options"
+                                v-for="option in share_mode_options"
                                 :value="option.value"
                             >
                                 {{ option.label }}
@@ -212,7 +168,7 @@ onMounted(async () => {
                         <div style="width: 300px; padding: 0px">
                             <Input
                                 @input="getData"
-                                v-model="pageParams.folderName"
+                                v-model="pageParams.name"
                                 :placeholder="t('class_index.other.search_class_placeholder')"
                             >
                                 <template #icon>
@@ -222,26 +178,63 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <div class="folder-container">
-                    <template v-if="folder_data.length > 0">
-                        <div class="folder" v-for="folder in folder_data">
-                            <div class="folder-icon">
-                                <div class="folder-top"></div>
-                                <div class="folder-body"></div>
+                <div v-if="test_template_data.length > 0" class="quiz-item-container">
+                    <div class="quiz-item" v-for="template in test_template_data">
+                        <i class="bx bx-book-open quiz-item-icon"></i>
+                        <div>
+                            <div class="quiz-item-title">
+                                {{ template.name }}
                             </div>
-                            <div class="folder-name">{{ folder.name }}</div>
+                            <div class="quiz-item-info quiz-info-detail">
+                                <div class="quiz-item-questions">
+                                    <i class="bx bx-message-square-edit bx-rotate-270"></i>
+                                    {{ template.numberOfQuestion }}
+                                    {{ $t("dashboards.list_items.quiz.questions") }}
+                                </div>
+                                <div class="quiz-item-created-by">
+                                    {{ $t("class_question_set.other.created_by") }}
+                                    {{ template.createdBy }}
+                                </div>
+                            </div>
                         </div>
-                    </template>
-                    <template v-else>
-                        <div class="w-100 m-2 d-flex justify-content-center">
-                            <a-empty>
-                                <template #description>
-                                    <span> {{ $t("folder_index.other.no_data_matches") }}</span>
+                        <div class="exam-item-actions">
+                            <a-button type="primary" class="me-3 main-color-btn">
+                                {{ $t("class_question_set.buttons.view") }}
+                            </a-button>
+                            <a-dropdown :trigger="['click']">
+                                <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
+                                <template #overlay>
+                                    <a-menu class="drop-down-container">
+                                        <a-menu-item key="0">
+                                            <i class="bx bx-info-circle"></i>
+                                            {{ $t("question_sets_index.buttons.detail") }}
+                                        </a-menu-item>
+                                        <a-menu-item key="1" @click="onRefirectToUpdate(template.testTemplateId)">
+                                            <i class="bx bx-edit"></i>
+                                            {{ $t("question_sets_index.buttons.edit") }}
+                                        </a-menu-item>
+                                        <a-menu-divider style="background-color: #ddd" />
+                                        <a-menu-item key="3">
+                                            <span class="d-flex align-items-center">
+                                                <i class="bx bx-trash-alt"></i>
+                                                {{ $t("question_sets_index.buttons.delete") }}
+                                            </span>
+                                        </a-menu-item>
+                                    </a-menu>
                                 </template>
-                            </a-empty>
+                            </a-dropdown>
                         </div>
-                    </template>
+                    </div>
                 </div>
+                <template v-else>
+                    <div class="w-100 d-flex justify-content-center">
+                        <a-empty>
+                            <template #description>
+                                <span> No data matches. </span>
+                            </template>
+                        </a-empty>
+                    </div>
+                </template>
                 <div class="pagination-container">
                     <a-pagination
                         @change="onPaginationChange"
@@ -263,56 +256,6 @@ onMounted(async () => {
             </div>
         </div>
     </div>
-    <a-modal
-        centered
-        wrap-class-name="medium-modal"
-        :open="modal_create_open"
-        @cancel="modal_create_open = false"
-    >
-        <div class="modal-container">
-            <div class="modal-title-container">
-                <a-row class="w-100 d-flex align-items-center">
-                    <a-col :span="4">
-                        <RouterLink @click="modal_create_open = false" :to="{ name: '' }">
-                            <i class="bx bx-chevron-left navigator-back-button"></i>
-                        </RouterLink>
-                    </a-col>
-                    <a-col class="main-title" :span="20">
-                        <span>{{ t("folder_index.modal.create_title") }}</span>
-                    </a-col>
-                </a-row>
-            </div>
-            <a-form
-                ref="createFolderFormRef"
-                layout="vertical"
-                :rules="rules"
-                :model="createFolderFormState"
-            >
-                <a-form-item
-                    :label="t('folder_index.modal.create_folder_name_label')"
-                    name="folderName"
-                >
-                    <Input
-                        v-model:value="createFolderFormState.folderName"
-                        :placeholder="t('folder_index.modal.create_folder_name_placeholder')"
-                        :is-required="true"
-                        :max-length="100"
-                    ></Input>
-                </a-form-item>
-            </a-form>
-        </div>
-        <template #footer>
-            <a-button
-                :loading="isCreateLoading"
-                class="main-color-btn"
-                key="submit"
-                type="primary"
-                @click="onCreateFolder"
-            >
-                {{ t("folder_index.buttons.create") }}
-            </a-button>
-        </template>
-    </a-modal>
 </template>
 <style scoped>
 .title-container {
@@ -335,66 +278,5 @@ onMounted(async () => {
     display: flex;
     justify-content: end;
     align-items: center;
-}
-
-.folder-container {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.folder {
-    width: fit-content;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background-color: transparent;
-    margin: 10px;
-    padding: 10px;
-    padding-bottom: 5px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-.folder:hover {
-    background-color: var(--border-color);
-}
-
-.folder-icon {
-    width: 120px;
-    height: 80px;
-    aspect-ratio: 1;
-    overflow: hidden;
-    border-radius: 8px;
-    position: relative;
-}
-
-.folder-top {
-    width: 100%;
-    height: 20%;
-    transform: skew(45deg) translate(-50%);
-    background-color: #fcb729;
-    position: absolute;
-    border-radius: 8px;
-}
-.folder-body {
-    width: 100%;
-    height: 90%;
-    background: linear-gradient(to bottom, #fed86b 0%, #ffdf7e 100%);
-    border-top: none;
-    border-left: none;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    border-radius: 8px;
-}
-
-.folder-name {
-    width: 120px;
-    max-width: 120px;
-    text-align: center;
-    font-size: 14px;
-    margin-top: 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 </style>

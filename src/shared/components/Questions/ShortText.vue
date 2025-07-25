@@ -17,8 +17,8 @@ import QUESTION_TYPE from "@/constants/questionTypes";
 interface Props {
     question: Question;
     index: number;
+    displayScore: boolean;
 }
-
 const { t } = useI18n();
 
 const props = defineProps<Props>();
@@ -36,6 +36,8 @@ const options = computed(() =>
         value: key,
     })),
 );
+
+const pointOptions = [5, 10, 15, 20, 30, 40, 50];
 
 const possibleAnswers = ref<string[]>([]);
 
@@ -94,6 +96,14 @@ const { validateInfos } = Form.useForm(props.question, {
                     {{ $t("create_QS.question.question") }} {{ props.index }}
                 </div>
                 <div class="question-functions">
+                    <div v-if="displayScore" class="question-score-select">
+                        Score:
+                        <a-select v-model:value="props.question.score" style="width: 100px">
+                            <a-select-option v-for="option in pointOptions" :value="option">
+                                {{ option }}
+                            </a-select-option>
+                        </a-select>
+                    </div>
                     <div class="question-function-select">
                         <a-select v-model:value="props.question.type" style="width: 200px">
                             <a-select-option v-for="option in options" :value="option.value">

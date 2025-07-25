@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ApiQuestionSet from "@/api/ApiQuestionSet";
+import ApiTestTemplate from "@/api/ApiTestTemplate";
 
 import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
@@ -7,7 +7,6 @@ import { message, Modal } from "ant-design-vue";
 
 import dayjs from "dayjs";
 import { onBeforeRouteLeave } from "vue-router";
-import { useRoute } from "vue-router";
 
 import type { Question } from "@/models/request/question";
 
@@ -22,12 +21,8 @@ import ShortText from "@/shared/components/Questions/ShortText.vue";
 interface FormState {
     name: string;
     description: string;
-    tags: string[];
     questions: Question[]; // or specify the type if you know it
 }
-
-const route = useRoute();
-const questionSetId = ref(route.params.id as string);
 
 const { t } = useI18n();
 
@@ -36,7 +31,6 @@ const formRef = ref();
 const formState = reactive<FormState>({
     name: "",
     description: "",
-    tags: [],
     questions: [],
 });
 
@@ -171,25 +165,6 @@ const question_data_raw = [
         shortAnswer: "",
     },
 ];
-
-//tag
-const tagContent = ref("");
-const addTag = () => {
-    if (formState.tags.length >= 5) {
-        message.warning("Limit : 5 tags");
-        return;
-    }
-    if (tagContent.value && tagContent.value.trim().length <= 50) {
-        formState.tags.push(tagContent.value);
-        tagContent.value = "";
-    } else {
-        message.warning("Invalid tag content");
-    }
-};
-
-const removeTag = (index: number) => {
-    formState.tags.splice(index, 1);
-};
 
 const createQuestionTemplate = (): Question => ({
     id: Date.now().toString(),
@@ -341,10 +316,10 @@ const showModalConfirmation = () => {
         onOk: async () => {
             //logic here
             //remove draft
-            let result = await ApiQuestionSet.Update(questionSetId.value, formState);
-            if (result.data.success) {
-                message.success(result.data.data);
-            }
+            // let result = await ApiQuestionSet.Create(formState);
+            // if (result.data.success) {
+            //     message.success(result.data.data);
+            // }
             localStorage.removeItem(storage_draft_key);
         },
     });
@@ -402,8 +377,6 @@ onMounted(() => {
     formState.questions.push(...(question_data_raw as Question[]));
     intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
     window.addEventListener("beforeunload", handleBeforeUnload);
-
-    //handle get by id
 });
 
 onUnmounted(() => {
@@ -453,31 +426,6 @@ onUnmounted(() => {
                             :max-length="250"
                             :label="t('create_QS.quiz.description')"
                         />
-                        <div class="form-item">
-                            <label>{{ $t("create_QS.quiz.tag") }}</label>
-                            <div class="tag-container">
-                                <div
-                                    class="tag-item"
-                                    v-for="(tag, index) in formState.tags"
-                                    :key="index"
-                                >
-                                    {{ tag }}
-                                    <i class="bx bx-x" @click="removeTag(index)"></i>
-                                </div>
-                            </div>
-                            <div class="tag-inputter">
-                                <Input
-                                    v-model="tagContent"
-                                    :placeholder="t('question_sets_index.search_placeholder')"
-                                    :max-length="50"
-                                >
-                                    <template #icon>
-                                        <i class="bx bx-purchase-tag-alt"></i>
-                                    </template>
-                                </Input>
-                                <i class="bx bx-plus tag-inputter-button" @click="addTag"></i>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="content-item">
@@ -522,7 +470,7 @@ onUnmounted(() => {
                                 :is="componentMap[question.type]"
                                 :question="question"
                                 :index="index + 1"
-                                :displayScore="false"
+                                :displayScore="true"
                                 @deleteQuestion="onRemoveQuestion(index)"
                             />
                         </div>

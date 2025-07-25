@@ -353,6 +353,11 @@ Custome a-select
     justify-content: end;
     align-items: center;
 }
+
+.question-score-select {
+    margin-right: 10px;
+}
+
 .question-function-select {
     width: 200px;
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ApiQuestionSet from "@/api/ApiQuestionSet";
+import ApiTestTemplate from "@/api/ApiTestTemplate";
 
 import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
@@ -7,7 +7,6 @@ import { message, Modal } from "ant-design-vue";
 
 import dayjs from "dayjs";
 import { onBeforeRouteLeave } from "vue-router";
-import { useRoute } from "vue-router";
 
 import type { Question } from "@/models/request/question";
 
@@ -22,12 +21,8 @@ import ShortText from "@/shared/components/Questions/ShortText.vue";
 interface FormState {
     name: string;
     description: string;
-    tags: string[];
     questions: Question[]; // or specify the type if you know it
 }
-
-const route = useRoute();
-const questionSetId = ref(route.params.id as string);
 
 const { t } = useI18n();
 
@@ -36,7 +31,6 @@ const formRef = ref();
 const formState = reactive<FormState>({
     name: "",
     description: "",
-    tags: [],
     questions: [],
 });
 
@@ -98,7 +92,7 @@ const question_data_raw = [
         questionText: "What is the capital of France ?",
         questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
         explainText: "Paris is the capital city of France.",
-        score: 10,
+        score: 20,
         multipleChoices: [
             { id: "1", text: "Paris", isAnswer: true },
             { id: "2", text: "London", isAnswer: false },
@@ -160,7 +154,7 @@ const question_data_raw = [
         questionText: "Which planet is known as the Red Planet?",
         questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
         explainText: "Mars is often called the Red Planet due to its reddish appearance.",
-        score: 10,
+        score: 30,
         multipleChoices: [
             { id: "1", text: "Mars", isAnswer: true },
             { id: "2", text: "Venus", isAnswer: false },
@@ -170,26 +164,84 @@ const question_data_raw = [
         orderingItems: [],
         shortAnswer: "",
     },
+    {
+        id: "q6",
+        type: "MultipleChoice",
+        questionText: "Which language is primarily used for web development?",
+        questionHTML: `<p>Which <strong>language</strong> is primarily used for <em>web development</em>? <code>// programming</code></p>`,
+        explainText: "JavaScript is the most commonly used language for web development.",
+        score: 20,
+        multipleChoices: [
+            { id: "1", text: "JavaScript", isAnswer: true },
+            { id: "2", text: "Python", isAnswer: false },
+            { id: "3", text: "C++", isAnswer: false },
+        ],
+        matchingPairs: [],
+        orderingItems: [],
+        shortAnswer: "",
+    },
+    {
+        id: "q7",
+        type: "Matching",
+        questionText: "Match the authors to their famous works.",
+        questionHTML: `<p>Match the <strong>authors</strong> to their <em>famous works</em>. <code>// literature</code></p>`,
+        explainText: "Each author is known for a specific famous book.",
+        score: 15,
+        multipleChoices: [],
+        matchingPairs: [
+            { id: "1", leftItem: "George Orwell", rightItem: "1984" },
+            { id: "2", leftItem: "J.K. Rowling", rightItem: "Harry Potter" },
+            { id: "3", leftItem: "Leo Tolstoy", rightItem: "War and Peace" },
+        ],
+        orderingItems: [],
+        shortAnswer: "",
+    },
+    {
+        id: "q8",
+        type: "Ordering",
+        questionText: "Arrange the historical periods in chronological order.",
+        questionHTML: `<p><strong>Arrange</strong> the <em>historical periods</em> in <u>chronological</u> order. <code>// history</code></p>`,
+        explainText: "The order is: Ancient → Medieval → Renaissance → Modern.",
+        score: 10,
+        multipleChoices: [],
+        matchingPairs: [],
+        orderingItems: [
+            { id: "1", text: "Ancient", correctOrder: 0 },
+            { id: "2", text: "Medieval", correctOrder: 1 },
+            { id: "3", text: "Renaissance", correctOrder: 2 },
+            { id: "4", text: "Modern", correctOrder: 3 },
+        ],
+        shortAnswer: "",
+    },
+    {
+        id: "q9",
+        type: "ShortText",
+        questionText: "What is the square root of 144?",
+        questionHTML: `<p>What is the <strong>square root</strong> of <em>144</em>? <code>// math</code></p>`,
+        explainText: "The square root of 144 is 12.",
+        score: 10,
+        multipleChoices: [],
+        matchingPairs: [],
+        orderingItems: [],
+        shortAnswer: "12",
+    },
+    {
+        id: "q10",
+        type: "MultipleChoice",
+        questionText: "Which gas do plants absorb from the atmosphere?",
+        questionHTML: `<p>Which <strong>gas</strong> do <u>plants</u> absorb from the <em>atmosphere</em>? <code>// biology</code></p>`,
+        explainText: "Plants absorb carbon dioxide (CO₂) during photosynthesis.",
+        score: 20,
+        multipleChoices: [
+            { id: "1", text: "Oxygen", isAnswer: false },
+            { id: "2", text: "Carbon Dioxide", isAnswer: true },
+            { id: "3", text: "Nitrogen", isAnswer: false },
+        ],
+        matchingPairs: [],
+        orderingItems: [],
+        shortAnswer: "",
+    },
 ];
-
-//tag
-const tagContent = ref("");
-const addTag = () => {
-    if (formState.tags.length >= 5) {
-        message.warning("Limit : 5 tags");
-        return;
-    }
-    if (tagContent.value && tagContent.value.trim().length <= 50) {
-        formState.tags.push(tagContent.value);
-        tagContent.value = "";
-    } else {
-        message.warning("Invalid tag content");
-    }
-};
-
-const removeTag = (index: number) => {
-    formState.tags.splice(index, 1);
-};
 
 const createQuestionTemplate = (): Question => ({
     id: Date.now().toString(),
@@ -341,7 +393,7 @@ const showModalConfirmation = () => {
         onOk: async () => {
             //logic here
             //remove draft
-            let result = await ApiQuestionSet.Update(questionSetId.value, formState);
+            let result = await ApiTestTemplate.Create(formState);
             if (result.data.success) {
                 message.success(result.data.data);
             }
@@ -402,8 +454,6 @@ onMounted(() => {
     formState.questions.push(...(question_data_raw as Question[]));
     intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
     window.addEventListener("beforeunload", handleBeforeUnload);
-
-    //handle get by id
 });
 
 onUnmounted(() => {
@@ -416,7 +466,7 @@ onUnmounted(() => {
         <div class="title-container">
             <a-row class="w-100 d-flex align-items-center">
                 <a-col :span="1">
-                    <RouterLink :to="{ name: 'User_Library' }">
+                    <RouterLink :to="{ name: 'User_TestTemplate' }">
                         <i class="bx bx-chevron-left navigator-back-button"></i>
                     </RouterLink>
                 </a-col>
@@ -429,7 +479,7 @@ onUnmounted(() => {
             </a-row>
         </div>
         <div class="content">
-            <a-form layout="vertical" v-model="formState" :rules="rules" ref="formRef">
+            <a-form layout="vertical" :model="formState" :rules="rules" ref="formRef">
                 <div class="content-item">
                     <div class="content-item-title">
                         <div>
@@ -453,31 +503,6 @@ onUnmounted(() => {
                             :max-length="250"
                             :label="t('create_QS.quiz.description')"
                         />
-                        <div class="form-item">
-                            <label>{{ $t("create_QS.quiz.tag") }}</label>
-                            <div class="tag-container">
-                                <div
-                                    class="tag-item"
-                                    v-for="(tag, index) in formState.tags"
-                                    :key="index"
-                                >
-                                    {{ tag }}
-                                    <i class="bx bx-x" @click="removeTag(index)"></i>
-                                </div>
-                            </div>
-                            <div class="tag-inputter">
-                                <Input
-                                    v-model="tagContent"
-                                    :placeholder="t('question_sets_index.search_placeholder')"
-                                    :max-length="50"
-                                >
-                                    <template #icon>
-                                        <i class="bx bx-purchase-tag-alt"></i>
-                                    </template>
-                                </Input>
-                                <i class="bx bx-plus tag-inputter-button" @click="addTag"></i>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="content-item">
@@ -522,7 +547,7 @@ onUnmounted(() => {
                                 :is="componentMap[question.type]"
                                 :question="question"
                                 :index="index + 1"
-                                :displayScore="false"
+                                :displayScore="true"
                                 @deleteQuestion="onRemoveQuestion(index)"
                             />
                         </div>

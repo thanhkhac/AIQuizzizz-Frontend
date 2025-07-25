@@ -516,6 +516,7 @@ onUnmounted(() => {
                                 :is="componentMap[question.type]"
                                 :question="question"
                                 :index="index + 1"
+                                :displayScore="false"
                                 @deleteQuestion="onRemoveQuestion(index)"
                             />
                         </div>

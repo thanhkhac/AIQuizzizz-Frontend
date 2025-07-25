@@ -29,20 +29,20 @@ const classData = ref<Class>({
     topic: "",
 });
 
-const optionKeys = Object.values(CLASS_QUESTION_SET_SHARE_MODE);
+// const optionKeys = Object.values(CLASS_QUESTION_SET_SHARE_MODE);
 
-const share_mode_options = computed(() =>
-    optionKeys.map((key) => ({
-        label: t(`class_question_set.select_option.${key}`),
-        value: key !== CLASS_QUESTION_SET_SHARE_MODE.ALL ? key : "",
-    })),
-);
+// const share_mode_options = computed(() =>
+//     optionKeys.map((key) => ({
+//         label: t(`class_question_set.select_option.${key}`),
+//         value: key !== CLASS_QUESTION_SET_SHARE_MODE.ALL ? key : "",
+//     })),
+// );
 
 const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
     pageSize: route.query.pageSize || 10,
     name: route.query.name?.toString() || "",
-    shareMode: route.query.shareMode || share_mode_options.value[0].value,
+    // shareMode: route.query.shareMode || share_mode_options.value[0].value,
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
@@ -89,7 +89,7 @@ const getData = async () => {
                             pageNumber: 1,
                             pageSize: pageParams.pageSize,
                             name: pageParams.name,
-                            shareMode: pageParams.shareMode,
+                            // shareMode: pageParams.shareMode,
                         },
                     });
                 } else {
@@ -102,7 +102,7 @@ const getData = async () => {
                             pageNumber: pageParams.pageNumber,
                             pageSize: pageParams.pageSize,
                             name: pageParams.name,
-                            shareMode: pageParams.shareMode,
+                            // shareMode: pageParams.shareMode,
                         },
                     });
                 }
@@ -120,7 +120,7 @@ onUpdated(() => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
         pageParams.name = route.query.name?.toString() || "";
-        pageParams.shareMode = route.query.status || share_mode_options.value[0].value;
+        // pageParams.shareMode = route.query.status || share_mode_options.value[0].value;
         pageParams.statusFilter = true;
 
         getData();
@@ -185,7 +185,7 @@ onMounted(async () => {
                             </RouterLink>
                         </div>
                     </div>
-                    <a-select
+                    <!-- <a-select
                         v-model:value="pageParams.shareMode"
                         style="width: 200px"
                         @change="getData"
@@ -193,7 +193,7 @@ onMounted(async () => {
                         <a-select-option v-for="option in share_mode_options" :value="option.value">
                             {{ option.label }}
                         </a-select-option>
-                    </a-select>
+                    </a-select> -->
                     <div style="width: 300px; padding: 0px">
                         <Input
                             @input="getData"

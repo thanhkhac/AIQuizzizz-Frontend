@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import home_banner from "@/assets/banner_image.png";
+import home_vector from "@/assets/home_vector.png";
 
 import { StarOutlined, AppstoreOutlined } from "@ant-design/icons-vue";
 import Header from "@/shared/components/Header.vue";
@@ -7,8 +8,11 @@ import Header from "@/shared/components/Header.vue";
 <template>
     <Header />
     <div class="background">
-        <div class="pattern pattern-top"></div>
-        <div class="pattern pattern-bottom"></div>
+        <div class="pattern pattern-top" :style="{ backgroundImage: `url(${home_vector})` }"></div>
+        <div
+            class="pattern pattern-bottom"
+            :style="{ backgroundImage: `url(${home_vector})` }"
+        ></div>
         <div class="w-100 h-100 d-flex justify-content-between align-items-center">
             <div class="eclipse eclipse-left"></div>
             <div class="eclipse eclipse-right"></div>
@@ -288,7 +292,6 @@ import Header from "@/shared/components/Header.vue";
     position: absolute;
     width: 100vw;
     height: 300px;
-    background-image: url("src/assets/home_vector.png");
     background-size: cover;
     background-repeat: no-repeat;
     left: 0;
