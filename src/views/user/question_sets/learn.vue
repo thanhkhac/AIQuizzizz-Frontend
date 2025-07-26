@@ -5,7 +5,7 @@ import { ref, computed, onMounted, nextTick } from "vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import { QUOTES } from "@/constants/quote";
 
-import type { Question } from "@/models/response/question";
+import type { ResponseQuestion } from "@/models/response/question";
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
@@ -25,7 +25,7 @@ const QUESTION_FORMAT = {
 interface LearnQuizModel {
     completedQuestionCount: number;
     totalQuestionCount: number;
-    questions: Question[];
+    questions: ResponseQuestion[];
 }
 
 const quiz = ref<LearnQuizModel>({
@@ -136,14 +136,14 @@ const comment_sample = [
 
 const totalCompleted = ref(quiz.value.completedQuestionCount); //for total
 
-const completed = ref<Question[]>([]); // for session
+const completed = ref<ResponseQuestion[]>([]); // for session
 
-const incorrect = ref<Set<Question>>(new Set()); // for session
+const incorrect = ref<Set<ResponseQuestion>>(new Set()); // for session
 
-const currentSession = ref<Question[]>([]); // for session
+const currentSession = ref<ResponseQuestion[]>([]); // for session
 const isCurrentSessionReLearn = ref(false); //to check whether current session re-learn incorrect
 
-const currentQuestion = ref<Question>({} as Question);
+const currentQuestion = ref<ResponseQuestion>({} as ResponseQuestion);
 
 const currentQuestionInstruction = ref("");
 const currentQuestionIsSubmitted = ref(false);

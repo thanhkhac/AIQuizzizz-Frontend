@@ -117,7 +117,7 @@ const onFilter = () => {
     quiz_data.value = filtered_data;
 };
 
-const onRedirectToEdit = (id, title) => {
+const onRedirectToDetail = (id) => {
     router.push({ name: "User_QuestionSet_Detail", params: { id: id } });
 };
 
@@ -191,7 +191,11 @@ onMounted(() => {
                     </div>
                 </div>
                 <div v-if="quiz_data.length > 0" class="quiz-item-container">
-                    <div class="quiz-item" v-for="quiz in quiz_data">
+                    <div
+                        class="quiz-item"
+                        v-for="quiz in quiz_data"
+                        @click="onRedirectToDetail(quiz.id)"
+                    >
                         <i class="bx bx-book-open quiz-item-icon"></i>
                         <div>
                             <div class="quiz-item-title">
@@ -229,37 +233,6 @@ onMounted(() => {
                                     }}
                                 </span>
                             </div>
-                        </div>
-                        <div class="quiz-item-actions">
-                            <a-dropdown :trigger="['click']">
-                                <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
-                                <template #overlay>
-                                    <a-menu class="drop-down-container">
-                                        <a-menu-item
-                                            key="0"
-                                            @click="onRedirectToEdit(quiz.id, quiz.title)"
-                                        >
-                                            <i class="bx bx-info-circle"></i>
-                                            {{ $t("question_sets_index.buttons.detail") }}
-                                        </a-menu-item>
-                                        <a-menu-item key="1">
-                                            <i class="bx bx-edit"></i>
-                                            {{ $t("question_sets_index.buttons.edit") }}
-                                        </a-menu-item>
-                                        <a-menu-item key="2">
-                                            <i class="bx bx-copy"></i>
-                                            {{ $t("question_sets_index.buttons.dublicate") }}
-                                        </a-menu-item>
-                                        <a-menu-divider style="background-color: #ddd" />
-                                        <a-menu-item key="3">
-                                            <span class="d-flex align-items-center">
-                                                <i class="bx bx-trash-alt"></i>
-                                                {{ $t("question_sets_index.buttons.delete") }}
-                                            </span>
-                                        </a-menu-item>
-                                    </a-menu>
-                                </template>
-                            </a-dropdown>
                         </div>
                     </div>
                 </div>

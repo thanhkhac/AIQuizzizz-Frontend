@@ -112,6 +112,14 @@ const userRoutes = [
         },
     },
     {
+        name: "User_QuestionSet_Update",
+        path: "/user/library/:id/update",
+        component: () => import("@/views/user/question_sets/update.vue"),
+        meta: {
+            title: "updateQS",
+        },
+    }, 
+    {
         name: "User_QuestionSet_Learn",
         path: "/user/learn/:id",
         component: () => import("@/views/user/question_sets/learn.vue"),

@@ -8,6 +8,7 @@ const END_POINTS = {
     CREATE: "TestTemplate",
     UPDATE: "TestTemplate/{testTemplateId}",
     DELETE: "TestTemplate/{testTemplateId}",
+    IMPORT_FILE: "TestTemplate/ImportFile",
 };
 
 class ApiFolder {
@@ -33,12 +34,22 @@ class ApiFolder {
 
     Update = async (templateId: string, formState: object) => {
         const url = END_POINTS.UPDATE.replace("{testTemplateId}", templateId);
-        return await Api.patch(url, {}, formState);
+        return await Api.patch(url, formState); //body 2 //query 3
     };
 
     Delete = async (templateId: string) => {
         const url = END_POINTS.DELETE.replace("{testTemplateId}", templateId);
         return await Api.delete(url);
+    };
+
+    ImportFile = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        return await Api.post(END_POINTS.IMPORT_FILE, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
     };
 }
 

@@ -6,7 +6,7 @@ import { message } from "ant-design-vue";
 import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
 
-import type { Question } from "@/models/request/question";
+import type { RequestQuestion } from "@/models/request/question";
 import QUESTION_TYPE from "@/constants/questionTypes";
 
 const { t } = useI18n();
@@ -114,7 +114,6 @@ const quiz = ref({
         image: "",
     },
     createdAt: "05/07/2025",
-    isBookMarked: false,
 });
 
 const optionKeys = [
@@ -136,10 +135,6 @@ const selected_type_option = ref(question_type_options.value[0].value);
 
 const searchValue = ref("");
 
-const onAddBookMark = () => {
-    quiz.value.isBookMarked = !quiz.value.isBookMarked;
-};
-
 //preview uploaded content
 const toggleDisplayAnswer = (index: number, button: EventTarget) => {
     let $button = $(button);
@@ -150,7 +145,7 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
     if (answer) $(answer).slideToggle();
 };
 
-const questionsToBeRendered = ref<Question[]>([]);
+const questionsToBeRendered = ref<RequestQuestion[]>([]);
 const onFilter = () => {
     const filteredQuestions = quiz.value.questions.filter((x) => {
         let matches = x.questionText.includes(searchValue.value.toLowerCase().trim());
@@ -174,7 +169,7 @@ const onFilter = () => {
             }
         }
     });
-    questionsToBeRendered.value = filteredQuestions as Question[];
+    questionsToBeRendered.value = filteredQuestions as RequestQuestion[];
 };
 
 //share quiz
@@ -193,15 +188,25 @@ const onRedirectToTest = () => {
     router.push({ name: "User_QuestionSet_Test", params: { id: quiz.value.id } });
 };
 
+const onRedirectToEdit = () => {
+    router.push({ name: "User_QuestionSet_Update", params: { id: quiz.value.id } });
+};
+
 const triggerPrint = () => {
     window.print();
 };
+
+//#region  rating
+const modal_rate_open = ref(false);
+const rateValue = ref(0);
+
+//#endregion
 
 onMounted(() => {
     //get api quiz + check visibility to current user
     //format url
 
-    questionsToBeRendered.value = quiz.value.questions as Question[];
+    questionsToBeRendered.value = quiz.value.questions as RequestQuestion[];
 });
 </script>
 <template>
@@ -217,20 +222,11 @@ onMounted(() => {
                     <span>{{ quiz.description }}</span>
                 </div>
                 <div class="d-flex flex-row align-items-center quiz-header-functions">
-                    <i
-                        :class="['bx', quiz.isBookMarked ? 'bxs-bookmark' : 'bx-bookmark']"
-                        @click="onAddBookMark"
-                    ></i>
-
                     <a-dropdown :trigger="['click']" :placement="'bottomRight'">
                         <i class="bx bx-dots-horizontal-rounded ant-dropdown-link"></i>
                         <template #overlay>
                             <a-menu class="drop-down-container">
-                                <a-menu-item key="0">
-                                    <i class="bx bx-info-circle"></i>
-                                    {{ $t("question_sets_index.buttons.detail") }}
-                                </a-menu-item>
-                                <a-menu-item key="1">
+                                <a-menu-item key="1" @click="onRedirectToEdit">
                                     <i class="bx bx-edit"></i>
                                     {{ $t("question_sets_index.buttons.edit") }}
                                 </a-menu-item>
@@ -251,7 +247,7 @@ onMounted(() => {
                 </div>
             </div>
             <div class="quiz-info">
-                <div class="quiz-rating">
+                <div class="quiz-rating" @click="modal_rate_open = true">
                     {{ quiz.rating.value }} ⭐️ ({{ quiz.rating.reviews }}
                     {{ $t("detail_QS.other.reviews") }})
                 </div>
@@ -262,19 +258,6 @@ onMounted(() => {
                 </div>
             </div>
             <div class="quiz-credit">
-                <div class="credit-user">
-                    <img class="user-image" :src="quiz.createdBy.image" alt="" />
-                    <div class="credit-user-info">
-                        <span>
-                            {{
-                                $t("detail_QS.other.created_by", {
-                                    username: quiz.createdBy.fullName,
-                                })
-                            }}
-                        </span>
-                        <span>{{ quiz.createdAt }}</span>
-                    </div>
-                </div>
                 <div class="share-btn-container">
                     <a-button
                         type="primary"
@@ -288,21 +271,28 @@ onMounted(() => {
                 </div>
             </div>
             <div class="action-container">
-                <div class="action-item" @click="onRedirectToLearn">
-                    {{ $t("detail_QS.buttons.learn") }}
-                    <i class="bx bx-analyse"></i>
+                <div class="credit-user">
+                    <img class="user-image" :src="quiz.createdBy.image" alt="" />
+                    <div class="credit-user-info">
+                        <span>
+                            {{
+                                $t("detail_QS.other.created_by", {
+                                    username: quiz.createdBy.fullName,
+                                })
+                            }}
+                        </span>
+                        <span>{{ quiz.createdAt }}</span>
+                    </div>
                 </div>
-                <div class="action-item" @click="onRedirectToTest">
-                    {{ $t("detail_QS.buttons.test") }}
-                    <i class="bx bx-detail"></i>
-                </div>
-                <div class="action-item">
-                    {{ $t("detail_QS.buttons.assign_to_class") }}
-                    <i class="bx bx-calendar-exclamation"></i>
-                </div>
-                <div class="action-item" @click="triggerPrint">
-                    {{ $t("detail_QS.buttons.download") }}
-                    <i class="bx bx-download"></i>
+                <div class="d-flex">
+                    <div class="action-item" @click="onRedirectToLearn">
+                        {{ $t("detail_QS.buttons.learn") }}
+                        <i class="bx bx-analyse"></i>
+                    </div>
+                    <div class="action-item" @click="onRedirectToTest">
+                        {{ $t("detail_QS.buttons.test") }}
+                        <i class="bx bx-detail"></i>
+                    </div>
                 </div>
             </div>
         </div>
@@ -420,6 +410,26 @@ onMounted(() => {
     </div>
 
     <ShareModal ref="shareModalRef" />
+    <a-modal wrap-class-name="medium-modal" :visible="modal_rate_open">
+        <div class="title-container">
+            <a-row class="w-100 d-flex align-items-center justify-content-between">
+                <a-col :span="1">
+                    <div @click="modal_rate_open = false">
+                        <i class="bx bx-chevron-left navigator-back-button"></i>
+                    </div>
+                </a-col>
+                <a-col class="main-title" :span="20">
+                    <span>Rate the question set</span> <br />
+                </a-col>
+            </a-row>
+        </div>
+        <div class="modal-rate-container">
+            <a-rate v-model:value="rateValue" style="font-size: 40px" />
+        </div>
+        <template #footer>
+            <a-button type="primary" class="main-color-btn">Send</a-button>
+        </template>
+    </a-modal>
 </template>
 
 <style scoped>
@@ -447,11 +457,6 @@ onMounted(() => {
 .quiz-header-functions i {
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-}
-
-.quiz-header-functions i:nth-child(1) {
-    color: var(--main-color);
-    margin-right: 20px;
 }
 
 .quiz-header-functions i:nth-child(1):hover {
@@ -500,7 +505,7 @@ onMounted(() => {
 
 .quiz-credit {
     display: flex;
-    justify-content: space-between;
+    justify-content: end;
     align-items: center;
     margin-bottom: 30px;
 }
@@ -532,7 +537,7 @@ onMounted(() => {
 }
 
 .action-item {
-    flex: 1;
+    width: 300px;
     margin: 0px 10px;
     padding: 10px;
     display: flex;
@@ -581,5 +586,15 @@ onMounted(() => {
     margin-right: 10px;
     font-size: 20px;
     transform: translateY(2px);
+}
+.modal-rate-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+::v-deep(.ant-rate-star-second) {
+    color: var(--border-color);
 }
 </style>

@@ -1,91 +1,17 @@
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from "vue";
+import ApiTestTemplate from "@/api/ApiTestTemplate";
+
+import { ref, reactive, watch, onMounted, computed } from "vue";
 import { Modal, message } from "ant-design-vue";
 import { InboxOutlined } from "@ant-design/icons-vue";
 
-import type { Question } from "@/models/request/question";
-import QUESTION_TYPE from "@/constants/questionTypes";
+import { useI18n } from "vue-i18n";
 
-const question_data_raw = [
-    {
-        id: "q1",
-        type: "MultipleChoice",
-        questionText: "What is the capital of France ?",
-        questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
-        explainText: "Paris is the capital city of France.",
-        score: 1,
-        multipleChoices: [
-            { id: "1", text: "Paris", isAnswer: true },
-            { id: "2", text: "London", isAnswer: false },
-            { id: "3", text: "Berlin", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q2",
-        type: "Matching",
-        questionText: "Match the countries to their capitals.",
-        questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
-        explainText: "Each country must be paired with its capital.",
-        score: 2,
-        multipleChoices: [],
-        matchingPairs: [
-            { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
-            { id: "2", leftItem: "Italy", rightItem: "Rome" },
-            { id: "3", leftItem: "Vietnam", rightItem: "Hanoi" },
-        ],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q3",
-        type: "Ordering",
-        questionText: "Arrange the steps of the water cycle in the correct order.",
-        questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
-        explainText:
-            "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
-        score: 2,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [
-            { id: "1", text: "Evaporation", correctOrder: 1 },
-            { id: "2", text: "Condensation", correctOrder: 2 },
-            { id: "3", text: "Precipitation", correctOrder: 3 },
-            { id: "4", text: "Collection", correctOrder: 4 },
-        ],
-        shortAnswer: "",
-    },
-    {
-        id: "q4",
-        type: "ShortText",
-        questionText: "What is the chemical symbol for water?",
-        questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
-        explainText: "H2O is the formula for water.",
-        score: 1,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "H2O",
-    },
-    {
-        id: "q5",
-        type: "MultipleChoice",
-        questionText: "Which planet is known as the Red Planet?",
-        questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
-        explainText: "Mars is often called the Red Planet due to its reddish appearance.",
-        score: 1,
-        multipleChoices: [
-            { id: "1", text: "Mars", isAnswer: true },
-            { id: "2", text: "Venus", isAnswer: false },
-            { id: "3", text: "Jupiter", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-];
+import type { RequestQuestion } from "@/models/request/question";
+import QUESTION_TYPE from "@/constants/questionTypes";
+import { formItemProps } from "ant-design-vue/es/form";
+
+const { t } = useI18n();
 
 interface Props {
     title: string;
@@ -94,16 +20,19 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-    (e: "import", selected: Question[]): void;
+    (e: "import", selected: RequestQuestion[]): void;
 }>();
 
 const modal_import_open = ref(false);
-const uploadedQuestions = ref<Question[]>();
+const question_data = ref<RequestQuestion[]>();
+
+const uploadedQuestions = ref<RequestQuestion[]>();
+const uploadedInvalidQuestions = ref<RequestQuestion[]>();
 
 const importModalState = reactive({
     checkAll: false,
     indeterminate: false,
-    checkedList: [] as string[],
+    checkedList: [] as RequestQuestion[],
 });
 
 const openImportModal = () => {
@@ -129,7 +58,7 @@ const openFileExplorer = () => {
     fileInput.value?.click();
 };
 
-const handleFileChange = (event: Event) => {
+const handleFileChange = async (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
 
@@ -137,6 +66,22 @@ const handleFileChange = (event: Event) => {
         files.value = [];
         message.success(file.name + " uploaded successfully.");
         files.value.push(file);
+
+        const result = await ApiTestTemplate.ImportFile(files.value[0]);
+        if (result.data.success) {
+            question_data.value = [
+                ...result.data.data.validQuestions,
+                ...result.data.data.invalidQuestions,
+            ];
+
+            uploadedQuestions.value = [
+                ...result.data.data.validQuestions,
+                ...result.data.data.invalidQuestions,
+            ];
+
+            uploadedInvalidQuestions.value = result.data.data.invalidQuestions;
+        }
+
         return;
     }
     message.error("Upload failed");
@@ -165,12 +110,53 @@ const handleDrop = (event: DragEvent) => {
 
 const onRemoveUploadedFile = (index: number) => {
     files.value?.splice(index, 1);
+
+    importModalState.checkedList = [];
+    question_data.value = [];
+    uploadedInvalidQuestions.value = [];
+    uploadedQuestions.value = [];
 };
+
+//#region filter select
+
+const optionKeys = ["all", "valid", "invalid"];
+const select_options = computed(() =>
+    optionKeys.map((key) => ({
+        label: key,
+        value: key,
+    })),
+);
+const selected_option = ref(select_options.value[0].value);
+
+const onFilter = () => {
+    importModalState.checkedList = [];
+
+    let filtered_data = question_data.value;
+    switch (selected_option.value) {
+        case "valid": {
+            filtered_data = question_data.value?.filter(
+                (x) => !uploadedInvalidQuestions.value?.includes(x),
+            );
+            break;
+        }
+        case "invalid": {
+            filtered_data = question_data.value?.filter((x) =>
+                uploadedInvalidQuestions.value?.includes(x),
+            );
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    uploadedQuestions.value = filtered_data;
+};
+//#endregion
 
 //checkboxes  / checkbox-all for importing question back to the page
 const onCheckAll = (event: any) => {
     Object.assign(importModalState, {
-        checkedList: event.target.checked ? uploadedQuestions.value?.map((x) => x.id) : [],
+        checkedList: event.target.checked ? uploadedQuestions.value : [],
         indeterminate: false,
     });
 };
@@ -179,7 +165,7 @@ watch(
     () => importModalState.checkedList,
     (val) => {
         importModalState.indeterminate =
-            !!val.length && val.length < uploadedQuestions.value!.map((x) => x.id).length; //change to uploadedList when it done
+            !!val.length && val.length < uploadedQuestions.value!.length; //change to uploadedList when it done
         importModalState.checkAll = val.length === uploadedQuestions.value?.length;
     },
 );
@@ -201,9 +187,9 @@ const handleModalImport = () => {
         okText: "Confirm",
         onOk: () => {
             const selectedQuestions = uploadedQuestions.value?.filter((question) =>
-                importModalState.checkedList.includes(question.id),
-            ) as Question[];
-
+                importModalState.checkedList.includes(question),
+            ) as RequestQuestion[];
+    
             //emit event & params to main
             emit("import", selectedQuestions);
             closeImportModal();
@@ -212,7 +198,7 @@ const handleModalImport = () => {
 };
 
 onMounted(() => {
-    uploadedQuestions.value = question_data_raw as Question[]; //sample
+    // uploadedQuestions.value = question_data_raw as RequestQuestion[]; //sample
 });
 </script>
 
@@ -295,8 +281,9 @@ onMounted(() => {
                 </div>
                 <div class="content-item-section preview-section">
                     <div class="section-title">Preview</div>
+
                     <div class="section-content">
-                        <div class="section-content-header">
+                        <div v-if="files.length > 0" class="section-content-header">
                             <div
                                 :class="[
                                     'header-item',
@@ -310,19 +297,35 @@ onMounted(() => {
                                 ></a-checkbox>
                                 Check all ({{ importModalState.checkedList.length }})
                             </div>
-                            <div class="header-item">
-                                Total:
-                                {{ uploadedQuestions?.length }}
-                                questions
+                            <div class="d-flex">
+                                <a-select
+                                    size="large"
+                                    class="me-3"
+                                    v-model:value="selected_option"
+                                    style="width: 200px"
+                                    @change="onFilter"
+                                >
+                                    <a-select-option
+                                        v-for="option in select_options"
+                                        :value="option.value"
+                                    >
+                                        {{ option.label }}
+                                    </a-select-option>
+                                </a-select>
                             </div>
                         </div>
                         <a-checkbox-group v-model:value="importModalState.checkedList">
                             <div class="preview-question-container">
                                 <div
-                                    class="preview-question-item"
+                                    :class="[
+                                        'preview-question-item',
+                                        uploadedInvalidQuestions?.includes(question)
+                                            ? 'invalid'
+                                            : '',
+                                    ]"
                                     v-for="(question, index) in uploadedQuestions"
                                 >
-                                    <a-checkbox :value="question.id"></a-checkbox>
+                                    <a-checkbox :value="question"></a-checkbox>
                                     <div class="question-item-content">
                                         <div
                                             v-if="question.questionHTML"
@@ -425,9 +428,25 @@ onMounted(() => {
         </div>
 
         <template #footer>
-            <a-button class="main-color-btn" key="submit" type="primary" @click="handleModalImport"
-                >Import</a-button
+            <div class="header-item">
+                Total:
+                {{ importModalState.checkedList.length }}
+                questions
+            </div>
+            <a-button
+                class="main-color-btn"
+                size="large"
+                key="submit"
+                type="primary"
+                @click="handleModalImport"
             >
+                Import
+            </a-button>
         </template>
     </a-modal>
 </template>
+<style>
+.preview-question-item.invalid {
+    border-color: red;
+}
+</style>

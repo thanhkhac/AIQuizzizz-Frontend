@@ -26,7 +26,7 @@ interface Ordering {
     correctOrder: number;
 }
 
-export interface Question {
+export interface ResponseQuestion {
     id: string;
     type: "MultipleChoice" | "Matching" | "Ordering" | "ShortText";
     questionSetId: string;

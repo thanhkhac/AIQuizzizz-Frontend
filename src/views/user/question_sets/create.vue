@@ -8,7 +8,7 @@ import { message, Modal } from "ant-design-vue";
 import dayjs from "dayjs";
 import { onBeforeRouteLeave } from "vue-router";
 
-import type { Question } from "@/models/request/question";
+import type { RequestQuestion } from "@/models/request/question";
 
 import Input from "@/shared/components/Common/Input.vue";
 import TextArea from "@/shared/components/Common/TextArea.vue";
@@ -22,7 +22,7 @@ interface FormState {
     name: string;
     description: string;
     tags: string[];
-    questions: Question[]; // or specify the type if you know it
+    questions: RequestQuestion[]; // or specify the type if you know it
 }
 
 const { t } = useI18n();
@@ -187,7 +187,7 @@ const removeTag = (index: number) => {
     formState.tags.splice(index, 1);
 };
 
-const createQuestionTemplate = (): Question => ({
+const createQuestionTemplate = (): RequestQuestion => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
@@ -234,7 +234,7 @@ const onRemoveQuestion = (index: number) => {
 const onFinish = () => {
     let isInvalid = false;
     let msg = "Invalid question.";
-    let invalidQuestion = new Set<Question>();
+    let invalidQuestion = new Set<RequestQuestion>();
 
     if (formState.name.trim().length > 100 || formState.name.trim().length === 0) {
         isInvalid = true;
@@ -250,7 +250,7 @@ const onFinish = () => {
         return;
     }
 
-    const validation: Question[][] = [
+    const validation: RequestQuestion[][] = [
         //invalid question text
         formState.questions.filter((x) => {
             const questionText = x.questionText
@@ -336,12 +336,11 @@ const showModalConfirmation = () => {
         centered: true,
         onOk: async () => {
             //logic here
-            //remove draft
             let result = await ApiQuestionSet.Create(formState);
             if (result.data.success) {
                 message.success(result.data.data);
             }
-            localStorage.removeItem(storage_draft_key);
+            // localStorage.removeItem(storage_draft_key);
         },
     });
 };
@@ -364,25 +363,25 @@ const openGenerateAIModal = () => {
 };
 
 //use for both modal import event
-const onModalImport = (selected: Question[]) => {
+const onModalImport = (selected: RequestQuestion[]) => {
     formState.questions.push(...selected);
+    message.success(`Imported ${selected.length} questions.`);
 };
 
 /* auto-save */
-const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
-const intervalId = ref<number>();
+// const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
+// const intervalId = ref<number>();
 
-const saveDraft = () => {
-    // localStorage.setItem(storage_draft_key, JSON.stringify(formState));
-    message.info("Auto saved");
-};
+// const saveDraft = () => {
+//     localStorage.setItem(storage_draft_key, JSON.stringify(formState));
+//     message.info("Auto saved");
+// };
 
 onBeforeRouteLeave((to, from, next) => {
     Modal.confirm({
         title: "Leave already?",
         content: "You have unsaved changes.",
         onOk: () => {
-            localStorage.removeItem(storage_draft_key);
             next();
         },
         onCancel: () => next(false),
@@ -395,13 +394,12 @@ function handleBeforeUnload(e: BeforeUnloadEvent) {
 }
 
 onMounted(() => {
-    formState.questions.push(...(question_data_raw as Question[]));
-    intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
+    formState.questions.push(...(question_data_raw as RequestQuestion[]));
+    // intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
     window.addEventListener("beforeunload", handleBeforeUnload);
 });
 
 onUnmounted(() => {
-    clearInterval(intervalId.value);
     window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 </script>

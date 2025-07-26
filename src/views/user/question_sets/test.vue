@@ -4,7 +4,7 @@ const animationPath = new URL('@/assets/confetti.lottie', import.meta.url).href;
 
 import { ref, computed, onMounted, nextTick, reactive } from "vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
-import type { Question } from "@/models/response/question";
+import type { ResponseQuestion } from "@/models/response/question";
 
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
@@ -266,13 +266,13 @@ const quiz = {
     ],
 };
 
-const completed = ref<Question[]>([]); // for session
+const completed = ref<ResponseQuestion[]>([]); // for session
 
 const incorrect = computed((): UserAnswer[] => {
     return userAnswer.value.filter((x) => x.result === false);
 });
 
-const currentQuestion = ref<Question>(quiz.question[0] as Question);
+const currentQuestion = ref<ResponseQuestion>(quiz.question[0] as ResponseQuestion);
 
 const currentQuestionInstruction = ref("");
 const currentQuestionIsSkipped = ref(false);
@@ -759,7 +759,7 @@ const onSkipQuestion = () => {
 const onLoadCurrentQuestion = (index: number) => {
     currentQuestionIsSkipped.value = false;
 
-    currentQuestion.value = quiz.question[index] as Question;
+    currentQuestion.value = quiz.question[index] as ResponseQuestion;
     const answer = userAnswer.value.find((x) => x.questionId === currentQuestion.value.id);
 
     switch (currentQuestion.value.type) {

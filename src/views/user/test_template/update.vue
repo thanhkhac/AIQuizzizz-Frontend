@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import ApiTestTemplate from "@/api/ApiTestTemplate";
-
-import { ref, reactive, onMounted, onUnmounted } from "vue";
+import { ref, reactive, onMounted, onUnmounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
-
 import dayjs from "dayjs";
-import { onBeforeRouteLeave } from "vue-router";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 
-import type { Question } from "@/models/request/question";
+import type { RequestQuestion } from "@/models/request/question";
+import type { ResponseQuestion } from "@/models/response/question";
+import QUESTION_TYPE from "@/constants/questionTypes";
+
+import TranferQuestionData from "@/services/TransferQuestionData";
+import Validator from "@/services/Validator";
 
 import Input from "@/shared/components/Common/Input.vue";
 import TextArea from "@/shared/components/Common/TextArea.vue";
@@ -18,20 +21,69 @@ import Matching from "@/shared/components/Questions/Matching.vue";
 import Ordering from "@/shared/components/Questions/Ordering.vue";
 import ShortText from "@/shared/components/Questions/ShortText.vue";
 
+const { t } = useI18n();
+const router = useRouter();
+const route = useRoute();
+
+//#region interface
 interface FormState {
+    testTemplateId: string;
     name: string;
     description: string;
-    questions: Question[]; // or specify the type if you know it
+    createUpdateQuestions: RequestQuestion[];
+    deleteQuestionIds: string[];
 }
 
-const { t } = useI18n();
+interface TestTemplate {
+    testTemplateId: string;
+    name: string;
+    questions: ResponseQuestion[];
+}
 
+//#endregion
+
+//#region get testTemplate detail data
+const testTemplateId = ref(route.params.id as string);
+const testTemplate = ref<TestTemplate>({
+    testTemplateId: "",
+    name: "",
+    questions: [],
+});
+const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
+
+const getTestTemplate = async () => {
+    if (!Validator.isValidGuid(testTemplateId.value)) {
+        isDataValid.value = false;
+        router.push({ name: "404" });
+        return;
+    }
+
+    let result = await ApiTestTemplate.GetById(testTemplateId.value);
+    if (!result.data.success) {
+        isDataValid.value = false;
+        router.push({ name: "404" });
+        return;
+    }
+    testTemplate.value = result.data.data;
+    formState.name = testTemplate.value.name;
+    formState.createUpdateQuestions = testTemplate.value.questions.map((x) =>
+        TranferQuestionData.transformResponseToRequest(x),
+    );
+    formState.testTemplateId = testTemplate.value.testTemplateId;
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+};
+//#endregion
+
+//#region form
 const formRef = ref();
 
 const formState = reactive<FormState>({
+    testTemplateId: "",
     name: "",
     description: "",
-    questions: [],
+    createUpdateQuestions: [],
+    deleteQuestionIds: [],
 });
 
 const rules = {
@@ -84,90 +136,11 @@ const componentMap = {
     Ordering,
     ShortText,
 };
+//#endregion
 
-const question_data_raw = [
-    {
-        id: "q1",
-        type: "MultipleChoice",
-        questionText: "What is the capital of France ?",
-        questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
-        explainText: "Paris is the capital city of France.",
-        score: 10,
-        multipleChoices: [
-            { id: "1", text: "Paris", isAnswer: true },
-            { id: "2", text: "London", isAnswer: false },
-            { id: "3", text: "Berlin", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q2",
-        type: "Matching",
-        questionText: "Match the countries to their capitals.",
-        questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
-        explainText: "Each country must be paired with its capital.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [
-            { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
-            { id: "2", leftItem: "Italy", rightItem: "Rome" },
-            { id: "3", leftItem: "Vietnam", rightItem: "Hanoi" },
-        ],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q3",
-        type: "Ordering",
-        questionText: "Arrange the steps of the water cycle in the correct order.",
-        questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
-        explainText:
-            "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [
-            { id: "1", text: "Evaporation", correctOrder: 0 },
-            { id: "2", text: "Condensation", correctOrder: 1 },
-            { id: "3", text: "Precipitation", correctOrder: 2 },
-            { id: "4", text: "Collection", correctOrder: 3 },
-        ],
-        shortAnswer: "",
-    },
-    {
-        id: "q4",
-        type: "ShortText",
-        questionText: "What is the chemical symbol for water?",
-        questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
-        explainText: "H2O is the formula for water.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "H2O",
-    },
-    {
-        id: "q5",
-        type: "MultipleChoice",
-        questionText: "Which planet is known as the Red Planet?",
-        questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
-        explainText: "Mars is often called the Red Planet due to its reddish appearance.",
-        score: 10,
-        multipleChoices: [
-            { id: "1", text: "Mars", isAnswer: true },
-            { id: "2", text: "Venus", isAnswer: false },
-            { id: "3", text: "Jupiter", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-];
-
-const createQuestionTemplate = (): Question => ({
-    id: Date.now().toString(),
+//#region logic manipulate question
+const createQuestionTemplate = (): RequestQuestion => ({
+    id: "",
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
@@ -193,27 +166,31 @@ const createQuestionTemplate = (): Question => ({
 });
 
 const onAddQuestion = () => {
-    if (formState.questions.length >= 10) {
+    if (formState.createUpdateQuestions.length >= 100) {
         message.warning("Each question set could have at most 100 questions");
         return;
     }
 
-    formState.questions.push(createQuestionTemplate());
+    formState.createUpdateQuestions.push(createQuestionTemplate());
 };
 
 const onRemoveQuestion = (index: number) => {
-    if (formState.questions.length <= 1) {
+    if (formState.createUpdateQuestions.length <= 1) {
         message.warning("Each question set must have at least 1 questions");
         return;
     }
+    //add to delete existing question only
+    //ignore new question
+    const questionId = formState.createUpdateQuestions[index].id;
+    if (questionId) formState.deleteQuestionIds.push(questionId);
 
-    formState.questions.splice(index, 1);
+    formState.createUpdateQuestions.splice(index, 1);
 };
 
 const onFinish = () => {
     let isInvalid = false;
     let msg = "Invalid question.";
-    let invalidQuestion = new Set<Question>();
+    let invalidQuestion = new Set<RequestQuestion>();
 
     if (formState.name.trim().length > 100 || formState.name.trim().length === 0) {
         isInvalid = true;
@@ -229,9 +206,9 @@ const onFinish = () => {
         return;
     }
 
-    const validation: Question[][] = [
+    const validation: RequestQuestion[][] = [
         //invalid question text
-        formState.questions.filter((x) => {
+        formState.createUpdateQuestions.filter((x) => {
             const questionText = x.questionText
                 .replace(/^<p>/, "") //replace <p> at the start
                 .replace(/<\/p>$/, "") //replace </p> at the end
@@ -241,17 +218,19 @@ const onFinish = () => {
         }),
 
         //invalid explain text
-        formState.questions.filter((x) => {
-            const questionText = x.explainText
-                .replace(/^<p>/, "")
-                .replace(/<\/p>$/, "")
-                .trim();
+        formState.createUpdateQuestions.filter((x) => {
+            const explainText = x.explainText
+                ? x.explainText
+                      .replace(/^<p>/, "")
+                      .replace(/<\/p>$/, "")
+                      .trim()
+                : "";
 
-            return questionText.length >= 500;
+            return explainText.length >= 500;
         }),
 
         //invalid multiplechoice
-        formState.questions.filter(
+        formState.createUpdateQuestions.filter(
             (x) =>
                 x.type === QUESTION_TYPE.MULTIPLE_CHOICE &&
                 (x.multipleChoices.some(
@@ -261,7 +240,7 @@ const onFinish = () => {
         ),
 
         //invalid matching
-        formState.questions.filter(
+        formState.createUpdateQuestions.filter(
             (x) =>
                 x.type === QUESTION_TYPE.MATCHING &&
                 (x.matchingPairs.some(
@@ -273,7 +252,7 @@ const onFinish = () => {
         ),
 
         //invalid ordering
-        formState.questions.filter(
+        formState.createUpdateQuestions.filter(
             (x) =>
                 x.type === QUESTION_TYPE.ORDERING &&
                 x.orderingItems.some(
@@ -282,7 +261,7 @@ const onFinish = () => {
         ),
 
         //invalid short text
-        formState.questions.filter(
+        formState.createUpdateQuestions.filter(
             (x) =>
                 x.type === QUESTION_TYPE.SHORT_TEXT &&
                 (x.shortAnswer.trim().length === 0 || x.shortAnswer.trim().length > 500),
@@ -296,7 +275,9 @@ const onFinish = () => {
         }
     });
 
-    let indexes = Array.from(invalidQuestion).map((x) => formState.questions.indexOf(x) + 1);
+    let indexes = Array.from(invalidQuestion).map(
+        (x) => formState.createUpdateQuestions.indexOf(x) + 1,
+    );
 
     if (isInvalid) {
         Modal.error({
@@ -314,18 +295,19 @@ const showModalConfirmation = () => {
         content: "Make sure to review your contents before proceeding.",
         centered: true,
         onOk: async () => {
-            //logic here
-            //remove draft
-            // let result = await ApiQuestionSet.Create(formState);
-            // if (result.data.success) {
-            //     message.success(result.data.data);
-            // }
-            localStorage.removeItem(storage_draft_key);
+            console.log(formState);
+
+            let result = await ApiTestTemplate.Update(testTemplate.value.testTemplateId, formState);
+            if (result.data.success) {
+                message.success(result.data.data);
+            }
+            // localStorage.removeItem(storage_draft_key);
         },
     });
 };
+//#endregion
 
-//import modal
+//#region import modal
 import ImportQSModal from "@/shared/modals/ImportQSModal.vue";
 const importModalRef = ref<InstanceType<typeof ImportQSModal> | null>(null);
 
@@ -333,55 +315,63 @@ const onOpenImportModal = () => {
     importModalRef.value?.openImportModal();
 };
 
-//generate modal
+//#endregion
+
+//#region generate modal
 import GenerateQSModal from "@/shared/modals/GenerateQSModal.vue";
-import QUESTION_TYPE from "@/constants/questionTypes";
 const generateModalRef = ref<InstanceType<typeof GenerateQSModal> | null>(null);
 
 const openGenerateAIModal = () => {
     generateModalRef.value?.openGenerateAIModal();
 };
-
 //use for both modal import event
-const onModalImport = (selected: Question[]) => {
-    formState.questions.push(...selected);
+const onModalImport = (selected: RequestQuestion[]) => {
+    formState.createUpdateQuestions.push(...selected);
 };
+//#endregion
 
-/* auto-save */
-const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
-const intervalId = ref<number>();
+//#region auto save
+// const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
+// const intervalId = ref<number>();
 
-const saveDraft = () => {
-    // localStorage.setItem(storage_draft_key, JSON.stringify(formState));
-    message.info("Auto saved");
-};
+// const saveDraft = () => {
+//     // localStorage.setItem(storage_draft_key, JSON.stringify(formState));
+//     message.info("Auto saved");
+// };
+//#endregion
+
+//#region  safe guard before leave
+function handleBeforeUnload(e: BeforeUnloadEvent) {
+    e.preventDefault();
+    e.returnValue = "";
+}
 
 onBeforeRouteLeave((to, from, next) => {
+    if (!isDataValid.value) {
+        next();
+        return;
+    }
+
     Modal.confirm({
         title: "Leave already?",
         content: "You have unsaved changes.",
         onOk: () => {
-            localStorage.removeItem(storage_draft_key);
+            // localStorage.removeItem(storage_draft_key);
             next();
         },
         onCancel: () => next(false),
     });
 });
 
-function handleBeforeUnload(e: BeforeUnloadEvent) {
-    e.preventDefault();
-    e.returnValue = "";
-}
-
-onMounted(() => {
-    formState.questions.push(...(question_data_raw as Question[]));
-    intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
-    window.addEventListener("beforeunload", handleBeforeUnload);
-});
-
 onUnmounted(() => {
-    clearInterval(intervalId.value);
+    // clearInterval(intervalId.value);
     window.removeEventListener("beforeunload", handleBeforeUnload);
+});
+//#endregion
+
+onMounted(async () => {
+    // intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
+    await getTestTemplate();
 });
 </script>
 <template>
@@ -456,7 +446,7 @@ onUnmounted(() => {
                             <div class="import-button">
                                 {{
                                     $t("create_QS.quiz.total", {
-                                        number: formState.questions.length
+                                        number: formState.createUpdateQuestions.length
                                             .toString()
                                             .padStart(3, "0"),
                                     })
@@ -465,7 +455,10 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <div class="list-question-container">
-                        <div v-for="(question, index) in formState.questions" :key="question.id">
+                        <div
+                            v-for="(question, index) in formState.createUpdateQuestions"
+                            :key="question.id"
+                        >
                             <component
                                 :is="componentMap[question.type]"
                                 :question="question"

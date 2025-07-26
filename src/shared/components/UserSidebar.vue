@@ -80,6 +80,14 @@ const onSignOut = () => {
                         </span>
                     </RouterLink>
                 </li>
+                <li :class="['sidebar-listItem', { active: activeItem === 'folder' }]">
+                    <RouterLink :to="{ name: 'User_Folder' }">
+                        <i class="bx bxs-folder-open"></i>
+                        <span class="sidebar-listItemText">
+                            {{ $t("sidebar.navigators.folder") }}
+                        </span>
+                    </RouterLink>
+                </li>
                 <li :class="['sidebar-listItem', { active: activeItem === 'schedule' }]">
                     <RouterLink :to="{}">
                         <i class="bx bxs-calendar"></i>
@@ -93,14 +101,6 @@ const onSignOut = () => {
                         <i class="bx bx-group"></i>
                         <span class="sidebar-listItemText">
                             {{ $t("sidebar.navigators.class") }}
-                        </span>
-                    </RouterLink>
-                </li>
-                <li :class="['sidebar-listItem', { active: activeItem === 'folder' }]">
-                    <RouterLink :to="{ name: 'User_Folder' }">
-                        <i class="bx bxs-folder-open"></i>
-                        <span class="sidebar-listItemText">
-                            {{ $t("sidebar.navigators.folder") }}
                         </span>
                     </RouterLink>
                 </li>

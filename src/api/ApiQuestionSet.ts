@@ -5,6 +5,8 @@ const END_POINTS = {
     LEARN_QUESTIONS: "QuestionSet/{questionSetId}/LearnQuestions",
     LEARN_HISTORY: "QuestionSet/{questionSetId}/LearnHistory",
     DELETE_LEARN_HISTORY: "QuestionSet/{questionSetId}/LearnHistory",
+    GET_DETAIL_BY_ID: "QuestionSet/{questionSetId}",
+    GET_QUESTIONS_BY_ID: "QuestionSet/{questionSetId}/Questions",
 };
 
 class ApiQuestionSet {
@@ -30,6 +32,16 @@ class ApiQuestionSet {
     resetLearnHistory = async (questionId: string) => {
         const url = END_POINTS.DELETE_LEARN_HISTORY.replace("{questionSetId}", questionId);
         return await Api.delete(url);
+    };
+
+    GetDetailById = async (questionSetId: string) => {
+        const url = END_POINTS.GET_DETAIL_BY_ID.replace("{questionSetId}", questionSetId);
+        return await Api.get(url);
+    };
+
+    GetQuestionById = async (questionSetId: string) => {
+        const url = END_POINTS.GET_DETAIL_BY_ID.replace("{questionSetId}", questionSetId);
+        return await Api.get(url);
     };
 }
 
