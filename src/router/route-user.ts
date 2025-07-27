@@ -101,6 +101,14 @@ const userRoutes = [
                     title: "test-template",
                 },
             },
+            {
+                name: "User_Folder_Detail",
+                path: "/user/folder/:id",
+                component: () => import("@/views/user/folder/detail.vue"),
+                meta: {
+                    title: "folder-detail",
+                },
+            },
         ],
     },
     {
@@ -118,7 +126,7 @@ const userRoutes = [
         meta: {
             title: "updateQS",
         },
-    }, 
+    },
     {
         name: "User_QuestionSet_Learn",
         path: "/user/learn/:id",

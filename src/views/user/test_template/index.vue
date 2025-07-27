@@ -11,7 +11,7 @@ import { useAuthStore } from "@/stores/AuthStore";
 import { useRoute, useRouter } from "vue-router";
 
 import Input from "@/shared/components/Common/Input.vue";
-import { message } from "ant-design-vue";
+import { message, Modal } from "ant-design-vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -34,7 +34,7 @@ const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
     pageSize: route.query.pageSize || 10,
     name: route.query.name?.toString() || "",
-    shareMode: route.query.shareMode || share_mode_options.value[0].value,
+    sharedMode: route.query.shareMode || share_mode_options.value[0].value,
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
@@ -60,7 +60,7 @@ const getData = async () => {
                             pageNumber: 1,
                             pageSize: pageParams.pageSize,
                             name: pageParams.name,
-                            shareMode: pageParams.shareMode,
+                            shareMode: pageParams.sharedMode,
                         },
                     });
                 } else {
@@ -70,7 +70,7 @@ const getData = async () => {
                             pageNumber: pageParams.pageNumber,
                             pageSize: pageParams.pageSize,
                             name: pageParams.name,
-                            shareMode: pageParams.shareMode,
+                            shareMode: pageParams.sharedMode,
                         },
                     });
                 }
@@ -88,7 +88,7 @@ onUpdated(() => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
         pageParams.name = route.query.name?.toString() || "";
-        pageParams.shareMode = route.query.shareMode || share_mode_options.value[0].value;
+        pageParams.sharedMode = route.query.shareMode || share_mode_options.value[0].value;
         pageParams.statusFilter = true;
 
         getData();
@@ -109,6 +109,19 @@ const onRefirectToCreate = () => {
 
 const onRefirectToUpdate = (id: string) => {
     router.push({ name: "User_TestTemplate_Update", params: { id } });
+};
+
+const onDelete = (id: string) => {
+    Modal.confirm({
+        title: "Are you sure to delete this test template?",
+        content: "Please double check the important resources!",
+        onOk: async () => {
+            const result = await ApiTestTemplate.Delete(id);
+            if (!result.data.success) return;
+            message.success("Removed successfully!");
+            await getData();
+        },
+    });
 };
 
 onMounted(async () => {
@@ -154,7 +167,7 @@ onMounted(async () => {
                     <div class="filter-container">
                         <a-select
                             class="me-3"
-                            v-model:value="pageParams.shareMode"
+                            v-model:value="pageParams.sharedMode"
                             style="width: 200px"
                             @change="getData"
                         >
@@ -205,16 +218,18 @@ onMounted(async () => {
                                 <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
                                 <template #overlay>
                                     <a-menu class="drop-down-container">
-                                        <a-menu-item key="0">
-                                            <i class="bx bx-info-circle"></i>
-                                            {{ $t("question_sets_index.buttons.detail") }}
-                                        </a-menu-item>
-                                        <a-menu-item key="1" @click="onRefirectToUpdate(template.testTemplateId)">
+                                        <a-menu-item
+                                            key="1"
+                                            @click="onRefirectToUpdate(template.testTemplateId)"
+                                        >
                                             <i class="bx bx-edit"></i>
                                             {{ $t("question_sets_index.buttons.edit") }}
                                         </a-menu-item>
                                         <a-menu-divider style="background-color: #ddd" />
-                                        <a-menu-item key="3">
+                                        <a-menu-item
+                                            key="3"
+                                            @click="onDelete(template.testTemplateId)"
+                                        >
                                             <span class="d-flex align-items-center">
                                                 <i class="bx bx-trash-alt"></i>
                                                 {{ $t("question_sets_index.buttons.delete") }}

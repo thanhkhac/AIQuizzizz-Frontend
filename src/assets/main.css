@@ -464,6 +464,10 @@ Custome a-select
     border: 1px solid var(--main-color);
 }
 
+/**
+* custom a-menu
+**/
+
 .ant-dropdown-menu-item {
     color: var(--text-color) !important;
     font-weight: 400 !important;
@@ -476,6 +480,15 @@ Custome a-select
 .ant-dropdown-menu-item:hover {
     background-color: var(--main-color) !important;
     color: var(--text-color) !important;
+}
+
+.ant-dropdown-menu-item:last-child {
+    color: red !important;
+}
+
+.ant-dropdown-menu-item:last-child:hover {
+    color: red !important;
+    background-color: #2a1215 !important;
 }
 
 /* customized code tag tiptap */

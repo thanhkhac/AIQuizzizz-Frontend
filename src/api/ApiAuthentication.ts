@@ -9,6 +9,7 @@ const END_POINTS = {
     RESET_PASSWORD: "Authentication/ResetPassword",
     GOOGLE_LOGIN: "Authentication/GoogleLogin",
     CREATE_PASSWORD: "Authentication/SetPassword",
+    LOG_OUT: "Authentication/LogOut",
 };
 
 class ApiAuthentication {
@@ -46,6 +47,10 @@ class ApiAuthentication {
 
     CreatePassword = async (formState: object) => {
         return await Api.post(`${END_POINTS.CREATE_PASSWORD}`, formState);
+    };
+
+    LogOut = async () => {
+        return await Api.post(`${END_POINTS.LOG_OUT}`);
     };
 }
 

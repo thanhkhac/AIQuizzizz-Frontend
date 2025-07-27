@@ -11,14 +11,14 @@ const END_POINTS = {
     IMPORT_FILE: "TestTemplate/ImportFile",
 };
 
-class ApiFolder {
+class ApiTestTemplate {
     GetAllByLimit = async (pageParams: TestTemplatePageParams) => {
         return await Api.get(`${END_POINTS.GET_ALL_BY_LIMIT}`, {
             params: {
                 pageNumber: pageParams.pageNumber || 1,
                 pageSize: pageParams.pageSize || 10,
                 name: pageParams.name || "",
-                shareMode: pageParams.shareMode || "",
+                sharedMode: pageParams.sharedMode || "",
             },
         });
     };
@@ -53,4 +53,4 @@ class ApiFolder {
     };
 }
 
-export default new ApiFolder();
+export default new ApiTestTemplate();

@@ -146,7 +146,7 @@ const getScheduleItemMeta = (schedule) => {
                         <div class="quiz-item-progress">
                             <span>{{ $t("dashboards.list_items.quiz.learningProgress") }}</span>
                             <a-progress
-                                stroke-color="#7C3AED"
+                                stroke-color="var(--main-color)"
                                 :percent="
                                     getPercentageComplete(
                                         quiz.numberOfQuestions,

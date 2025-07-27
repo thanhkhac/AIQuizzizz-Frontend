@@ -1,10 +1,15 @@
 import Api from "@/api/Api";
 
 import type FolderPageParams from "@/models/request/folder/folderPageParams";
+import type TestTemplatePageParams from "@/models/request/testTemplate/testTemplatePageParams";
 
 const END_POINTS = {
     GET_ALL_BY_LIMIT: "Folder",
     CREATE: "Folder",
+    UPDATE: "Folder/{FolderId}",
+    GET_ALL_TEST_TEMPLATE_BY_LIMIT: "Folder/{FolderId}/TestTemplates",
+    DELETE_TEST_TEMPLATE: "Folder/{FolderId}/TestTemplate/{TestTemplateId}",
+    DELETE_FOLDER: "Folder/{FolderId}",
 };
 
 class ApiFolder {
@@ -21,6 +26,44 @@ class ApiFolder {
 
     Create = async (formState: object) => {
         return await Api.post(`${END_POINTS.CREATE}`, formState);
+    };
+
+    Update = async (folderId: string, name: string) => {
+        const url = END_POINTS.UPDATE.replace("{FolderId}", folderId);
+        return await Api.patch(
+            url,
+            {},
+            {
+                params: {
+                    name: name,
+                },
+            },
+        );
+    };
+
+    GetAllTestTemplateByLimit = async (folderId: string, pageParams: TestTemplatePageParams) => {
+        const url = END_POINTS.GET_ALL_TEST_TEMPLATE_BY_LIMIT.replace("{FolderId}", folderId);
+        return await Api.get(url, {
+            params: {
+                pageNumber: pageParams.pageNumber || 1,
+                pageSize: pageParams.pageSize || 10,
+                name: pageParams.name || "",
+                sharedMode: pageParams.sharedMode || "",
+            },
+        });
+    };
+
+    DeleteTestTemplate = async (folderId: string, testTemplateId: string) => {
+        const url = END_POINTS.DELETE_TEST_TEMPLATE.replace("{FolderId}", folderId).replace(
+            "{TestTemplateId}",
+            testTemplateId,
+        );
+        return await Api.delete(url);
+    };
+
+    DeleteFolder = async (folderId: string) => {
+        const url = END_POINTS.DELETE_FOLDER.replace("{FolderId}", folderId);
+        return await Api.delete(url);
     };
 }
 

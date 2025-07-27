@@ -156,7 +156,7 @@ onMounted(() => {
                     </RouterLink>
                 </div>
                 <div class="content-item-functions">
-                    <div class="content-item-navigators">
+                    <!-- <div class="content-item-navigators">
                         <div class="navigator-container">
                             <RouterLink class="navigator-item active" :t="{ name: '' }">
                                 {{ $t("question_sets_index.navigators.quiz") }}
@@ -165,7 +165,7 @@ onMounted(() => {
                                 Draft
                             </RouterLink>
                         </div>
-                    </div>
+                    </div> -->
                     <a-select
                         v-model:value="selected_credit_option"
                         style="width: 200px"
@@ -390,29 +390,6 @@ onMounted(() => {
     border: 1px solid var(--main-color);
 }
 
-::v-deep(.ant-dropdown-menu-item) {
-    color: var(--text-color) !important;
-    font-weight: 400 !important;
-}
-
-::v-deep(.ant-dropdown-menu-item):last-child {
-    color: red !important;
-}
-
-::v-deep(.ant-dropdown-menu-item) i {
-    margin-right: 5px;
-}
-
-::v-deep(.ant-dropdown-menu-item):hover {
-    background-color: var(--main-color) !important;
-    color: var(--text-color) !important;
-}
-
-::v-deep(.ant-dropdown-menu-item):last-child:hover {
-    color: red !important;
-    background-color: #2a1215 !important;
-}
-
 .content-item-functions {
     margin: 10px 0px;
     display: flex;
@@ -429,43 +406,4 @@ onMounted(() => {
     height: 35px !important;
 }
 
-.content-item-navigators {
-    flex: 1;
-    justify-content: start;
-    display: flex;
-}
-.navigator-container {
-    height: 40px;
-    border-radius: 8px;
-    background-color: var(--content-item-children-background-color);
-    border: 1px solid var(--content-item-border-color);
-    display: flex;
-}
-.navigator-item {
-    color: var(--text-color);
-    text-decoration: none;
-    height: 100%;
-    width: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.navigator-item:first-child {
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-    margin-right: 2px;
-}
-
-.navigator-item:last-child {
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-}
-
-.navigator-item:hover {
-    background-color: var(--main-color);
-}
-
-.active {
-    background-color: var(--main-color);
-}
 </style>

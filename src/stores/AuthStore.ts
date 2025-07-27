@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import apiUser from "@/api/ApiUser";
+import ApiAuthentication from "@/api/ApiAuthentication";
 import localStorageService from "@/services/LocalStorageService";
 import { useRouter } from "vue-router";
 import dayjs from "dayjs";
@@ -23,6 +24,7 @@ export const useAuthStore = defineStore("authStore", {
         },
 
         logOut() {
+            ApiAuthentication.LogOut();
             this.user_info = "";
             localStorageService.ClearUserInfo();
             this.router.push("/login");

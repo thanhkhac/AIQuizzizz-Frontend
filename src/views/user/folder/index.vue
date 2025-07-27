@@ -224,7 +224,11 @@ onMounted(async () => {
                 </div>
                 <div class="folder-container">
                     <template v-if="folder_data.length > 0">
-                        <div class="folder" v-for="folder in folder_data">
+                        <div
+                            class="folder"
+                            v-for="folder in folder_data"
+                            @click="onRedirectToFolderDetail(folder.folderTestId)"
+                        >
                             <div class="folder-icon">
                                 <div class="folder-top"></div>
                                 <div class="folder-body"></div>

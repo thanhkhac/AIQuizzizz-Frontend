@@ -16,6 +16,7 @@ const END_POINTS = {
     DELETE_CLASS: "Class/{ClassId}",
     DELETE_CLASS_MEMBER: "Class/{ClassId}/Members/{UserId}",
     UPDATE_CLASS_MEMBER_POSITION: "Class/{ClassId}/Members/{UserId}",
+    DELETE_CLASS_QUESTION_SET: "Class/{ClassId}/QuestionSets/{QuestionSetId}",
 };
 
 class ApiUser {
@@ -62,7 +63,6 @@ class ApiUser {
                 pageNumber: pageParams.pageNumber || 1,
                 pageSize: pageParams.pageSize || 10,
                 name: pageParams.name || "",
-                shareMode: pageParams.shareMode || "",
             },
         });
     }
@@ -102,6 +102,14 @@ class ApiUser {
         return await Api.patch(url, null, {
             params: { position },
         });
+    }
+
+    async DeleteQuestionSetFromClass(classId: string, questionSetId: string) {
+        const url = END_POINTS.DELETE_CLASS_QUESTION_SET.replace("{ClassId}", classId).replace(
+            "{QuestionSetId}",
+            questionSetId,
+        );
+        return await Api.delete(url);
     }
 }
 

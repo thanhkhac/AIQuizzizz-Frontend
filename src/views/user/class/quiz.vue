@@ -1,20 +1,16 @@
 <script setup lang="ts">
 import ApiClass from "@/api/ApiClass";
-// import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
 
-import CLASS_QUESTION_SET_SHARE_MODE from "@/constants/classQSShareMode";
 import type ClassQuestionSetPageParams from "@/models/request/class/classQSPageParams";
-
 import type { Class } from "@/models/response/class/class";
 import type { ClassQuestionSet } from "@/models/response/class/classQuestionSet";
 
-import { ref, onMounted, reactive, computed, onUpdated } from "vue";
-import { useI18n } from "vue-i18n";
-import dayjs from "dayjs";
-
+import { ref, onMounted, reactive, onUpdated } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
+import { message, Modal } from "ant-design-vue";
 import Input from "@/shared/components/Common/Input.vue";
+import { useI18n } from "vue-i18n";
 
 const route = useRoute();
 const router = useRouter();
@@ -133,6 +129,22 @@ const onPaginationChange = (page: any, pageSize: any) => {
     pageParams.pageSize = pageSize;
     pageParams.statusFilter = true;
     getData();
+};
+
+const onDeleteQSFromClass = (questionSetId: string) => {
+    Modal.confirm({
+        title: "Are you sure to delete this question set from class?",
+        content: "Please double check for important resources!",
+        onOk: async () => {
+            const result = await ApiClass.DeleteQuestionSetFromClass(
+                classData.value.classId,
+                questionSetId,
+            );
+            if (!result.data.success) return;
+            message.success("Removed successfully.");
+            getData();
+        },
+    });
 };
 
 onMounted(async () => {
@@ -254,7 +266,7 @@ onMounted(async () => {
                                 <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
                                 <template #overlay>
                                     <a-menu class="drop-down-container">
-                                        <a-menu-item key="3">
+                                        <a-menu-item key="3" @click="onDeleteQSFromClass(exam.id)">
                                             <span class="d-flex align-items-center">
                                                 <i class="bx bx-trash-alt"></i>
                                                 {{ $t("question_sets_index.buttons.delete") }}
