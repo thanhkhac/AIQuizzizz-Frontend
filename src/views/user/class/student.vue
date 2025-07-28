@@ -376,58 +376,31 @@ onMounted(async () => {
                         </template>
                         <template v-if="column.key === 'action'">
                             <div class="student-action">
-                                <a-dropdown :trigger="['click']" :placement="'bottomRight'">
-                                    <i
-                                        class="bx bx-dots-vertical-rounded student-action-dropdown"
-                                    ></i>
-                                    <template #overlay>
-                                        <a-menu class="drop-down-container">
-                                            <a-menu-item
-                                                key="1"
-                                                v-if="
-                                                    record.position ===
-                                                    CLASS_STUDENT_POSITION.STUDENT
-                                                "
-                                                @click="
-                                                    onConfirmUpdateMemberPosition(
-                                                        record.studentId,
-                                                        CLASS_STUDENT_POSITION.TEACHER,
-                                                    )
-                                                "
-                                            >
-                                                <i class="bx bxs-id-card"></i>
-                                                {{ $t("class_member.buttons.assign_lecturer") }}
-                                            </a-menu-item>
-                                            <a-menu-item
-                                                v-else
-                                                key="2"
-                                                @click="
-                                                    onConfirmUpdateMemberPosition(
-                                                        record.studentId,
-                                                        CLASS_STUDENT_POSITION.STUDENT,
-                                                    )
-                                                "
-                                            >
-                                                <i class="bx bxs-id-card"></i>
-                                                {{ $t("class_member.buttons.remove_lecturer") }}
-                                            </a-menu-item>
-                                            <a-menu-item key="3">
-                                                <i class="bx bx-history"></i>
-                                                {{ $t("class_member.buttons.history_test") }}
-                                            </a-menu-item>
-                                            <a-menu-divider style="background-color: #ddd" />
-                                            <a-menu-item
-                                                key="4"
-                                                @click="onConfirmDeleteMember(record.studentId)"
-                                            >
-                                                <span class="d-flex align-items-center">
-                                                    <i class="bx bx-trash-alt"></i>
-                                                    {{ $t("question_sets_index.buttons.delete") }}
-                                                </span>
-                                            </a-menu-item>
-                                        </a-menu>
-                                    </template>
-                                </a-dropdown>
+                                <i
+                                    v-if="record.position === CLASS_STUDENT_POSITION.STUDENT"
+                                    style="cursor: pointer"
+                                    class="bx bxs-id-card"
+                                    @click="
+                                        onConfirmUpdateMemberPosition(
+                                            record.studentId,
+                                            CLASS_STUDENT_POSITION.TEACHER,
+                                        )
+                                    "
+                                ></i>
+                                <i
+                                    v-else
+                                    class="text-danger bx bxs-id-card"
+                                    @click="
+                                        onConfirmUpdateMemberPosition(
+                                            record.studentId,
+                                            CLASS_STUDENT_POSITION.STUDENT,
+                                        )
+                                    "
+                                ></i>
+                                <i
+                                    class="text-danger bx bx-trash-alt"
+                                    @click="onConfirmDeleteMember(record.studentId)"
+                                ></i>
                             </div>
                         </template>
                     </template>
@@ -624,5 +597,11 @@ a {
 
 ::v-deep(.ant-empty-description) {
     color: var(--text-color) !important;
+}
+
+.student-action i {
+    font-size: 20px;
+    margin: 0px 10px;
+    cursor: pointer;
 }
 </style>

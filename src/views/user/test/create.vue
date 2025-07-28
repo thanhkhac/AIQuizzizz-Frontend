@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import ApiTestTemplate from "@/api/ApiTestTemplate";
-
 import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
 
-import dayjs from "dayjs";
 import { onBeforeRouteLeave } from "vue-router";
+import dayjs, { Dayjs } from "dayjs";
 
 import type { RequestQuestion } from "@/models/request/question";
+import QUESTION_TYPE from "@/constants/questionTypes";
+import TEST_GRADE_ATTEMPT_METHOD from "@/constants/testGradeAttempMethod";
+import TEST_GRADE_QUESTION_METHOD from "@/constants/testGradeQuestionMethod";
 
 import Input from "@/shared/components/Common/Input.vue";
 import TextArea from "@/shared/components/Common/TextArea.vue";
@@ -20,8 +21,18 @@ import ShortText from "@/shared/components/Questions/ShortText.vue";
 
 interface FormState {
     name: string;
-    description: string;
-    questions: RequestQuestion[]; // or specify the type if you know it
+    classId: string;
+    timeLimit: number;
+    startTime: string;
+    endTime: string;
+    gradeAttemptMethod: string;
+    gradeQuestionMethod: string;
+    isShowCorrectAnswerInReview: boolean;
+    isAllowReviewAfterSubmit: boolean;
+    shuffle: number;
+    maxAttempt: number;
+    passingScore: number;
+    questions: RequestQuestion[]; // Define this interface below
 }
 
 const { t } = useI18n();
@@ -30,7 +41,17 @@ const formRef = ref();
 
 const formState = reactive<FormState>({
     name: "",
-    description: "",
+    classId: "",
+    timeLimit: 60,
+    startTime: "",
+    endTime: "",
+    gradeAttemptMethod: TEST_GRADE_ATTEMPT_METHOD.HIGHEST_SCORE,
+    gradeQuestionMethod: TEST_GRADE_QUESTION_METHOD.PARTIAL,
+    isShowCorrectAnswerInReview: true,
+    isAllowReviewAfterSubmit: true,
+    shuffle: 2,
+    maxAttempt: 2,
+    passingScore: 50,
     questions: [],
 });
 
@@ -299,13 +320,6 @@ const onFinish = () => {
         return;
     }
 
-    if (formState.description.trim().length > 250) {
-        isInvalid = true;
-        msg = "Invalid description.";
-        message.error(msg);
-        return;
-    }
-
     const validation: RequestQuestion[][] = [
         //invalid question text
         formState.questions.filter((x) => {
@@ -392,31 +406,15 @@ const showModalConfirmation = () => {
         centered: true,
         onOk: async () => {
             //logic here
-            //remove draft
-            let result = await ApiTestTemplate.Create(formState);
-            if (result.data.success) {
-                message.success(result.data.data);
-            }
-            // localStorage.removeItem(storage_draft_key);
         },
     });
 };
 
-//import modal
-import ImportQSModal from "@/shared/modals/ImportQSModal.vue";
-const importModalRef = ref<InstanceType<typeof ImportQSModal> | null>(null);
-
-const onOpenImportModal = () => {
-    importModalRef.value?.openImportModal();
-};
-
-//generate modal
-import GenerateQSModal from "@/shared/modals/GenerateQSModal.vue";
-import QUESTION_TYPE from "@/constants/questionTypes";
-const generateModalRef = ref<InstanceType<typeof GenerateQSModal> | null>(null);
-
-const openGenerateAIModal = () => {
-    generateModalRef.value?.openGenerateAIModal();
+//setting modal
+import SettingTestModal from "@/shared/modals/SettingTestModal.vue";
+const settingModalRef = ref<InstanceType<typeof SettingTestModal> | null>(null);
+const openSettingModal = () => {
+    settingModalRef.value?.openTestSettingModal();
 };
 
 //use for both modal import event
@@ -452,9 +450,8 @@ function handleBeforeUnload(e: BeforeUnloadEvent) {
 }
 
 onMounted(() => {
-    formState.questions.push(...(question_data_raw as RequestQuestion[]));
-    // intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
     window.addEventListener("beforeunload", handleBeforeUnload);
+    openSettingModal();
 });
 
 onUnmounted(() => {
@@ -467,7 +464,7 @@ onUnmounted(() => {
         <div class="title-container">
             <a-row class="w-100 d-flex align-items-center">
                 <a-col :span="1">
-                    <RouterLink :to="{ name: 'User_TestTemplate' }">
+                    <RouterLink :to="{ name: '' }" @click="openSettingModal">
                         <i class="bx bx-chevron-left navigator-back-button"></i>
                     </RouterLink>
                 </a-col>
@@ -488,23 +485,6 @@ onUnmounted(() => {
                             <span>{{ $t("create_QS.quiz.question_detail_sub_title") }}</span>
                         </div>
                     </div>
-                    <Input
-                        class="question-input-item"
-                        v-model="formState.name"
-                        :isRequired="true"
-                        :placeholder="t('question_sets_index.search_placeholder')"
-                        :label="t('create_QS.quiz.title')"
-                        :max-length="100"
-                    />
-                    <div class="d-flex">
-                        <TextArea
-                            class="question-input-item"
-                            v-model="formState.description"
-                            placeholder="textarea with clear icon"
-                            :max-length="250"
-                            :label="t('create_QS.quiz.description')"
-                        />
-                    </div>
                 </div>
                 <div class="content-item">
                     <div class="content-item-title">
@@ -513,18 +493,10 @@ onUnmounted(() => {
                             <span>{{ $t("create_QS.quiz.question_question_sub_title") }}</span>
                         </div>
                         <div class="content-item-buttons">
-                            <RouterLink
-                                @click="onOpenImportModal"
-                                class="import-button"
-                                :to="{ name: '' }"
-                            >
+                            <RouterLink class="import-button" :to="{ name: '' }">
                                 {{ $t("create_QS.buttons.import") }} <i class="bx bx-download"></i>
                             </RouterLink>
-                            <RouterLink
-                                @click="openGenerateAIModal"
-                                class="import-button"
-                                :to="{ name: '' }"
-                            >
+                            <RouterLink class="import-button" :to="{ name: '' }">
                                 {{ $t("create_QS.buttons.generated_by_ai") }}
                                 <i class="bx bx-upload"></i>
                             </RouterLink>
@@ -562,6 +534,12 @@ onUnmounted(() => {
         </div>
     </div>
 
-    <ImportQSModal ref="importModalRef" :title="formState.name" @import="onModalImport" />
-    <GenerateQSModal ref="generateModalRef" :title="formState.name" @import="onModalImport" />
+    <SettingTestModal ref="settingModalRef" :title="formState.name" :form-state="formState" />
 </template>
+<style scoped>
+.content-item-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+</style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
-const animationPath = new URL('@/assets/confetti.lottie', import.meta.url).href;
+const animationPath = new URL("@/assets/confetti.lottie", import.meta.url).href;
 
 import { ref, computed, onMounted, nextTick, reactive } from "vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
@@ -1538,58 +1538,8 @@ onMounted(() => {
     </a-modal>
 </template>
 <style>
-.ant-drawer-content {
-    background-color: var(--content-item-background-color) !important;
-    border-color: var(--content-item-border-color) !important;
-    color: var(--text-color) !important;
-}
-
-.ant-drawer-close {
-    color: var(--text-color) !important;
-}
-.ant-drawer-title {
-    color: var(--text-color) !important;
-}
-.ant-drawer-header {
-    border-bottom-color: var(--content-item-border-color) !important;
-}
-
-.ant-input-number {
-    background-color: var(--form-item-background-color);
-    border-color: var(--form-item-border-color);
-}
-
-.ant-input-number input {
-    color: var(--text-color) !important;
-}
-
-.ant-input-number:hover {
-    border-color: var(--main-color);
-}
-
-.ant-input-number-handler {
-    background-color: var(--form-item-background-color);
-    border-color: var(--form-item-border-color) !important;
-}
-
-.ant-input-number-handler .anticon {
-    color: var(--text-color) !important;
-}
-
-.ant-input-number-handler:hover .anticon {
-    color: var(--main-color) !important;
-}
-
 .ant-modal-content {
     border: 1px solid var(--form-item-border-color) !important;
-}
-
-.ant-switch {
-    background-color: var(--form-item-border-color) !important;
-}
-.ant-switch-checked {
-    background-color: var(--main-color) !important;
-    border-color: var(--main-color) !important;
 }
 </style>
 <!-- /* for test */ -->

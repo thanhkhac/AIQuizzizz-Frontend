@@ -337,13 +337,13 @@ onMounted(async () => {
                 layout="vertical"
                 :rules="rules"
             >
-                <a-form-item :label="t('class_index.modal.join_class_code_label')" name="code">
-                    <Input
-                        v-model:value="joinClassFormState.code"
-                        :placeholder="t('class_index.modal.join_class_code_placeholder')"
-                        :is-required="true"
-                    ></Input>
-                </a-form-item>
+                <Input
+                    :label="t('class_index.modal.join_class_code_label')"
+                    :name="'code'"
+                    v-model:value="joinClassFormState.code"
+                    :placeholder="t('class_index.modal.join_class_code_placeholder')"
+                    :is-required="true"
+                ></Input>
             </a-form>
         </div>
         <template #footer>
@@ -385,16 +385,20 @@ onMounted(async () => {
                 :rules="rules"
                 :model="createClassFormState"
             >
-                <a-form-item :label="t('class_index.modal.create_class_name_label')" name="name">
+                <a-form-item>
                     <Input
+                        :label="t('class_index.modal.create_class_name_label')"
+                        :name="'name'"
                         v-model:value="createClassFormState.name"
                         :placeholder="t('class_index.modal.create_class_name_placeholder')"
                         :is-required="true"
                         :max-length="100"
                     ></Input>
                 </a-form-item>
-                <a-form-item :label="t('class_index.modal.create_class_topic_label')" name="topic">
+                <a-form-item>
                     <Input
+                        :label="t('class_index.modal.create_class_topic_label')"
+                        :name="'topic'"
                         v-model:value="createClassFormState.topic"
                         :placeholder="t('class_index.modal.create_class_topic_placeholder')"
                         :max-length="100"

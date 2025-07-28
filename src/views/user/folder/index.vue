@@ -292,17 +292,14 @@ onMounted(async () => {
                 :rules="rules"
                 :model="createFolderFormState"
             >
-                <a-form-item
+                <Input
                     :label="t('folder_index.modal.create_folder_name_label')"
-                    name="folderName"
-                >
-                    <Input
-                        v-model:value="createFolderFormState.folderName"
-                        :placeholder="t('folder_index.modal.create_folder_name_placeholder')"
-                        :is-required="true"
-                        :max-length="100"
-                    ></Input>
-                </a-form-item>
+                    :name="'folderName'"
+                    v-model:value="createFolderFormState.folderName"
+                    :placeholder="t('folder_index.modal.create_folder_name_placeholder')"
+                    :is-required="true"
+                    :max-length="100"
+                ></Input>
             </a-form>
         </div>
         <template #footer>

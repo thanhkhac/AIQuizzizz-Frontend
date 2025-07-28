@@ -164,6 +164,10 @@ const getTagColor = (status: string) => {
     }
 };
 
+const onRedirectToCreate = () => {
+    router.push({ name: "User_Test_Create" });
+};
+
 onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
@@ -200,7 +204,12 @@ onMounted(async () => {
                         <span>{{ $t("class_exam.sub_title") }}</span>
                     </div>
 
-                    <a-button class="main-color-btn" type="primary" size="large">
+                    <a-button
+                        class="main-color-btn"
+                        type="primary"
+                        size="large"
+                        @click="onRedirectToCreate"
+                    >
                         <i class="me-2 bx bx-list-plus"></i>
                         {{ $t("class_exam.buttons.assign_test") }}
                     </a-button>
@@ -299,32 +308,9 @@ onMounted(async () => {
                             </div>
                         </div>
                         <div class="exam-item-actions">
-                            <a-dropdown :trigger="['click']">
-                                <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
-                                <template #overlay>
-                                    <a-menu class="drop-down-container">
-                                        <a-menu-item key="0">
-                                            <i class="bx bx-info-circle"></i>
-                                            {{ $t("question_sets_index.buttons.detail") }}
-                                        </a-menu-item>
-                                        <a-menu-item key="1">
-                                            <i class="bx bx-edit"></i>
-                                            {{ $t("question_sets_index.buttons.edit") }}
-                                        </a-menu-item>
-                                        <a-menu-item key="2">
-                                            <i class="bx bx-copy"></i>
-                                            {{ $t("question_sets_index.buttons.dublicate") }}
-                                        </a-menu-item>
-                                        <a-menu-divider style="background-color: #ddd" />
-                                        <a-menu-item key="3">
-                                            <span class="d-flex align-items-center">
-                                                <i class="bx bx-trash-alt"></i>
-                                                {{ $t("question_sets_index.buttons.delete") }}
-                                            </span>
-                                        </a-menu-item>
-                                    </a-menu>
-                                </template>
-                            </a-dropdown>
+                            <i class="bx bx-edit"></i>
+                            <i class="bx bx-history"></i>
+                            <i class="text-danger bx bx-trash-alt"></i>
                         </div>
                     </div>
                 </div>
@@ -429,5 +415,10 @@ a {
     display: flex;
     justify-content: end;
     align-items: center;
+}
+.exam-item-actions i {
+    font-size: 20px;
+    margin: 0px 10px;
+    cursor: pointer;
 }
 </style>

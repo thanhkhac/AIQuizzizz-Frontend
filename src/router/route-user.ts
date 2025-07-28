@@ -159,6 +159,14 @@ const userRoutes = [
             title: "test-template-create",
         },
     },
+    {
+        name: "User_Test_Create",
+        path: "/user/test/create",
+        component: () => import("@/views/user/test/create.vue"),
+        meta: {
+            title: "create-test",
+        },
+    },
 ];
 
 export default userRoutes;

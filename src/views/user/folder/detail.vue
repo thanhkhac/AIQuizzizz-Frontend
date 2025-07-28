@@ -163,7 +163,7 @@ const onOpenConfirmDelete = () => {
                 return;
             }
             message.success("Delete folder successfully.");
-            router.push({ name: "User_Class" });
+            router.push({ name: "User_Folder" });
         },
     });
 };
@@ -227,12 +227,12 @@ onMounted(async () => {
             <div class="main-title"><span>Library Folder Test Details</span> <br /></div>
             <div class="title-button-container">
                 <a-button type="primary" class="ms-3 main-color-btn" size="large">
-                    {{ $t("folder_index.buttons.create_folder") }}
-                    <i class="bx bx-plus"></i>
+                    <i class="me-2 bx bx-share-alt"></i>
+                    {{ $t("detail_QS.buttons.share_quiz") }}
                 </a-button>
                 <a-button type="primary" class="ms-3 main-color-btn" size="large">
-                    {{ $t("folder_index.buttons.create_folder") }}
-                    <i class="bx bx-plus"></i>
+                    <i class="me-2 bx bx-plus"></i>
+                    Create new test template
                 </a-button>
             </div>
         </div>
@@ -282,30 +282,14 @@ onMounted(async () => {
                             <a-button type="primary" class="me-3 main-color-btn">
                                 {{ $t("class_question_set.buttons.view") }}
                             </a-button>
-                            <a-dropdown :trigger="['click']">
-                                <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
-                                <template #overlay>
-                                    <a-menu class="drop-down-container">
-                                        <a-menu-item
-                                            key="1"
-                                            @click="onRefirectToUpdate(template.testTemplateId)"
-                                        >
-                                            <i class="bx bx-edit"></i>
-                                            {{ $t("question_sets_index.buttons.edit") }}
-                                        </a-menu-item>
-                                        <a-menu-divider style="background-color: #ddd" />
-                                        <a-menu-item
-                                            key="3"
-                                            @click="onRemoveTestTemplate(template.testTemplateId)"
-                                        >
-                                            <span class="d-flex align-items-center">
-                                                <i class="bx bx-trash-alt"></i>
-                                                {{ $t("question_sets_index.buttons.delete") }}
-                                            </span>
-                                        </a-menu-item>
-                                    </a-menu>
-                                </template>
-                            </a-dropdown>
+                            <i
+                                class="bx bx-edit"
+                                @click="onRefirectToUpdate(template.testTemplateId)"
+                            ></i>
+                            <i
+                                class="text-danger bx bx-trash-alt"
+                                @click="onRemoveTestTemplate(template.testTemplateId)"
+                            ></i>
                         </div>
                     </div>
                 </div>
@@ -388,15 +372,14 @@ onMounted(async () => {
                 :rules="rules"
                 :model="updateFolderFormState"
             >
-                <a-form-item>
-                    <label><span class="text-danger">*</span> Folder name</label>
-                    <Input
-                        v-model:value="updateFolderFormState.name"
-                        :placeholder="t('folder_index.modal.create_folder_name_placeholder')"
-                        :is-required="true"
-                        :max-length="100"
-                    ></Input>
-                </a-form-item>
+                <Input
+                    :label="'Folder name'"
+                    :name="'name'"
+                    v-model:value="updateFolderFormState.name"
+                    :placeholder="t('folder_index.modal.create_folder_name_placeholder')"
+                    :is-required="true"
+                    :max-length="100"
+                ></Input>
             </a-form>
         </div>
         <template #footer>

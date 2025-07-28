@@ -1,13 +1,11 @@
 import axios from "axios";
 import ApiAuthentication from "./ApiAuthentication";
 import { useAuthStore } from "@/stores/AuthStore";
-import { useRouter } from "vue-router";
 import { notification } from "ant-design-vue";
 
 // const baseURL = import.meta.env.VITE_API_URL_LOCAL;
 // const baseURL = import.meta.env.VITE_API_URL_PRODUCT;
 const baseURL = "https://thanhkhac.id.vn/api";
-const router = useRouter();
 
 const instance = axios.create({
     baseURL,
@@ -30,20 +28,31 @@ instance.interceptors.response.use(
 
         //avoid loop using additional _retry
         if (error.response && originalConfig.url !== "/Authentication/Login") {
+            console.log(error.data);
             console.log(error.response);
 
             notification["error"]({
                 message: "ERROR",
                 description: "INVALID TOKEN",
             });
-
+            debugger;
             //token expired -> renew
-            if (error.response.status === 401 && !originalConfig._retry) {
+            // if ((error.response.status === 401 && !originalConfig._retry)) {
+            if (
+                error.response &&
+                Object.keys(error.response.data?.errors).includes("COMMON_UNAUTHORIZED") &&
+                !originalConfig._retry
+            ) {
                 originalConfig._retry = true; //marked as renewed to avoid loop
                 try {
                     let renew_token_result = await ApiAuthentication.RenewToken();
                     if (!renew_token_result.data.success) {
+                        notification["error"]({
+                            message: "ERROR",
+                            description: "LOG OUT",
+                        });
                         useAuthStore().logOut();
+                        return;
                     }
 
                     return instance(originalConfig); //axios execute original request

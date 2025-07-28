@@ -262,19 +262,11 @@ onMounted(async () => {
                             <a-button type="primary" class="me-3 main-color-btn">
                                 {{ $t("class_question_set.buttons.view") }}
                             </a-button>
-                            <a-dropdown :trigger="['click']">
-                                <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
-                                <template #overlay>
-                                    <a-menu class="drop-down-container">
-                                        <a-menu-item key="3" @click="onDeleteQSFromClass(exam.id)">
-                                            <span class="d-flex align-items-center">
-                                                <i class="bx bx-trash-alt"></i>
-                                                {{ $t("question_sets_index.buttons.delete") }}
-                                            </span>
-                                        </a-menu-item>
-                                    </a-menu>
-                                </template>
-                            </a-dropdown>
+                            <i
+                                style="cursor: pointer"
+                                class="text-danger bx bx-trash-alt"
+                                @click="onDeleteQSFromClass(exam.id)"
+                            ></i>
                         </div>
                     </div>
                 </div>
@@ -310,7 +302,6 @@ a {
     padding: 10px;
     display: flex;
     align-items: center;
-    cursor: pointer;
 }
 
 .quiz-item:hover {

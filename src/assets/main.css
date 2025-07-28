@@ -321,7 +321,7 @@ Custome a-select
 }
 
 /**
-* Custom question type component 
+* Custom question type component
 **/
 
 .question-container {
@@ -1481,4 +1481,237 @@ pre {
     box-shadow: 0 -20px 20px 1px var(--content-item-background-color);
 }
 
+/**
+Custom a-drawer
+**/
+
+.ant-drawer-content {
+    background-color: var(--content-item-background-color) !important;
+    border-color: var(--content-item-border-color) !important;
+    color: var(--text-color) !important;
+}
+
+.ant-drawer-close {
+    color: var(--text-color) !important;
+}
+.ant-drawer-title {
+    color: var(--text-color) !important;
+}
+.ant-drawer-header {
+    border-bottom-color: var(--content-item-border-color) !important;
+}
+
+/**
+Custom a-input-number
+**/
+.ant-input-number {
+    background-color: var(--form-item-background-color);
+    border-color: var(--form-item-border-color);
+}
+
+.ant-input-number input {
+    color: var(--text-color) !important;
+}
+
+.ant-input-number:hover {
+    border-color: var(--main-color);
+}
+
+.ant-input-number-handler {
+    background-color: var(--form-item-background-color);
+    border-color: var(--form-item-border-color) !important;
+}
+
+.ant-input-number-handler .anticon {
+    color: var(--text-color) !important;
+}
+
+.ant-input-number-handler:hover .anticon {
+    color: var(--main-color) !important;
+}
+
+.ant-input-number-affix-wrapper {
+    color: var(--text-color-grey) !important;
+    background-color: var(--form-item-background-color);
+    border-color: var(--form-item-border-color) !important;
+}
+
+.ant-input-number-group-addon {
+    color: var(--text-color-grey) !important;
+    background-color: var(--form-item-background-color) !important;
+    border-color: var(--form-item-border-color) !important;
+}
+
+.ant-input-number-prefix {
+    margin-right: 10px !important;
+}
+
+.ant-input-number-prefix i {
+    font-size: 18px;
+}
+
+/**
+Custom a-picker
+**/
+
+.ant-picker {
+    background-color: var(--form-item-background-color) !important;
+    border-color: var(--form-item-border-color) !important;
+}
+.ant-picker-suffix {
+    color: var(--text-color-grey) !important;
+}
+.ant-picker-input input {
+    color: var(--text-color) !important;
+}
+
+.ant-picker-separator {
+    color: var(--text-color-grey) !important;
+    font-size: 18px !important;
+}
+
+.ant-picker-input input::placeholder {
+    color: var(--text-color-grey) !important;
+}
+
+.ant-picker-active-bar {
+    background-color: var(--main-color) !important;
+}
+
+.ant-picker-clear {
+    background: var(--form-item-background-color) !important;
+}
+.ant-picker-clear .anticon {
+    color: #f44336;
+}
+
+/**
+Custom a-switch
+**/
+
+.ant-switch {
+    background-color: var(--form-item-border-color) !important;
+}
+.ant-switch-checked {
+    background-color: var(--main-color) !important;
+    border-color: var(--main-color) !important;
+}
+
 /* ========================================Learn-Quiz and siblings====================================================== */
+/****/
+/* ========================================Create-QuestionSet and siblings====================================================== */
+.content-item-title {
+    margin-bottom: 20px;
+}
+
+.page-container {
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+}
+
+.page-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.page-container::-webkit-scrollbar-thumb {
+    background-color: var(--form-item-border-color) !important;
+    border-radius: 10px;
+}
+
+.content-item-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.import-button {
+    padding: 8px 16px;
+    border: 2px solid #878787;
+    border-radius: 8px;
+    margin: 0px 10px;
+    font-size: 16px;
+    color: var(--text-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+.import-button i {
+    font-size: 22px;
+    margin-left: 10px;
+}
+
+.import-button:first-child:hover {
+    background-color: var(--main-color);
+    border: 2px solid var(--main-color);
+}
+
+.import-button:nth-child(2) {
+    background: var(--background-color-gradient);
+    border: 2px solid var(--main-color);
+}
+
+.import-button:nth-child(3) {
+    border: 2px solid var(--main-color);
+}
+
+.import-button:nth-child(3):hover {
+    background-color: var(--main-color);
+}
+
+.form-item {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 5px 20px;
+}
+.form-item label {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.input-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 0px;
+    color: var(--text-color-white);
+}
+
+.list-question-container {
+    padding: 10px;
+}
+
+.question-input-item {
+    margin-bottom: 10px;
+}
+
+.add-question-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--main-color);
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}
+
+.add-question-btn i {
+    font-size: 24px;
+    margin-right: 10px;
+    transform: translateY(2px);
+}
+
+.add-question-btn:hover {
+    background-color: var(--main-color);
+    border: 2px solid var(--main-color);
+    cursor: pointer;
+}
+
+/* ========================================Create-QuestionSet and siblings====================================================== */
