@@ -19,9 +19,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits<{
-    (e: "import", selected: RequestQuestion[]): void;
-}>();
+const emit = defineEmits<(e: "import", selected: RequestQuestion[]) => void>();
 
 const modal_import_open = ref(false);
 const question_data = ref<RequestQuestion[]>();
@@ -183,7 +181,7 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 const handleModalImport = () => {
     Modal.confirm({
         title: "Are your sure? ",
-        content: "Import: " + importModalState.checkedList.length + "into " + props.title + " ? ",
+        content: "Import: " + importModalState.checkedList.length + " into " + props.title + " ? ",
         okText: "Confirm",
         onOk: () => {
             const selectedQuestions = uploadedQuestions.value?.filter((question) =>

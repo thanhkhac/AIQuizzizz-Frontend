@@ -34,7 +34,7 @@ const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
     pageSize: route.query.pageSize || 10,
     name: route.query.name?.toString() || "",
-    sharedMode: route.query.shareMode || share_mode_options.value[0].value,
+    shareMode: route.query.shareMode || share_mode_options.value[0].value,
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
@@ -60,7 +60,7 @@ const getData = async () => {
                             pageNumber: 1,
                             pageSize: pageParams.pageSize,
                             name: pageParams.name,
-                            shareMode: pageParams.sharedMode,
+                            shareMode: pageParams.shareMode,
                         },
                     });
                 } else {
@@ -70,7 +70,7 @@ const getData = async () => {
                             pageNumber: pageParams.pageNumber,
                             pageSize: pageParams.pageSize,
                             name: pageParams.name,
-                            shareMode: pageParams.sharedMode,
+                            shareMode: pageParams.shareMode,
                         },
                     });
                 }
@@ -88,7 +88,7 @@ onUpdated(() => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
         pageParams.name = route.query.name?.toString() || "";
-        pageParams.sharedMode = route.query.shareMode || share_mode_options.value[0].value;
+        pageParams.shareMode = route.query.shareMode || share_mode_options.value[0].value;
         pageParams.statusFilter = true;
 
         getData();
@@ -167,7 +167,7 @@ onMounted(async () => {
                     <div class="filter-container">
                         <a-select
                             class="me-3"
-                            v-model:value="pageParams.sharedMode"
+                            v-model:value="pageParams.shareMode"
                             style="width: 200px"
                             @change="getData"
                         >
@@ -273,47 +273,6 @@ onMounted(async () => {
     </div>
 </template>
 <style scoped>
-.title-container {
-    width: auto;
-}
-
-.title-button-container {
-    display: flex;
-    margin-right: 36px;
-}
-
-.content-item-functions {
-    margin: 10px 0px;
-    display: flex;
-    align-items: end;
-    justify-content: end;
-}
-
-.filter-container {
-    display: flex;
-    justify-content: end;
-    align-items: center;
-}
-
-.quiz-item {
-    background-color: var(--content-item-children-background-color);
-    margin: 10px 0px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.quiz-item:hover {
-    border: 1px solid var(--main-color);
-}
-
-.quiz-item i {
-    font-size: 18px;
-}
-
 .quiz-item-icon {
     display: flex;
     width: 35px;
@@ -327,49 +286,5 @@ onMounted(async () => {
     background: #221a32;
     color: #7c3aed;
     margin-right: 12px;
-}
-
-.quiz-item-title {
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.quiz-item-description {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-color-grey);
-}
-
-.quiz-item-info {
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.quiz-item-info i {
-    font-size: 14px;
-}
-
-.quiz-info-detail {
-    margin-top: 5px;
-    padding-top: 5px;
-}
-
-.quiz-item-questions {
-    width: 120px;
-}
-
-.quiz-item-created-by {
-    flex: 1;
-    margin-left: 50px;
-    color: var(--text-color-grey);
-}
-
-.exam-item-actions {
-    flex: 1;
-    display: flex;
-    justify-content: end;
-    align-items: center;
 }
 </style>

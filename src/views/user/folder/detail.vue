@@ -16,7 +16,7 @@ import { Modal, message } from "ant-design-vue";
 interface FolderTestTemplatePageParams {
     pageNumber: number;
     pageSize: number;
-    name: string;
+    testTemplateName: string;
 }
 
 const route = useRoute();
@@ -36,7 +36,7 @@ const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
     pageSize: route.query.pageSize || 10,
     name: route.query.name?.toString() || "",
-    sharedMode: "",
+    shareMode: "",
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });

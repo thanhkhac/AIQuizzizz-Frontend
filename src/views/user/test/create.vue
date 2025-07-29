@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from "vue";
+import { ref, reactive, onMounted, onUnmounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
 
@@ -7,6 +7,9 @@ import { onBeforeRouteLeave } from "vue-router";
 import dayjs, { Dayjs } from "dayjs";
 
 import type { RequestQuestion } from "@/models/request/question";
+import type { ResponseQuestion } from "@/models/response/question";
+import type { Folder } from "@/models/response/folder/folder";
+
 import QUESTION_TYPE from "@/constants/questionTypes";
 import TEST_GRADE_ATTEMPT_METHOD from "@/constants/testGradeAttempMethod";
 import TEST_GRADE_QUESTION_METHOD from "@/constants/testGradeQuestionMethod";
@@ -18,6 +21,16 @@ import MultipleChoice from "@/shared/components/Questions/MultipleChoice.vue";
 import Matching from "@/shared/components/Questions/Matching.vue";
 import Ordering from "@/shared/components/Questions/Ordering.vue";
 import ShortText from "@/shared/components/Questions/ShortText.vue";
+const componentMap = {
+    MultipleChoice, 
+    Matching,
+    Ordering,
+    ShortText,
+};
+
+const { t } = useI18n();
+
+//#region formState
 
 interface FormState {
     name: string;
@@ -35,10 +48,7 @@ interface FormState {
     questions: RequestQuestion[]; // Define this interface below
 }
 
-const { t } = useI18n();
-
 const formRef = ref();
-
 const formState = reactive<FormState>({
     name: "",
     classId: "",
@@ -99,171 +109,9 @@ const rules = {
     ],
 };
 
-const componentMap = {
-    MultipleChoice,
-    Matching,
-    Ordering,
-    ShortText,
-};
+//#endregion
 
-const question_data_raw = [
-    {
-        id: "q1",
-        type: "MultipleChoice",
-        questionText: "What is the capital of France ?",
-        questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
-        explainText: "Paris is the capital city of France.",
-        score: 20,
-        multipleChoices: [
-            { id: "1", text: "Paris", isAnswer: true },
-            { id: "2", text: "London", isAnswer: false },
-            { id: "3", text: "Berlin", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q2",
-        type: "Matching",
-        questionText: "Match the countries to their capitals.",
-        questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
-        explainText: "Each country must be paired with its capital.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [
-            { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
-            { id: "2", leftItem: "Italy", rightItem: "Rome" },
-            { id: "3", leftItem: "Vietnam", rightItem: "Hanoi" },
-        ],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q3",
-        type: "Ordering",
-        questionText: "Arrange the steps of the water cycle in the correct order.",
-        questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
-        explainText:
-            "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [
-            { id: "1", text: "Evaporation", correctOrder: 0 },
-            { id: "2", text: "Condensation", correctOrder: 1 },
-            { id: "3", text: "Precipitation", correctOrder: 2 },
-            { id: "4", text: "Collection", correctOrder: 3 },
-        ],
-        shortAnswer: "",
-    },
-    {
-        id: "q4",
-        type: "ShortText",
-        questionText: "What is the chemical symbol for water?",
-        questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
-        explainText: "H2O is the formula for water.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "H2O",
-    },
-    {
-        id: "q5",
-        type: "MultipleChoice",
-        questionText: "Which planet is known as the Red Planet?",
-        questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
-        explainText: "Mars is often called the Red Planet due to its reddish appearance.",
-        score: 30,
-        multipleChoices: [
-            { id: "1", text: "Mars", isAnswer: true },
-            { id: "2", text: "Venus", isAnswer: false },
-            { id: "3", text: "Jupiter", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q6",
-        type: "MultipleChoice",
-        questionText: "Which language is primarily used for web development?",
-        questionHTML: `<p>Which <strong>language</strong> is primarily used for <em>web development</em>? <code>// programming</code></p>`,
-        explainText: "JavaScript is the most commonly used language for web development.",
-        score: 20,
-        multipleChoices: [
-            { id: "1", text: "JavaScript", isAnswer: true },
-            { id: "2", text: "Python", isAnswer: false },
-            { id: "3", text: "C++", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q7",
-        type: "Matching",
-        questionText: "Match the authors to their famous works.",
-        questionHTML: `<p>Match the <strong>authors</strong> to their <em>famous works</em>. <code>// literature</code></p>`,
-        explainText: "Each author is known for a specific famous book.",
-        score: 15,
-        multipleChoices: [],
-        matchingPairs: [
-            { id: "1", leftItem: "George Orwell", rightItem: "1984" },
-            { id: "2", leftItem: "J.K. Rowling", rightItem: "Harry Potter" },
-            { id: "3", leftItem: "Leo Tolstoy", rightItem: "War and Peace" },
-        ],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q8",
-        type: "Ordering",
-        questionText: "Arrange the historical periods in chronological order.",
-        questionHTML: `<p><strong>Arrange</strong> the <em>historical periods</em> in <u>chronological</u> order. <code>// history</code></p>`,
-        explainText: "The order is: Ancient → Medieval → Renaissance → Modern.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [
-            { id: "1", text: "Ancient", correctOrder: 0 },
-            { id: "2", text: "Medieval", correctOrder: 1 },
-            { id: "3", text: "Renaissance", correctOrder: 2 },
-            { id: "4", text: "Modern", correctOrder: 3 },
-        ],
-        shortAnswer: "",
-    },
-    {
-        id: "q9",
-        type: "ShortText",
-        questionText: "What is the square root of 144?",
-        questionHTML: `<p>What is the <strong>square root</strong> of <em>144</em>? <code>// math</code></p>`,
-        explainText: "The square root of 144 is 12.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "12",
-    },
-    {
-        id: "q10",
-        type: "MultipleChoice",
-        questionText: "Which gas do plants absorb from the atmosphere?",
-        questionHTML: `<p>Which <strong>gas</strong> do <u>plants</u> absorb from the <em>atmosphere</em>? <code>// biology</code></p>`,
-        explainText: "Plants absorb carbon dioxide (CO₂) during photosynthesis.",
-        score: 20,
-        multipleChoices: [
-            { id: "1", text: "Oxygen", isAnswer: false },
-            { id: "2", text: "Carbon Dioxide", isAnswer: true },
-            { id: "3", text: "Nitrogen", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-];
-
+//#region crud question
 const createQuestionTemplate = (): RequestQuestion => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
@@ -308,6 +156,9 @@ const onRemoveQuestion = (index: number) => {
     formState.questions.splice(index, 1);
 };
 
+//#endregion
+
+//#region finish validator
 const onFinish = () => {
     let isInvalid = false;
     let msg = "Invalid question.";
@@ -409,29 +260,107 @@ const showModalConfirmation = () => {
         },
     });
 };
+//#endregion
 
-//setting modal
+//#region setting modal
 import SettingTestModal from "@/shared/modals/SettingTestModal.vue";
 const settingModalRef = ref<InstanceType<typeof SettingTestModal> | null>(null);
 const openSettingModal = () => {
     settingModalRef.value?.openTestSettingModal();
 };
 
-//use for both modal import event
-const onModalImport = (selected: RequestQuestion[]) => {
-    message.success(`Imported ${selected.length} questions`);
-    formState.questions.push(...selected);
+//#endregion
+
+//#region choose from folder modal
+import ChooseFolderModal from "@/shared/modals/ChooseFolderModal.vue";
+const folderModalRef = ref<InstanceType<typeof ChooseFolderModal> | null>(null);
+const openFolderModal = () => {
+    folderModalRef.value?.openModal();
 };
 
-/* auto-save */
-// const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
-// const intervalId = ref<number>();
+const onSwitchToTestTemplate = () => {
+    chosenFolder.value = null;
+    folderModalRef.value?.closeModal();
+    openTestTemplateModal();
+};
 
-// const saveDraft = () => {
-//     // localStorage.setItem(storage_draft_key, JSON.stringify(formState));
-//     message.info("Auto saved");
-// };
+const onOpenFolder = (folder: Folder) => {
+    chosenFolder.value = folder;
+    folderModalRef.value?.closeModal();
+    openFolderTestTemplateModal();
+};
 
+//#endregion
+
+//#region choose test template from folder modals
+const chosenFolder = ref<Folder | null>(null);
+const chosenTestTemplateId = ref("");
+
+import ChooseFolderTestTemplateModal from "@/shared/modals/ChooseFolderTestTemplateModal.vue";
+const folderTestTemplateModalRef = ref<InstanceType<typeof ChooseFolderTestTemplateModal> | null>(
+    null,
+);
+const openFolderTestTemplateModal = () => {
+    folderTestTemplateModalRef.value?.openModal();
+};
+
+const onBackToFolderModal = () => {
+    chosenFolder.value = null;
+    openFolderModal();
+};
+
+//#endregion
+
+//#region choose from test template modal
+import ChooseTestTemplateModal from "@/shared/modals/ChooseTestTemplateModal.vue";
+const testTemplateModalRef = ref<InstanceType<typeof ChooseTestTemplateModal> | null>(null);
+const openTestTemplateModal = () => {
+    testTemplateModalRef.value?.openModal();
+};
+
+const onSwitchToFolder = () => {
+    chosenFolder.value = null;
+    testTemplateModalRef.value?.closeModal();
+    openFolderModal();
+};
+
+//use for both case
+const onOpenTestTemplate = async (testTemplateId: string) => {
+    chosenTestTemplateId.value = testTemplateId;
+    testTemplateModalRef.value?.closeModal();
+    await nextTick();
+    openQuestionModal();
+};
+
+//#endregion
+
+//#region choose question from test template
+import ChooseQuestionModal from "@/shared/modals/ChooseQuestionModal.vue";
+import TransferQuestionData from "@/services/TransferQuestionData";
+const questionModalRef = ref<InstanceType<typeof ChooseQuestionModal> | null>(null);
+const openQuestionModal = () => {
+    questionModalRef.value?.openModal();
+};
+
+const onBackToFolderTestTemplate = (folder: Folder) => {
+    chosenFolder.value = folder;
+    openFolderTestTemplateModal();
+};
+
+const onBackToTestTemplate = () => {
+    openTestTemplateModal();
+};
+
+//#endregion
+
+//use for both modal import event
+const onModalImport = (selected: ResponseQuestion[]) => {
+    message.success(`Imported ${selected.length} questions`);
+    const importQuestions = selected.map((x) => TransferQuestionData.transformResponseToRequest(x));
+    formState.questions.push(...importQuestions);
+};
+
+//#region leave guard
 onBeforeRouteLeave((to, from, next) => {
     Modal.confirm({
         title: "Leave already?",
@@ -449,14 +378,16 @@ function handleBeforeUnload(e: BeforeUnloadEvent) {
     e.returnValue = "";
 }
 
-onMounted(() => {
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    openSettingModal();
-});
-
 onUnmounted(() => {
     // clearInterval(intervalId.value);
     window.removeEventListener("beforeunload", handleBeforeUnload);
+});
+//#endregion
+
+onMounted(() => {
+    formState.questions.push(createQuestionTemplate());
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    openSettingModal();
 });
 </script>
 <template>
@@ -469,10 +400,8 @@ onUnmounted(() => {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="23">
-                    <span> {{ $t("create_QS.title") }}</span> <br />
-                    <span>
-                        {{ $t("create_QS.sub_title") }}
-                    </span>
+                    <span>Assign new test for class SEP490</span><br />
+                    <span>Add questions, set answers and configure test settings</span>
                 </a-col>
             </a-row>
         </div>
@@ -481,28 +410,17 @@ onUnmounted(() => {
                 <div class="content-item">
                     <div class="content-item-title">
                         <div>
-                            <span>{{ $t("create_QS.quiz.question_detail_title") }}</span>
-                            <span>{{ $t("create_QS.quiz.question_detail_sub_title") }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-item">
-                    <div class="content-item-title">
-                        <div>
-                            <span>{{ $t("create_QS.quiz.question_question_title") }}</span>
-                            <span>{{ $t("create_QS.quiz.question_question_sub_title") }}</span>
+                            <span>Test questions</span>
+                            <span>Create and manage your test questions</span>
                         </div>
                         <div class="content-item-buttons">
-                            <RouterLink class="import-button" :to="{ name: '' }">
-                                {{ $t("create_QS.buttons.import") }} <i class="bx bx-download"></i>
+                            <RouterLink
+                                class="import-button"
+                                :to="{ name: '' }"
+                                @click="openFolderModal"
+                            >
+                                Choose from folder test
                             </RouterLink>
-                            <RouterLink class="import-button" :to="{ name: '' }">
-                                {{ $t("create_QS.buttons.generated_by_ai") }}
-                                <i class="bx bx-upload"></i>
-                            </RouterLink>
-                            <div class="import-button" @click="onFinish">
-                                {{ $t("create_QS.buttons.create") }}
-                            </div>
                             <div class="import-button">
                                 {{
                                     $t("create_QS.quiz.total", {
@@ -512,6 +430,9 @@ onUnmounted(() => {
                                     })
                                 }}
                             </div>
+                            <a-button type="primary" class="main-color-btn" size="large"
+                                >Next</a-button
+                            >
                         </div>
                     </div>
                     <div class="list-question-container">
@@ -534,12 +455,47 @@ onUnmounted(() => {
         </div>
     </div>
 
-    <SettingTestModal ref="settingModalRef" :title="formState.name" :form-state="formState" />
+    <SettingTestModal ref="settingModalRef" :class-name="'SEP490'" :form-state="formState" />
+    <ChooseFolderModal
+        ref="folderModalRef"
+        @switch-to-test-template="onSwitchToTestTemplate"
+        @open-folder="onOpenFolder"
+    />
+    <ChooseFolderTestTemplateModal
+        ref="folderTestTemplateModalRef"
+        :folder="chosenFolder"
+        @back-to-folder-modal="onBackToFolderModal"
+        @open-test-template="onOpenTestTemplate"
+    />
+    <ChooseTestTemplateModal
+        ref="testTemplateModalRef"
+        @switch-to-folder="onSwitchToFolder"
+        @open-test-template="onOpenTestTemplate"
+    />
+    <ChooseQuestionModal
+        ref="questionModalRef"
+        :test-template-id="chosenTestTemplateId"
+        :folder="chosenFolder"
+        @back-to-folder-test-template-modal="onBackToFolderTestTemplate"
+        @back-to-test-template-modal="onBackToTestTemplate"
+        @import="onModalImport"
+    />
 </template>
 <style scoped>
 .content-item-buttons {
-    display: flex;
     flex-direction: row;
-    align-items: center;
+    padding-right: 10px;
+}
+
+.import-button:first-child:hover {
+    background: transparent;
+    border: 2px solid var(--main-color);
+    color: var(--text-color);
+}
+
+.import-button:nth-child(2) {
+    background: transparent;
+    border: 2px solid var(--main-color);
+    cursor: default;
 }
 </style>

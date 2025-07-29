@@ -1,7 +1,7 @@
 import Api from "@/api/Api";
 
 import type FolderPageParams from "@/models/request/folder/folderPageParams";
-import type TestTemplatePageParams from "@/models/request/testTemplate/testTemplatePageParams";
+import type FolderTestTemplatePageParams from "@/models/request/folder/testTemplatePageParams";
 
 const END_POINTS = {
     GET_ALL_BY_LIMIT: "Folder",
@@ -41,14 +41,16 @@ class ApiFolder {
         );
     };
 
-    GetAllTestTemplateByLimit = async (folderId: string, pageParams: TestTemplatePageParams) => {
+    GetAllTestTemplateByLimit = async (
+        folderId: string,
+        pageParams: FolderTestTemplatePageParams,
+    ) => {
         const url = END_POINTS.GET_ALL_TEST_TEMPLATE_BY_LIMIT.replace("{FolderId}", folderId);
         return await Api.get(url, {
             params: {
                 pageNumber: pageParams.pageNumber || 1,
                 pageSize: pageParams.pageSize || 10,
-                name: pageParams.name || "",
-                sharedMode: pageParams.sharedMode || "",
+                testTemplateName: pageParams.testTemplateName || "",
             },
         });
     };

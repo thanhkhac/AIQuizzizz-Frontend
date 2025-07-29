@@ -18,7 +18,7 @@ class ApiTestTemplate {
                 pageNumber: pageParams.pageNumber || 1,
                 pageSize: pageParams.pageSize || 10,
                 name: pageParams.name || "",
-                sharedMode: pageParams.sharedMode || "",
+                shareMode: pageParams.shareMode || "",
             },
         });
     };

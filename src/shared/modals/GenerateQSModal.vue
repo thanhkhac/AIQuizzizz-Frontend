@@ -5,7 +5,7 @@ import { InboxOutlined } from "@ant-design/icons-vue";
 
 import { useI18n } from "vue-i18n";
 
-import type { Question } from "@/models/request/question";
+import type { RequestQuestion } from "@/models/request/question";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import QUESTION_DIFFICULTY from "@/constants/questiondifficulties";
@@ -100,11 +100,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-    (e: "import", selected: Question[]): void;
+    (e: "import", selected: RequestQuestion[]): void;
 }>();
 
 const modal_generate_ai_open = ref(false);
-const generatedQuestions = ref<Question[]>();
+const generatedQuestions = ref<RequestQuestion[]>();
 
 const generateModalState = reactive({
     checkAll: false,
@@ -229,7 +229,7 @@ const handleModalImport = () => {
         onOk: () => {
             const selectedQuestions = question_data_raw.filter((question) =>
                 generateModalState.checkedList.includes(question.id),
-            ) as Question[];
+            ) as RequestQuestion[];
 
             //emit event & params to main
             emit("import", selectedQuestions);
@@ -239,7 +239,7 @@ const handleModalImport = () => {
 };
 
 onMounted(() => {
-    generatedQuestions.value = question_data_raw as Question[];
+    generatedQuestions.value = question_data_raw as RequestQuestion[];
 });
 </script>
 
@@ -367,19 +367,18 @@ onMounted(() => {
                     <div class="section-title">Preview</div>
                     <div class="section-content">
                         <div class="section-content-header">
-                            <div
+                            <a-checkbox
                                 :class="[
                                     'header-item',
                                     generateModalState.checkAll ? 'check-all' : '',
                                 ]"
+                                @click="onCheckAll"
+                                v-model:checked="generateModalState.checkAll"
+                                :indeterminate="generateModalState.indeterminate"
                             >
-                                <a-checkbox
-                                    @click="onCheckAll"
-                                    v-model:checked="generateModalState.checkAll"
-                                    :indeterminate="generateModalState.indeterminate"
-                                ></a-checkbox>
                                 Check all ({{ generateModalState.checkedList.length }})
-                            </div>
+                            </a-checkbox>
+
                             <div class="header-item">
                                 Total:
                                 {{ generatedQuestions?.length }}

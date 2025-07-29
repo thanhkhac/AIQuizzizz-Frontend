@@ -5,7 +5,7 @@ import type ClassExamPageParams from "@/models/request/class/classExamPageParams
 import type { Class } from "@/models/response/class/class";
 import type { ClassExam } from "@/models/response/class/classExam";
 
-import { ref, onMounted, reactive, computed, onUpdated } from "vue";
+import { ref, onMounted, reactive, computed, onUpdated, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import dayjs from "dayjs";
 
@@ -164,10 +164,9 @@ const getTagColor = (status: string) => {
     }
 };
 
-const onRedirectToCreate = () => {
+const onRedirectToCreate = async () => {
     router.push({ name: "User_Test_Create" });
 };
-
 onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
@@ -203,16 +202,10 @@ onMounted(async () => {
                         <span>{{ $t("class_index.title") }}</span>
                         <span>{{ $t("class_exam.sub_title") }}</span>
                     </div>
-
-                    <a-button
-                        class="main-color-btn"
-                        type="primary"
-                        size="large"
-                        @click="onRedirectToCreate"
-                    >
+                    <RouterLink class="main-color-btn link" :to="{ name: 'User_Test_Create' }">
                         <i class="me-2 bx bx-list-plus"></i>
                         {{ $t("class_exam.buttons.assign_test") }}
-                    </a-button>
+                    </RouterLink>
                 </div>
                 <div class="content-item-functions">
                     <div class="content-item-navigators">
@@ -420,5 +413,8 @@ a {
     font-size: 20px;
     margin: 0px 10px;
     cursor: pointer;
+}
+.main-color-btn {
+    font-size: 16px;
 }
 </style>

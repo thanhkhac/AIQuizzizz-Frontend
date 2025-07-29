@@ -35,7 +35,6 @@ instance.interceptors.response.use(
                 message: "ERROR",
                 description: "INVALID TOKEN",
             });
-            debugger;
             //token expired -> renew
             // if ((error.response.status === 401 && !originalConfig._retry)) {
             if (

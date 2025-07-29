@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted, computed } from "vue";
-import { Modal, message } from "ant-design-vue";
-import { InboxOutlined } from "@ant-design/icons-vue";
-import { formItemProps } from "ant-design-vue/es/form";
+import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import TEST_GRADE_ATTEMPT_METHOD from "@/constants/testGradeAttempMethod";
@@ -16,21 +13,29 @@ import dayjs from "dayjs";
 const { t } = useI18n();
 
 interface Props {
-    title: string;
+    className: string;
     formState: any;
 }
 
 const props = defineProps<Props>();
 
-// const range = computed({
-//     get() {
-//         return [dayjs(props.formState.startTime), dayjs(props.formState.endTime)];
-//     },
-//     set([start, end]) {
-//         props.formState.startTime = start.toString();
-//         props.formState.endTime = end.toString();
-//     },
-// });
+
+const modal_open = ref(false);
+
+const openTestSettingModal = () => {
+    modal_open.value = true;
+};
+
+const closeImportModal = () => {
+    modal_open.value = false;
+};
+
+//expose functions to main ref
+defineExpose({
+    openTestSettingModal,
+});
+
+//#region formstate range
 type RangeValue = [Dayjs, Dayjs];
 const range = ref<RangeValue>([dayjs(), dayjs()]);
 const onRangeChange = (dates: RangeValue) => {
@@ -64,20 +69,7 @@ const rules = {
     ],
 };
 
-const modal_open = ref(false);
-
-const openTestSettingModal = () => {
-    modal_open.value = true;
-};
-
-const closeImportModal = () => {
-    modal_open.value = false;
-};
-
-//expose functions to main ref
-defineExpose({
-    openTestSettingModal,
-});
+//#endregion
 
 //#region attempt select
 const optionAttemptKeys = Object.values(TEST_GRADE_ATTEMPT_METHOD);
@@ -91,14 +83,13 @@ const select_attempt_options = computed(() =>
 //#endregion
 
 //#region grade question select
-const optionGradeQuestionKeys = Object.values(TEST_GRADE_QUESTION_METHOD);
-const select_grade_question_options = computed(() =>
-    optionGradeQuestionKeys.map((key) => ({
-        label: key,
-        value: key,
-    })),
-);
-
+// const optionGradeQuestionKeys = Object.values(TEST_GRADE_QUESTION_METHOD);
+// const select_grade_question_options = computed(() =>
+//     optionGradeQuestionKeys.map((key) => ({
+//         label: key,
+//         value: key,
+//     })),
+// );
 //#endregion
 
 const onQuestionGradeMethodChange = (checked: boolean) => {
@@ -127,10 +118,7 @@ onMounted(() => {});
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span> {{ $t("create_QS.title") }}</span> <br />
-                        <span>
-                            {{ $t("create_QS.sub_title") }}
-                        </span>
+                        <span>Assign new test for class SEP490</span>
                     </a-col>
                 </a-row>
             </div>
@@ -147,32 +135,9 @@ onMounted(() => {});
                         v-model="formState.name"
                         :isRequired="true"
                         :placeholder="t('question_sets_index.search_placeholder')"
-                        :label="t('create_QS.quiz.title')"
+                        :label="'Test title'"
                         :max-length="100"
                     />
-                    <!-- <a-row class="form-item-row">
-                        <a-col :span="10">
-                            <a-form-item label="Start date" class="input-item">
-                                <a-date-picker
-                                    size="large"
-                                    show-time
-                                    placeholder="Select date"
-                                    v-model="formState.startTime"
-                                ></a-date-picker>
-                            </a-form-item>
-                        </a-col>
-                        <a-col :span="10">
-                            <a-form-item label="End date" class="input-item">
-                                <a-date-picker
-                                    :disabled-date="minDate"
-                                    size="large"
-                                    show-time
-                                    placeholder="Select date"
-                                    v-model="formState.endTime"
-                                ></a-date-picker>
-                            </a-form-item>
-                        </a-col>
-                    </a-row> -->
                     <a-row class="form-item-row">
                         <a-col :span="24">
                             <a-form-item
