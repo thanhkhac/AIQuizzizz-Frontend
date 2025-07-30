@@ -118,6 +118,11 @@ const emit = defineEmits<{
 const modal_open = ref(false);
 
 const openModal = async () => {
+    //reset
+    importModalState.checkAll = false;
+    importModalState.checkedList = [];
+    importModalState.indeterminate = false;
+
     modal_open.value = true;
     await getData();
 };

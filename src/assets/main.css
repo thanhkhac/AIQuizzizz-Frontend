@@ -1124,6 +1124,34 @@ pre {
     }
 }
 
+.ant-modal-content {
+    background-color: var(--form-item-background-color) !important;
+}
+.ant-modal-confirm-title,
+.ant-modal-confirm-content {
+    color: var(--text-color) !important;
+}
+
+.ant-modal-confirm-btns .ant-btn-primary {
+    background-color: var(--main-color);
+}
+
+.ant-modal-confirm-btns .ant-btn-primary:hover {
+    background-color: var(--main-sub-color);
+}
+
+.ant-modal-confirm-btns .ant-btn-default {
+    background-color: transparent;
+    color: var(--text-color) !important;
+    border-color: var(--text-color);
+}
+
+.ant-modal-confirm-btns .ant-btn-default:hover {
+    background-color: transparent;
+    color: var(--main-color) !important;
+    border-color: var(--main-color);
+}
+
 .ant-checkbox-group {
     width: 100%;
 }

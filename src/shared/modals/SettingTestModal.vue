@@ -1,24 +1,27 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import TEST_GRADE_ATTEMPT_METHOD from "@/constants/testGradeAttempMethod";
 import TEST_GRADE_QUESTION_METHOD from "@/constants/testGradeQuestionMethod";
 import type { RuleObject } from "ant-design-vue/es/form/interface";
-import { Dayjs } from "dayjs";
 
 import Input from "../components/Common/Input.vue";
-import dayjs from "dayjs";
+
+import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc";
+import { message } from "ant-design-vue";
+dayjs.extend(utc);
 
 const { t } = useI18n();
 
 interface Props {
     className: string;
     formState: any;
+    formRef: any;
 }
 
 const props = defineProps<Props>();
-
 
 const modal_open = ref(false);
 
@@ -26,8 +29,16 @@ const openTestSettingModal = () => {
     modal_open.value = true;
 };
 
-const closeImportModal = () => {
-    modal_open.value = false;
+const closeModal = async () => {
+    props.formState.startTime = range.value[0].toISOString();
+    props.formState.startTime = range.value[1].toISOString();
+
+    try {
+        const result = await formRef.value.validate();
+        if (result) {
+            modal_open.value = false;
+        }
+    } catch {}
 };
 
 //expose functions to main ref
@@ -36,6 +47,7 @@ defineExpose({
 });
 
 //#region formstate range
+const formRef = ref(props.formRef);
 type RangeValue = [Dayjs, Dayjs];
 const range = ref<RangeValue>([dayjs(), dayjs()]);
 const onRangeChange = (dates: RangeValue) => {
@@ -55,15 +67,55 @@ const rules = {
                     return Promise.reject("required");
                 }
                 const diffInMinutes = range.value[1].diff(range.value[0], "minute");
-                console.log(diffInMinutes);
-
                 if (diffInMinutes < props.formState.timeLimit) {
                     return Promise.reject(
-                        `Start time and end time must be at least ${props.formState.timeLimit} minutes apart`,
+                        `Start time and end time must be at least ${props.formState.timeLimit} minutes (time limit) apart`,
                     );
                 }
                 return Promise.resolve();
             },
+            trigger: "change",
+        },
+    ],
+    title: [
+        {
+            required: true,
+            message: "This field is required.",
+            trigger: "change",
+        },
+        {
+            validator: (rule: RuleObject, value: string) => {
+                if (value?.length > 100) return Promise.reject("Limit: 100 characters.");
+                return Promise.resolve();
+            },
+            trigger: "change",
+        },
+    ],
+    timeLimit: [
+        {
+            required: true,
+            message: "This field is required.",
+            trigger: "change",
+        },
+    ],
+    passingScore: [
+        {
+            required: true,
+            message: "This field is required.",
+            trigger: "change",
+        },
+    ],
+    shuffle: [
+        {
+            required: true,
+            message: "This field is required.",
+            trigger: "change",
+        },
+    ],
+    maxAttempt: [
+        {
+            required: true,
+            message: "This field is required.",
             trigger: "change",
         },
     ],
@@ -98,7 +150,29 @@ const onQuestionGradeMethodChange = (checked: boolean) => {
         : TEST_GRADE_QUESTION_METHOD.ALL_OR_NOTHING;
 };
 
-onMounted(() => {});
+watch(
+    () => [props.formState.startTime, props.formState.startTime],
+    ([newStart, newEnd]) => {
+        if (newStart && newEnd) {
+            range.value[0] = dayjs(newStart);
+            range.value[1] = dayjs(newEnd);
+        }
+    },
+    { immediate: true },
+);
+
+watch(
+    () => props.formState.timeLimit,
+    async (newTimeLimit) => {
+        try {
+            await formRef.value.validate();
+        } catch {}
+    },
+);
+
+onMounted(async () => {
+    message.info("Change to startTime endTime when api fixed");
+});
 </script>
 
 <template>
@@ -107,13 +181,13 @@ onMounted(() => {});
         width="100%"
         wrap-class-name="full-modal setting-modal"
         :open="modal_open"
-        @cancel="closeImportModal"
+        @cancel="closeModal"
     >
         <div class="modal-container">
             <div class="modal-title-container">
                 <a-row class="w-100 d-flex align-items-center">
                     <a-col :span="1">
-                        <RouterLink @click="closeImportModal" :to="{ name: '' }">
+                        <RouterLink @click="closeModal" :to="{ name: '' }">
                             <i class="bx bx-chevron-left navigator-back-button"></i>
                         </RouterLink>
                     </a-col>
@@ -129,15 +203,24 @@ onMounted(() => {});
                         <span>Config how your test work</span>
                     </div>
                 </div>
-                <a-form class="w-100" layout="vertical">
-                    <Input
-                        class="question-input-item"
-                        v-model="formState.name"
-                        :isRequired="true"
-                        :placeholder="t('question_sets_index.search_placeholder')"
-                        :label="'Test title'"
-                        :max-length="100"
-                    />
+                <a-form
+                    ref="formRef"
+                    :model="formState"
+                    :rules="rules"
+                    class="w-100"
+                    layout="vertical"
+                >
+                    <a-form-item>
+                        <Input
+                            class="question-input-item"
+                            v-model="formState.name"
+                            :isRequired="true"
+                            :placeholder="'Enter test title'"
+                            :label="'Test title'"
+                            :max-length="100"
+                        />
+                    </a-form-item>
+
                     <a-row class="form-item-row">
                         <a-col :span="24">
                             <a-form-item
@@ -157,11 +240,17 @@ onMounted(() => {});
                     </a-row>
                     <a-row class="form-item-row">
                         <a-col :span="10">
-                            <a-form-item label="Number of Attempts" class="input-item">
+                            <a-form-item
+                                label="Number of Attempts"
+                                class="input-item"
+                                name="maxAttempt"
+                            >
                                 <a-input-number
                                     size="large"
                                     :addon-after="'time'"
                                     v-model:value="formState.maxAttempt"
+                                    min="1"
+                                    max="100"
                                 >
                                     <template #prefix>
                                         <i class="bx bx-repost"></i>
@@ -170,11 +259,13 @@ onMounted(() => {});
                             </a-form-item>
                         </a-col>
                         <a-col :span="10">
-                            <a-form-item label="Shuffle" class="input-item">
+                            <a-form-item label="Shuffle" class="input-item" name="shuffle">
                                 <a-input-number
                                     size="large"
                                     :addon-after="'times'"
                                     v-model:value="formState.shuffle"
+                                    min="1"
+                                    max="100"
                                 >
                                     <template #prefix>
                                         <i class="bx bx-shuffle"></i>
@@ -185,28 +276,34 @@ onMounted(() => {});
                     </a-row>
                     <a-row class="form-item-row">
                         <a-col :span="10">
-                            <a-form-item label="Time Limit" class="input-item">
+                            <a-form-item label="Time Limit" class="input-item" name="timeLimit">
                                 <a-input-number
                                     size="large"
                                     :addon-after="'minutes'"
                                     v-model:value="formState.timeLimit"
+                                    min="1"
+                                    max="1500"
                                 >
                                     <template #prefix>
-                                        <i class="bx bx-time-five"></i>
-                                    </template> </a-input-number
+                                        <i class="bx bx-time-five"></i> </template></a-input-number
                             ></a-form-item>
                         </a-col>
                         <a-col :span="10">
-                            <a-form-item label="Passing score" class="input-item">
+                            <a-form-item
+                                label="Passing score"
+                                class="input-item"
+                                name="passingScore"
+                            >
                                 <a-input-number
                                     size="large"
                                     :addon-after="'%'"
                                     v-model:value="formState.passingScore"
+                                    min="1"
+                                    max="100"
                                 >
                                     <template #prefix>
-                                        <i
-                                            class="bx bx-check-circle"
-                                        ></i> </template></a-input-number
+                                        <i class="bx bx-check-circle"></i>
+                                    </template> </a-input-number
                             ></a-form-item>
                         </a-col>
                     </a-row>
@@ -275,7 +372,7 @@ onMounted(() => {});
                 size="large"
                 key="submit"
                 type="primary"
-                @click="console.log(range)"
+                @click="closeModal"
             >
                 Next
             </a-button>

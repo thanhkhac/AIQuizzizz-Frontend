@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import ApiClass from "@/api/ApiClass";
+import ApiTest from "@/api/ApiTest";
+
 import CLASS_EXAM_STATUS from "@/constants/classExamStatus";
 import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
 import type { Class } from "@/models/response/class/class";
@@ -12,6 +14,8 @@ import dayjs from "dayjs";
 import { useRoute, useRouter } from "vue-router";
 
 import Input from "@/shared/components/Common/Input.vue";
+import { FileDoneOutlined } from "@ant-design/icons-vue";
+import { Modal, message } from "ant-design-vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -164,9 +168,30 @@ const getTagColor = (status: string) => {
     }
 };
 
-const onRedirectToCreate = async () => {
-    router.push({ name: "User_Test_Create" });
+const onRedirectToCreate = () => {
+    router.push({ name: "User_Test_Create", params: { id: classId.value } });
 };
+
+const onRedirectToUpdate = (testId: string) => {
+    router.push({ name: "User_Test_Update", params: { id: testId } });
+};
+
+const onDeleteTest = (testId: string) => {
+    Modal.confirm({
+        title: "Are you sure to delete this test from class?",
+        content:
+            "This action is inreversible, every related data will be erased forever. Please double check before delete!",
+        okText: "Confirm",
+        onOk: async () => {
+            let result = await ApiTest.Delete(testId);
+            if (result.data.success) {
+                message.success("Delete test successfully.");
+                getData();
+            }
+        },
+    });
+};
+
 onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
@@ -202,10 +227,10 @@ onMounted(async () => {
                         <span>{{ $t("class_index.title") }}</span>
                         <span>{{ $t("class_exam.sub_title") }}</span>
                     </div>
-                    <RouterLink class="main-color-btn link" :to="{ name: 'User_Test_Create' }">
+                    <a-button type="primary" class="main-color-btn" @click="onRedirectToCreate">
                         <i class="me-2 bx bx-list-plus"></i>
                         {{ $t("class_exam.buttons.assign_test") }}
-                    </RouterLink>
+                    </a-button>
                 </div>
                 <div class="content-item-functions">
                     <div class="content-item-navigators">
@@ -276,7 +301,7 @@ onMounted(async () => {
                             <div class="exam-item-info exam-item-date">
                                 <div>
                                     <i class="bx bx-calendar"></i>
-                                    {{ dayjs(exam.date).format("DD/MM/YYYY HH:mm A") }}
+                                    {{ dayjs(exam.timeStart).format("DD/MM/YYYY HH:mm A") }}
                                 </div>
                             </div>
                             <div class="exam-item-info exam-info-detail">
@@ -301,9 +326,14 @@ onMounted(async () => {
                             </div>
                         </div>
                         <div class="exam-item-actions">
-                            <i class="bx bx-edit"></i>
-                            <i class="bx bx-history"></i>
-                            <i class="text-danger bx bx-trash-alt"></i>
+                            <i class="bx bx-edit" @click="onRedirectToUpdate(exam.testId)"></i>
+                            <i>
+                                <FileDoneOutlined />
+                            </i>
+                            <i
+                                class="text-danger bx bx-trash-alt"
+                                @click="onDeleteTest(exam.testId)"
+                            ></i>
                         </div>
                     </div>
                 </div>
@@ -339,7 +369,6 @@ a {
     padding: 10px;
     display: flex;
     align-items: center;
-    cursor: pointer;
 }
 
 .exam-item:hover {
@@ -410,9 +439,11 @@ a {
     align-items: center;
 }
 .exam-item-actions i {
-    font-size: 20px;
+    font-size: 24px;
     margin: 0px 10px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
 }
 .main-color-btn {
     font-size: 16px;

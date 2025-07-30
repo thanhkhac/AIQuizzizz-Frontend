@@ -31,26 +31,10 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
-//#region  check class
-const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
-const getClassData = async () => {
-    if (!Validator.isValidGuid(formState.classId)) {
-        isDataValid.value = false;
-        router.push({ name: "404" });
-        return;
-    }
-
-    const result = await ApiClass.GetById(formState.classId);
-    if (!result.data.success) {
-        isDataValid.value = false;
-        router.push({ name: "404" });
-    }
-};
-//#endregion
-
 //#region formState
 
 interface FormState {
+    testId: string;
     name: string;
     classId: string;
     timeLimit: number;
@@ -68,8 +52,9 @@ interface FormState {
 
 const formRef = ref();
 const formState = reactive<FormState>({
+    testId: route.params.id?.toString() || "",
     name: "",
-    classId: route.params.id.toString() || "",
+    classId: "",
     timeLimit: 60,
     startTime: "",
     endTime: "",
@@ -84,36 +69,6 @@ const formState = reactive<FormState>({
 });
 
 const rules = {
-    title: [
-        {
-            required: "true",
-            message: "This field is required",
-            trigger: "change",
-        },
-        {
-            length: 100,
-            message: "Limit 100",
-            trigger: "change",
-        },
-    ],
-    description: [
-        {
-            length: 200,
-            message: "Limit 200",
-            trigger: "change",
-        },
-    ],
-    tags: [
-        {
-            validator: (rule: string, value: []) => {
-                if (value && value.length > 5) {
-                    return Promise.reject("You can only add up to 5 tags.");
-                }
-                return Promise.resolve();
-            },
-            trigger: "change",
-        },
-    ],
     questions: [
         {
             validator: (rule: string, value: []) => {
@@ -127,6 +82,32 @@ const rules = {
     ],
 };
 
+//#endregion
+
+//#region init data
+const loading = ref(false);
+const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
+const getData = async () => {
+    loading.value = true;
+    if (!Validator.isValidGuid(formState.testId)) {
+        isDataValid.value = false;
+        router.push({ name: "404" });
+        return;
+    }
+
+    const result = await ApiTest.GetById(formState.testId);
+    if (!result.data.success) {
+        isDataValid.value = false;
+        router.push({ name: "404" });
+        return;
+    }
+
+    Object.assign(formState, result.data.data);
+    formState.questions = result.data.data.questions.map((x: ResponseQuestion) =>
+        TransferQuestionData.transformResponseToRequest(x),
+    );
+    loading.value = false;
+};
 //#endregion
 
 //#region crud question
@@ -281,8 +262,7 @@ const showModalConfirmation = () => {
             const result = await ApiTest.Create(formState);
             if (result.data.success) {
                 isDataValid.value = false; //disable safe guard
-                message.success("Created successfully!");
-                router.push({ name: "User_Class_Exam", params: { id: formState.classId } });
+                message.success("Updated successfully!");
             }
         },
     });
@@ -416,10 +396,12 @@ onUnmounted(() => {
 });
 //#endregion
 
-onMounted(() => {
-    getClassData();
+onMounted(async () => {
+    await getData();
     formState.questions.push(createQuestionTemplate());
     window.addEventListener("beforeunload", handleBeforeUnload);
+    
+    await nextTick();
     openSettingModal();
 });
 </script>
@@ -473,7 +455,14 @@ onMounted(() => {
                             </a-button>
                         </div>
                     </div>
-                    <div class="list-question-container">
+                    <div v-if="loading">
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                    </div>
+                    <div v-else class="list-question-container">
                         <div v-for="(question, index) in formState.questions" :key="question.id">
                             <component
                                 :is="componentMap[question.type]"
@@ -524,6 +513,16 @@ onMounted(() => {
         @import="onModalImport"
     />
 </template>
+<style>
+.ant-skeleton-title {
+    background-color: #313131 !important;
+}
+
+.ant-skeleton-paragraph li {
+    background-color: #313131 !important;
+}
+</style>
+
 <style scoped>
 .content-item-buttons {
     flex-direction: row;

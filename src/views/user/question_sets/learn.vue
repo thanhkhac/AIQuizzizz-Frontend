@@ -323,7 +323,6 @@ const onSubmitAnswer = () => {
         }
     }
 
-    debugger;
     //if hasn't re-tried and has incorrect
     if (currentQuestionResult.value.result === false && !isCurrentSessionReLearn.value) {
         incorrect.value.add(currentQuestion.value);

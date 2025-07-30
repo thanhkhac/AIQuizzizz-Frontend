@@ -6,5 +6,5 @@ export interface ClassExam {
     relativeTime: number;
     numberOfCompletion: number;
     status: string;
-    date: string;
+    timeStart: string;
 }

@@ -78,7 +78,8 @@ import {
     Drawer,
     Spin,
     Table,
-    Rate
+    Rate,
+    Skeleton
 } from "ant-design-vue";
 
 /**
@@ -170,6 +171,7 @@ if (colors.includes(storedColorClass)) {
     app.use(Spin);
     app.use(Table);
     app.use(Rate);
+    app.use(Skeleton);
 
     app.use(HighchartsVue);
 

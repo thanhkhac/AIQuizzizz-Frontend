@@ -161,10 +161,18 @@ const userRoutes = [
     },
     {
         name: "User_Test_Create",
-        path: "/user/test/create",
+        path: "/user/class/:id/test/create",
         component: () => import("@/views/user/test/create.vue"),
         meta: {
             title: "create-test",
+        },
+    },
+    {
+        name: "User_Test_Update",
+        path: "/user/test/:id/update",
+        component: () => import("@/views/user/test/update.vue"),
+        meta: {
+            title: "update-test",
         },
     },
 ];
