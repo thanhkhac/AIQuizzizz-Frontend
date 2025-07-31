@@ -175,6 +175,14 @@ const userRoutes = [
             title: "update-test",
         },
     },
+    {
+        name: "User_Test_Attempt",
+        path: "/user/test/attempt",
+        component: () => import("@/views/user/test/attempt.vue"),
+        meta: {
+            title: "attempt-test",
+        },
+    },
 ];
 
 export default userRoutes;

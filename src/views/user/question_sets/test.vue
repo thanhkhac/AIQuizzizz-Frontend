@@ -1243,8 +1243,13 @@ onMounted(() => {
                                         :disabled="userAnswerCurrentQuestionSkipped || isSubmitted"
                                         v-model="userAnswerMatchingLeft"
                                         :options="dragOptions"
-                                        @end="syncMatchingHeights"
-                                        @vue:updated="onUserAnswerChange"
+                                        @move="syncMatchingHeights"
+                                        @end="
+                                            () => {
+                                                syncMatchingHeights();
+                                                onUserAnswerChange();
+                                            }
+                                        "
                                     >
                                         <template v-for="(option, index) in userAnswerMatchingLeft">
                                             <div class="d-flex align-items-center">
@@ -1284,8 +1289,13 @@ onMounted(() => {
                                         :disabled="userAnswerCurrentQuestionSkipped || isSubmitted"
                                         v-model="userAnswerMatchingRight"
                                         :options="dragOptions"
-                                        @end="syncMatchingHeights"
-                                        @vue:updated="onUserAnswerChange"
+                                        @move="syncMatchingHeights"
+                                        @end="
+                                            () => {
+                                                syncMatchingHeights();
+                                                onUserAnswerChange();
+                                            }
+                                        "
                                     >
                                         <template
                                             v-for="(option, index) in userAnswerMatchingRight"
@@ -1331,7 +1341,7 @@ onMounted(() => {
                                     :disabled="userAnswerCurrentQuestionSkipped || isSubmitted"
                                     v-model="userAnswerOrdering"
                                     :options="dragOptions"
-                                    @vue:updated="onUserAnswerChange"
+                                    @end="onUserAnswerChange"
                                 >
                                     <template v-for="(option, index) in userAnswerOrdering">
                                         <div

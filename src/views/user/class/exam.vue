@@ -192,6 +192,10 @@ const onDeleteTest = (testId: string) => {
     });
 };
 
+const onRedirectToAttempt = (testId: string) => {
+    router.push({ name: "User_Test_Attempt" });
+};
+
 onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
@@ -326,6 +330,13 @@ onMounted(async () => {
                             </div>
                         </div>
                         <div class="exam-item-actions">
+                            <a-button
+                                type="primary"
+                                class="main-color-btn"
+                                @click="onRedirectToAttempt(exam.testId)"
+                            >
+                                Attempt
+                            </a-button>
                             <i class="bx bx-edit" @click="onRedirectToUpdate(exam.testId)"></i>
                             <i>
                                 <FileDoneOutlined />

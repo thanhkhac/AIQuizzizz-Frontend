@@ -1337,6 +1337,7 @@ pre {
     padding: 0px 20px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
 .learn-question-result {

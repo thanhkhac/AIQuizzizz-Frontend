@@ -244,6 +244,7 @@ const getScheduleItemMeta = (schedule) => {
     padding: 10px;
     display: flex;
     flex-direction: column;
+    align-items: start;
     width: calc(100% / 3 - 50px);
     cursor: pointer;
 }
@@ -256,6 +257,7 @@ const getScheduleItemMeta = (schedule) => {
     font-size: 18px;
 }
 .quiz-item-title {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -272,6 +274,7 @@ const getScheduleItemMeta = (schedule) => {
 }
 
 .quiz-item-progress {
+    width: 100%;
     font-size: 12px;
     margin-bottom: 0;
 }
