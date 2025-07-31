@@ -1,120 +1,45 @@
 <script setup lang="ts">
+import ApiQuestionSet from "@/api/ApiQuestionSet";
+import type { RequestQuestion } from "@/models/request/question";
+import type QuestionSet from "@/models/response/question_set/questionSet";
+import type Tag from "@/models/response/tag/tag";
+import QUESTION_TYPE from "@/constants/questionTypes";
+
 import { ref, reactive, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-import { message } from "ant-design-vue";
-import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
+import { message } from "ant-design-vue";
+import TransferQuestionData from "@/services/TransferQuestionData";
+import Validator from "@/services/Validator";
 
-import type { RequestQuestion } from "@/models/request/question";
-import QUESTION_TYPE from "@/constants/questionTypes";
+import { useI18n } from "vue-i18n";
+import dayjs from "dayjs";
 
 const { t } = useI18n();
 
 const route = useRoute();
 const router = useRouter();
 
-const quiz = ref({
-    id: "123456",
-    title: "Introduction to Biology",
-    description: "Basic knowledges about generic, biologic, and so on ...",
-    rating: {
-        value: 5.0,
-        reviews: 15,
-    },
-    tags: [
-        { id: 1, content: "Scienece" },
-        { id: 2, content: "Basic knowledge" },
-        { id: 3, content: "Biology" },
-        { id: 4, content: "ToLearn" },
-    ],
-    questions: [
-        {
-            id: "q1",
-            type: "MultipleChoice",
-            questionText: "What is the capital of France ?",
-            questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
-            explainText: "Paris is the capital city of France.",
-            score: 1,
-            multipleChoices: [
-                { id: "1", text: "Paris", isAnswer: true },
-                { id: "2", text: "London", isAnswer: false },
-                { id: "3", text: "Berlin", isAnswer: false },
-            ],
-            matchingPairs: [],
-            orderingItems: [],
-            shortAnswer: "",
-        },
-        {
-            id: "q2",
-            type: "Matching",
-            questionText: "Match the countries to their capitals.",
-            questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
-            explainText: "Each country must be paired with its capital.",
-            score: 2,
-            multipleChoices: [],
-            matchingPairs: [
-                { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
-                { id: "2", leftItem: "Italy", rightItem: "Rome" },
-                { id: "3", leftItem: "Vietnam", rightItem: "Hanoi" },
-            ],
-            orderingItems: [],
-            shortAnswer: "",
-        },
-        {
-            id: "q3",
-            type: "Ordering",
-            questionText: "Arrange the steps of the water cycle in the correct order.",
-            questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
-            explainText:
-                "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
-            score: 2,
-            multipleChoices: [],
-            matchingPairs: [],
-            orderingItems: [
-                { id: "1", text: "Evaporation", correctOrder: 1 },
-                { id: "2", text: "Condensation", correctOrder: 2 },
-                { id: "3", text: "Precipitation", correctOrder: 3 },
-                { id: "4", text: "Collection", correctOrder: 4 },
-            ],
-            shortAnswer: "",
-        },
-        {
-            id: "q4",
-            type: "ShortText",
-            questionText: "What is the chemical symbol for water?",
-            questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
-            explainText: "H2O is the formula for water.",
-            score: 1,
-            multipleChoices: [],
-            matchingPairs: [],
-            orderingItems: [],
-            shortAnswer: "H2O",
-        },
-        {
-            id: "q5",
-            type: "MultipleChoice",
-            questionText: "Which planet is known as the Red Planet?",
-            questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
-            explainText: "Mars is often called the Red Planet due to its reddish appearance.",
-            score: 1,
-            multipleChoices: [
-                { id: "1", text: "Mars", isAnswer: true },
-                { id: "2", text: "Venus", isAnswer: false },
-                { id: "3", text: "Jupiter", isAnswer: false },
-            ],
-            matchingPairs: [],
-            orderingItems: [],
-            shortAnswer: "",
-        },
-    ],
-    createdBy: {
-        id: 1234,
-        fullName: "NguyenTanDuc",
-        image: "",
-    },
-    createdAt: "05/07/2025",
+//#region init data
+const question_set_id = ref(route.params.id);
+
+const quiz = ref<QuestionSet>({
+    id: "",
+    name: "",
+    description: "",
+    numberOfQuestions: 0,
+    completedQuestions: 0,
+    ratingCount: 0,
+    ratingAverage: 0,
+    createdBy: "",
+    createdAt: "",
+    createdById: "",
+    tags: [],
+    lastAccessByMe: "",
+    visibilityMode: "",
 });
+const quiz_questions = ref<RequestQuestion[]>([]);
 
 const optionKeys = [
     "All",
@@ -132,8 +57,26 @@ const question_type_options = computed(() =>
 );
 
 const selected_type_option = ref(question_type_options.value[0].value);
-
 const searchValue = ref("");
+
+const getData = async () => {
+    if (!Validator.isValidGuid(question_set_id.value.toString())) router.push({ name: "404" });
+
+    const question_set_result = await ApiQuestionSet.GetDetailById(
+        question_set_id.value.toString(),
+    );
+
+    const question_result = await ApiQuestionSet.GetQuestionById(question_set_id.value.toString());
+
+    if (!question_set_result.data.success || !question_result.data.success)
+        router.push({ name: "User_Library" });
+
+    quiz.value = question_set_result.data.data;
+    quiz.value.createdBy = question_set_result.data.data.createdBy.fullName;
+    quiz_questions.value = question_result.data.data.map((x: ResponseQuestion) =>
+        TransferQuestionData.transformResponseToRequest(x),
+    );
+};
 
 //preview uploaded content
 const toggleDisplayAnswer = (index: number, button: EventTarget) => {
@@ -145,41 +88,21 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
     if (answer) $(answer).slideToggle();
 };
 
-const questionsToBeRendered = ref<RequestQuestion[]>([]);
-const onFilter = () => {
-    const filteredQuestions = quiz.value.questions.filter((x) => {
-        let matches = x.questionText.includes(searchValue.value.toLowerCase().trim());
-        if (!matches) return false;
+//#endregion
 
-        switch (selected_type_option.value) {
-            case QUESTION_TYPE.MULTIPLE_CHOICE: {
-                return x.type === QUESTION_TYPE.MULTIPLE_CHOICE;
-            }
-            case QUESTION_TYPE.MATCHING: {
-                return x.type === QUESTION_TYPE.MATCHING;
-            }
-            case QUESTION_TYPE.ORDERING: {
-                return x.type === QUESTION_TYPE.ORDERING;
-            }
-            case QUESTION_TYPE.SHORT_TEXT: {
-                return x.type === QUESTION_TYPE.SHORT_TEXT;
-            }
-            default: {
-                return true;
-            }
-        }
-    });
-    questionsToBeRendered.value = filteredQuestions as RequestQuestion[];
-};
+//#region share modal
 
 //share quiz
 import ShareModal from "@/shared/modals/ShareModal.vue";
+import type { ResponseQuestion } from "@/models/response/question";
 const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
 
 const onOpenShareModal = () => {
     shareModalRef.value?.openModal();
 };
+//#endregion
 
+//#region  redirect
 const onRedirectToLearn = () => {
     router.push({ name: "User_QuestionSet_Learn", params: { id: quiz.value.id } });
 };
@@ -191,10 +114,7 @@ const onRedirectToTest = () => {
 const onRedirectToEdit = () => {
     router.push({ name: "User_QuestionSet_Update", params: { id: quiz.value.id } });
 };
-
-const triggerPrint = () => {
-    window.print();
-};
+//#endregion
 
 //#region  rating
 const modal_rate_open = ref(false);
@@ -205,8 +125,7 @@ const rateValue = ref(0);
 onMounted(() => {
     //get api quiz + check visibility to current user
     //format url
-
-    questionsToBeRendered.value = quiz.value.questions as RequestQuestion[];
+    getData();
 });
 </script>
 <template>
@@ -218,7 +137,7 @@ onMounted(() => {
         <div class="content-item">
             <div class="content-item-title">
                 <div>
-                    <span>{{ quiz.title }}</span>
+                    <span>{{ quiz.name }}</span>
                     <span>{{ quiz.description }}</span>
                 </div>
                 <div class="d-flex flex-row align-items-center quiz-header-functions">
@@ -248,12 +167,12 @@ onMounted(() => {
             </div>
             <div class="quiz-info">
                 <div class="quiz-rating" @click="modal_rate_open = true">
-                    {{ quiz.rating.value }} ⭐️ ({{ quiz.rating.reviews }}
+                    {{ quiz.ratingAverage }} ⭐️ ({{ quiz.ratingCount }}
                     {{ $t("detail_QS.other.reviews") }})
                 </div>
                 <div class="quiz-tag-container">
                     <div class="quiz-tag-item" v-for="tag in quiz.tags">
-                        {{ tag.content }}
+                        {{ tag.name }}
                     </div>
                 </div>
             </div>
@@ -272,16 +191,16 @@ onMounted(() => {
             </div>
             <div class="action-container">
                 <div class="credit-user">
-                    <img class="user-image" :src="quiz.createdBy.image" alt="" />
+                    <div class="user-image" alt=""></div>
                     <div class="credit-user-info">
                         <span>
                             {{
                                 $t("detail_QS.other.created_by", {
-                                    username: quiz.createdBy.fullName,
+                                    username: quiz.createdBy,
                                 })
                             }}
                         </span>
-                        <span>{{ quiz.createdAt }}</span>
+                        <span>{{ dayjs(quiz.createdAt).format("DD/MM/YYYY") }}</span>
                     </div>
                 </div>
                 <div class="d-flex">
@@ -300,17 +219,12 @@ onMounted(() => {
             <div class="content-item-title">
                 <div>
                     <span>{{
-                        $t("detail_QS.other.questions", { number: quiz.questions.length })
+                        $t("detail_QS.other.questions", { number: quiz_questions.length })
                     }}</span>
                 </div>
             </div>
             <div class="content-item-functions">
-                <a-select
-                    class="me-3"
-                    v-model:value="selected_type_option"
-                    style="width: 200px"
-                    @change="onFilter"
-                >
+                <a-select class="me-3" v-model:value="selected_type_option" style="width: 200px">
                     <a-select-option v-for="option in question_type_options" :value="option.value">
                         {{ option.label }}
                     </a-select-option>
@@ -318,7 +232,6 @@ onMounted(() => {
 
                 <div style="width: 300px; padding: 0">
                     <Input
-                        @input="onFilter"
                         v-model="searchValue"
                         :placeholder="t('question_sets_index.search_placeholder')"
                     >
@@ -330,10 +243,7 @@ onMounted(() => {
             </div>
 
             <div class="preview-question-container">
-                <div
-                    class="preview-question-item"
-                    v-for="(question, index) in questionsToBeRendered"
-                >
+                <div class="preview-question-item" v-for="(question, index) in quiz_questions">
                     <div class="question-item-content">
                         <div
                             v-if="question.questionHTML"
@@ -528,7 +438,6 @@ onMounted(() => {
     flex-direction: column;
     font-size: 14px;
     color: var(--text-color-grey);
-    font-weight: 500;
 }
 
 .action-container {

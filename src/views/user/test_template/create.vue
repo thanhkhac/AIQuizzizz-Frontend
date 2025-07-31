@@ -565,3 +565,9 @@ onUnmounted(() => {
     <ImportQSModal ref="importModalRef" :title="formState.name" @import="onModalImport" />
     <GenerateQSModal ref="generateModalRef" :title="formState.name" @import="onModalImport" />
 </template>
+<style scoped>
+.content-item-buttons {
+    display: flex;
+    flex-direction: row;
+}
+</style>

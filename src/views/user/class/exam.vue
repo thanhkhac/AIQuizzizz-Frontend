@@ -155,14 +155,14 @@ const getFormattedRelativeTime = (hoursAgo: number) => {
 };
 
 const getTagColor = (status: string) => {
-    switch (status.toLowerCase()) {
-        case "completed": {
+    switch (status) {
+        case CLASS_EXAM_STATUS.COMPLETED: {
             return "#3b82f6";
         }
-        case "active": {
+        case CLASS_EXAM_STATUS.ACTIVE: {
             return "#22C55E";
         }
-        case "upcoming": {
+        case CLASS_EXAM_STATUS.UPCOMING: {
             return "#f59e0b";
         }
     }
@@ -299,7 +299,7 @@ onMounted(async () => {
                             <div class="exam-item-title">
                                 {{ exam.name }}
                                 <a-tag :color="getTagColor(exam.status)">
-                                    {{ exam.status }}
+                                    {{ $t(`class_exam.select_option.${exam.status}`) }}
                                 </a-tag>
                             </div>
                             <div class="exam-item-info exam-item-date">
@@ -335,7 +335,7 @@ onMounted(async () => {
                                 class="main-color-btn"
                                 @click="onRedirectToAttempt(exam.testId)"
                             >
-                                Attempt
+                                {{ $t("class_exam.buttons.attempt") }}
                             </a-button>
                             <i class="bx bx-edit" @click="onRedirectToUpdate(exam.testId)"></i>
                             <i>

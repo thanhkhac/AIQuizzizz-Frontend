@@ -9,6 +9,7 @@ import { HolderOutlined } from "@ant-design/icons-vue";
 
 import { useI18n } from "vue-i18n";
 import dayjs, { Dayjs } from "dayjs";
+import { Modal, message } from "ant-design-vue";
 
 const { t } = useI18n();
 
@@ -275,6 +276,10 @@ const userAnswerShortText = ref<string>("");
 
 const userAnswer = ref<UserAnswer[]>([]);
 
+//#region init data
+
+//#endregion
+
 //#region logic complete question
 /* handle logic complete question */
 const updateUserAnswer = (index: number, newAnswer: UserAnswer) => {
@@ -353,10 +358,18 @@ const onUserAnswerChange = () => {
 };
 
 const onSubmit = () => {
-    timerEnd();
+    Modal.confirm({
+        title: "Are you sure to submit your test?",
+        content: "Please double check your answer before submitting!",
+        centered: true,
+        onOk: async () => {
+            //call api
+        },
+    });
 };
 
 const onLoadCurrentQuestion = (index: number) => {
+    syncMatchingHeights();
     currentQuestionIsSkipped.value = false;
 
     currentQuestion.value = quiz.question[index] as ResponseQuestion;
@@ -428,38 +441,6 @@ const hasPreviousQuestion = computed(() => {
 
 //#endregion
 
-//#region timer
-import duration from "dayjs/plugin/duration";
-dayjs.extend(duration);
-
-const startTime = ref<dayjs.Dayjs>();
-const timerResult = ref<string>("");
-
-const timerStart = () => {
-    startTime.value = dayjs();
-};
-
-const timerEnd = () => {
-    const endTime = dayjs();
-    const diffMs = endTime.diff(startTime.value); // get duration in milliseconds
-    const diffSeconds = Math.floor(diffMs / 1000); //convert to second
-
-    if (diffSeconds < 60) {
-        timerResult.value = `Your time: ${diffSeconds} second${diffSeconds === 1 ? "" : "s"}`;
-    } else {
-        const duration_ms = dayjs.duration(diffMs);
-        const hours = duration_ms.hours();
-        const minutes = duration_ms.minutes();
-
-        let result = "Your time: ";
-        if (hours > 0) result += `${hours} hour${hours > 1 ? "s" : ""} `;
-        if (minutes > 0) result += `${minutes} minute${minutes > 1 ? "s" : ""}`;
-        timerResult.value = result.trim();
-    }
-};
-
-//#endregion
-
 //#region adjust UI scale
 const dragOptions = {
     scroll: true,
@@ -506,7 +487,7 @@ const isOptionExceed = computed(() => {
 //#endregion
 
 //#region timer
-const endTime: Dayjs = dayjs().add(30, "second");
+const endTime: Dayjs = dayjs().add(61, "second");
 
 const remainingTime = ref<number>(endTime.diff(dayjs(), "second"));
 let timer: ReturnType<typeof setInterval> | null = null;
@@ -530,9 +511,13 @@ const updateCountdown = (): void => {
 
 timer = setInterval(updateCountdown, 1000);
 
-onUnmounted(() => {
-    if (timer) clearInterval(timer);
-});
+//#endregion
+
+//#region auto save
+const autoSaver = ref<number>();
+const autoSave = () => {
+    message.info("Auto saved");
+};
 
 //#endregion
 
@@ -557,14 +542,22 @@ const isCurrentQuestionFlagged = computed(() => {
 });
 
 //#endregion
+
+//#region leave guard
+onUnmounted(() => {
+    if (timer) clearInterval(timer);
+    if (autoSaver.value) clearInterval(autoSaver.value);
+});
+//#endregion
+
 onMounted(() => {
     onLoadCurrentQuestion(0);
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
 
-    timerStart();
     updateCountdown();
     timer = setInterval(updateCountdown, 1000);
+    autoSaver.value = setInterval(autoSave, 60_000); //save each 60s
 });
 </script>
 

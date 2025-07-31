@@ -1,15 +1,21 @@
-<script setup>
-import { ref, onMounted } from "vue";
+<script setup lang="ts">
+import ApiQuestionSet from "@/api/ApiQuestionSet";
+import type QuestionSetPublicPageParams from "@/models/request/question_set/publicPageParams";
+import QUESTION_SET_SORT_CATEGORY from "@/constants/questionSetSortCate";
+
+import { ref, onMounted, reactive } from "vue";
+import { useRouter } from "vue-router";
+
 import dayjs from "dayjs";
+import Input from "@/shared/components/Common/Input.vue";
 import { useI18n } from "vue-i18n";
+
 const emit = defineEmits(["updateSidebar"]);
 
 const { t } = useI18n();
+const router = useRouter();
 
-onMounted(() => {
-    const sidebarActiveItem = "dashboard";
-    emit("updateSidebar", sidebarActiveItem);
-});
+//#region sample data
 
 const quiz_data = ref([
     {
@@ -71,12 +77,14 @@ const schedule_data = ref([
         date: "07/01/2025 10:00 AM",
     },
 ]);
+//#endregion
 
-const getPercentageComplete = (total, completed) => {
+//#region calculate UI
+const getPercentageComplete = (total: number, completed: number) => {
     return Math.floor((completed / total) * 100);
 };
 
-const getCaculatedDateString = (date) => {
+const getCaculatedDateString = (date: string) => {
     const diff = dayjs(date).startOf("day").diff(dayjs().startOf("day"), "days");
 
     if (diff >= 2) {
@@ -90,8 +98,8 @@ const getCaculatedDateString = (date) => {
     }
 };
 
-const getScheduleItemMeta = (schedule) => {
-    const diff = dayjs(schedule.date).startOf("day").diff(dayjs().startOf("day"), "days");
+const getScheduleItemMeta = (date: string) => {
+    const diff = dayjs(date).startOf("day").diff(dayjs().startOf("day"), "days");
 
     const tag =
         diff === 0
@@ -101,7 +109,7 @@ const getScheduleItemMeta = (schedule) => {
               : "";
 
     return {
-        schedule,
+        date,
         tag,
         border: {
             borderColor: tag === t("dashboards.list_items.schedule.today") ? "#58181c" : "#153450",
@@ -109,6 +117,58 @@ const getScheduleItemMeta = (schedule) => {
         color: tag === t("dashboards.list_items.schedule.today") ? "error" : "processing",
     };
 };
+//#endregion
+
+//#region search bar
+type SearchResult = {
+    id: string;
+    name: string;
+    numberOfQuestions: number;
+    ratingAverage: number;
+    createBy: string;
+};
+const search_data = ref<SearchResult[]>([]);
+const searchPageParams = reactive<QuestionSetPublicPageParams>({
+    pageNumber: 1,
+    pageSize: 10,
+    name: "",
+    tagIds: [],
+    sortBy: QUESTION_SET_SORT_CATEGORY.RATING,
+});
+
+const getSearchData = async () => {
+    const result = await ApiQuestionSet.GetPublicByLimit(searchPageParams);
+    if (result.data.success) {
+        search_data.value = result.data.data.items;
+        lastSearchResult.value = result.data.data.items;
+    }
+};
+
+/* use this for tracking whether mouse is in search components */
+const searchResultRef = ref<HTMLElement | null>(null);
+
+/* use this for temporary when mouse leave */
+const lastSearchResult = ref<SearchResult[]>([]);
+
+function handleMouseClickOutside(event: MouseEvent) {
+    if (!searchPageParams.name || !searchResultRef.value?.contains(event.target as Node)) {
+        search_data.value = [];
+    } else {
+        search_data.value = [...lastSearchResult.value];
+    }
+}
+
+const onRedirectToDetail = (questionSetId: string) => {
+    router.push({ name: "User_QuestionSet_Detail", params: { id: questionSetId } });
+};
+
+onMounted(() => {
+    document.addEventListener("click", handleMouseClickOutside);
+    const sidebarActiveItem = "dashboard";
+    emit("updateSidebar", sidebarActiveItem);
+});
+
+//#endregion
 </script>
 
 <template>
@@ -122,6 +182,37 @@ const getScheduleItemMeta = (schedule) => {
             </a-row>
         </div>
         <div class="content">
+            <div class="search-bar" ref="searchResultRef">
+                <Input
+                    @input="getSearchData"
+                    v-model="searchPageParams.name"
+                    :placeholder="t('class_index.other.search_class_placeholder')"
+                >
+                    <template #icon>
+                        <i class="bx bx-search"></i>
+                    </template>
+                </Input>
+                <div v-if="search_data.length > 0" :class="['search-result-container']">
+                    <div class="search-result">
+                        <div
+                            class="search-result-item"
+                            v-for="item in search_data"
+                            @click="onRedirectToDetail(item.id)"
+                        >
+                            <div class="result-item-title">
+                                {{ item.name }} ({{ item.ratingAverage }}⭐️)
+                            </div>
+                            <div class="result-item-description">
+                                <span class="result-item-noq">
+                                    {{ item.numberOfQuestions }}
+                                    {{ $t("dashboards.list_items.quiz.questions") }}
+                                </span>
+                                {{ $t("detail_QS.other.created_by", { username: item.createBy }) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="content-item">
                 <div class="content-item-title">
                     <div>
@@ -186,11 +277,11 @@ const getScheduleItemMeta = (schedule) => {
                                 <a-tag
                                     :style="[
                                         'background: transparent',
-                                        getScheduleItemMeta(schedule).border,
+                                        getScheduleItemMeta(schedule.date).border,
                                     ]"
-                                    :color="getScheduleItemMeta(schedule).color"
+                                    :color="getScheduleItemMeta(schedule.date).color"
                                 >
-                                    {{ getScheduleItemMeta(schedule).tag }}
+                                    {{ getScheduleItemMeta(schedule.date).tag }}
                                 </a-tag>
                             </div>
                             <div class="schedule-item-date">
@@ -413,5 +504,79 @@ const getScheduleItemMeta = (schedule) => {
 
 .schedule-item-actions button:hover {
     background-color: var(--main-sub-color);
+}
+
+.search-bar {
+    width: 95%;
+    margin-left: 10px;
+}
+
+.search-result-container {
+    position: relative;
+    color: var(--text-color);
+}
+
+.search-result::-webkit-scrollbar {
+    width: 10px;
+}
+.search-result::-webkit-scrollbar-thumb {
+    background-color: var(--form-item-border-color);
+}
+
+.search-result {
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
+    position: absolute;
+    top: 0px;
+    z-index: 10;
+    width: 100%;
+    margin: 0px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    overflow-y: scroll;
+    box-shadow: 1px 0px 10px 1px var(--border-color);
+    height: 300px;
+    padding: 10px;
+}
+
+.search-result-item {
+    margin: 5px 0px;
+    padding: 10px;
+    color: var(--text-color);
+    border: 1px solid var(--form-item-border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.search-result-item:hover {
+    border-color: var(--main-color);
+}
+
+.result-item-title {
+    font-weight: 500;
+}
+
+.result-item-description {
+    display: flex;
+    color: var(--text-color-grey);
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+::v-deep(.ant-input-affix-wrapper) {
+    height: 50px;
+}
+
+.result-item-noq {
+    font-size: 14px;
+    color: var(--text-color);
+    padding: 0px 10px;
+    background-color: var(--main-color);
+    border-radius: 50px;
+    width: 110px;
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
 }
 </style>

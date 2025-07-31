@@ -1870,6 +1870,17 @@ Custom a-switch
     cursor: pointer;
 }
 
+/**
+* custom a-skeleton
+**/
+.ant-skeleton-title {
+    background-color: #313131 !important;
+}
+
+.ant-skeleton-paragraph li {
+    background-color: #313131 !important;
+}
+
 /* ========================================Create-QuestionSet and siblings====================================================== */
 /****/
 /* ========================================User folder and siblings====================================================== */

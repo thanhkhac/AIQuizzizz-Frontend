@@ -514,13 +514,7 @@ onMounted(async () => {
     />
 </template>
 <style>
-.ant-skeleton-title {
-    background-color: #313131 !important;
-}
 
-.ant-skeleton-paragraph li {
-    background-color: #313131 !important;
-}
 </style>
 
 <style scoped>

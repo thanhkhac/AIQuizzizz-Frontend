@@ -1,4 +1,7 @@
 import Api from "@/api/Api";
+import type QuestionSetPublicPageParams from "@/models/request/question_set/publicPageParams";
+import type QuestionSetPageParams from "@/models/request/question_set/questionSetPageParams";
+
 const END_POINTS = {
     CREATE: "QuestionSet",
     UPDATE: "QuestionSet/{questionSetId}",
@@ -7,6 +10,9 @@ const END_POINTS = {
     DELETE_LEARN_HISTORY: "QuestionSet/{questionSetId}/LearnHistory",
     GET_DETAIL_BY_ID: "QuestionSet/{questionSetId}",
     GET_QUESTIONS_BY_ID: "QuestionSet/{questionSetId}/Questions",
+    GET_RECENT_BY_LIMIT: "QuestionSet/Recent",
+    GET_PUBLIC_BY_LIMIT: "QuestionSet/Public",
+    GET_ALL_BY_LIMIT: "QuestionSet/SharedOrOwned",
 };
 
 class ApiQuestionSet {
@@ -40,8 +46,40 @@ class ApiQuestionSet {
     };
 
     GetQuestionById = async (questionSetId: string) => {
-        const url = END_POINTS.GET_DETAIL_BY_ID.replace("{questionSetId}", questionSetId);
+        const url = END_POINTS.GET_QUESTIONS_BY_ID.replace("{questionSetId}", questionSetId);
         return await Api.get(url);
+    };
+
+    GetRecentByLimit = async (pageParams: QuestionSetPublicPageParams) => {
+        return await Api.get(`${END_POINTS.GET_RECENT_BY_LIMIT}`, {
+            params: {
+                pageNumber: pageParams.pageNumber || 1,
+                pageSize: pageParams.pageSize || 5,
+            },
+        });
+    };
+
+    GetPublicByLimit = async (pageParams: QuestionSetPublicPageParams) => {
+        return await Api.get(`${END_POINTS.GET_PUBLIC_BY_LIMIT}`, {
+            params: {
+                pageNumber: pageParams.pageNumber || 1,
+                pageSize: pageParams.pageSize || 5,
+                name: pageParams.name.toLowerCase() || "",
+                tagIds: pageParams.tagIds || [],
+                sortBy: pageParams.sortBy || "",
+            },
+        });
+    };
+
+    GetAllByLimit = async (pageParams: QuestionSetPageParams) => {
+        return await Api.get(`${END_POINTS.GET_ALL_BY_LIMIT}`, {
+            params: {
+                pageNumber: pageParams.pageNumber || 1,
+                pageSize: pageParams.pageSize || 5,
+                name: pageParams.name.toLowerCase() || "",
+                filterBy: pageParams.filterBy || "",
+            },
+        });
     };
 }
 

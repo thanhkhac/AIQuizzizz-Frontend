@@ -219,9 +219,9 @@
             "inClass": "Lớp học"
         },
         "credit": {
-            "all": "Tất cả",
-            "createdByMe": "Tạo bởi tôi",
-            "sharedWithMe": "Được chia sẻ với tôi",
+            "All": "Tất cả",
+            "CreatedByMe": "Tạo bởi tôi",
+            "ShareWithMe": "Được chia sẻ với tôi",
             "createdBy": "Tạo bởi {user}"
         },
         "sections": {
@@ -402,6 +402,45 @@
                 "q9": "Bạn gần tới đích rồi đấy.",
                 "q10": "Đứng dậy và làm tiếp!"
             }
+        },
+        "instructions": {
+            "multiple_choice": "Chọn ({number}) đáp án",
+            "matching": "Sắp xếp các mục cho đúng với cặp tương ứng.",
+            "ordering": "Sắp xếp các đáp án theo đúng thứ tự.",
+            "short_text": "Điền đáp án đúng vào chỗ trống.",
+            "short_text_answer": "Đáp án đúng: ",
+            "re_learn_ins": "Hãy thử lại một lần nữa"
+        },
+        "result": {
+            "skipped": "Bỏ qua",
+            "wrong": "Sai!",
+            "correct": "Chính xác!"
+        },
+        "msg": {
+            "learn_mode_reset": "Chế độ học đã được đặt lại!"
+        },
+        "buttons": {
+            "dont_know": "Không biết?",
+            "submit": "Xong",
+            "comment": "Bình luận",
+            "explaination": "Giải thích",
+            "next_question": "Câu hỏi tiếp theo",
+            "cancel": "Huỷ",
+            "send_comment": "Bình luận",
+            "continue": "Tiếp tục",
+            "back_to_home": "Quay về trang chủ",
+            "take_a_test": "Làm bài kiểm tra",
+            "reset_learn_mode": "Đặt lại chế độ học"
+        },
+        "other": {
+            "progress_count": "Câu hỏi {current} trên {total}",
+            "completed": "Hoàn thành",
+            "total_set_progress": "Tiến trình bộ đề: ",
+            "total_question": "Tổng số câu hỏi: ",
+            "preview_modal_title": "Các câu hỏi đã hoàn thành trong phiên này",
+            "preview_modal_continues_ins": "Nhấn nút để tiếp tục",
+            "complete_modal_congratulation": "Chúc mừng! Bạn đã hoàn thành!",
+            "complete_modal_ins": "Hãy luyện tập lại các câu khó, hoặc thử kiểm tra kiến thức của bạn!"
         }
     },
     "class_index": {
@@ -451,7 +490,8 @@
             "Completed": "Đã hoàn thành"
         },
         "buttons": {
-            "assign_test": "Giao bài kiểm tra"
+            "assign_test": "Giao bài kiểm tra",
+            "attempt": "Làm bài"
         },
         "other": {
             "search_placeholder": "Tìm kiếm bài kiểm tra...",

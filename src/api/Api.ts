@@ -29,11 +29,11 @@ instance.interceptors.response.use(
         //avoid loop using additional _retry
         if (error.response && originalConfig.url !== "/Authentication/Login") {
             console.log(error.data);
-            console.log(error.response);
+            console.log(error.response.data.errors);
 
             notification["error"]({
                 message: "ERROR",
-                description: "INVALID TOKEN",
+                description: Object.keys(error.response.data?.errors),
             });
             //token expired -> renew
             // if ((error.response.status === 401 && !originalConfig._retry)) {

@@ -757,6 +757,7 @@ const onSkipQuestion = () => {
 };
 
 const onLoadCurrentQuestion = (index: number) => {
+    syncMatchingHeights();
     currentQuestionIsSkipped.value = false;
 
     currentQuestion.value = quiz.question[index] as ResponseQuestion;

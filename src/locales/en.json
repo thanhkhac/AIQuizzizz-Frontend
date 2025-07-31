@@ -219,9 +219,9 @@
             "inClass": "In Class"
         },
         "credit": {
-            "all": "All",
-            "createdByMe": "Created by me",
-            "sharedWithMe": "Shared with me",
+            "All": "All",
+            "CreatedByMe": "Created by me",
+            "ShareWithMe": "Shared with me",
             "createdBy": "Create by {user}"
         },
         "sections": {
@@ -402,6 +402,45 @@
                 "q9": "You're closer than you think.",
                 "q10": "Rise up. Power through!"
             }
+        },
+        "instructions": {
+            "multiple_choice": "Choose ({number}) options",
+            "matching": "Arrange the items to align with their correct matches.",
+            "ordering": "Arrange these options to their correct order.",
+            "short_text": "Fill in the blank the correct answer.",
+            "short_text_answer": "Correct answer: ",
+            "re_learn_ins": "Let's try this again"
+        },
+        "result": {
+            "skipped": "Skipped",
+            "wrong": "Wrong answer!",
+            "correct": "Correct!"
+        },
+        "msg": {
+            "learn_mode_reset": "Learn mode reset!"
+        },
+        "buttons": {
+            "dont_know": "Don't know?",
+            "submit": "Submit",
+            "comment": "Comments",
+            "explaination": "Explaination",
+            "next_question": "Next question",
+            "cancel": "Cancel",
+            "send_comment": "Comment",
+            "continue": "Continue",
+            "back_to_home": "Back to home page",
+            "take_a_test": "Take a test",
+            "reset_learn_mode": "Reset learn mode"
+        },
+        "other": {
+            "progress_count": "Question {current} of {total}",
+            "completed": "Completed",
+            "total_set_progress": "Total set progress: ",
+            "total_question": "Total question: ",
+            "preview_modal_title": "Questions completed in this session",
+            "preview_modal_continues_ins": "Press button to continues",
+            "complete_modal_congratulation": "Nice work! You've completed it!",
+            "complete_modal_ins": "Try another round to practice difficult questions, or test your knowledge!"
         }
     },
     "class_index": {
@@ -451,7 +490,8 @@
             "Completed": "Completed"
         },
         "buttons": {
-            "assign_test": "Assign test"
+            "assign_test": "Assign test",
+            "attempt": "Attempt"
         },
         "other": {
             "search_placeholder": "Search exam...",

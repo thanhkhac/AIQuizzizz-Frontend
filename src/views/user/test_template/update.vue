@@ -43,6 +43,7 @@ interface TestTemplate {
 //#endregion
 
 //#region get testTemplate detail data
+const loading = ref(false);
 const testTemplateId = ref(route.params.id as string);
 const testTemplate = ref<TestTemplate>({
     testTemplateId: "",
@@ -454,7 +455,14 @@ onMounted(async () => {
                             </div>
                         </div>
                     </div>
-                    <div class="list-question-container">
+                    <div v-if="loading">
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                    </div>
+                    <div v-else class="list-question-container">
                         <div
                             v-for="(question, index) in formState.createUpdateQuestions"
                             :key="question.id"

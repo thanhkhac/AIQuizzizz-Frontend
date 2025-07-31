@@ -1,130 +1,135 @@
-<script setup>
-import { onMounted, ref, computed } from "vue";
-import { useRouter } from "vue-router";
+<script setup lang="ts">
+import ApiQuestionSet from "@/api/ApiQuestionSet";
+import type QuestionSet from "@/models/response/question_set/questionSet";
+import type QuestionSetPublicPageParams from "@/models/request/question_set/publicPageParams";
+import type QuestionSetPageParams from "@/models/request/question_set/questionSetPageParams";
+import QUESTION_SET_SHARE_MODE from "@/constants/questionSetShareMode";
+
+import { onMounted, ref, computed, reactive, onUpdated } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
 
 const router = useRouter();
+const route = useRoute();
 
 const { t } = useI18n();
 
 const emit = defineEmits(["updateSidebar"]);
 
-const getPercentageComplete = (total, completed) => {
+//#region init data
+const optionKeys = Object.values(QUESTION_SET_SHARE_MODE);
+
+const share_mode_options = computed(() =>
+    optionKeys.map((key) => ({
+        label: t(`question_sets_index.credit.${key}`),
+        value: key !== QUESTION_SET_SHARE_MODE.ALL ? key : "",
+    })),
+);
+
+const quiz_data = ref<QuestionSet[]>([]);
+
+const pageParams = reactive({
+    pageNumber: route.query.pageNumber || 1,
+    pageSize: route.query.pageSize || 10,
+    name: route.query.name?.toString() || "",
+    filterBy: route.query.filterBy || share_mode_options.value[0].value,
+    totalCount: 0,
+    statusFilter: false, //serve as a flag to check if pageParams is in url
+});
+const getData = async () => {
+    try {
+        let result = await ApiQuestionSet.GetAllByLimit(pageParams as QuestionSetPageParams);
+        if (result.data.success) {
+            let resultData = result.data.data;
+            quiz_data.value = resultData.items;
+            pageParams.pageNumber = resultData.pageNumber;
+            pageParams.pageSize = resultData.pageSize;
+            pageParams.totalCount = resultData.totalCount;
+
+            if (pageParams.statusFilter) {
+                //check if filter is active
+                if (pageParams.pageNumber > resultData.totalPages && pageParams.totalCount > 0) {
+                    pageParams.pageNumber = 1;
+
+                    router.push({
+                        name: "User_Library",
+                        query: {
+                            pageNumber: 1,
+                            pageSize: pageParams.pageSize,
+                            name: pageParams.name,
+                            filterBy: pageParams.filterBy,
+                        },
+                    });
+                } else {
+                    router.push({
+                        name: "User_Library",
+                        query: {
+                            pageNumber: pageParams.pageNumber,
+                            pageSize: pageParams.pageSize,
+                            name: pageParams.name,
+                            filterBy: pageParams.filterBy,
+                        },
+                    });
+                }
+                pageParams.statusFilter = !pageParams.statusFilter; //toggle filter status
+            }
+        }
+    } catch (error) {
+        console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+    }
+};
+
+//update when page change (url)
+onUpdated(() => {
+    if (Object.keys(route.query).length === 0) {
+        pageParams.pageNumber = route.query.pageNumber || 1;
+        pageParams.pageSize = route.query.pageSize || 10;
+        pageParams.name = route.query.name?.toString() || "";
+        pageParams.filterBy = route.query.filterBy || share_mode_options.value[0].value;
+        pageParams.statusFilter = true;
+
+        getData();
+    }
+});
+
+//change when page change (pageParams)
+const onPaginationChange = (page: any, pageSize: any) => {
+    pageParams.pageNumber = page;
+    pageParams.pageSize = pageSize;
+    pageParams.statusFilter = true;
+    getData();
+};
+//#endregion
+
+//#region calculate UI
+
+const getPercentageComplete = (total: number, completed: number) => {
     return Math.floor((completed / total) * 100);
 };
 
-const getTagColor = (visibility) => {
+const getTagColor = (visibility: string) => {
     return t("question_sets_index.visibility.public") === visibility ? "#22C55E" : "#C52225";
 };
 
-const getTag = (visibility) => {
+const getTag = (visibility: string) => {
     return t("question_sets_index.visibility.public") === visibility
         ? t("question_sets_index.visibility.public")
         : t("question_sets_index.visibility.private");
 };
-
-const quiz_data = ref([]);
-
-const quiz_data_raw = ref([
-    {
-        id: "1",
-        title: "Introduction to Biology",
-        numberOfQuestions: 56,
-        compeletedQuestion: 24,
-        createdBy: "me",
-        visibility: "Private",
-    },
-    {
-        id: "2",
-        title: "Fundamental programming",
-        numberOfQuestions: 76,
-        compeletedQuestion: 0,
-        createdBy: "qwerty",
-        visibility: "Public",
-    },
-    {
-        id: "3",
-        title: "World History Basics",
-        numberOfQuestions: 40,
-        compeletedQuestion: 15,
-        createdBy: "historyFan99",
-        visibility: "Public",
-    },
-    {
-        id: "3",
-        title: "Advanced Mathematics",
-        numberOfQuestions: 100,
-        compeletedQuestion: 88,
-        createdBy: "mathMaster",
-        visibility: "Private",
-    },
-    {
-        id: "4",
-        title: "Chemistry 101",
-        numberOfQuestions: 50,
-        compeletedQuestion: 25,
-        createdBy: "me",
-        visibility: "Private",
-    },
-    {
-        id: "5",
-        title: "English Grammar Essentials",
-        numberOfQuestions: 30,
-        compeletedQuestion: 10,
-        createdBy: "teacherJane",
-        visibility: "Public",
-    },
-    {
-        id: "5",
-        title: "Introduction to Psychology",
-        numberOfQuestions: 60,
-        compeletedQuestion: 0,
-        createdBy: "qwerty",
-        visibility: "Private",
-    },
-]);
-
-const optionKeys = ["all", "createdByMe", "sharedWithMe"];
-
-const quiz_credit_options = computed(() =>
-    optionKeys.map((key) => ({
-        label: t(`question_sets_index.credit.${key}`),
-        value: key,
-    })),
-);
+//#endregion
 
 const searchValue = ref("");
-const selected_credit_option = ref(quiz_credit_options.value[0]);
+const selected_credit_option = ref(share_mode_options.value[0]);
 
-const onFilter = () => {
-    const filtered_data = quiz_data_raw.value.filter((quiz) => {
-        const matchesSearch = quiz.title.toLowerCase().includes(searchValue.value.toLowerCase());
-
-        if (!matchesSearch) return false;
-
-        switch (selected_credit_option.value) {
-            case "createdByMe":
-                return quiz.createdBy === "me";
-            case "sharedWithMe":
-                return quiz.createdBy !== "me";
-            default:
-                return true;
-        }
-    });
-
-    quiz_data.value = filtered_data;
-};
-
-const onRedirectToDetail = (id) => {
-    router.push({ name: "User_QuestionSet_Detail", params: { id: id } });
+const onRedirectToDetail = (questionSetId: string) => {
+    router.push({ name: "User_QuestionSet_Detail", params: { id: questionSetId } });
 };
 
 onMounted(() => {
     const sidebarActiveItem = "library";
     emit("updateSidebar", sidebarActiveItem);
-    quiz_data.value = quiz_data_raw.value;
 });
 </script>
 <template>
@@ -141,46 +146,29 @@ onMounted(() => {
         </div>
         <div class="content">
             <div class="content-item">
-                <div class="content-item-title">
+                <div class="content-item-title d-flex align-items-center">
                     <div>
                         <span>{{ $t("question_sets_index.sections.quiz.title") }}</span>
                         <span>{{ $t("question_sets_index.sections.quiz.sub_title") }}</span>
                     </div>
 
-                    <RouterLink
-                        class="content-item-button"
-                        :to="{ name: 'User_QuestionSet_Create' }"
+                    <a-button
+                        type="primary"
+                        class="main-color-btn content-item-button"
+                        size="large"
                     >
                         {{ $t("dashboards.buttons.createNewQuiz") }}
                         <i class="bx bx-plus"></i>
-                    </RouterLink>
+                    </a-button>
                 </div>
                 <div class="content-item-functions">
-                    <!-- <div class="content-item-navigators">
-                        <div class="navigator-container">
-                            <RouterLink class="navigator-item active" :t="{ name: '' }">
-                                {{ $t("question_sets_index.navigators.quiz") }}
-                            </RouterLink>
-                            <RouterLink class="navigator-item" :t="{ name: '' }">
-                                Draft
-                            </RouterLink>
-                        </div>
-                    </div> -->
-                    <a-select
-                        v-model:value="selected_credit_option"
-                        style="width: 200px"
-                        @change="onFilter"
-                    >
-                        <a-select-option
-                            v-for="option in quiz_credit_options"
-                            :value="option.value"
-                        >
+                    <a-select v-model:value="selected_credit_option" style="width: 200px">
+                        <a-select-option v-for="option in share_mode_options" :value="option.value">
                             {{ option.label }}
                         </a-select-option>
                     </a-select>
                     <div style="width: 300px; padding: 0px">
                         <Input
-                            @input="onFilter"
                             v-model="searchValue"
                             :placeholder="t('question_sets_index.search_placeholder')"
                         >
@@ -199,7 +187,7 @@ onMounted(() => {
                         <i class="bx bx-book-open quiz-item-icon"></i>
                         <div>
                             <div class="quiz-item-title">
-                                {{ quiz.title }}
+                                {{ quiz.name }}
                             </div>
                             <div class="quiz-item-info">
                                 <div>
@@ -214,15 +202,15 @@ onMounted(() => {
                                         :percent="
                                             getPercentageComplete(
                                                 quiz.numberOfQuestions,
-                                                quiz.compeletedQuestion,
+                                                quiz.completedQuestions,
                                             )
                                         "
                                     />
                                 </div>
                             </div>
                             <div class="quiz-item-credit">
-                                <a-tag :color="getTagColor(quiz.visibility)">
-                                    {{ getTag(quiz.visibility) }}
+                                <a-tag :color="getTagColor(quiz.visibilityMode)">
+                                    {{ getTag(quiz.visibilityMode) }}
                                 </a-tag>
                                 <span>
                                     |
@@ -234,6 +222,24 @@ onMounted(() => {
                                 </span>
                             </div>
                         </div>
+                    </div>
+                    <div class="pagination-container">
+                        <a-pagination
+                            @change="onPaginationChange"
+                            v-model:current="pageParams.pageNumber"
+                            :total="pageParams.totalCount"
+                            :pageSize="pageParams.pageSize"
+                            :show-total="
+                                (total: any, range: any) =>
+                                    `${range[0]}-${range[1]} of ${total} ${t('class_question_set.other.items')}`
+                            "
+                            show-size-changer
+                            show-quick-jumper
+                            class="crud-layout-pagination"
+                            :locale="{
+                                items_per_page: t('class_index.other.pages'),
+                            }"
+                        ></a-pagination>
                     </div>
                 </div>
                 <a-empty v-else>
@@ -405,5 +411,4 @@ onMounted(() => {
 ::v-deep(.ant-select-selector) {
     height: 35px !important;
 }
-
 </style>

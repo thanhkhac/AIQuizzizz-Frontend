@@ -51,6 +51,7 @@ interface QuestionSetDetail {
 //#endregion
 
 //#region get question set detail data
+const loading = ref(false);
 const questionSetId = ref(route.params.id as string);
 const questionSetDetail = ref<QuestionSetDetail>({
     id: "",
@@ -64,6 +65,8 @@ const questionSetQuestions = ref<ResponseQuestion[]>([]);
 const isDataValid = ref(true); //to mark whether question set is valid to remove guard
 
 const getTestTemplate = async () => {
+    loading.value = true;
+
     if (!Validator.isValidGuid(questionSetId.value)) {
         isDataValid.value = false;
         router.push({ name: "404" });
@@ -80,7 +83,7 @@ const getTestTemplate = async () => {
     }
 
     questionSetDetail.value = detail_result.data.data;
-    questionSetQuestions.value = question_result.data;
+    questionSetQuestions.value = question_result.data.data;
 
     formState.name = questionSetDetail.value.name;
     formState.createUpdateQuestions = questionSetQuestions.value.map((x) =>
@@ -88,7 +91,7 @@ const getTestTemplate = async () => {
     );
 
     formState.createUpdateTags = questionSetDetail.value.tags;
-
+    loading.value = false;
     window.addEventListener("beforeunload", handleBeforeUnload);
 };
 //#endregion
@@ -315,8 +318,6 @@ const showModalConfirmation = () => {
         content: "Make sure to review your contents before proceeding.",
         centered: true,
         onOk: async () => {
-            console.log(formState);
-
             let result = await ApiQuestionSet.Update(questionSetId.value, formState);
             if (result.data.success) {
                 message.success(result.data.data);
@@ -525,7 +526,14 @@ onMounted(async () => {
                             </div>
                         </div>
                     </div>
-                    <div class="list-question-container">
+                    <div v-if="loading">
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                    </div>
+                    <div v-else class="list-question-container">
                         <div
                             v-for="(question, index) in formState.createUpdateQuestions"
                             :key="question.id"

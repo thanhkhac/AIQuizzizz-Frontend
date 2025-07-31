@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ApiQuestionSet from "@/api/ApiQuestionSet";
 import { ref, computed, onMounted, nextTick } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import { QUOTES } from "@/constants/quote";
@@ -10,12 +11,16 @@ import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
+import Validator from "@/services/Validator";
+
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 const animationPath = new URL("@/assets/confetti.lottie", import.meta.url).href;
 
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 
 const QUESTION_FORMAT = {
     HTML: "HTML",
@@ -23,29 +28,47 @@ const QUESTION_FORMAT = {
 };
 
 interface LearnQuizModel {
+    title: string;
+    description: string;
     completedQuestionCount: number;
     totalQuestionCount: number;
     questions: ResponseQuestion[];
 }
 
 const quiz = ref<LearnQuizModel>({
+    title: "",
+    description: "",
     completedQuestionCount: 0,
     totalQuestionCount: 0,
     questions: [],
 });
 
+const questionSetId = ref(route.params.id);
+
 const getQuizData = async () => {
     //45c16e0c-5b92-4155-946f-ecab5daa60ca
     //eabf4f24-dd83-416f-aeeb-351b7c3ad837
-    let result = await ApiQuestionSet.LearnQuestions("eabf4f24-dd83-416f-aeeb-351b7c3ad837", 7);
-
-    if (result.data.success) {
-        quiz.value = result.data.data;
-        if (quiz.value.completedQuestionCount === quiz.value.totalQuestionCount) {
-            openCompleteModal();
-            return;
-        }
+    if (!Validator.isValidGuid(questionSetId.value.toString())) {
+        router.push({ name: "404" });
+        return;
     }
+    let detail_result = await ApiQuestionSet.GetDetailById(questionSetId.value.toString());
+    let result = await ApiQuestionSet.LearnQuestions(questionSetId.value.toString(), 7);
+
+    if (!detail_result.data.success || !result.data.success) {
+        router.push({ name: "404" });
+        return;
+    }
+
+    quiz.value = result.data.data;
+    if (quiz.value.completedQuestionCount === quiz.value.totalQuestionCount) {
+        openCompleteModal();
+        return;
+    }
+
+    quiz.value.title = detail_result.data.data.name;
+    quiz.value.description = detail_result.data.data.description;
+
     currentSession.value = [...quiz.value.questions];
     currentQuestion.value = currentSession.value[0];
     currentSession.value.shift();
@@ -164,7 +187,7 @@ const userAnswerShortText = ref<string>("");
 
 const currentQuestionResult = ref({
     result: false,
-    resultText: "Wrong answer!",
+    resultText: t("learn_QS.result.wrong"),
 });
 
 const completionPercentage = computed(() => {
@@ -288,6 +311,15 @@ const onCloseCommentModal = () => {
 
 //#region logic complete question
 /* handle logic complete question */
+const sendCorrectQuestionHistory = () => {
+    ApiQuestionSet.LearnHistory(questionSetId.value.toString(), [
+        {
+            questionId: currentQuestion.value.id,
+            isCorrect: true,
+        },
+    ]);
+};
+
 const onSubmitAnswer = () => {
     toggleExplainModal();
     currentQuestionIsSubmitted.value = true;
@@ -296,28 +328,36 @@ const onSubmitAnswer = () => {
         case QUESTION_TYPE.MULTIPLE_CHOICE: {
             currentQuestionResult.value = {
                 result: checkMultipleChoice(),
-                resultText: checkMultipleChoice() ? "Correct!" : "Wrong answer!",
+                resultText: checkMultipleChoice()
+                    ? t("learn_QS.result.correct")
+                    : t("learn_QS.result.wrong"),
             };
             break;
         }
         case QUESTION_TYPE.ORDERING: {
             currentQuestionResult.value = {
                 result: checkOrdering(),
-                resultText: checkOrdering() ? "Correct!" : "Wrong answer!",
+                resultText: checkOrdering()
+                    ? t("learn_QS.result.correct")
+                    : t("learn_QS.result.wrong"),
             };
             break;
         }
         case QUESTION_TYPE.MATCHING: {
             currentQuestionResult.value = {
                 result: checkMatching(),
-                resultText: checkMatching() ? "Correct!" : "Wrong answer!",
+                resultText: checkMatching()
+                    ? t("learn_QS.result.correct")
+                    : t("learn_QS.result.wrong"),
             };
             break;
         }
         case QUESTION_TYPE.SHORT_TEXT: {
             currentQuestionResult.value = {
                 result: checkShortText(),
-                resultText: checkShortText() ? "Correct!" : "Wrong answer!",
+                resultText: checkShortText()
+                    ? t("learn_QS.result.correct")
+                    : t("learn_QS.result.wrong"),
             };
             break;
         }
@@ -331,11 +371,13 @@ const onSubmitAnswer = () => {
         incorrect.value.delete(currentQuestion.value);
         completed.value.push(currentQuestion.value);
         quiz.value.completedQuestionCount += 1;
+        sendCorrectQuestionHistory();
     } else if (currentQuestionResult.value.result === false) {
         incorrect.value.add(currentQuestion.value);
     } else {
         completed.value.push(currentQuestion.value);
         quiz.value.completedQuestionCount += 1;
+        sendCorrectQuestionHistory();
     }
     triggerFinalModal();
 };
@@ -349,7 +391,7 @@ const onSkipQuestion = (event: MouseEvent) => {
 
     currentQuestionResult.value = {
         result: false,
-        resultText: "Skipped",
+        resultText: t("learn_QS.result.skipped"),
     };
     //false by default
     incorrect.value.add(currentQuestion.value);
@@ -399,7 +441,10 @@ const onSkipQuestion = (event: MouseEvent) => {
 const resetUserAnswer = () => {
     switch (currentQuestion.value.type) {
         case QUESTION_TYPE.MULTIPLE_CHOICE: {
-            currentQuestionInstruction.value = `Choose (${currentQuestion.value.questionData.multipleChoice?.filter((x) => x.isAnswer).length}) options.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.multiple_choice", {
+                number: currentQuestion.value.questionData.multipleChoice?.filter((x) => x.isAnswer)
+                    .length,
+            });
             userAnswerMultipleChoice.value = [];
             break;
         }
@@ -423,6 +468,7 @@ const resetUserAnswer = () => {
 };
 
 const onNextQuestion = () => {
+    syncMatchingHeights();
     triggerFinalModal();
     if (currentSession.value.length <= 0) return;
 
@@ -463,15 +509,14 @@ const triggerFinalModal = async () => {
         //append 1st incorrect question - re-try incorrect
         isCurrentSessionReLearn.value = true;
         currentSession.value = Array.from(incorrect.value);
-        message.info("Re-learn");
     } else if (
         (incorrect.value.size === 0 && !isCurrentSessionReLearn.value) ||
         (incorrect.value.size > 0 && isCurrentSessionReLearn.value)
     ) {
         //has no incorrect OR re-learned but didnot correct all
 
-        //re-tried - send 2nd incorrect to backend
-        //trigger open final modal
+        // re-tried - send 2nd incorrect to backend
+        // trigger open final modal
         const learnHistory = quiz.value.questions.map((x) => {
             return {
                 questionId: x.id,
@@ -479,8 +524,7 @@ const triggerFinalModal = async () => {
             };
         });
 
-        await ApiQuestionSet.LearnHistory("eabf4f24-dd83-416f-aeeb-351b7c3ad837", learnHistory);
-        message.success("Done");
+        await ApiQuestionSet.LearnHistory(questionSetId.value.toString(), learnHistory);
         openFinalModal();
         return;
     }
@@ -534,9 +578,9 @@ const triggerAnimation = () => {
 };
 
 const onResetLearnHistory = async () => {
-    const result = await ApiQuestionSet.resetLearnHistory("eabf4f24-dd83-416f-aeeb-351b7c3ad837");
+    const result = await ApiQuestionSet.resetLearnHistory(questionSetId.value.toString());
     if (result.data.success) {
-        message.success("Learn mode reset!");
+        message.success(t("learn_QS.msg.learn_mode_reset"));
         completeModalOpen.value = false;
         await getQuizData();
     }
@@ -599,23 +643,25 @@ onMounted(async () => {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="23">
-                    <!-- <span> {{ quiz.title }}</span> <br />
-                    <span>
-                        {{ quiz.description }}
-                    </span> -->
-                    <span>Quiz title</span> <br />
-                    <span> Quiz description </span>
+                    <span>{{ quiz.title }}</span> <br />
+                    <span>{{ quiz.description }}</span>
                 </a-col>
             </a-row>
         </div>
         <div class="progress-bar-container">
             <div class="progress-info">
                 <div class="progress-info-number">
-                    Question {{ totalCompleted + 1 }} of {{ quiz.totalQuestionCount }}
+                    {{
+                        $t("learn_QS.other.progress_count", {
+                            current: totalCompleted + 1,
+                            total: quiz.totalQuestionCount,
+                        })
+                    }}
                 </div>
                 <div class="progress-info-percentage">
                     <span>{{ completionPercentage }}</span>
-                    % Completed
+                    %
+                    {{ $t("learn_QS.other.completed") }}
                 </div>
             </div>
             <a-progress
@@ -646,7 +692,7 @@ onMounted(async () => {
                     </div>
                     <div class="section answer-section">
                         <div v-if="isCurrentSessionReLearn" class="relearn-ins">
-                            Let's try this again
+                            {{ $t("learn_QS.instructions.re_learn_ins") }}
                         </div>
                         <div class="d-flex align-items-center">
                             <div class="answer-section-ins">
@@ -879,7 +925,7 @@ onMounted(async () => {
                                         v-if="currentQuestionIsSubmitted && !checkShortText()"
                                         class="short-text-correct-answer"
                                     >
-                                        Correct answer:
+                                        {{ $t("learn_QS.instructions.short_text_answer") }}
                                         <span> {{ currentQuestion.questionData.shortText }} </span>
                                     </div>
                                 </div>
@@ -895,7 +941,7 @@ onMounted(async () => {
                         ]"
                         @click="onSkipQuestion($event)"
                     >
-                        Don't know?
+                        {{ $t("learn_QS.buttons.dont_know") }}
                     </div>
                     <div class="d-flex">
                         <div
@@ -906,7 +952,7 @@ onMounted(async () => {
                             @click="onOpenCommentModal"
                         >
                             <i class="bx bx-conversation me-2"></i>
-                            Comments
+                            {{ $t("learn_QS.buttons.comment") }}
                         </div>
 
                         <div
@@ -917,7 +963,7 @@ onMounted(async () => {
                             @click="toggleExplainModal"
                         >
                             <i class="bx bx-bulb me-2"></i>
-                            Explaination
+                            {{ $t("learn_QS.buttons.explaination") }}
                         </div>
 
                         <a-button
@@ -929,7 +975,7 @@ onMounted(async () => {
                             size="large"
                             @click="onSubmitAnswer"
                         >
-                            Submit
+                            {{ $t("learn_QS.buttons.submit") }}
                         </a-button>
                     </div>
                 </div>
@@ -956,7 +1002,7 @@ onMounted(async () => {
                     size="large"
                     @click="onNextQuestion"
                 >
-                    Next question
+                    {{ $t("learn_QS.buttons.next_question") }}
                     <i class="bx bx-chevron-right"></i>
                 </a-button>
             </div>
@@ -983,9 +1029,11 @@ onMounted(async () => {
                     <a-form layout="vertical" class="comment-form">
                         <TextArea :label="'Your comment'" :placeholder="'Add a comment'" />
                         <div class="comment-form-footer">
-                            <div class="me-3 main-color-btn-ghost">Cancel</div>
+                            <div class="me-3 main-color-btn-ghost">
+                                {{ $t("learn_QS.buttons.cancel") }}
+                            </div>
                             <a-button type="primary" shape="round" class="main-color-btn">
-                                Comment
+                                {{ $t("learn_QS.buttons.send_comment") }}
                             </a-button>
                         </div>
                     </a-form>
@@ -1011,8 +1059,7 @@ onMounted(async () => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span>Quiz title</span> <br />
-                        <!-- <span> {{ quiz.title }}</span> <br /> -->
+                        <span> {{ quiz.title }}</span> <br />
                     </a-col>
                 </a-row>
             </div>
@@ -1026,7 +1073,7 @@ onMounted(async () => {
         <div class="progress-bar-container final">
             <div class="progress-info">
                 <div class="progress-info-percentage">
-                    Total set progress:
+                    {{ $t("learn_QS.other.total_set_progress") }}
                     <span>{{ completionPercentage }}%</span>
                 </div>
             </div>
@@ -1038,18 +1085,18 @@ onMounted(async () => {
             />
             <div class="progress-info">
                 <div class="progress-info-percentage">
-                    Completed:
+                    {{ $t("learn_QS.other.completed") }}:
                     <span>{{ quiz.completedQuestionCount }}</span>
                 </div>
                 <div class="progress-info-percentage">
-                    Total question:
+                    {{ $t("learn_QS.other.total_question") }}
                     <span>{{ quiz.totalQuestionCount }}</span>
                 </div>
             </div>
         </div>
         <div class="content-item modal-final-container">
             <a-divider style="background-color: var(--content-item-border-color)"></a-divider>
-            <div class="preview-question-title">Questions completed in this session</div>
+            <div class="preview-question-title">{{ $t("learn_QS.other.preview_modal_title") }}</div>
             <div class="preview-question-container">
                 <div class="preview-question-item" v-for="(question, index) in completed">
                     <div class="question-item-content">
@@ -1136,7 +1183,7 @@ onMounted(async () => {
                 </div>
             </div>
             <div class="content-item final-modal-footer">
-                <div>Press button to continues</div>
+                <div>{{ $t("learn_QS.other.preview_modal_continues_ins") }}</div>
                 <a-button
                     :class="['main-color-btn']"
                     type="primary"
@@ -1144,7 +1191,7 @@ onMounted(async () => {
                     shape="round"
                     @click="onContinuesLearn"
                 >
-                    Continue
+                    {{ $t("learn_QS.buttons.continue") }}
                 </a-button>
             </div>
         </div>
@@ -1170,17 +1217,19 @@ onMounted(async () => {
             <div class="content-item modal-complete">
                 <img class="modal-complete-img" :src="trophy_png" alt="" />
                 <div class="modal-complete-content-container">
-                    <div class="modal-complete-content">Nice work! You've completed it!</div>
+                    <div class="modal-complete-content">
+                        {{ $t("learn_QS.other.complete_modal_congratulation") }}
+                    </div>
                     <div class="modal-complete-content sub-content">
-                        Try another round to practice difficult questions, or test your knowledge!
+                        {{ $t("learn_QS.other.complete_modal_ins") }}
                     </div>
                 </div>
                 <div class="modal-complete-buttons-container">
                     <a-button type="primary" class="main-color-btn ghost-btn" size="large">
-                        Back to home page
+                        {{ $t("learn_QS.buttons.back_to_home") }}
                     </a-button>
                     <a-button type="primary" class="main-color-btn" size="large">
-                        Take a test
+                        {{ $t("learn_QS.buttons.take_a_test") }}
                     </a-button>
                     <a-button
                         type="primary"
@@ -1188,7 +1237,7 @@ onMounted(async () => {
                         size="large"
                         @click="onResetLearnHistory"
                     >
-                        Reset learn mode
+                        {{ $t("learn_QS.buttons.reset_learn_mode") }}
                     </a-button>
                 </div>
             </div>
