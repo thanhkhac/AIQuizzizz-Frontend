@@ -79,7 +79,7 @@ import {
     Spin,
     Table,
     Rate,
-    Skeleton
+    Skeleton,
 } from "ant-design-vue";
 
 /**

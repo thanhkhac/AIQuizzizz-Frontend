@@ -17,6 +17,7 @@ const END_POINTS = {
     DELETE_CLASS_MEMBER: "Class/{ClassId}/Members/{UserId}",
     UPDATE_CLASS_MEMBER_POSITION: "Class/{ClassId}/Members/{UserId}",
     DELETE_CLASS_QUESTION_SET: "Class/{ClassId}/QuestionSets/{QuestionSetId}",
+    GET_INVITATION_CODE: "Class/{ClassId}/Invitation-Code",
 };
 
 class ApiUser {
@@ -110,6 +111,16 @@ class ApiUser {
             questionSetId,
         );
         return await Api.delete(url);
+    }
+
+    async GetInivationCode(classId: string) {
+        const url = END_POINTS.GET_INVITATION_CODE.replace("{ClassId}", classId);
+        return await Api.get(url);
+    }
+
+    async CreateNewInvitation(classId: string, expiredTime: number) {
+        const url = END_POINTS.GET_INVITATION_CODE.replace("{ClassId}", classId);
+        return await Api.post(url);
     }
 }
 

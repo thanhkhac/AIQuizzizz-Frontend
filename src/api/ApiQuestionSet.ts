@@ -13,6 +13,7 @@ const END_POINTS = {
     GET_RECENT_BY_LIMIT: "QuestionSet/Recent",
     GET_PUBLIC_BY_LIMIT: "QuestionSet/Public",
     GET_ALL_BY_LIMIT: "QuestionSet/SharedOrOwned",
+    DELETE: "QuestionSet/{questionSetId}",
 };
 
 class ApiQuestionSet {
@@ -23,6 +24,11 @@ class ApiQuestionSet {
     Update = async (questionSetId: string, formState: object) => {
         const url = END_POINTS.UPDATE.replace("{questionSetId}", questionSetId);
         return await Api.patch(url, formState);
+    };
+
+    Delete = async (questionSetId: string) => {
+        const url = END_POINTS.DELETE.replace("{questionSetId}", questionSetId);
+        return await Api.delete(url);
     };
 
     LearnQuestions = async (questionSetId: string, questionCount: number) => {

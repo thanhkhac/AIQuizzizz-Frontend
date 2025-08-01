@@ -20,6 +20,8 @@ const router = useRouter();
 const { t } = useI18n();
 const emit = defineEmits(["updateSidebar"]);
 
+//#region init data
+
 const optionKeys = Object.values(CLASS_STUDENT_SELECT_FIELD);
 
 const class_position_options = computed(() =>
@@ -36,16 +38,46 @@ const classData = ref<Class>({
     topic: "",
 });
 
-const pageParams = reactive({
-    pageNumber: route.query.pageNumber || 1,
-    pageSize: route.query.pageSize || 10,
-    keyword: route.query.keyword?.toString() || "",
-    fieldName: route.query.fieldName || class_position_options.value[0].value,
-    totalCount: 0,
-    statusFilter: false, //serve as a flag to check if pageParams is in url
-});
+type MyColumn = TableColumnType<ClassStudent>;
 
-const student_data = ref<ClassStudent[]>([]);
+const columns: MyColumn[] = [
+    {
+        title: "No",
+        key: "no",
+        customRender: (info: { index: number }) => info.index + 1,
+    },
+    {
+        title: "FullName",
+        dataIndex: "fullName",
+        key: "fullName",
+        sorter: (a: any, b: any) => a.fullName.localeCompare(b.fullName),
+    },
+    {
+        title: "Email",
+        dataIndex: "email",
+        key: "email",
+        sorter: (a: any, b: any) => a.email.localeCompare(b.email),
+    },
+    {
+        title: "Position",
+        dataIndex: "position",
+        key: "position",
+    },
+    {
+        key: "action",
+    },
+];
+
+const optionDays = [1, 3, 5, 7, 30];
+
+const code_limit_time = computed(() =>
+    optionDays.map((key) => ({
+        label:
+            key +
+            (key === 1 ? t("class_member.other.day_singular") : t("class_member.other.day_plural")),
+        value: key,
+    })),
+);
 
 const getClassData = async () => {
     try {
@@ -59,6 +91,20 @@ const getClassData = async () => {
         console.log("ERROR: GETBYID class: " + error);
     }
 };
+//#endregion
+
+//#region student pagination
+
+const pageParams = reactive({
+    pageNumber: route.query.pageNumber || 1,
+    pageSize: route.query.pageSize || 10,
+    keyword: route.query.keyword?.toString() || "",
+    fieldName: route.query.fieldName || class_position_options.value[0].value,
+    totalCount: 0,
+    statusFilter: false, //serve as a flag to check if pageParams is in url
+});
+
+const student_data = ref<ClassStudent[]>([]);
 
 const getData = async () => {
     try {
@@ -132,84 +178,56 @@ const onPaginationChange = (page: any, pageSize: any) => {
     getData();
 };
 
-type MyColumn = TableColumnType<ClassStudent>;
+//#endregion
 
-const columns: MyColumn[] = [
-    {
-        title: "No",
-        key: "no",
-        customRender: (info: { index: number }) => info.index + 1,
-    },
-    {
-        title: "FullName",
-        dataIndex: "fullName",
-        key: "fullName",
-        sorter: (a: any, b: any) => a.fullName.localeCompare(b.fullName),
-    },
-    {
-        title: "Email",
-        dataIndex: "email",
-        key: "email",
-        sorter: (a: any, b: any) => a.email.localeCompare(b.email),
-    },
-    {
-        title: "Position",
-        dataIndex: "position",
-        key: "position",
-    },
-    {
-        key: "action",
-    },
-];
-
-const optionDays = [1, 3, 5, 7, 30];
-
-const code_limit_time = computed(() =>
-    optionDays.map((key) => ({
-        label:
-            key +
-            (key === 1 ? t("class_member.other.day_singular") : t("class_member.other.day_plural")),
-        value: key,
-    })),
-);
-
+//#region inivation
 const modal_invitation_open = ref(false);
 const invitationFormState = reactive({
     classId: classId.value,
-    code: "e3m3TR41fk+t",
+    code: "",
     expiredTime: code_limit_time.value[0].value,
 });
-
+const inivitationLink = ref(
+    window.location.origin + `/user/class/invitation/${invitationFormState.code}`,
+);
+const allowCopy = ref(true);
 const isInvitaionLoading = ref(false);
-
-const onOpenInvitationModal = () => {
-    modal_invitation_open.value = true;
+const onOpenInvitationModal = async () => {
     //call api get current code
+    if (invitationFormState.code) return;
+
+    const result = await ApiClass.GetInivationCode(classId.value.toString());
+    if (result.data.success) {
+        invitationFormState.code = result.data.data;
+    } else {
+        invitationFormState.code = "Code empty or expired!";
+        inivitationLink.value = "Code empty or expired!";
+        allowCopy.value = false;
+    }
+
+    modal_invitation_open.value = true;
 };
 
 const onResetInvitation = () => {};
 
-const onCopyInvitationCode = () => {
+const onCopyInvitationCode = (mode: string) => {
+    if (!allowCopy.value) return;
+    let content = invitationFormState.code;
+
+    if (mode === "link") {
+        content = inivitationLink.value;
+    }
     navigator.clipboard
-        .writeText(invitationFormState.code)
+        .writeText(content)
         .then(() => {
-            message.success("Copied");
+            message.success("Copied!");
         })
         .catch(() => {
-            message.error("code empty");
+            message.error("Copied failed!");
         });
 };
 
-const onCopyInvitationLink = () => {
-    navigator.clipboard
-        .writeText(invitationFormState.code)
-        .then(() => {
-            message.success("Copied");
-        })
-        .catch(() => {
-            message.error("code empty");
-        });
-};
+//#endregion
 
 /* delete class member */
 const onConfirmDeleteMember = (userId: string) => {
@@ -256,7 +274,7 @@ const onConfirmUpdateMemberPosition = (userId: string, position: string) => {
 };
 
 /* delete class */
-const onOpenConfirmDelete = () => {
+const onOpenConfirmDeleteClass = () => {
     Modal.confirm({
         title: "Are you sure to delete this class?",
         content: h(
@@ -443,7 +461,7 @@ onMounted(async () => {
                         type="primary"
                         danger
                         size="large"
-                        @click="onOpenConfirmDelete"
+                        @click="onOpenConfirmDeleteClass"
                     >
                         {{ $t("class_member.buttons.delete_class") }}
                     </a-button>
@@ -484,18 +502,18 @@ onMounted(async () => {
                                 :max-length="100"
                                 :readonly="true"
                             ></Input>
-                            <i class="bx bx-copy" @click="onCopyInvitationCode"></i>
+                            <i class="bx bx-copy" @click="onCopyInvitationCode('code')"></i>
                         </div>
                     </a-form-item>
                     <a-form-item :label="t('class_member.modal.invitation_link')">
                         <div class="invitation-code-container">
                             <Input
-                                v-model="invitationFormState.code"
+                                v-model="inivitationLink"
                                 :is-required="true"
                                 :max-length="100"
                                 :readonly="true"
                             ></Input>
-                            <i class="bx bx-copy" @click="onCopyInvitationLink"></i>
+                            <i class="bx bx-copy" @click="onCopyInvitationCode('link')"></i>
                         </div>
                     </a-form-item>
                 </a-form>

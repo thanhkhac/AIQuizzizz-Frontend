@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import ApiQuestionSet from "@/api/ApiQuestionSet";
+import type { RequestQuestion } from "@/models/request/question";
 
-import { ref, reactive, onMounted, onUnmounted } from "vue";
+import { ref, reactive, onMounted, onUnmounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
 
 import dayjs from "dayjs";
 import { onBeforeRouteLeave } from "vue-router";
-
-import type { RequestQuestion } from "@/models/request/question";
 
 import Input from "@/shared/components/Common/Input.vue";
 import TextArea from "@/shared/components/Common/TextArea.vue";
@@ -17,6 +16,8 @@ import MultipleChoice from "@/shared/components/Questions/MultipleChoice.vue";
 import Matching from "@/shared/components/Questions/Matching.vue";
 import Ordering from "@/shared/components/Questions/Ordering.vue";
 import ShortText from "@/shared/components/Questions/ShortText.vue";
+
+import { useVirtualList } from "@vueuse/core";
 
 interface FormState {
     name: string;
@@ -263,12 +264,14 @@ const onFinish = () => {
 
         //invalid explain text
         formState.questions.filter((x) => {
-            const questionText = x.explainText
-                .replace(/^<p>/, "")
-                .replace(/<\/p>$/, "")
-                .trim();
+            const explainText = x.explainText
+                ? x.explainText
+                      .replace(/^<p>/, "")
+                      .replace(/<\/p>$/, "")
+                      .trim()
+                : "";
 
-            return questionText.length >= 500;
+            return explainText.length >= 500;
         }),
 
         //invalid multiplechoice
@@ -392,6 +395,19 @@ function handleBeforeUnload(e: BeforeUnloadEvent) {
     e.preventDefault();
     e.returnValue = "";
 }
+const { list, containerProps, wrapperProps } = useVirtualList(formState.questions, {
+    itemHeight: 600,
+    overscan: 20,
+});
+
+const handleScroll = (event: Event) => {
+    requestAnimationFrame(() => {
+        const container = event.target as HTMLElement;
+        if (container) {
+            container.style.transform = "translateZ(0)";
+        }
+    });
+};
 
 onMounted(() => {
     formState.questions.push(...(question_data_raw as RequestQuestion[]));
@@ -509,7 +525,7 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <div class="list-question-container">
-                        <div v-for="(question, index) in formState.questions" :key="question.id">
+                        <!-- <div v-for="(question, index) in formState.questions" :key="question.id">
                             <component
                                 :is="componentMap[question.type]"
                                 :question="question"
@@ -517,6 +533,23 @@ onUnmounted(() => {
                                 :displayScore="false"
                                 @deleteQuestion="onRemoveQuestion(index)"
                             />
+                        </div> -->
+                        <div
+                            v-bind="containerProps"
+                            class="virtual-container"
+                            @scroll="handleScroll"
+                        >
+                            <div v-bind="wrapperProps">
+                                <div v-for="(question, index) in list" :key="question.data.id">
+                                    <component
+                                        :is="componentMap[question.data.type]"
+                                        :question="question.data"
+                                        :index="question.index + 1"
+                                        :displayScore="false"
+                                        @deleteQuestion="onRemoveQuestion(question.index)"
+                                    />
+                                </div>
+                            </div>
                         </div>
                         <div class="add-question-btn" @click="onAddQuestion">
                             <i class="bx bx-plus"></i>
@@ -533,6 +566,33 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.virtual-container {
+    height: 100vh;
+    overflow-y: auto;
+    border: 1px solid var(--content-item-border-color);
+    border-radius: 5px;
+    padding: 0px 10px;
+
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+
+    will-change: scroll-position;
+    transform: translateZ(0);
+}
+
+.virtual-container::-webkit-scrollbar {
+    width: 10px;
+    background-color: var(--form-item-border-color);
+}
+.virtual-container::-webkit-scrollbar-thumb {
+    height: 100px;
+    background-color: var(--main-color);
+    border-radius: 10px;
+}
+.virtual-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--main-sub-color);
+}
+
 .content-item-title {
     margin-bottom: 20px;
 }

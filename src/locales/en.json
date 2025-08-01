@@ -214,9 +214,9 @@
         "title": "Library",
         "sub_title": "Create, manage and analyze your quizzes",
         "visibility": {
-            "public": "Public",
-            "private": "Private",
-            "inClass": "In Class"
+            "Public": "Public",
+            "Private": "Private",
+            "InClass": "In Class"
         },
         "credit": {
             "All": "All",
@@ -332,15 +332,15 @@
         "title": "Share Quiz",
         "sub_title": "Share this quiz with students, colleagues, or on social media",
         "visibility": {
-            "public": {
+            "Public": {
                 "mode": "Public",
                 "explain": "Only you and people you shared with can access"
             },
-            "private": {
+            "Private": {
                 "mode": "Private",
                 "explain": "Everyone can access"
             },
-            "in_class": {
+            "InClass": {
                 "mode": "In Class",
                 "explain": "Can only access via class after shared in class"
             }

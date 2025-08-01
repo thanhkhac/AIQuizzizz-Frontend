@@ -4,6 +4,7 @@ import type QuestionSet from "@/models/response/question_set/questionSet";
 import type QuestionSetPublicPageParams from "@/models/request/question_set/publicPageParams";
 import type QuestionSetPageParams from "@/models/request/question_set/questionSetPageParams";
 import QUESTION_SET_SHARE_MODE from "@/constants/questionSetShareMode";
+import VISIBILITY from "@/constants/visibility";
 
 import { onMounted, ref, computed, reactive, onUpdated } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -28,6 +29,7 @@ const share_mode_options = computed(() =>
     })),
 );
 
+const loading = ref(false);
 const quiz_data = ref<QuestionSet[]>([]);
 
 const pageParams = reactive({
@@ -40,6 +42,7 @@ const pageParams = reactive({
 });
 const getData = async () => {
     try {
+        loading.value = true;
         let result = await ApiQuestionSet.GetAllByLimit(pageParams as QuestionSetPageParams);
         if (result.data.success) {
             let resultData = result.data.data;
@@ -78,6 +81,8 @@ const getData = async () => {
         }
     } catch (error) {
         console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 
@@ -110,26 +115,32 @@ const getPercentageComplete = (total: number, completed: number) => {
 };
 
 const getTagColor = (visibility: string) => {
-    return t("question_sets_index.visibility.public") === visibility ? "#22C55E" : "#C52225";
+    switch (visibility) {
+        case VISIBILITY.PUBLIC:
+            return "#22C55E";
+        case VISIBILITY.PRIVATE:
+            return "#C52225";
+        default:
+            return "#C52225";
+    }
 };
 
-const getTag = (visibility: string) => {
-    return t("question_sets_index.visibility.public") === visibility
-        ? t("question_sets_index.visibility.public")
-        : t("question_sets_index.visibility.private");
-};
 //#endregion
 
-const searchValue = ref("");
-const selected_credit_option = ref(share_mode_options.value[0]);
-
+//#region redirect
 const onRedirectToDetail = (questionSetId: string) => {
     router.push({ name: "User_QuestionSet_Detail", params: { id: questionSetId } });
 };
 
-onMounted(() => {
+const onRedirectToCreate = () => {
+    router.push({ name: "User_QuestionSet_Create" });
+};
+//#endregion
+
+onMounted(async () => {
     const sidebarActiveItem = "library";
     emit("updateSidebar", sidebarActiveItem);
+    await getData();
 });
 </script>
 <template>
@@ -153,6 +164,7 @@ onMounted(() => {
                     </div>
 
                     <a-button
+                        @click="onRedirectToCreate"
                         type="primary"
                         class="main-color-btn content-item-button"
                         size="large"
@@ -162,15 +174,20 @@ onMounted(() => {
                     </a-button>
                 </div>
                 <div class="content-item-functions">
-                    <a-select v-model:value="selected_credit_option" style="width: 200px">
+                    <a-select
+                        v-model:value="pageParams.filterBy"
+                        style="width: 200px"
+                        @change="getData"
+                    >
                         <a-select-option v-for="option in share_mode_options" :value="option.value">
                             {{ option.label }}
                         </a-select-option>
                     </a-select>
                     <div style="width: 300px; padding: 0px">
                         <Input
-                            v-model="searchValue"
+                            v-model="pageParams.name"
                             :placeholder="t('question_sets_index.search_placeholder')"
+                            @input="getData"
                         >
                             <template #icon>
                                 <i class="bx bx-search"></i>
@@ -178,75 +195,88 @@ onMounted(() => {
                         </Input>
                     </div>
                 </div>
-                <div v-if="quiz_data.length > 0" class="quiz-item-container">
-                    <div
-                        class="quiz-item"
-                        v-for="quiz in quiz_data"
-                        @click="onRedirectToDetail(quiz.id)"
-                    >
-                        <i class="bx bx-book-open quiz-item-icon"></i>
-                        <div>
-                            <div class="quiz-item-title">
-                                {{ quiz.name }}
-                            </div>
-                            <div class="quiz-item-info">
+                <div class="quiz-item-container">
+                    <div v-if="loading">
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading" active></a-skeleton>
+                    </div>
+                    <template v-else>
+                        <template v-if="quiz_data.length > 0">
+                            <div
+                                class="quiz-item"
+                                v-for="quiz in quiz_data"
+                                @click="onRedirectToDetail(quiz.id)"
+                            >
+                                <i class="bx bx-book-open quiz-item-icon"></i>
                                 <div>
-                                    <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                    {{ quiz.numberOfQuestions }}
-                                    {{ $t("dashboards.list_items.quiz.questions") }}
-                                </div>
-                                <div class="quiz-item-progress">
-                                    <a-progress
-                                        stroke-color="var(--main-color)"
-                                        status="active"
-                                        :percent="
-                                            getPercentageComplete(
-                                                quiz.numberOfQuestions,
-                                                quiz.completedQuestions,
-                                            )
-                                        "
-                                    />
+                                    <div class="quiz-item-title">
+                                        {{ quiz.name }}
+                                    </div>
+                                    <div class="quiz-item-info">
+                                        <div>
+                                            <i class="bx bx-message-square-edit bx-rotate-270"></i>
+                                            {{ quiz.totalQuestionCount }}
+                                            {{ $t("dashboards.list_items.quiz.questions") }}
+                                        </div>
+                                        <div class="quiz-item-progress">
+                                            <a-progress
+                                                stroke-color="var(--main-color)"
+                                                status="active"
+                                                :percent="
+                                                    getPercentageComplete(
+                                                        quiz.totalQuestionCount,
+                                                        quiz.completedQuestionCount,
+                                                    )
+                                                "
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="quiz-item-credit">
+                                        <a-tag :color="getTagColor(quiz.visibilityMode)">
+                                            {{
+                                                $t(
+                                                    `question_sets_index.visibility.${quiz.visibilityMode}`,
+                                                )
+                                            }}
+                                        </a-tag>
+                                        <span>
+                                            |
+                                            {{
+                                                $t("question_sets_index.credit.createdBy", {
+                                                    user: quiz.createBy,
+                                                })
+                                            }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="quiz-item-credit">
-                                <a-tag :color="getTagColor(quiz.visibilityMode)">
-                                    {{ getTag(quiz.visibilityMode) }}
-                                </a-tag>
-                                <span>
-                                    |
-                                    {{
-                                        $t("question_sets_index.credit.createdBy", {
-                                            user: quiz.createdBy,
-                                        })
-                                    }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="pagination-container">
-                        <a-pagination
-                            @change="onPaginationChange"
-                            v-model:current="pageParams.pageNumber"
-                            :total="pageParams.totalCount"
-                            :pageSize="pageParams.pageSize"
-                            :show-total="
-                                (total: any, range: any) =>
-                                    `${range[0]}-${range[1]} of ${total} ${t('class_question_set.other.items')}`
-                            "
-                            show-size-changer
-                            show-quick-jumper
-                            class="crud-layout-pagination"
-                            :locale="{
-                                items_per_page: t('class_index.other.pages'),
-                            }"
-                        ></a-pagination>
-                    </div>
-                </div>
-                <a-empty v-else>
-                    <template #description>
-                        <span>{{ $t("question_sets_index.empty_description") }}</span>
+                        </template>
+                        <a-empty v-else>
+                            <template #description>
+                                <span>{{ $t("question_sets_index.empty_description") }}</span>
+                            </template>
+                        </a-empty>
                     </template>
-                </a-empty>
+                </div>
+
+                <div class="pagination-container">
+                    <a-pagination
+                        @change="onPaginationChange"
+                        v-model:current="pageParams.pageNumber"
+                        :total="pageParams.totalCount"
+                        :pageSize="pageParams.pageSize"
+                        :show-total="
+                            (total: any, range: any) =>
+                                `${range[0]}-${range[1]} of ${total} ${t('class_question_set.other.items')}`
+                        "
+                        show-size-changer
+                        show-quick-jumper
+                        class="crud-layout-pagination"
+                        :locale="{
+                            items_per_page: t('class_index.other.pages'),
+                        }"
+                    ></a-pagination>
+                </div>
             </div>
         </div>
     </div>

@@ -183,6 +183,14 @@ const userRoutes = [
             title: "attempt-test",
         },
     },
+    {
+        name: "User_Class_Invitation_Callback",
+        path: "/user/class/invitation/:code",
+        component: () => import("@/views/user/class/invitation-callback.vue"),
+        meta: {
+            title: "attempt-test",
+        },
+    },
 ];
 
 export default userRoutes;

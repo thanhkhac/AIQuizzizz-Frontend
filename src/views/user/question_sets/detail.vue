@@ -9,7 +9,7 @@ import { ref, reactive, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import Input from "@/shared/components/Common/Input.vue";
-import { message } from "ant-design-vue";
+import { message, Modal } from "ant-design-vue";
 import TransferQuestionData from "@/services/TransferQuestionData";
 import Validator from "@/services/Validator";
 
@@ -22,17 +22,18 @@ const route = useRoute();
 const router = useRouter();
 
 //#region init data
+const loading = ref(false);
 const question_set_id = ref(route.params.id);
 
 const quiz = ref<QuestionSet>({
     id: "",
     name: "",
     description: "",
-    numberOfQuestions: 0,
-    completedQuestions: 0,
+    totalQuestionCount: 0,
+    completedQuestionCount: 0,
     ratingCount: 0,
     ratingAverage: 0,
-    createdBy: "",
+    createBy: "",
     createdAt: "",
     createdById: "",
     tags: [],
@@ -60,6 +61,7 @@ const selected_type_option = ref(question_type_options.value[0].value);
 const searchValue = ref("");
 
 const getData = async () => {
+    loading.value = true;
     if (!Validator.isValidGuid(question_set_id.value.toString())) router.push({ name: "404" });
 
     const question_set_result = await ApiQuestionSet.GetDetailById(
@@ -72,10 +74,11 @@ const getData = async () => {
         router.push({ name: "User_Library" });
 
     quiz.value = question_set_result.data.data;
-    quiz.value.createdBy = question_set_result.data.data.createdBy.fullName;
+    quiz.value.createBy = question_set_result.data.data.createdBy.fullName;
     quiz_questions.value = question_result.data.data.map((x: ResponseQuestion) =>
         TransferQuestionData.transformResponseToRequest(x),
     );
+    loading.value = false;
 };
 
 //preview uploaded content
@@ -122,6 +125,19 @@ const rateValue = ref(0);
 
 //#endregion
 
+const onDelete = () => {
+    Modal.confirm({
+        title: "Are you sure to delete this question set from class?",
+        content: "Please double check for important resources!",
+        onOk: async () => {
+            const result = await ApiQuestionSet.Delete(quiz.value.id);
+            if (!result.data.success) return;
+            message.success("Delete successfully.");
+            router.push("User_Library");
+        },
+    });
+};
+
 onMounted(() => {
     //get api quiz + check visibility to current user
     //format url
@@ -135,82 +151,84 @@ onMounted(() => {
             {{ $t("detail_QS.other.library") }}
         </RouterLink>
         <div class="content-item">
-            <div class="content-item-title">
-                <div>
-                    <span>{{ quiz.name }}</span>
-                    <span>{{ quiz.description }}</span>
-                </div>
-                <div class="d-flex flex-row align-items-center quiz-header-functions">
-                    <a-dropdown :trigger="['click']" :placement="'bottomRight'">
-                        <i class="bx bx-dots-horizontal-rounded ant-dropdown-link"></i>
-                        <template #overlay>
-                            <a-menu class="drop-down-container">
-                                <a-menu-item key="1" @click="onRedirectToEdit">
-                                    <i class="bx bx-edit"></i>
-                                    {{ $t("question_sets_index.buttons.edit") }}
-                                </a-menu-item>
-                                <a-menu-item key="2">
-                                    <i class="bx bx-copy"></i>
-                                    {{ $t("question_sets_index.buttons.dublicate") }}
-                                </a-menu-item>
-                                <a-menu-divider style="background-color: #ddd" />
-                                <a-menu-item key="3">
-                                    <span class="d-flex align-items-center">
-                                        <i class="bx bx-trash-alt"></i>
-                                        {{ $t("question_sets_index.buttons.delete") }}
-                                    </span>
-                                </a-menu-item>
-                            </a-menu>
-                        </template>
-                    </a-dropdown>
-                </div>
+            <div v-if="loading">
+                <a-skeleton :loading="loading" active></a-skeleton>
+                <a-skeleton :loading="loading" active></a-skeleton>
             </div>
-            <div class="quiz-info">
-                <div class="quiz-rating" @click="modal_rate_open = true">
-                    {{ quiz.ratingAverage }} ⭐️ ({{ quiz.ratingCount }}
-                    {{ $t("detail_QS.other.reviews") }})
-                </div>
-                <div class="quiz-tag-container">
-                    <div class="quiz-tag-item" v-for="tag in quiz.tags">
-                        {{ tag.name }}
+            <div v-else>
+                <div class="content-item-title">
+                    <div>
+                        <span>{{ quiz.name }}</span>
+                        <span>{{ quiz.description }}</span>
+                    </div>
+                    <div class="d-flex flex-row align-items-center quiz-header-functions">
+                        <a-dropdown :trigger="['click']" :placement="'bottomRight'">
+                            <i class="bx bx-dots-horizontal-rounded ant-dropdown-link"></i>
+                            <template #overlay>
+                                <a-menu class="drop-down-container">
+                                    <a-menu-item key="1" @click="onRedirectToEdit">
+                                        <i class="bx bx-edit"></i>
+                                        {{ $t("question_sets_index.buttons.edit") }}
+                                    </a-menu-item>
+                                    <a-menu-divider style="background-color: #ddd" />
+                                    <a-menu-item key="2" @click="onDelete">
+                                        <span class="d-flex align-items-center">
+                                            <i class="bx bx-trash-alt"></i>
+                                            {{ $t("question_sets_index.buttons.delete") }}
+                                        </span>
+                                    </a-menu-item>
+                                </a-menu>
+                            </template>
+                        </a-dropdown>
                     </div>
                 </div>
-            </div>
-            <div class="quiz-credit">
-                <div class="share-btn-container">
-                    <a-button
-                        type="primary"
-                        class="main-color-btn share-btn"
-                        size="large"
-                        @click="onOpenShareModal"
-                    >
-                        <i class="bx bx-share-alt"></i>
-                        {{ $t("detail_QS.buttons.share_quiz") }}
-                    </a-button>
-                </div>
-            </div>
-            <div class="action-container">
-                <div class="credit-user">
-                    <div class="user-image" alt=""></div>
-                    <div class="credit-user-info">
-                        <span>
-                            {{
-                                $t("detail_QS.other.created_by", {
-                                    username: quiz.createdBy,
-                                })
-                            }}
-                        </span>
-                        <span>{{ dayjs(quiz.createdAt).format("DD/MM/YYYY") }}</span>
+                <div class="quiz-info">
+                    <div class="quiz-rating" @click="modal_rate_open = true">
+                        {{ quiz.ratingAverage }} ⭐️ ({{ quiz.ratingCount }}
+                        {{ $t("detail_QS.other.reviews") }})
+                    </div>
+                    <div class="quiz-tag-container">
+                        <div class="quiz-tag-item" v-for="tag in quiz.tags">
+                            {{ tag.name }}
+                        </div>
                     </div>
                 </div>
-                <div class="d-flex">
-                    <div class="action-item" @click="onRedirectToLearn">
-                        {{ $t("detail_QS.buttons.learn") }}
-                        <i class="bx bx-analyse"></i>
+                <div class="quiz-credit">
+                    <div class="share-btn-container">
+                        <a-button
+                            type="primary"
+                            class="main-color-btn share-btn"
+                            size="large"
+                            @click="onOpenShareModal"
+                        >
+                            <i class="bx bx-share-alt"></i>
+                            {{ $t("detail_QS.buttons.share_quiz") }}
+                        </a-button>
                     </div>
-                    <div class="action-item" @click="onRedirectToTest">
-                        {{ $t("detail_QS.buttons.test") }}
-                        <i class="bx bx-detail"></i>
+                </div>
+                <div class="action-container">
+                    <div class="credit-user">
+                        <div class="user-image" alt=""></div>
+                        <div class="credit-user-info">
+                            <span>
+                                {{
+                                    $t("detail_QS.other.created_by", {
+                                        username: quiz.createBy,
+                                    })
+                                }}
+                            </span>
+                            <span>{{ dayjs(quiz.createdAt).format("DD/MM/YYYY") }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="action-item" @click="onRedirectToLearn">
+                            {{ $t("detail_QS.buttons.learn") }}
+                            <i class="bx bx-analyse"></i>
+                        </div>
+                        <div class="action-item" @click="onRedirectToTest">
+                            {{ $t("detail_QS.buttons.test") }}
+                            <i class="bx bx-detail"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -241,8 +259,14 @@ onMounted(() => {
                     </Input>
                 </div>
             </div>
-
-            <div class="preview-question-container">
+            <div v-if="loading">
+                <a-skeleton :loading="loading" active></a-skeleton>
+                <a-skeleton :loading="loading" active></a-skeleton>
+                <a-skeleton :loading="loading" active></a-skeleton>
+                <a-skeleton :loading="loading" active></a-skeleton>
+                <a-skeleton :loading="loading" active></a-skeleton>
+            </div>
+            <div v-else class="preview-question-container">
                 <div class="preview-question-item" v-for="(question, index) in quiz_questions">
                     <div class="question-item-content">
                         <div
@@ -319,7 +343,7 @@ onMounted(() => {
         </div>
     </div>
 
-    <ShareModal ref="shareModalRef" />
+    <ShareModal ref="shareModalRef" :id="quiz.id" />
     <a-modal wrap-class-name="medium-modal" :visible="modal_rate_open">
         <div class="title-container">
             <a-row class="w-100 d-flex align-items-center justify-content-between">

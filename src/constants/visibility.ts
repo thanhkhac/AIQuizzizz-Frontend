@@ -1,7 +1,7 @@
 const VISIBILITY = {
-    PRIVATE: "private",
-    PUBLIC: "public",
-    IN_CLASS: "in_class",
+    PUBLIC: "Public",
+    PRIVATE: "Private",
+    IN_CLASS: "InClass",
 };
 
 export default VISIBILITY;

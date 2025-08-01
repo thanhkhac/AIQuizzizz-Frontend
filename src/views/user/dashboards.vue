@@ -2,6 +2,8 @@
 import ApiQuestionSet from "@/api/ApiQuestionSet";
 import type QuestionSetPublicPageParams from "@/models/request/question_set/publicPageParams";
 import QUESTION_SET_SORT_CATEGORY from "@/constants/questionSetSortCate";
+import type QuestionSet from "@/models/response/question_set/questionSet";
+import type QuestionSetPageParams from "@/models/request/question_set/questionSetPageParams";
 
 import { ref, onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
@@ -17,33 +19,33 @@ const router = useRouter();
 
 //#region sample data
 
-const quiz_data = ref([
-    {
-        title: "Introduction to Biology",
-        numberOfQuestions: 56,
-        compeletedQuestion: 24,
-    },
-    {
-        title: "Basics of Chemistry",
-        numberOfQuestions: 40,
-        compeletedQuestion: 18,
-    },
-    {
-        title: "Fundamentals of Physics",
-        numberOfQuestions: 50,
-        compeletedQuestion: 25,
-    },
-    {
-        title: "Introduction to Computer Science",
-        numberOfQuestions: 60,
-        compeletedQuestion: 54,
-    },
-    {
-        title: "Decrete Mathematic",
-        numberOfQuestions: 160,
-        compeletedQuestion: 14,
-    },
-]);
+// const quiz_data = ref([
+//     {
+//         title: "Introduction to Biology",
+//         numberOfQuestions: 56,
+//         compeletedQuestion: 24,
+//     },
+//     {
+//         title: "Basics of Chemistry",
+//         numberOfQuestions: 40,
+//         compeletedQuestion: 18,
+//     },
+//     {
+//         title: "Fundamentals of Physics",
+//         numberOfQuestions: 50,
+//         compeletedQuestion: 25,
+//     },
+//     {
+//         title: "Introduction to Computer Science",
+//         numberOfQuestions: 60,
+//         compeletedQuestion: 54,
+//     },
+//     {
+//         title: "Decrete Mathematic",
+//         numberOfQuestions: 160,
+//         compeletedQuestion: 14,
+//     },
+// ]);
 
 const schedule_data = ref([
     {
@@ -157,18 +159,49 @@ function handleMouseClickOutside(event: MouseEvent) {
         search_data.value = [...lastSearchResult.value];
     }
 }
+//#endregion
 
+//#region quiz
+const quiz_data = ref<QuestionSet[]>([]);
+
+const pageParams = reactive({
+    pageNumber: 1,
+    pageSize: 5,
+});
+
+const getData = async () => {
+    try {
+        let result = await ApiQuestionSet.GetRecentByLimit(
+            pageParams as QuestionSetPublicPageParams,
+        );
+        if (result.data.success) {
+            let resultData = result.data.data;
+            quiz_data.value = resultData.items;
+        }
+    } catch (error) {
+        console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+    }
+};
+
+//#endregion
+
+//#region redirect
 const onRedirectToDetail = (questionSetId: string) => {
     router.push({ name: "User_QuestionSet_Detail", params: { id: questionSetId } });
 };
 
-onMounted(() => {
+const onRedirectToCreate = () => {
+    router.push({ name: "User_QuestionSet_Create" });
+};
+//#endregion
+
+onMounted(async () => {
     document.addEventListener("click", handleMouseClickOutside);
     const sidebarActiveItem = "dashboard";
     emit("updateSidebar", sidebarActiveItem);
-});
 
-//#endregion
+    await getData();
+});
 </script>
 
 <template>
@@ -225,13 +258,17 @@ onMounted(() => {
                     </RouterLink>
                 </div>
                 <div class="quiz-container">
-                    <div class="quiz-item" v-for="quiz in quiz_data">
+                    <div
+                        class="quiz-item"
+                        v-for="quiz in quiz_data"
+                        @click="onRedirectToDetail(quiz.id)"
+                    >
                         <div class="quiz-item-title">
-                            {{ quiz.title }} <i class="bx bx-chevron-right"></i>
+                            {{ quiz.name }} <i class="bx bx-chevron-right"></i>
                         </div>
                         <div class="quiz-item-info">
                             <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                            {{ quiz.numberOfQuestions }}
+                            {{ quiz.totalQuestionCount }}
                             {{ $t("dashboards.list_items.quiz.questions") }}
                         </div>
                         <div class="quiz-item-progress">
@@ -240,15 +277,15 @@ onMounted(() => {
                                 stroke-color="var(--main-color)"
                                 :percent="
                                     getPercentageComplete(
-                                        quiz.numberOfQuestions,
-                                        quiz.compeletedQuestion,
+                                        quiz.totalQuestionCount,
+                                        quiz.completedQuestionCount,
                                     )
                                 "
                                 status="active"
                             />
                         </div>
                     </div>
-                    <div class="quiz-item add-button">
+                    <div class="quiz-item add-button" @click="onRedirectToCreate">
                         <i class="bx bx-plus add-button-icon"></i>
                         <div class="add-button-context">
                             <span>{{ $t("dashboards.buttons.createNewQuiz") }}</span>
@@ -321,7 +358,6 @@ onMounted(() => {
 }
 
 .quiz-container {
-    padding: 10px;
     display: flex;
     flex-wrap: wrap;
     color: var(--text-color);

@@ -3,11 +3,11 @@ import { API } from "./api/Api";
 import jQuery from "jquery";
 
 declare global {
-  interface Window {
-    axios: Axios;
-    $: jQuery;
-    api: API;
-  }
+    interface Window {
+        axios: Axios;
+        $: jQuery;
+        api: API;
+    }
 }
 
 export {};

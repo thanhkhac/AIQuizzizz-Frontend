@@ -4,11 +4,11 @@ export default interface QuestionSet {
     id: string;
     name: string;
     description: string;
-    numberOfQuestions: number;
-    completedQuestions: number;
+    totalQuestionCount: number;
+    completedQuestionCount: number;
     ratingCount: number;
     ratingAverage: number;
-    createdBy: string;
+    createBy: string;
     createdAt: string;
     createdById: string;
     tags: Tag[];

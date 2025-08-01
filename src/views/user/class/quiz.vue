@@ -162,7 +162,7 @@ onMounted(async () => {
                 <ul>
                     <li class="title-breadcrumb-item">
                         <RouterLink :to="{ name: 'User_Class' }">
-                            <span> Class </span>
+                            <span>{{ $t("class_index.title") }}</span> <br />
                         </RouterLink>
                         <i class="bx bx-chevron-right"></i>
                     </li>

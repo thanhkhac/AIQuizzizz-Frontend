@@ -23,6 +23,7 @@
     "@tiptap/extension-underline": "^2.23.0",
     "@tiptap/starter-kit": "^2.23.0",
     "@tiptap/vue-3": "^2.23.0",
+    "@vueuse/core": "^13.6.0",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.9.0",
     "bootstrap-vue-3": "^0.3.12",

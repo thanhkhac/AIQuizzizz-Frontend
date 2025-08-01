@@ -9,6 +9,16 @@ import { message } from "ant-design-vue";
 
 const { t } = useI18n();
 
+//#region props
+type Props = {
+    id: string;
+    mode: string;
+};
+const props = defineProps<{ id: string }>();
+
+//#endregion
+
+//#region modal
 const visibility = ref(false);
 
 const openModal = () => {
@@ -22,9 +32,10 @@ const closeModal = () => {
 defineExpose({
     openModal,
 });
+//#endregion
 
 /* visibility-select */
-const visibilityKeys = [VISIBILITY.PUBLIC, VISIBILITY.PRIVATE, VISIBILITY.IN_CLASS];
+const visibilityKeys = Object.values(VISIBILITY);
 const visibility_options = computed(() =>
     visibilityKeys.map((key) => ({
         label: t(`share_modal.visibility.${key}.mode`),
@@ -210,7 +221,25 @@ const onShareClass = () => {
     closeModal();
 };
 
+const getPublicShareUrl = () => {
+    const origin = window.location.origin;
+    return origin + `/user/library/${props.id}`;
+};
+
+const onCopyPublicShareUrl = () => {
+    navigator.clipboard
+        .writeText(getPublicShareUrl())
+        .then(() => {
+            message.success("Copied");
+        })
+        .catch(() => {
+            message.error("Empty");
+        });
+};
+
 onMounted(() => {
+    console.log(getPublicShareUrl());
+
     document.addEventListener("click", handleMouseClickOutside);
     userWithPermission.value.push(...(user_permission_sample as UserPermission[]));
 
@@ -272,13 +301,14 @@ onMounted(() => {
                             selected_visibility_option === VISIBILITY.PUBLIC ? '' : 'd-none',
                         ]"
                     >
-                        <a-qrcode value="AIQuizziz.com.vn" />
+                        <a-qrcode :value="getPublicShareUrl()" />
                         <div>
-                            <a-input
-                                class="share-link"
-                                value="http://localhost:5173/user/library/1/Introduction%20to%20Biology"
-                            />
-                            <a-button class="mt-2 main-color-btn" type="primary">
+                            <a-input class="share-link" :value="getPublicShareUrl()" />
+                            <a-button
+                                class="mt-2 main-color-btn"
+                                type="primary"
+                                @click="onCopyPublicShareUrl"
+                            >
                                 <i class="me-3 bx bx-link-alt"></i>
                                 {{ $t("share_modal.buttons.copy_link") }}
                             </a-button>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, shallowRef } from "vue";
 import { Form } from "ant-design-vue";
 
-import type { Question } from "@/models/request/question";
+import type { RequestQuestion } from "@/models/request/question";
 import { useI18n } from "vue-i18n";
 
 import { QuestionCircleOutlined } from "@ant-design/icons-vue";
@@ -16,7 +16,7 @@ import InputEditor from "../Common/InputEditor.vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
 
 interface Props {
-    question: Question;
+    question: RequestQuestion;
     index: number;
     displayScore: boolean;
 }
@@ -24,6 +24,8 @@ interface Props {
 const { t } = useI18n();
 
 const props = defineProps<Props>();
+
+const questionData = shallowRef(props.question);
 
 const optionKeys = [
     QUESTION_TYPE.MULTIPLE_CHOICE,
@@ -70,9 +72,6 @@ const { validateInfos } = Form.useForm(props.question, {
         {
             validator: (_rule: string, value: string) => {
                 const plainText = value.replace(/<[^>]+>/g, ""); //editor return as html in <p></p>
-                if (!plainText) {
-                    return Promise.reject(t("create_QS.error_msg.required"));
-                }
                 if (plainText.length > 500) {
                     return Promise.reject(
                         t("create_QS.error_msg.out_of_range", { maxLength: 500 }),
@@ -124,14 +123,14 @@ const onCheckHaveAnswer = () => {
                 <div class="question-functions">
                     <div v-if="displayScore" class="question-score-select">
                         Score:
-                        <a-select v-model:value="props.question.score" style="width: 100px">
+                        <a-select v-model:value="questionData.score" style="width: 100px">
                             <a-select-option v-for="option in pointOptions" :value="option">
                                 {{ option }}
                             </a-select-option>
                         </a-select>
                     </div>
                     <div class="question-function-select">
-                        <a-select v-model:value="props.question.type" style="width: 200px">
+                        <a-select v-model:value="questionData.type" style="width: 200px">
                             <a-select-option v-for="option in options" :value="option.value">
                                 {{ option.label }}
                             </a-select-option>
@@ -151,20 +150,20 @@ const onCheckHaveAnswer = () => {
                 <div class="question-description">
                     <InputEditor
                         class="question-description-item"
-                        v-model="props.question.questionText"
+                        v-model="questionData.questionText"
                         v-model:validateStatus="validateInfos.questionText.validateStatus"
                         v-model:help="validateInfos.questionText.help"
                         :name="'questionText'"
                         :label="t('create_QS.question.text')"
                         :placeholder="t('create_QS.question.text_placeholder')"
-                        :html="props.question.questionHTML"
+                        :html="questionData.questionHTML"
                     />
                 </div>
                 <div class="question-body-answer">
                     <InputEditor
                         style="max-width: 500px"
                         class="explain-section question-description-item"
-                        v-model="props.question.explainText"
+                        v-model="questionData.explainText"
                         v-model:validateStatus="validateInfos.explainText.validateStatus"
                         v-model:help="validateInfos.explainText.help"
                         :name="'explainText'"
@@ -185,7 +184,7 @@ const onCheckHaveAnswer = () => {
                             >
                                 <div
                                     class="option-item"
-                                    v-for="(option, index) in props.question.multipleChoices"
+                                    v-for="(option, index) in questionData.multipleChoices"
                                     :key="option.id"
                                 >
                                     <a-checkbox
