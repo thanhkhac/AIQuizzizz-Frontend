@@ -3,4 +3,6 @@ export default interface ManageAccountsParams {
     fieldName: string;
     pageNumber: number;
     pageSize: number;
+    IsBanned?: boolean;
+    role?: string;
 }

@@ -588,6 +588,7 @@
     "admin": {
         "manage_acc": {
             "title": "Quản lý tài khoản",
+            "search_placeholder": "Tìm kiếm ...",
             "acc_status": {
                 "all": "Tất cả",
                 "ban": "Bị cấm",

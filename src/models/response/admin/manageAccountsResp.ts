@@ -1,7 +1,9 @@
 export default interface ManageAccountsResp {
-    userId: string;
+    id: string;
     email: string;
-    name: string;
+    fullName: string;
     token: number;
+    balance: number;
     isBanned: boolean;
+    role: string;
 }

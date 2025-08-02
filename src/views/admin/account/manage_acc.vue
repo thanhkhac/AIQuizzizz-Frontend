@@ -22,7 +22,7 @@ const account_status_credit_options = computed(() =>
 const selected_acc_status_option = ref(account_status_credit_options.value[0].value);
 
 // select box for user role
-const optionKeysAccRole = ["all", "admin", "moderator", "user"];
+const optionKeysAccRole = ["all", "Administrator", "Moderator", "User"];
 const account_role_credit_options = computed(() =>
     optionKeysAccRole.map((key) => ({
         label: t(`admin.manage_acc.acc_role.${key}`),
@@ -41,6 +41,13 @@ const onFilter = async () => {
     });
 
     payloadGetUsers.keyword = searchValue.value;
+    if (selected_acc_status_option.value === "all") {
+        delete payloadGetUsers.IsBanned;
+    } else {
+        payloadGetUsers.IsBanned = selected_acc_status_option.value === "ban";
+    }
+    payloadGetUsers.role =
+        selected_acc_role_option.value === "all" ? "" : selected_acc_role_option.value;
     getUsersData();
 };
 
@@ -60,10 +67,11 @@ const columns = [
         align: "center",
     },
     {
-        title: "Name",
-        dataIndex: "name",
-        key: "name",
-        sorter: (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name),
+        title: "Fullname",
+        dataIndex: "fullName",
+        key: "fullName",
+        sorter: (a: { fullName: string }, b: { fullName: string }) =>
+            a.fullName.localeCompare(b.fullName),
         width: 350,
         align: "center",
     },
@@ -91,7 +99,7 @@ const columns = [
         width: 100,
         align: "center",
     },
-    { title: "Actions", key: "actions", width: 120, align: "center" },
+    { title: "Ban", key: "ban", width: 120, align: "center" },
 ];
 
 onMounted(() => {
@@ -105,13 +113,13 @@ const dataSource = ref<ManageAccountsResp[]>([]);
 
 async function onToggle(record: ManageAccountsResp) {
     console.log("Toggle active:", record.isBanned);
-    console.log("Toggle active:", record.userId);
+    console.log("Toggle active:", record.id);
     try {
-        if (!record.isBanned) {
-            await ApiAdmin.ActiveUser(record.userId);
-        } else {
-            await ApiAdmin.BanUser(record.userId);
-        }
+        // if (!record.isBanned) {
+        //     await ApiAdmin.ActiveUser(record.id);
+        // } else {
+        //     await ApiAdmin.BanUser(record.id);
+        // }
     } catch (error) {
         console.error("Toggle active ERROR:", error);
     }
@@ -155,7 +163,7 @@ const getUsersData = async () => {
                     <Input
                         class="custom-input"
                         v-model:value="searchValue"
-                        :placeholder="t('question_sets_index.search_placeholder')"
+                        :placeholder="t('admin.manage_acc.search_placeholder')"
                     >
                         <template #icon>
                             <i class="bx bx-search"></i>
@@ -198,9 +206,10 @@ const getUsersData = async () => {
             <div class="account-table">
                 <a-table :data-source="dataSource" :columns="columns" row-key="id">
                     <template #bodyCell="{ column, record }">
-                        <template v-if="column.key === 'actions'">
+                        <template v-if="column.key === 'ban'">
                             <div class="action-cell">
                                 <a-switch
+                                    v-if="record.role !== 'Administrator'"
                                     v-model:checked="record.isBanned"
                                     :checked-children="''"
                                     :un-checked-children="''"

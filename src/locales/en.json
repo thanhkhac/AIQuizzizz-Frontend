@@ -588,6 +588,7 @@
     "admin": {
         "manage_acc": {
             "title": "Manage Accounts",
+            "search_placeholder": "Search email ...",
             "acc_status": {
                 "all": "All",
                 "ban": "Ban",
