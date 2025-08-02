@@ -584,5 +584,23 @@
             "items": "thư mục",
             "pages": " / trang"
         }
+    },
+    "admin": {
+        "manage_acc": {
+            "title": "Quản lý tài khoản",
+            "acc_status": {
+                "all": "Tất cả",
+                "ban": "Bị cấm",
+                "active": "Hoạt động"
+            },
+            "acc_role": {
+                "all": "Tất cả",
+                "admin": "Quản trị viên",
+                "moderator": "Điều hành viên",
+                "user": "Người dùng"
+            }
+        },
+        "manage_subscription": {},
+        "manage_class": {}
     }
 }
