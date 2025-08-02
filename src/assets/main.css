@@ -1369,7 +1369,8 @@ pre {
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    color: var(--text-color);
+    color: var(--text-color) !important;
+    background: transparent !important;
 }
 
 .main-color-btn-ghost:hover {
@@ -1378,7 +1379,7 @@ pre {
 }
 
 .main-color-btn-ghost-disabled {
-    color: var(--text-color-grey);
+    color: var(--text-color-grey) !important;
     cursor: default;
     pointer-events: none;
 }
@@ -1427,7 +1428,8 @@ pre {
 
 .comment-container {
     flex: 1;
-    overflow-y: scroll;
+    overflow-y: auto;
+    width: 100%;
 }
 
 .comment-container::-webkit-scrollbar {
@@ -1440,19 +1442,38 @@ pre {
 }
 
 .comment-item {
+    margin-bottom: 10px;
+}
+
+.comment-item:hover {
+    background-color: var(--content-item-border-color);
+    border-radius: 5px;
+}
+
+.comment-item:hover .comment-actions {
+    visibility: visible;
+}
+
+.comment-item-chosen {
+    background-color: var(--content-item-border-color);
+}
+
+.child-comment-container {
+    border-left: 1px solid var(--main-color);
+    margin-top: 10px;
+}
+
+.comment-main-content {
     padding: 5px;
     display: flex;
-    margin-bottom: 10px;
     align-items: start;
+    transition: all 0.2s ease-in-out;
 }
 
 .comment-user-img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--text-color);
     margin-right: 10px;
     margin-top: 5px;
+    font-size: 36px;
 }
 
 .comment-content-info {
@@ -1468,7 +1489,7 @@ pre {
 
 .comment-content {
     font-weight: 500;
-    margin-top: 5px;
+    margin: 5px 0px;
     max-width: 400px;
     word-wrap: break-word;
 }
@@ -1476,15 +1497,48 @@ pre {
 .comment-form {
     width: 100%;
     border-top: 1px solid var(--form-item-border-color);
-    padding-top: 10px;
     border-radius: 8px;
+}
+.comment-form label {
+    color: var(--text-color);
+    margin: 5px 0px;
+    font-weight: 500;
 }
 
 .comment-form-footer {
-    margin-top: 5px;
+    margin-top: 10px;
     display: flex;
     align-items: center;
     justify-content: end;
+}
+
+.comment-actions {
+    visibility: hidden;
+    flex: 1;
+    display: flex;
+    justify-content: end;
+    align-items: end;
+}
+.comment-actions i {
+    cursor: pointer;
+}
+
+.comment-reply {
+    display: flex;
+    font-size: 14px !important;
+}
+
+.comment-reply-btn {
+    margin-right: 20px;
+    color: var(--text-color-grey);
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+.comment-reply-btn:hover {
+    color: var(--text-color);
+}
+.comment-children-open-btn {
+    cursor: pointer;
 }
 
 /* ordering */
@@ -1838,10 +1892,6 @@ Custom a-switch
     color: var(--text-color-white);
 }
 
-.list-question-container {
-    padding: 10px;
-}
-
 .question-input-item {
     margin-bottom: 10px;
 }
@@ -1870,6 +1920,65 @@ Custom a-switch
     cursor: pointer;
 }
 
+.tag-container {
+    height: 100px;
+    max-height: 150px;
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+    padding: 5px;
+    margin-bottom: 16px;
+    background-color: var(--content-item-children-background-color) !important;
+    overflow-y: scroll;
+    border: 1px solid var(--content-item-border-color);
+    border-radius: 5px;
+}
+
+.tag-item {
+    padding: 0px 1px 0px 6px;
+    border: 1px solid var(--border-color-contrast);
+    border-radius: 120px;
+    height: 22px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2px;
+}
+
+.tag-item i {
+    background-color: #f44336;
+    padding: 2px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.tag-inputter {
+    display: flex;
+}
+
+.tag-inputter-button {
+    padding: 9px;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--main-color);
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.tag-inputter-button:hover {
+    background-color: var(--main-sub-color);
+}
+
 /**
 * custom a-skeleton
 **/
@@ -1879,6 +1988,49 @@ Custom a-switch
 
 .ant-skeleton-paragraph li {
     background-color: #313131 !important;
+}
+
+/**
+* custome vue-virtual-scroller
+**/
+.scroller {
+    height: 100vh;
+    overflow-y: auto;
+    border: 1px solid var(--content-item-border-color);
+    border-radius: 5px;
+    padding: 0px 8px;
+
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+
+    will-change: scroll-position;
+    transform: translateZ(0);
+}
+
+.scroller::-webkit-scrollbar {
+    width: 12px;
+    background-color: transparent;
+}
+
+.scroller::-webkit-scrollbar-thumb {
+    height: 100px;
+    background-color: var(--main-color);
+    border-radius: 6px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+
+    will-change: transform;
+    transform: translateZ(0);
+
+    transition: background-color 0.2s ease;
+}
+
+.scroller::-webkit-scrollbar-thumb:hover {
+    background-color: var(--main-sub-color);
+}
+
+.scroller::-webkit-scrollbar-track {
+    background-color: transparent;
 }
 
 /* ========================================Create-QuestionSet and siblings====================================================== */

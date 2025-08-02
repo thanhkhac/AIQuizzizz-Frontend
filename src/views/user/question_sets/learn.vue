@@ -1,26 +1,32 @@
 <script setup lang="ts">
 import ApiQuestionSet from "@/api/ApiQuestionSet";
-import { ref, computed, onMounted, nextTick } from "vue";
+import type { ResponseQuestion } from "@/models/response/question";
+import type { Comment } from "@/models/response/comment/comment";
+import type CommentPageParams from "@/models/request/comment/commentPageParams";
+
+import { ref, computed, onMounted, nextTick, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import { QUOTES } from "@/constants/quote";
 
-import type { ResponseQuestion } from "@/models/response/question";
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import Validator from "@/services/Validator";
+import dayjs from "dayjs";
 
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 const animationPath = new URL("@/assets/confetti.lottie", import.meta.url).href;
 
 import { useI18n } from "vue-i18n";
+import { useAuthStore } from "@/stores/AuthStore";
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
 
 const QUESTION_FORMAT = {
     HTML: "HTML",
@@ -298,9 +304,104 @@ const toggleExplainModal = () => {
 /* comment modal right */
 const commentModalOpen = ref(false);
 
-const onOpenCommentModal = () => {
+const user_info = authStore.getUserInfo();
+const currentQuestionComments = ref<Comment[]>([]);
+const commentValue = ref("");
+
+const chosenComment = ref<Comment | null>(null); // use this for reply
+const isReplying = ref(false);
+
+const commentPageParams = reactive({
+    pageNumber: 1,
+    pageSize: 1,
+    questionId: "",
+});
+const commentLoading = ref(false);
+const getCommentData = async () => {
+    commentLoading.value = true;
+    const result = await ApiComment.GetAllByQuestionId(commentPageParams as CommentPageParams);
+    if (result.data.success) {
+        currentQuestionComments.value = result.data.data.items.filter((x: Comment) => !x.parentId);
+    }
+    commentLoading.value = false;
+};
+
+const onAddComment = async () => {
+    let result;
+    if (isReplying.value && chosenComment.value) {
+        result = await ApiComment.Reply({
+            commentId: chosenComment.value.id,
+            content: commentValue.value,
+        });
+    } else {
+        result = await ApiComment.Create({
+            questionId: currentQuestion.value.id,
+            content: commentValue.value,
+        });
+    }
+
+    if (result.data.success) {
+        message.success("Added successfully!");
+        await getCommentData();
+        return;
+    }
+    message.success("Added failed!");
+};
+
+const onEditComment = async (commentId: string) => {
+    // const result = await ApiComment.Delete(commentId);
+    // if (result.data.success) {
+    //     message.success("Delete successfully!");
+    //     await getCommentData();
+    //     return;
+    // }
+    // message.success("Delete failed!");
+};
+const onDeleteComment = async (commentId: string) => {
+    const result = await ApiComment.Delete(commentId);
+    if (result.data.success) {
+        message.success("Delete successfully!");
+        await getCommentData();
+        return;
+    }
+    message.success("Delete failed!");
+};
+
+const onTriggerReply = (comment: Comment) => {
+    isReplying.value = true;
+    chosenComment.value = comment;
+};
+
+const onCancelReplying = () => {
+    commentValue.value = "";
+    isReplying.value = false;
+    chosenComment.value = null;
+};
+
+const repliesOpen = ref<boolean[]>([]);
+const onToggleReplyContainer = (index: number) => {
+    repliesOpen.value[index] = !repliesOpen.value[index];
+    $(`#reply-items-${index}`).slideToggle();
+};
+
+const onLoadMoreComment = async () => {
+    commentPageParams.pageNumber += 1;
+    commentLoading.value = true;
+
+    const result = await ApiComment.GetAllByQuestionId(commentPageParams);
+    if (result.data.success) {
+        const newData = result.data.data.items.filter((x: Comment) => !x.parentId);
+        currentQuestionComments.value = [...currentQuestionComments.value, ...newData];
+    }
+
+    commentLoading.value = false;
+};
+
+const onOpenCommentModal = async () => {
     commentModalOpen.value = true;
     //get api comment
+    commentPageParams.questionId = currentQuestion.value.id;
+    await getCommentData();
 };
 
 const onCloseCommentModal = () => {
@@ -559,6 +660,7 @@ const onContinuesLearn = async () => {
 
 //#region complete modal
 import trophy_png from "@/assets/trophy.png";
+import ApiComment from "@/api/ApiComment";
 const completeModalOpen = ref(false);
 
 const openCompleteModal = () => {
@@ -587,6 +689,8 @@ const onResetLearnHistory = async () => {
 };
 
 //#endregion
+
+//#region calculate UI
 const dragOptions = {
     scroll: true,
     scrollSensitivity: 100,
@@ -623,6 +727,7 @@ function syncMatchingHeights() {
         });
     });
 }
+//#endregion
 
 onMounted(async () => {
     await getQuizData();
@@ -630,6 +735,8 @@ onMounted(async () => {
     resetUserAnswer();
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
+
+    repliesOpen.value = currentQuestionComments.value.map(() => false); //reply close all at beginning
 });
 </script>
 
@@ -1015,24 +1122,185 @@ onMounted(async () => {
             >
                 <div class="comment-section">
                     <div class="comment-container">
-                        <div class="comment-item" v-for="comment in comment_sample">
-                            <img class="comment-user-img" src="" alt="" />
-                            <div>
-                                <div class="comment-content-info">
-                                    {{ comment.user.userName }}
-                                    <span>{{ comment.lastModified }}</span>
+                        <template v-if="currentQuestionComments.length > 0">
+                            <div
+                                v-for="(comment, index) in currentQuestionComments"
+                                :class="[
+                                    'comment-item',
+                                    chosenComment?.id === comment.id ? 'comment-item-chosen' : '',
+                                ]"
+                            >
+                                <div class="comment-main-content">
+                                    <i class="bx bx-user-circle comment-user-img"></i>
+                                    <div class="w-100 d-flex flex-column">
+                                        <div class="comment-content-info">
+                                            {{ comment.createBy.fullName }}
+                                            <span>
+                                                {{
+                                                    dayjs(comment.createdAt).format(
+                                                        "DD/MM/YYYY HH:mm",
+                                                    )
+                                                }}
+                                            </span>
+                                            <div
+                                                v-if="comment.createBy.userId === user_info.id"
+                                                class="comment-actions"
+                                            >
+                                                <i
+                                                    class="me-3 bx bx-edit"
+                                                    @click="onEditComment(comment.id)"
+                                                ></i>
+                                                <a-popconfirm
+                                                    class="pop-confirm-delete"
+                                                    :title="$t('create_QS.quiz.confirm')"
+                                                    @confirm="onDeleteComment(comment.id)"
+                                                >
+                                                    <template #default>
+                                                        <i class="text-danger bx bx-trash-alt"></i>
+                                                    </template>
+                                                </a-popconfirm>
+                                            </div>
+                                        </div>
+                                        <div class="comment-content">{{ comment.content }}</div>
+                                        <div class="comment-reply">
+                                            <div
+                                                class="comment-reply-btn"
+                                                @click="onTriggerReply(comment)"
+                                            >
+                                                Reply
+                                            </div>
+                                            <div
+                                                class="comment-children-open-btn"
+                                                @click="onToggleReplyContainer(index)"
+                                            >
+                                                {{ repliesOpen[index] ? "Close" : "View" }}
+                                                ({{ comment.childComments.length }}) replies
+                                            </div>
+                                        </div>
+                                        <div
+                                            :id="'reply-items-' + index"
+                                            class="child-comment-container"
+                                            style="display: none"
+                                        >
+                                            <div
+                                                class="comment-item"
+                                                v-for="(
+                                                    childComment, index
+                                                ) in comment.childComments"
+                                            >
+                                                <div class="comment-main-content">
+                                                    <i
+                                                        class="bx bx-user-circle comment-user-img"
+                                                    ></i>
+                                                    <div class="w-100 d-flex flex-column">
+                                                        <div class="comment-content-info">
+                                                            {{ childComment.createBy.fullName }}
+                                                            <span>
+                                                                {{
+                                                                    dayjs(
+                                                                        childComment.createdAt,
+                                                                    ).format("DD/MM/YYYY HH:mm")
+                                                                }}
+                                                            </span>
+                                                            <div
+                                                                v-if="
+                                                                    childComment.createBy.userId ===
+                                                                    user_info.id
+                                                                "
+                                                                class="comment-actions"
+                                                            >
+                                                                <i
+                                                                    class="me-3 bx bx-edit"
+                                                                    @click="
+                                                                        onEditComment(
+                                                                            childComment.id,
+                                                                        )
+                                                                    "
+                                                                ></i>
+                                                                <a-popconfirm
+                                                                    class="pop-confirm-delete"
+                                                                    :title="
+                                                                        $t('create_QS.quiz.confirm')
+                                                                    "
+                                                                    @confirm="
+                                                                        onDeleteComment(
+                                                                            childComment.id,
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    <template #default>
+                                                                        <i
+                                                                            class="text-danger bx bx-trash-alt"
+                                                                        ></i>
+                                                                    </template>
+                                                                </a-popconfirm>
+                                                            </div>
+                                                        </div>
+                                                        <div class="comment-content">
+                                                            {{ childComment.content }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="comment-content">{{ comment.content }}</div>
                             </div>
+                            <a-skeleton
+                                v-if="commentLoading"
+                                :loading="commentLoading"
+                            ></a-skeleton>
+                            <a-button
+                                type="primary"
+                                class="main-color-btn"
+                                @click="onLoadMoreComment"
+                                :loading="commentLoading"
+                            >
+                                Load more
+                            </a-button>
+                        </template>
+                        <div
+                            v-else
+                            class="w-100 h-100 d-flex justify-content-center align-items-center"
+                        >
+                            <a-empty>
+                                <template #description>
+                                    <span>No one has commented yet.</span>
+                                </template>
+                            </a-empty>
                         </div>
                     </div>
                     <a-form layout="vertical" class="comment-form">
-                        <TextArea :label="'Your comment'" :placeholder="'Add a comment'" />
+                        <label v-if="isReplying">
+                            Replying to @{{ chosenComment?.createBy.fullName }}
+                        </label>
+                        <label v-else>Your comment</label>
+                        <TextArea
+                            v-model:value="commentValue"
+                            :placeholder="'Enter comment'"
+                            :max-length="500"
+                        />
                         <div class="comment-form-footer">
-                            <div class="me-3 main-color-btn-ghost">
+                            <a-button
+                                type="primary"
+                                shape="round"
+                                :class="[
+                                    'me-3 main-color-btn-ghost',
+                                    !isReplying ? 'main-color-btn-ghost-disabled' : '',
+                                ]"
+                                @click="onCancelReplying"
+                            >
                                 {{ $t("learn_QS.buttons.cancel") }}
-                            </div>
-                            <a-button type="primary" shape="round" class="main-color-btn">
+                            </a-button>
+                            <a-button
+                                type="primary"
+                                shape="round"
+                                :class="[
+                                    'main-color-btn',
+                                    !commentValue ? 'main-color-btn-disabled' : '',
+                                ]"
+                                @click="onAddComment"
+                            >
                                 {{ $t("learn_QS.buttons.send_comment") }}
                             </a-button>
                         </div>

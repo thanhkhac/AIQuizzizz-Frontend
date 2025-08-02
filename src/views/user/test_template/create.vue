@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ApiTestTemplate from "@/api/ApiTestTemplate";
 
-import { ref, reactive, onMounted, onUnmounted } from "vue";
+import { ref, reactive, onMounted, onUnmounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
 
@@ -26,6 +26,7 @@ interface FormState {
 
 const { t } = useI18n();
 
+//#region init data
 const formRef = ref();
 
 const formState = reactive<FormState>({
@@ -243,6 +244,9 @@ const question_data_raw = [
     },
 ];
 
+//#endregion
+
+//#region logic edit question
 const createQuestionTemplate = (): RequestQuestion => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
@@ -275,7 +279,17 @@ const onAddQuestion = () => {
         return;
     }
 
-    formState.questions.push(createQuestionTemplate());
+    formState.questions = [...formState.questions, createQuestionTemplate()];
+
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+        nextTick(() => {
+            const lastIndex = formState.questions.length;
+            requestAnimationFrame(() => {
+                scrollerRef.value?.scrollToItem(lastIndex);
+            });
+        });
+    });
 };
 
 const onRemoveQuestion = (index: number) => {
@@ -284,7 +298,10 @@ const onRemoveQuestion = (index: number) => {
         return;
     }
 
-    formState.questions.splice(index, 1);
+    formState.questions = [
+        ...formState.questions.slice(0, index),
+        ...formState.questions.slice(index + 1),
+    ];
 };
 
 const onFinish = () => {
@@ -401,7 +418,9 @@ const showModalConfirmation = () => {
         },
     });
 };
+//#endregion
 
+//#region import modal
 //import modal
 import ImportQSModal from "@/shared/modals/ImportQSModal.vue";
 const importModalRef = ref<InstanceType<typeof ImportQSModal> | null>(null);
@@ -409,7 +428,9 @@ const importModalRef = ref<InstanceType<typeof ImportQSModal> | null>(null);
 const onOpenImportModal = () => {
     importModalRef.value?.openImportModal();
 };
+//#endregion
 
+//#region generate modal
 //generate modal
 import GenerateQSModal from "@/shared/modals/GenerateQSModal.vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
@@ -418,13 +439,20 @@ const generateModalRef = ref<InstanceType<typeof GenerateQSModal> | null>(null);
 const openGenerateAIModal = () => {
     generateModalRef.value?.openGenerateAIModal();
 };
+//#endregion
 
 //use for both modal import event
 const onModalImport = (selected: RequestQuestion[]) => {
+    formState.questions.push(
+        ...selected.map((item, i) => ({
+            ...item,
+            id: `new_${formState.questions.length + i}`,
+        })),
+    );
     message.success(`Imported ${selected.length} questions`);
-    formState.questions.push(...selected);
 };
 
+//#region leave guard
 /* auto-save */
 // const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
 // const intervalId = ref<number>();
@@ -450,16 +478,26 @@ function handleBeforeUnload(e: BeforeUnloadEvent) {
     e.preventDefault();
     e.returnValue = "";
 }
+onUnmounted(() => {
+    // clearInterval(intervalId.value);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+});
+//#endregion
+
+// @ts-ignore
+import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
+const scrollerRef = ref<any>(null);
+
+const handleScroll = () => {
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+    });
+};
 
 onMounted(() => {
     formState.questions.push(...(question_data_raw as RequestQuestion[]));
     // intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
     window.addEventListener("beforeunload", handleBeforeUnload);
-});
-
-onUnmounted(() => {
-    // clearInterval(intervalId.value);
-    window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 </script>
 <template>
@@ -542,20 +580,33 @@ onUnmounted(() => {
                             </div>
                         </div>
                     </div>
-                    <div class="list-question-container">
-                        <div v-for="(question, index) in formState.questions" :key="question.id">
-                            <component
-                                :is="componentMap[question.type]"
-                                :question="question"
-                                :index="index + 1"
-                                :displayScore="true"
-                                @deleteQuestion="onRemoveQuestion(index)"
-                            />
-                        </div>
-                        <div class="add-question-btn" @click="onAddQuestion">
-                            <i class="bx bx-plus"></i>
-                            {{ $t("create_QS.buttons.add_question") }}
-                        </div>
+                    <DynamicScroller
+                        ref="scrollerRef"
+                        class="scroller"
+                        key-field="id"
+                        :items="formState.questions"
+                        :min-item-size="650"
+                        :buffer="800"
+                        :prerender="10"
+                        @scroll="handleScroll"
+                    >
+                        <template
+                            #default="{ item, index }: { item: RequestQuestion; index: number }"
+                        >
+                            <DynamicScrollerItem :item="item" :key="item.id">
+                                <component
+                                    :is="componentMap[item.type]"
+                                    :question="item"
+                                    :index="index + 1"
+                                    :displayScore="false"
+                                    @deleteQuestion="onRemoveQuestion(index)"
+                                />
+                            </DynamicScrollerItem>
+                        </template>
+                    </DynamicScroller>
+                    <div class="add-question-btn" @click="onAddQuestion">
+                        <i class="bx bx-plus"></i>
+                        {{ $t("create_QS.buttons.add_question") }}
                     </div>
                 </div>
             </a-form>

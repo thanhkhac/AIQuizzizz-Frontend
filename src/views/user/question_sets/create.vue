@@ -2,11 +2,10 @@
 import ApiQuestionSet from "@/api/ApiQuestionSet";
 import type { RequestQuestion } from "@/models/request/question";
 
-import { ref, reactive, onMounted, onUnmounted, computed } from "vue";
+import { ref, reactive, onMounted, onUnmounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
 
-import dayjs from "dayjs";
 import { onBeforeRouteLeave } from "vue-router";
 
 import Input from "@/shared/components/Common/Input.vue";
@@ -16,8 +15,6 @@ import MultipleChoice from "@/shared/components/Questions/MultipleChoice.vue";
 import Matching from "@/shared/components/Questions/Matching.vue";
 import Ordering from "@/shared/components/Questions/Ordering.vue";
 import ShortText from "@/shared/components/Questions/ShortText.vue";
-
-import { useVirtualList } from "@vueuse/core";
 
 interface FormState {
     name: string;
@@ -168,7 +165,7 @@ const question_data_raw = [
         shortAnswer: "",
     },
 ];
-
+//#region  tag
 //tag
 const tagContent = ref("");
 const addTag = () => {
@@ -188,6 +185,9 @@ const removeTag = (index: number) => {
     formState.tags.splice(index, 1);
 };
 
+//#endregion
+
+//#region logic edit question
 const createQuestionTemplate = (): RequestQuestion => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
@@ -214,13 +214,23 @@ const createQuestionTemplate = (): RequestQuestion => ({
     shortAnswer: "",
 });
 
-const onAddQuestion = () => {
+const onAddQuestion = async () => {
     if (formState.questions.length >= 10) {
         message.warning("Each question set could have at most 100 questions");
         return;
     }
 
-    formState.questions.push(createQuestionTemplate());
+    formState.questions = [...formState.questions, createQuestionTemplate()];
+
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+        nextTick(() => {
+            const lastIndex = formState.questions.length;
+            requestAnimationFrame(() => {
+                scrollerRef.value?.scrollToItem(lastIndex);
+            });
+        });
+    });
 };
 
 const onRemoveQuestion = (index: number) => {
@@ -229,7 +239,10 @@ const onRemoveQuestion = (index: number) => {
         return;
     }
 
-    formState.questions.splice(index, 1);
+    formState.questions = [
+        ...formState.questions.slice(0, index),
+        ...formState.questions.slice(index + 1),
+    ];
 };
 
 const onFinish = () => {
@@ -347,7 +360,9 @@ const showModalConfirmation = () => {
         },
     });
 };
+//#endregion
 
+//#region import modal
 //import modal
 import ImportQSModal from "@/shared/modals/ImportQSModal.vue";
 const importModalRef = ref<InstanceType<typeof ImportQSModal> | null>(null);
@@ -355,7 +370,9 @@ const importModalRef = ref<InstanceType<typeof ImportQSModal> | null>(null);
 const onOpenImportModal = () => {
     importModalRef.value?.openImportModal();
 };
+//#endregion
 
+//#region generate modal
 //generate modal
 import GenerateQSModal from "@/shared/modals/GenerateQSModal.vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
@@ -367,10 +384,18 @@ const openGenerateAIModal = () => {
 
 //use for both modal import event
 const onModalImport = (selected: RequestQuestion[]) => {
-    formState.questions.push(...selected);
+    formState.questions.push(
+        ...selected.map((item, i) => ({
+            ...item,
+            id: `new_${formState.questions.length + i}`,
+        })),
+    );
     message.success(`Imported ${selected.length} questions.`);
 };
 
+//#endregion
+
+//#region leave guard
 /* auto-save */
 // const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
 // const intervalId = ref<number>();
@@ -395,17 +420,16 @@ function handleBeforeUnload(e: BeforeUnloadEvent) {
     e.preventDefault();
     e.returnValue = "";
 }
-const { list, containerProps, wrapperProps } = useVirtualList(formState.questions, {
-    itemHeight: 600,
-    overscan: 20,
-});
 
-const handleScroll = (event: Event) => {
-    requestAnimationFrame(() => {
-        const container = event.target as HTMLElement;
-        if (container) {
-            container.style.transform = "translateZ(0)";
-        }
+//#endregion
+
+// @ts-ignore
+import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
+const scrollerRef = ref<any>(null);
+
+const handleScroll = () => {
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
     });
 };
 
@@ -524,37 +548,34 @@ onUnmounted(() => {
                             </div>
                         </div>
                     </div>
-                    <div class="list-question-container">
-                        <!-- <div v-for="(question, index) in formState.questions" :key="question.id">
-                            <component
-                                :is="componentMap[question.type]"
-                                :question="question"
-                                :index="index + 1"
-                                :displayScore="false"
-                                @deleteQuestion="onRemoveQuestion(index)"
-                            />
-                        </div> -->
-                        <div
-                            v-bind="containerProps"
-                            class="virtual-container"
-                            @scroll="handleScroll"
+                    <DynamicScroller
+                        ref="scrollerRef"
+                        class="scroller"
+                        key-field="id"
+                        :items="formState.questions"
+                        :min-item-size="650"
+                        :buffer="800"
+                        :prerender="10"
+                        @scroll="handleScroll"
+                    >
+                        <template
+                            #default="{ item, index }: { item: RequestQuestion; index: number }"
                         >
-                            <div v-bind="wrapperProps">
-                                <div v-for="(question, index) in list" :key="question.data.id">
-                                    <component
-                                        :is="componentMap[question.data.type]"
-                                        :question="question.data"
-                                        :index="question.index + 1"
-                                        :displayScore="false"
-                                        @deleteQuestion="onRemoveQuestion(question.index)"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="add-question-btn" @click="onAddQuestion">
-                            <i class="bx bx-plus"></i>
-                            {{ $t("create_QS.buttons.add_question") }}
-                        </div>
+                            <DynamicScrollerItem :item="item" :key="item.id">
+                                <component
+                                    :is="componentMap[item.type]"
+                                    :question="item"
+                                    :index="index + 1"
+                                    :displayScore="false"
+                                    @deleteQuestion="onRemoveQuestion(index)"
+                                />
+                            </DynamicScrollerItem>
+                        </template>
+                    </DynamicScroller>
+
+                    <div class="add-question-btn" @click="onAddQuestion">
+                        <i class="bx bx-plus"></i>
+                        {{ $t("create_QS.buttons.add_question") }}
                     </div>
                 </div>
             </a-form>
@@ -566,188 +587,9 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.virtual-container {
-    height: 100vh;
-    overflow-y: auto;
-    border: 1px solid var(--content-item-border-color);
-    border-radius: 5px;
-    padding: 0px 10px;
-
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-
-    will-change: scroll-position;
-    transform: translateZ(0);
-}
-
-.virtual-container::-webkit-scrollbar {
-    width: 10px;
-    background-color: var(--form-item-border-color);
-}
-.virtual-container::-webkit-scrollbar-thumb {
-    height: 100px;
-    background-color: var(--main-color);
-    border-radius: 10px;
-}
-.virtual-container::-webkit-scrollbar-thumb:hover {
-    background-color: var(--main-sub-color);
-}
-
-.content-item-title {
-    margin-bottom: 20px;
-}
-
-.page-container {
-    overflow-y: scroll;
-    scroll-behavior: smooth;
-}
-
-.page-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.page-container::-webkit-scrollbar-thumb {
-    background-color: var(--form-item-border-color) !important;
-    border-radius: 10px;
-}
-
 .content-item-buttons {
     display: flex;
     flex-direction: row;
     align-items: center;
-}
-
-.import-button {
-    padding: 8px 16px;
-    border: 2px solid #878787;
-    border-radius: 8px;
-    margin: 0px 10px;
-    font-size: 16px;
-    color: var(--text-color);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-}
-.import-button i {
-    font-size: 22px;
-    margin-left: 10px;
-}
-
-.import-button:first-child:hover {
-    background-color: var(--main-color);
-    border: 2px solid var(--main-color);
-}
-
-.import-button:nth-child(2) {
-    background: var(--background-color-gradient);
-    border: 2px solid var(--main-color);
-}
-
-.import-button:nth-child(3) {
-    border: 2px solid var(--main-color);
-}
-
-.import-button:nth-child(3):hover {
-    background-color: var(--main-color);
-}
-
-.form-item {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 5px 20px;
-}
-
-.tag-container {
-    height: 100px;
-    max-height: 150px;
-    display: flex;
-    justify-content: start;
-    flex-wrap: wrap;
-    padding: 5px;
-    margin-bottom: 16px;
-    background-color: var(--content-item-children-background-color) !important;
-    overflow-y: scroll;
-    border: 1px solid var(--content-item-border-color);
-    border-radius: 5px;
-}
-
-.tag-item {
-    padding: 0px 1px 0px 6px;
-    border: 1px solid var(--border-color-contrast);
-    border-radius: 120px;
-    height: 22px;
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 2px;
-}
-
-.tag-item i {
-    background-color: #f44336;
-    padding: 2px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
-.tag-inputter {
-    display: flex;
-}
-
-.tag-inputter-button {
-    padding: 9px;
-    font-size: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--main-color);
-    border-radius: 5px;
-    margin-left: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-
-.tag-inputter-button:hover {
-    background-color: var(--main-sub-color);
-}
-
-.list-question-container {
-    padding: 10px;
-}
-
-.question-input-item {
-    margin-bottom: 10px;
-}
-
-.add-question-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed var(--main-color);
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: 600;
-    transition: all 0.2s ease-in-out;
-}
-
-.add-question-btn i {
-    font-size: 24px;
-    margin-right: 10px;
-    transform: translateY(2px);
-}
-
-.add-question-btn:hover {
-    background-color: var(--main-color);
-    border: 2px solid var(--main-color);
-    cursor: pointer;
 }
 </style>

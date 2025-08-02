@@ -65,6 +65,7 @@ const { validateInfos } = Form.useForm(props.question, {
         {
             validator: (_rule: string, value: string) => {
                 const plainText = value.replace(/<[^>]+>/g, ""); //editor return as html in <p></p>
+                if (!plainText) return Promise.reject(t("create_QS.error_msg.required"));
                 if (plainText.length > 500) {
                     return Promise.reject(
                         t("create_QS.error_msg.out_of_range", { maxLength: 500 }),

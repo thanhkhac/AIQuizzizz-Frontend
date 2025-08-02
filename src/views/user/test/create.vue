@@ -162,7 +162,16 @@ const onAddQuestion = () => {
         return;
     }
 
-    formState.questions.push(createQuestionTemplate());
+    formState.questions = [...formState.questions, createQuestionTemplate()];
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+        nextTick(() => {
+            const lastIndex = formState.questions.length;
+            requestAnimationFrame(() => {
+                scrollerRef.value?.scrollToItem(lastIndex);
+            });
+        });
+    });
 };
 
 const onRemoveQuestion = (index: number) => {
@@ -171,7 +180,10 @@ const onRemoveQuestion = (index: number) => {
         return;
     }
 
-    formState.questions.splice(index, 1);
+    formState.questions = [
+        ...formState.questions.slice(0, index),
+        ...formState.questions.slice(index + 1),
+    ];
 };
 
 //#endregion
@@ -385,7 +397,18 @@ const onBackToTestTemplate = () => {
 const onModalImport = (selected: ResponseQuestion[]) => {
     message.success(`Imported ${selected.length} questions`);
     const importQuestions = selected.map((x) => TransferQuestionData.transformResponseToRequest(x));
-    formState.questions.push(...importQuestions);
+
+    formState.questions = [...formState.questions, ...importQuestions];
+
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+        nextTick(() => {
+            const lastIndex = formState.questions.length;
+            requestAnimationFrame(() => {
+                scrollerRef.value?.scrollToItem(lastIndex);
+            });
+        });
+    });
 };
 
 //#region leave guard
@@ -415,6 +438,16 @@ onUnmounted(() => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 //#endregion
+
+// @ts-ignore
+import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
+const scrollerRef = ref<any>(null);
+
+const handleScroll = () => {
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+    });
+};
 
 onMounted(() => {
     getClassData();
@@ -473,20 +506,33 @@ onMounted(() => {
                             </a-button>
                         </div>
                     </div>
-                    <div class="list-question-container">
-                        <div v-for="(question, index) in formState.questions" :key="question.id">
-                            <component
-                                :is="componentMap[question.type]"
-                                :question="question"
-                                :index="index + 1"
-                                :displayScore="true"
-                                @deleteQuestion="onRemoveQuestion(index)"
-                            />
-                        </div>
-                        <div class="add-question-btn" @click="onAddQuestion">
-                            <i class="bx bx-plus"></i>
-                            {{ $t("create_QS.buttons.add_question") }}
-                        </div>
+                    <DynamicScroller
+                        ref="scrollerRef"
+                        class="scroller"
+                        key-field="id"
+                        :items="formState.questions"
+                        :min-item-size="650"
+                        :buffer="800"
+                        :prerender="10"
+                        @scroll="handleScroll"
+                    >
+                        <template
+                            #default="{ item, index }: { item: RequestQuestion; index: number }"
+                        >
+                            <DynamicScrollerItem :item="item" :key="item.id">
+                                <component
+                                    :is="componentMap[item.type]"
+                                    :question="item"
+                                    :index="index + 1"
+                                    :displayScore="false"
+                                    @deleteQuestion="onRemoveQuestion(index)"
+                                />
+                            </DynamicScrollerItem>
+                        </template>
+                    </DynamicScroller>
+                    <div class="add-question-btn" @click="onAddQuestion">
+                        <i class="bx bx-plus"></i>
+                        {{ $t("create_QS.buttons.add_question") }}
                     </div>
                 </div>
             </a-form>

@@ -1,4 +1,5 @@
 import Api from "@/api/Api";
+import type CommentPageParams from "@/models/request/comment/commentPageParams";
 
 const END_POINTS = {
     GET_ALL_BY_QUESTION_ID: "Comment/Question/{questionId}",
@@ -8,17 +9,31 @@ const END_POINTS = {
 };
 
 class ApiComment {
-    GetAllByQuestionId = async (questionId: string) => {
-        const url = END_POINTS.GET_ALL_BY_QUESTION_ID.replace("{questionId}", questionId);
-        return await Api.get(url);
+    GetAllByQuestionId = async (pageParams: CommentPageParams) => {
+        const url = END_POINTS.GET_ALL_BY_QUESTION_ID.replace(
+            "{questionId}",
+            pageParams.questionId,
+        );
+        return await Api.get(url, {
+            params: {
+                pageNumber: pageParams.pageNumber,
+                pageSize: pageParams.pageSize,
+            },
+        });
     };
 
-    Create = async (formState: object) => {
-        return await Api.post(`${END_POINTS.CREATE}`, formState);
+    Create = async (formState: any) => {
+        const url = END_POINTS.GET_ALL_BY_QUESTION_ID.replace("{questionId}", formState.questionId);
+        return await Api.post(url, null, { params: { content: formState.content } });
     };
 
-    Delete = async (testId: string) => {
-        const url = END_POINTS.DELETE.replace("{testId}", testId);
+    Reply = async (formState: any) => {
+        const url = END_POINTS.REPLY.replace("{commentId}", formState.commentId);
+        return await Api.post(url, null, { params: { content: formState.content } });
+    };
+
+    Delete = async (commentId: string) => {
+        const url = END_POINTS.DELETE.replace("{commentId}", commentId);
         return await Api.delete(url);
     };
 }

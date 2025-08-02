@@ -103,6 +103,8 @@ const getData = async () => {
     }
 
     Object.assign(formState, result.data.data);
+    formState.startTime = result.data.data.timeStart;
+    formState.endTime = result.data.data.timeEnd;
     formState.questions = result.data.data.questions.map((x: ResponseQuestion) =>
         TransferQuestionData.transformResponseToRequest(x),
     );
@@ -365,7 +367,17 @@ const onBackToTestTemplate = () => {
 const onModalImport = (selected: ResponseQuestion[]) => {
     message.success(`Imported ${selected.length} questions`);
     const importQuestions = selected.map((x) => TransferQuestionData.transformResponseToRequest(x));
-    formState.questions.push(...importQuestions);
+    formState.questions = [...formState.questions, ...importQuestions];
+
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+        nextTick(() => {
+            const lastIndex = formState.questions.length;
+            requestAnimationFrame(() => {
+                scrollerRef.value?.scrollToItem(lastIndex);
+            });
+        });
+    });
 };
 
 //#region leave guard
@@ -396,11 +408,20 @@ onUnmounted(() => {
 });
 //#endregion
 
+// @ts-ignore
+import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
+const scrollerRef = ref<any>(null);
+
+const handleScroll = () => {
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+    });
+};
+
 onMounted(async () => {
     await getData();
-    formState.questions.push(createQuestionTemplate());
     window.addEventListener("beforeunload", handleBeforeUnload);
-    
+
     await nextTick();
     openSettingModal();
 });
@@ -462,20 +483,34 @@ onMounted(async () => {
                         <a-skeleton :loading="loading" active></a-skeleton>
                         <a-skeleton :loading="loading" active></a-skeleton>
                     </div>
-                    <div v-else class="list-question-container">
-                        <div v-for="(question, index) in formState.questions" :key="question.id">
-                            <component
-                                :is="componentMap[question.type]"
-                                :question="question"
-                                :index="index + 1"
-                                :displayScore="true"
-                                @deleteQuestion="onRemoveQuestion(index)"
-                            />
-                        </div>
-                        <div class="add-question-btn" @click="onAddQuestion">
-                            <i class="bx bx-plus"></i>
-                            {{ $t("create_QS.buttons.add_question") }}
-                        </div>
+                    <DynamicScroller
+                        v-else
+                        ref="scrollerRef"
+                        class="scroller"
+                        key-field="id"
+                        :items="formState.questions"
+                        :min-item-size="650"
+                        :buffer="800"
+                        :prerender="10"
+                        @scroll="handleScroll"
+                    >
+                        <template
+                            #default="{ item, index }: { item: RequestQuestion; index: number }"
+                        >
+                            <DynamicScrollerItem :item="item" :key="item.id">
+                                <component
+                                    :is="componentMap[item.type]"
+                                    :question="item"
+                                    :index="index + 1"
+                                    :displayScore="false"
+                                    @deleteQuestion="onRemoveQuestion(index)"
+                                />
+                            </DynamicScrollerItem>
+                        </template>
+                    </DynamicScroller>
+                    <div class="add-question-btn" @click="onAddQuestion">
+                        <i class="bx bx-plus"></i>
+                        {{ $t("create_QS.buttons.add_question") }}
                     </div>
                 </div>
             </a-form>
@@ -513,9 +548,7 @@ onMounted(async () => {
         @import="onModalImport"
     />
 </template>
-<style>
-
-</style>
+<style></style>
 
 <style scoped>
 .content-item-buttons {

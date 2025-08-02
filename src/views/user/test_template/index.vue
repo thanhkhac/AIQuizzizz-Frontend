@@ -211,33 +211,14 @@ onMounted(async () => {
                             </div>
                         </div>
                         <div class="exam-item-actions">
-                            <a-button type="primary" class="me-3 main-color-btn">
-                                {{ $t("class_question_set.buttons.view") }}
-                            </a-button>
-                            <a-dropdown :trigger="['click']">
-                                <i class="bx bx-dots-vertical-rounded ant-dropdown-link"></i>
-                                <template #overlay>
-                                    <a-menu class="drop-down-container">
-                                        <a-menu-item
-                                            key="1"
-                                            @click="onRefirectToUpdate(template.testTemplateId)"
-                                        >
-                                            <i class="bx bx-edit"></i>
-                                            {{ $t("question_sets_index.buttons.edit") }}
-                                        </a-menu-item>
-                                        <a-menu-divider style="background-color: #ddd" />
-                                        <a-menu-item
-                                            key="3"
-                                            @click="onDelete(template.testTemplateId)"
-                                        >
-                                            <span class="d-flex align-items-center">
-                                                <i class="bx bx-trash-alt"></i>
-                                                {{ $t("question_sets_index.buttons.delete") }}
-                                            </span>
-                                        </a-menu-item>
-                                    </a-menu>
-                                </template>
-                            </a-dropdown>
+                            <i
+                                class="bx bx-edit"
+                                @click="onRefirectToUpdate(template.testTemplateId)"
+                            ></i>
+                            <i
+                                class="text-danger bx bx-trash-alt"
+                                @click="onDelete(template.testTemplateId)"
+                            ></i>
                         </div>
                     </div>
                 </div>
@@ -286,5 +267,11 @@ onMounted(async () => {
     background: #221a32;
     color: #7c3aed;
     margin-right: 12px;
+}
+
+.exam-item-actions i {
+    font-size: 20px;
+    margin: 0px 10px;
+    cursor: pointer;
 }
 </style>

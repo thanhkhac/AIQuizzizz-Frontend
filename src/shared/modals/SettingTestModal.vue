@@ -27,11 +27,16 @@ const modal_open = ref(false);
 
 const openTestSettingModal = () => {
     modal_open.value = true;
+
+    if (props.formState.startTime && props.formState.endTime) {
+        range.value[0] = dayjs(props.formState.startTime);
+        range.value[1] = dayjs(props.formState.endTime);
+    }
 };
 
 const closeModal = async () => {
     props.formState.startTime = range.value[0].toISOString();
-    props.formState.startTime = range.value[1].toISOString();
+    props.formState.endTime = range.value[1].toISOString();
 
     try {
         const result = await formRef.value.validate();
@@ -151,7 +156,7 @@ const onQuestionGradeMethodChange = (checked: boolean) => {
 };
 
 watch(
-    () => [props.formState.startTime, props.formState.startTime],
+    () => [props.formState.startTime, props.formState.endTime],
     ([newStart, newEnd]) => {
         if (newStart && newEnd) {
             range.value[0] = dayjs(newStart);

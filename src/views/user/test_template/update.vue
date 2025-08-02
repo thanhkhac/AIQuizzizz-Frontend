@@ -53,6 +53,7 @@ const testTemplate = ref<TestTemplate>({
 const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
 
 const getTestTemplate = async () => {
+    loading.value = true;
     if (!Validator.isValidGuid(testTemplateId.value)) {
         isDataValid.value = false;
         router.push({ name: "404" });
@@ -73,6 +74,7 @@ const getTestTemplate = async () => {
     formState.testTemplateId = testTemplate.value.testTemplateId;
 
     window.addEventListener("beforeunload", handleBeforeUnload);
+    loading.value = false;
 };
 //#endregion
 
@@ -139,7 +141,7 @@ const componentMap = {
 };
 //#endregion
 
-//#region logic manipulate question
+//#region logic edit question
 const createQuestionTemplate = (): RequestQuestion => ({
     id: "",
     type: "MultipleChoice",
@@ -172,7 +174,20 @@ const onAddQuestion = () => {
         return;
     }
 
-    formState.createUpdateQuestions.push(createQuestionTemplate());
+    formState.createUpdateQuestions = [
+        ...formState.createUpdateQuestions,
+        createQuestionTemplate(),
+    ];
+
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+        nextTick(() => {
+            const lastIndex = formState.createUpdateQuestions.length;
+            requestAnimationFrame(() => {
+                scrollerRef.value?.scrollToItem(lastIndex);
+            });
+        });
+    });
 };
 
 const onRemoveQuestion = (index: number) => {
@@ -185,7 +200,10 @@ const onRemoveQuestion = (index: number) => {
     const questionId = formState.createUpdateQuestions[index].id;
     if (questionId) formState.deleteQuestionIds.push(questionId);
 
-    formState.createUpdateQuestions.splice(index, 1);
+    formState.createUpdateQuestions = [
+        ...formState.createUpdateQuestions.slice(0, index),
+        ...formState.createUpdateQuestions.slice(index + 1),
+    ];
 };
 
 const onFinish = () => {
@@ -296,7 +314,9 @@ const showModalConfirmation = () => {
         content: "Make sure to review your contents before proceeding.",
         centered: true,
         onOk: async () => {
-            console.log(formState);
+            formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
+                x.id.startsWith("new_") ? { ...x, id: "" } : x,
+            );
 
             let result = await ApiTestTemplate.Update(testTemplate.value.testTemplateId, formState);
             if (result.data.success) {
@@ -327,7 +347,13 @@ const openGenerateAIModal = () => {
 };
 //use for both modal import event
 const onModalImport = (selected: RequestQuestion[]) => {
-    formState.createUpdateQuestions.push(...selected);
+    formState.createUpdateQuestions.push(
+        ...selected.map((item, i) => ({
+            ...item,
+            id: `new_${formState.createUpdateQuestions.length + i}`,
+        })),
+    );
+    message.success(`Imported ${selected.length} questions`);
 };
 //#endregion
 
@@ -369,6 +395,16 @@ onUnmounted(() => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 //#endregion
+
+// @ts-ignore
+import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
+const scrollerRef = ref<any>(null);
+
+const handleScroll = () => {
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+    });
+};
 
 onMounted(async () => {
     // intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
@@ -462,23 +498,33 @@ onMounted(async () => {
                         <a-skeleton :loading="loading" active></a-skeleton>
                         <a-skeleton :loading="loading" active></a-skeleton>
                     </div>
-                    <div v-else class="list-question-container">
-                        <div
-                            v-for="(question, index) in formState.createUpdateQuestions"
-                            :key="question.id"
+                    <DynamicScroller
+                        ref="scrollerRef"
+                        class="scroller"
+                        key-field="id"
+                        :items="formState.createUpdateQuestions"
+                        :min-item-size="650"
+                        :buffer="800"
+                        :prerender="10"
+                        @scroll="handleScroll"
+                    >
+                        <template
+                            #default="{ item, index }: { item: RequestQuestion; index: number }"
                         >
-                            <component
-                                :is="componentMap[question.type]"
-                                :question="question"
-                                :index="index + 1"
-                                :displayScore="true"
-                                @deleteQuestion="onRemoveQuestion(index)"
-                            />
-                        </div>
-                        <div class="add-question-btn" @click="onAddQuestion">
-                            <i class="bx bx-plus"></i>
-                            {{ $t("create_QS.buttons.add_question") }}
-                        </div>
+                            <DynamicScrollerItem :item="item" :key="item.id">
+                                <component
+                                    :is="componentMap[item.type]"
+                                    :question="item"
+                                    :index="index + 1"
+                                    :displayScore="false"
+                                    @deleteQuestion="onRemoveQuestion(index)"
+                                />
+                            </DynamicScrollerItem>
+                        </template>
+                    </DynamicScroller>
+                    <div class="add-question-btn" @click="onAddQuestion">
+                        <i class="bx bx-plus"></i>
+                        {{ $t("create_QS.buttons.add_question") }}
                     </div>
                 </div>
             </a-form>
@@ -488,163 +534,9 @@ onMounted(async () => {
     <ImportQSModal ref="importModalRef" :title="formState.name" @import="onModalImport" />
     <GenerateQSModal ref="generateModalRef" :title="formState.name" @import="onModalImport" />
 </template>
-
 <style scoped>
-.content-item-title {
-    margin-bottom: 20px;
-}
-
-.page-container {
-    overflow-y: scroll;
-    scroll-behavior: smooth;
-}
-
-.page-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.page-container::-webkit-scrollbar-thumb {
-    background-color: var(--form-item-border-color) !important;
-    border-radius: 10px;
-}
-
 .content-item-buttons {
     display: flex;
     flex-direction: row;
-    align-items: center;
-}
-
-.import-button {
-    padding: 8px 16px;
-    border: 2px solid #878787;
-    border-radius: 8px;
-    margin: 0px 10px;
-    font-size: 16px;
-    color: var(--text-color);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-}
-.import-button i {
-    font-size: 22px;
-    margin-left: 10px;
-}
-
-.import-button:first-child:hover {
-    background-color: var(--main-color);
-    border: 2px solid var(--main-color);
-}
-
-.import-button:nth-child(2) {
-    background: var(--background-color-gradient);
-    border: 2px solid var(--main-color);
-}
-
-.import-button:nth-child(3) {
-    border: 2px solid var(--main-color);
-}
-
-.import-button:nth-child(3):hover {
-    background-color: var(--main-color);
-}
-
-.form-item {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 5px 20px;
-}
-
-.tag-container {
-    height: 100px;
-    max-height: 150px;
-    display: flex;
-    justify-content: start;
-    flex-wrap: wrap;
-    padding: 5px;
-    margin-bottom: 16px;
-    background-color: var(--content-item-children-background-color) !important;
-    overflow-y: scroll;
-    border: 1px solid var(--content-item-border-color);
-    border-radius: 5px;
-}
-
-.tag-item {
-    padding: 0px 1px 0px 6px;
-    border: 1px solid var(--border-color-contrast);
-    border-radius: 120px;
-    height: 22px;
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 2px;
-}
-
-.tag-item i {
-    background-color: #f44336;
-    padding: 2px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
-.tag-inputter {
-    display: flex;
-}
-
-.tag-inputter-button {
-    padding: 9px;
-    font-size: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--main-color);
-    border-radius: 5px;
-    margin-left: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-
-.tag-inputter-button:hover {
-    background-color: var(--main-sub-color);
-}
-
-.list-question-container {
-    padding: 10px;
-}
-
-.question-input-item {
-    margin-bottom: 10px;
-}
-
-.add-question-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed var(--main-color);
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: 600;
-    transition: all 0.2s ease-in-out;
-}
-
-.add-question-btn i {
-    font-size: 24px;
-    margin-right: 10px;
-    transform: translateY(2px);
-}
-
-.add-question-btn:hover {
-    background-color: var(--main-color);
-    border: 2px solid var(--main-color);
-    cursor: pointer;
 }
 </style>

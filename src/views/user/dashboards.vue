@@ -125,7 +125,7 @@ const getScheduleItemMeta = (date: string) => {
 type SearchResult = {
     id: string;
     name: string;
-    numberOfQuestions: number;
+    totalQuestionCount: number;
     ratingAverage: number;
     createBy: string;
 };
@@ -237,7 +237,7 @@ onMounted(async () => {
                             </div>
                             <div class="result-item-description">
                                 <span class="result-item-noq">
-                                    {{ item.numberOfQuestions }}
+                                    {{ item.totalQuestionCount }}
                                     {{ $t("dashboards.list_items.quiz.questions") }}
                                 </span>
                                 {{ $t("detail_QS.other.created_by", { username: item.createBy }) }}
