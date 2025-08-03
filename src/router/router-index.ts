@@ -15,6 +15,7 @@ const indexRoutes = [
         path: "/404",
         name: "404",
         component: import("@/views/public/404.vue"),
+        meta: { title: "404" },
     },
     {
         path: "/login",

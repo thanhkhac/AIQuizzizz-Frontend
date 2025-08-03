@@ -2,6 +2,8 @@ import Api from "@/api/Api";
 import type QuestionSetPublicPageParams from "@/models/request/question_set/publicPageParams";
 import type QuestionSetPageParams from "@/models/request/question_set/questionSetPageParams";
 
+import qs from "qs";
+
 const END_POINTS = {
     CREATE: "QuestionSet",
     UPDATE: "QuestionSet/{questionSetId}",
@@ -74,6 +76,7 @@ class ApiQuestionSet {
                 tagIds: pageParams.tagIds || [],
                 sortBy: pageParams.sortBy || "",
             },
+            paramsSerializer: (params) => qs.stringify(params, { arrayFormat: "repeat" }),
         });
     };
 

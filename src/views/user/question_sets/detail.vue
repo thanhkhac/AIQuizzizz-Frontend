@@ -138,6 +138,12 @@ const onDelete = () => {
     });
 };
 
+const onRedirectToSearch = (tag: Tag) => {
+    const array = [tag];
+    sessionStorage.setItem("selected_tags", JSON.stringify(array));
+    router.push({ name: "User_QuestionSet_Search" });
+};
+
 onMounted(() => {
     //get api quiz + check visibility to current user
     //format url
@@ -188,7 +194,11 @@ onMounted(() => {
                         {{ $t("detail_QS.other.reviews") }})
                     </div>
                     <div class="quiz-tag-container">
-                        <div class="quiz-tag-item" v-for="tag in quiz.tags">
+                        <div
+                            class="quiz-tag-item"
+                            v-for="tag in quiz.tags"
+                            @click="onRedirectToSearch(tag)"
+                        >
                             {{ tag.name }}
                         </div>
                     </div>

@@ -1,6 +1,6 @@
 const QUESTION_SET_SORT_CATEGORY = {
-    RATING: "Rating",
     NEWEST: "Newest",
+    RATING: "Rating",
 };
 
 export default QUESTION_SET_SORT_CATEGORY;

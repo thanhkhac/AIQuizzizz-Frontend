@@ -23,7 +23,7 @@ const userRoutes = [
             },
             {
                 name: "User_QuestionSet_Detail",
-                path: "/user/library/:id",
+                path: "question-set/:id",
                 component: () => import("@/views/user/question_sets/detail.vue"),
                 meta: {
                     title: "updateQS",
@@ -31,7 +31,7 @@ const userRoutes = [
             },
             {
                 name: "User_Class",
-                path: "/user/class",
+                path: "class",
                 component: () => import("@/views/user/class/index.vue"),
                 meta: {
                     title: "class",
@@ -39,7 +39,7 @@ const userRoutes = [
             },
             {
                 name: "User_Class_Student",
-                path: "/user/class/:id/student",
+                path: "class/:id/student",
                 component: () => import("@/views/user/class/student.vue"),
                 meta: {
                     title: "student",
@@ -47,7 +47,7 @@ const userRoutes = [
             },
             {
                 name: "User_Class_Exam",
-                path: "/user/class/:id/exam",
+                path: "class/:id/exam",
                 component: () => import("@/views/user/class/exam.vue"),
                 meta: {
                     title: "exam",
@@ -55,7 +55,7 @@ const userRoutes = [
             },
             {
                 name: "User_Class_Quiz",
-                path: "/user/class/:id/quiz",
+                path: "class/:id/quiz",
                 component: () => import("@/views/user/class/quiz.vue"),
                 meta: {
                     title: "quiz",
@@ -63,7 +63,7 @@ const userRoutes = [
             },
             {
                 name: "User_Folder",
-                path: "/user/folder",
+                path: "folder",
                 component: () => import("@/views/user/folder/index.vue"),
                 meta: {
                     title: "folder",
@@ -71,7 +71,7 @@ const userRoutes = [
             },
             {
                 name: "User_TestTemplate",
-                path: "/user/test-template",
+                path: "test-template",
                 component: () => import("@/views/user/test_template/index.vue"),
                 meta: {
                     title: "test-template",
@@ -79,7 +79,7 @@ const userRoutes = [
             },
             {
                 name: "User_Folder_Detail",
-                path: "/user/folder/:id",
+                path: "folder/:id",
                 component: () => import("@/views/user/folder/detail.vue"),
                 meta: {
                     title: "folder-detail",
@@ -89,7 +89,7 @@ const userRoutes = [
     },
     {
         name: "User_QuestionSet_Create",
-        path: "/user/library/create",
+        path: "/user/question-set/create",
         component: () => import("@/views/user/question_sets/create.vue"),
         meta: {
             title: "createQS",
@@ -97,7 +97,7 @@ const userRoutes = [
     },
     {
         name: "User_QuestionSet_Update",
-        path: "/user/library/:id/update",
+        path: "/user/question-set/:id/update",
         component: () => import("@/views/user/question_sets/update.vue"),
         meta: {
             title: "updateQS",
@@ -105,7 +105,7 @@ const userRoutes = [
     },
     {
         name: "User_QuestionSet_Learn",
-        path: "/user/learn/:id",
+        path: "/user/question-set/learn/:id",
         component: () => import("@/views/user/question_sets/learn.vue"),
         meta: {
             title: "learn",
@@ -113,10 +113,18 @@ const userRoutes = [
     },
     {
         name: "User_QuestionSet_Test",
-        path: "/user/practice-test/:id",
+        path: "/user/question-set/practice-test/:id",
         component: () => import("@/views/user/question_sets/test.vue"),
         meta: {
             title: "test",
+        },
+    },
+    {
+        name: "User_QuestionSet_Search",
+        path: "/user/question-set/search",
+        component: () => import("@/views/user/question_sets/search.vue"),
+        meta: {
+            title: "search",
         },
     },
     {
