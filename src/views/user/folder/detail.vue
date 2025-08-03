@@ -8,16 +8,12 @@ import Validator from "@/services/Validator";
 import type { Folder } from "@/models/response/folder/folder";
 import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
 import type TestTemplatePageParams from "@/models/request/testTemplate/testTemplatePageParams";
+import type FolderTestTemplatePageParams from "@/models/request/folder/testTemplatePageParams";
 
 import { useRoute, useRouter } from "vue-router";
 import Input from "@/shared/components/Common/Input.vue";
 import { Modal, message } from "ant-design-vue";
 
-interface FolderTestTemplatePageParams {
-    pageNumber: number;
-    pageSize: number;
-    testTemplateName: string;
-}
 
 const route = useRoute();
 const router = useRouter();
@@ -35,8 +31,7 @@ const folderData = ref<Folder>({
 const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
     pageSize: route.query.pageSize || 10,
-    name: route.query.name?.toString() || "",
-    shareMode: "",
+    testTemplateName: route.query.testTemplateName?.toString() || "",
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
@@ -53,7 +48,7 @@ const getFolderData = async () => {
 
         let result = await ApiFolder.GetAllTestTemplateByLimit(
             folderId.value.toString(),
-            pageParams as TestTemplatePageParams,
+            pageParams as FolderTestTemplatePageParams,
         );
         if (!result.data.success) router.push({ name: "404" });
 
@@ -249,7 +244,7 @@ onMounted(async () => {
                         <div style="width: 300px; padding: 0px">
                             <Input
                                 @input="getData"
-                                v-model="pageParams.name"
+                                v-model="pageParams.testTemplateName"
                                 :placeholder="t('class_index.other.search_class_placeholder')"
                             >
                                 <template #icon>

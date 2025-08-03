@@ -592,6 +592,12 @@
             "pages": " / trang"
         }
     },
+    "question_sets_search": {
+        "sort_category": {
+            "Newest": "Newest",
+            "Rating": "Rating"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Không có quyền truy cập",
         "COMMON_SERVER_INTERNAL_ERROR": "Lỗi máy chủ nội bộ",

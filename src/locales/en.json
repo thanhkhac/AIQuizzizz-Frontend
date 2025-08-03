@@ -592,6 +592,12 @@
             "pages": " / pages"
         }
     },
+    "question_sets_search": {
+        "sort_category": {
+            "Newest": "Newest",
+            "Rating": "Rating"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Forbidden",
         "COMMON_SERVER_INTERNAL_ERROR": "Internal server error",

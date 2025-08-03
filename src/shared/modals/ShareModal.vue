@@ -238,8 +238,6 @@ const onCopyPublicShareUrl = () => {
 };
 
 onMounted(() => {
-    console.log(getPublicShareUrl());
-
     document.addEventListener("click", handleMouseClickOutside);
     userWithPermission.value.push(...(user_permission_sample as UserPermission[]));
 
