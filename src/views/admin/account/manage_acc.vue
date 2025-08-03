@@ -6,6 +6,7 @@ import ApiAdmin from "../../../../src/api/ApiAdmin";
 import type ManageAccountsParams from "../../../../src/models/request/admin/manageAccountsParams";
 import type ManageAccountsResp from "../../../../src/models/response/admin/manageAccountsResp";
 import debounce from "lodash/debounce";
+import { Modal } from "ant-design-vue";
 
 const emit = defineEmits(["updateSidebar"]);
 
@@ -96,6 +97,7 @@ const columns = [
         dataIndex: "role",
         key: "role",
         sorter: (a: { role: string }, b: { role: string }) => a.role.localeCompare(b.role),
+        defaultSortOrder: "ascend",
         width: 100,
         align: "center",
     },
@@ -112,14 +114,36 @@ onMounted(() => {
 const dataSource = ref<ManageAccountsResp[]>([]);
 
 async function onToggle(record: ManageAccountsResp) {
-    console.log("Toggle active:", record.isBanned);
-    console.log("Toggle active:", record.id);
+    // console.log("Toggle active:", record.isBanned);
+    // console.log("Toggle active:", record.id);
     try {
-        // if (!record.isBanned) {
-        //     await ApiAdmin.ActiveUser(record.id);
-        // } else {
-        //     await ApiAdmin.BanUser(record.id);
-        // }
+        if (!record.isBanned) {
+            Modal.confirm({
+                title: "Confirm Active User",
+                content: "Are you sure you want to activate this user?",
+                centered: true,
+                onOk: async () => {
+                    await ApiAdmin.ActiveUser(record.id);
+                    await getUsersData();
+                },
+                onCancel: async () => {
+                    await getUsersData();
+                },
+            });
+        } else {
+            Modal.confirm({
+                title: "Confirm Ban User",
+                content: "Are you sure you want to ban this user?",
+                centered: true,
+                onOk: async () => {
+                    await ApiAdmin.BanUser(record.id);
+                    await getUsersData();
+                },
+                onCancel: async () => {
+                    await getUsersData();
+                },
+            });
+        }
     } catch (error) {
         console.error("Toggle active ERROR:", error);
     }
