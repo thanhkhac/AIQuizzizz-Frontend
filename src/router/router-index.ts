@@ -61,6 +61,12 @@ const indexRoutes = [
         meta: { title: "" },
     },
     {
+        path: "/not-allowed",
+        name: "not-allowed",
+        component: () => import("@/views/public/not-allowed.vue"),
+        meta: { title: "" },
+    },
+    {
         path: "/:pathMatch(.*)*",
         redirect: "/404",
     },
@@ -76,6 +82,7 @@ const publicRoutes = [
     "reset-password",
     "create-password",
     "google-authentication-callback",
+    "not-allowed",
 ];
 // const authRoutes = [];
 

@@ -33,6 +33,9 @@ const emit = defineEmits(["updateSidebar"]);
 onMounted(() => {
     const sidebarActiveItem = "settings";
     emit("updateSidebar", sidebarActiveItem);
+
+    const session_setting_key = sessionStorage.getItem("setting_key");
+    if (session_setting_key) activeKey.value = session_setting_key as TabKey;
 });
 </script>
 <template>

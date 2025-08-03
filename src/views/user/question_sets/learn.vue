@@ -3,6 +3,7 @@ import ApiQuestionSet from "@/api/ApiQuestionSet";
 import type { ResponseQuestion } from "@/models/response/question";
 import type { Comment } from "@/models/response/comment/comment";
 import type CommentPageParams from "@/models/request/comment/commentPageParams";
+import ERROR from "@/constants/errors";
 
 import { ref, computed, onMounted, nextTick, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -52,28 +53,33 @@ const quiz = ref<LearnQuizModel>({
 const questionSetId = ref(route.params.id);
 
 const getQuizData = async () => {
-    //45c16e0c-5b92-4155-946f-ecab5daa60ca
-    //eabf4f24-dd83-416f-aeeb-351b7c3ad837
     if (!Validator.isValidGuid(questionSetId.value.toString())) {
         router.push({ name: "404" });
         return;
     }
-    let detail_result = await ApiQuestionSet.GetDetailById(questionSetId.value.toString());
-    let result = await ApiQuestionSet.LearnQuestions(questionSetId.value.toString(), 7);
+    try {
+        let detail_result = await ApiQuestionSet.GetDetailById(questionSetId.value.toString());
+        let result = await ApiQuestionSet.LearnQuestions(questionSetId.value.toString(), 7);
 
-    if (!detail_result.data.success || !result.data.success) {
-        router.push({ name: "404" });
-        return;
+        if (!detail_result.data.success || !result.data.success) {
+            router.push({ name: "404" });
+            return;
+        }
+
+        quiz.value = result.data.data;
+        if (quiz.value.completedQuestionCount === quiz.value.totalQuestionCount) {
+            openCompleteModal();
+            return;
+        }
+
+        quiz.value.title = detail_result.data.data.name;
+        quiz.value.description = detail_result.data.data.description;
+    } catch (error: any) {
+        const errorKeys = Object.keys(error.response.data.errors);
+        if (errorKeys.includes(ERROR.PLAN_REQUIRE_PLAN)) {
+            router.push({ name: "not-allowed" });
+        }
     }
-
-    quiz.value = result.data.data;
-    if (quiz.value.completedQuestionCount === quiz.value.totalQuestionCount) {
-        openCompleteModal();
-        return;
-    }
-
-    quiz.value.title = detail_result.data.data.name;
-    quiz.value.description = detail_result.data.data.description;
 
     currentSession.value = [...quiz.value.questions];
     currentQuestion.value = currentSession.value[0];

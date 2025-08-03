@@ -91,12 +91,13 @@ pinia.use(createPersistedState());
 /**
  * vue-i18n - multiple languges
  * **/
-const i18n = createI18n({
-    legacy: false,
-    locale: "en",
-    fallbackLocale: "en",
-    messages: {},
-});
+ import i18n from "@/services/i18n";
+// const i18n = createI18n({
+//     legacy: false,
+//     locale: "en",
+//     fallbackLocale: "en",
+//     messages: {},
+// });
 
 async function loadLocale(locale: string): Promise<void> {
     var messages;
@@ -107,7 +108,8 @@ async function loadLocale(locale: string): Promise<void> {
     }
 
     i18n.global.setLocaleMessage(locale, messages);
-    i18n.global.locale.value = locale;
+    // i18n.global.locale.value = locale;
+    (i18n.global.locale as any).value = locale;
 }
 
 async function initLocale(): Promise<void> {

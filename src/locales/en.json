@@ -155,6 +155,13 @@
         "errorDescription": "Sorry, the site you're trying to access can't be found",
         "homePageNavigator": "Back to home page"
     },
+    "now_allowed": {
+        "main_msg": "Access Denied!",
+        "errorMessage": "The resource or feature you're trying to access is not available!",
+        "errorDescription": "Please request access from the resource owner or upgrade your plan subscription.",
+        "libraryNavigator": "Back to your library",
+        "subscriptionNavigator": "Upgrade your plan subscription"
+    },
     "sidebar": {
         "navigators": {
             "dashboards": "Dashboards",
@@ -584,5 +591,50 @@
             "items": "folders",
             "pages": " / pages"
         }
+    },
+    "ERROR_CODE": {
+        "COMMON_FORBIDDEN": "Forbidden",
+        "COMMON_SERVER_INTERNAL_ERROR": "Internal server error",
+        "COMMON_NOT_FOUND": "Not found",
+        "COMMON_GONE": "Resource no longer available",
+        "COMMON_BAD_REQUEST": "Bad request",
+        "COMMON_CONFLICT": "Conflict detected",
+        "COMMON_TIMEOUT_ERROR": "Request timed out",
+        "COMMON_UNAUTHORIZED": "User not authenticated",
+
+        "FIELD_NAME_NOT_FOUND": "Field name not found",
+        "IDENTITY_DUPLICATE_EMAIL": "Duplicate email detected",
+        "NUMBER_OF_QUESTION_EXCEED_LIMIT": "Number of questions exceeded the allowed limit",
+        "ACCOUNT_NOTFOUND": "Account not found",
+        "ACCOUNT_LOCKED": "Account is locked",
+        "ACCOUNT_BANNED": "Account is banned",
+        "ACCOUNT_EMAIL_BANNED": "Email is banned",
+        "ACCOUNT_EMAIL_NOT_VERIFIED": "Email is not verified",
+        "ACCOUNT_USERNAME_ALREADY_EXISTS": "Username already exists",
+        "ACCOUNT_EMAIL_ALREADY_EXISTS": "Email already exists",
+        "ACCOUNT_INVALID_PASSWORD": "Invalid password",
+        "ACCOUNT_INVALID_CREDENTIALS": "Invalid credentials",
+        "ACCOUNT_INVALID_RESET_CODE": "Invalid reset code",
+        "ACCOUNT_INVALID_VERIFICATION_CODE": "Invalid verification code",
+        "ACCOUNT_LOCKED_OUT": "Account is locked out",
+        "ACCOUNT_WRONG_PASSWORD": "Wrong password",
+        "EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY": "Too many failed verification attempts",
+        "EMAIL_VERIFICATION_REQUEST_TOO_MANY": "Too many verification requests",
+        "PASSWORD_RESET_CODE_FAILED_TOO_MANY": "Too many failed reset code attempts",
+        "PASSWORD_RESET_REQUEST_TOO_MANY": "Too many reset requests",
+
+        "CLASS_NOTFOUND": "Class not found",
+        "CLASS_ALREADY_EXISTS": "Class already exists",
+        "CLASS_CODE_NOT_FOUND": "Class code not found",
+        "ONLY_OWNERS_CAN_UPDATE": "Only owners can update",
+        "STUDENT_ALREADY_EXISTS_IN_CLASS": "Student already exists in class",
+        "NOT_FOUND_STUDENT": "Student not found",
+        "NOT_FOUND_STUDENT_IN_CLASS": "Student not found in class",
+
+        "QUESTION_SET_ALREADY_IN_CLASS": "Question set already in class",
+        "QUESTION_SET_NOT_FOUND": "Question set not found",
+        "QUESTION_SET_NOT_FOUND_IN_CLASS": "Question set not found in class",
+
+        "PLAN_REQUIRE_PLAN": "Plan required!"
     }
 }

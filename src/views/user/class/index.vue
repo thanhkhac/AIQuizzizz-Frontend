@@ -1,6 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import ApiClass from "@/api/ApiClass";
 import CLASS_SHARE_MODE from "@/constants/classShareMode";
+import type ClassPageParams from "@/models/request/class/classPageParams";
 
 import { ref, onMounted, reactive, computed, onUpdated } from "vue";
 import { useI18n } from "vue-i18n";
@@ -31,17 +32,23 @@ const class_credit_options = computed(() =>
 const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
     pageSize: route.query.pageSize || 10,
-    name: route.query.name || "",
+    name: route.query.name?.toString() || "",
     shareMode: route.query.shareMode || class_credit_options.value[0].value,
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
 
-const class_data = ref([]);
+interface ClassData {
+    classId: string;
+    name: string;
+    topic: string;
+    owner: string;
+}
+const class_data = ref<ClassData[]>([]);
 
 const getData = async () => {
     try {
-        let result = await ApiClass.GetAllByLimit(pageParams);
+        let result = await ApiClass.GetAllByLimit(pageParams as ClassPageParams);
         if (result.data.success) {
             let resultData = result.data.data;
             class_data.value = resultData.items;
@@ -87,7 +94,7 @@ onUpdated(() => {
     if (Object.keys(route.query).length === 0) {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
-        pageParams.name = route.query.name || "";
+        pageParams.name = route.query.name?.toString() || "";
         pageParams.shareMode = route.query.shareMode || class_credit_options.value[0].value;
         pageParams.statusFilter = true;
 
@@ -96,7 +103,7 @@ onUpdated(() => {
 });
 
 //change when page change (pageParams)
-const onPaginationChange = (page, pageSize) => {
+const onPaginationChange = (page: number, pageSize: number) => {
     pageParams.pageNumber = page;
     pageParams.pageSize = pageSize;
     pageParams.statusFilter = true;
@@ -189,7 +196,7 @@ const onCreateClass = async () => {
     }
 };
 
-const onRedirectToClassDetail = (classId) => {
+const onRedirectToClassDetail = (classId: string) => {
     router.push({
         name: "User_Class_Exam",
         params: {
@@ -297,7 +304,7 @@ onMounted(async () => {
                         :total="pageParams.totalCount"
                         :pageSize="pageParams.pageSize"
                         :show-total="
-                            (total, range) =>
+                            (total: number, range: number[]) =>
                                 `${range[0]}-${range[1]} of ${total} ${t('class_index.other.items')}`
                         "
                         show-size-changer

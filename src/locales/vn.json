@@ -155,6 +155,13 @@
         "errorDescription": "Rất tiếc, hệ thống không thể tìm thấy trang bạn đang cố truy cập.",
         "homePageNavigator": "Quay về trang chủ"
     },
+    "now_allowed": {
+        "main_msg": "Từ chối truy cập!",
+        "errorMessage": "Tài nguyên hoặc tính năng bạn đang cố truy cập không khả dụng!",
+        "errorDescription": "Vui lòng liên hệ với chủ sở hữu để được cấp quyền truy cập hoặc nâng cấp gói tài khoản của bạn!",
+        "libraryNavigator": "Quay lại thư viện của bạn",
+        "subscriptionNavigator": "Nâng cấp gói tài khoản của bạn"
+    },
     "sidebar": {
         "navigators": {
             "dashboards": "Bảng điều khiển",
@@ -584,5 +591,50 @@
             "items": "thư mục",
             "pages": " / trang"
         }
+    },
+    "ERROR_CODE": {
+        "COMMON_FORBIDDEN": "Không có quyền truy cập",
+        "COMMON_SERVER_INTERNAL_ERROR": "Lỗi máy chủ nội bộ",
+        "COMMON_NOT_FOUND": "Không tìm thấy",
+        "COMMON_GONE": "Tài nguyên không còn tồn tại",
+        "COMMON_BAD_REQUEST": "Yêu cầu không hợp lệ",
+        "COMMON_CONFLICT": "Có xung đột",
+        "COMMON_TIMEOUT_ERROR": "Yêu cầu đã hết thời gian",
+        "COMMON_UNAUTHORIZED": "Người dùng chưa xác thực",
+
+        "FIELD_NAME_NOT_FOUND": "Không tìm thấy tên trường",
+        "IDENTITY_DUPLICATE_EMAIL": "Email bị trùng lặp",
+        "NUMBER_OF_QUESTION_EXCEED_LIMIT": "Số lượng câu hỏi vượt quá giới hạn cho phép",
+        "ACCOUNT_NOTFOUND": "Không tìm thấy tài khoản",
+        "ACCOUNT_LOCKED": "Tài khoản đã bị khóa",
+        "ACCOUNT_BANNED": "Tài khoản đã bị cấm",
+        "ACCOUNT_EMAIL_BANNED": "Email đã bị cấm",
+        "ACCOUNT_EMAIL_NOT_VERIFIED": "Email chưa được xác thực",
+        "ACCOUNT_USERNAME_ALREADY_EXISTS": "Tên đăng nhập đã tồn tại",
+        "ACCOUNT_EMAIL_ALREADY_EXISTS": "Email đã tồn tại",
+        "ACCOUNT_INVALID_PASSWORD": "Mật khẩu không hợp lệ",
+        "ACCOUNT_INVALID_CREDENTIALS": "Thông tin đăng nhập không hợp lệ",
+        "ACCOUNT_INVALID_RESET_CODE": "Mã đặt lại không hợp lệ",
+        "ACCOUNT_INVALID_VERIFICATION_CODE": "Mã xác thực không hợp lệ",
+        "ACCOUNT_LOCKED_OUT": "Tài khoản đã bị khóa đăng nhập",
+        "ACCOUNT_WRONG_PASSWORD": "Sai mật khẩu",
+        "EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY": "Quá nhiều lần xác thực mã không thành công",
+        "EMAIL_VERIFICATION_REQUEST_TOO_MANY": "Quá nhiều yêu cầu xác thực email",
+        "PASSWORD_RESET_CODE_FAILED_TOO_MANY": "Quá nhiều lần nhập sai mã đặt lại",
+        "PASSWORD_RESET_REQUEST_TOO_MANY": "Quá nhiều yêu cầu đặt lại mật khẩu",
+
+        "CLASS_NOTFOUND": "Không tìm thấy lớp",
+        "CLASS_ALREADY_EXISTS": "Lớp đã tồn tại",
+        "CLASS_CODE_NOT_FOUND": "Không tìm thấy mã lớp",
+        "ONLY_OWNERS_CAN_UPDATE": "Chỉ chủ sở hữu mới có thể cập nhật",
+        "STUDENT_ALREADY_EXISTS_IN_CLASS": "Học sinh đã tồn tại trong lớp",
+        "NOT_FOUND_STUDENT": "Không tìm thấy học sinh",
+        "NOT_FOUND_STUDENT_IN_CLASS": "Không tìm thấy học sinh trong lớp",
+
+        "QUESTION_SET_ALREADY_IN_CLASS": "Bộ câu hỏi đã tồn tại trong lớp",
+        "QUESTION_SET_NOT_FOUND": "Không tìm thấy bộ câu hỏi",
+        "QUESTION_SET_NOT_FOUND_IN_CLASS": "Không tìm thấy bộ câu hỏi trong lớp",
+
+        "PLAN_REQUIRE_PLAN": "Cần phải có gói sử dụng!"
     }
 }

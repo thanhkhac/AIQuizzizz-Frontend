@@ -2,7 +2,8 @@ import axios from "axios";
 import ApiAuthentication from "./ApiAuthentication";
 import { useAuthStore } from "@/stores/AuthStore";
 import { notification } from "ant-design-vue";
-
+import { translate } from "@/services/i18n";
+import ERROR from "@/constants/errors";
 // const baseURL = import.meta.env.VITE_API_URL_LOCAL;
 // const baseURL = import.meta.env.VITE_API_URL_PRODUCT;
 const baseURL = "https://thanhkhac.id.vn/api";
@@ -28,13 +29,18 @@ instance.interceptors.response.use(
 
         //avoid loop using additional _retry
         if (error.response && originalConfig.url !== "/Authentication/Login") {
-            console.log(error.data);
-            console.log(error.response.data.errors);
+            const errorKeys = Object.keys(error.response.data?.errors);
 
-            notification["error"]({
-                message: "ERROR",
-                description: Object.keys(error.response.data?.errors),
-            });
+            //display all error except refresh token
+            if (!errorKeys.includes(ERROR.COMMON_UNAUTHORIZED)) {
+                notification["error"]({
+                    message: "ERROR",
+                    description: translate(`ERROR_CODE.${errorKeys[0]}`),
+                });
+            }
+
+            //redirect if 404/403
+
             //token expired -> renew
             // if ((error.response.status === 401 && !originalConfig._retry)) {
             if (
