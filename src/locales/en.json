@@ -636,5 +636,24 @@
         "QUESTION_SET_NOT_FOUND_IN_CLASS": "Question set not found in class",
 
         "PLAN_REQUIRE_PLAN": "Plan required!"
+    },
+    "admin": {
+        "manage_acc": {
+            "title": "Manage Accounts",
+            "search_placeholder": "Search email ...",
+            "acc_status": {
+                "all": "All",
+                "ban": "Ban",
+                "active": "Active"
+            },
+            "acc_role": {
+                "all": "All",
+                "admin": "Admin",
+                "moderator": "Moderator",
+                "user": "User"
+            }
+        },
+        "manage_subscription": {},
+        "manage_class": {}
     }
 }

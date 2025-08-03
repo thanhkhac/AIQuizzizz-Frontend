@@ -23,7 +23,9 @@ const onSignOut = () => {
         title: "Wanna sign out from AIQ ?",
         content: "Make sure you don't forget anything.",
         centered: true,
-        onOk: () => {},
+        onOk: () => {
+            authStore.logOut();
+        },
         onCancel: () => {},
     });
 };
@@ -40,7 +42,7 @@ const onSignOut = () => {
         </button>
         <div class="sidebar-wrapper">
             <ul class="sidebar-list">
-                <li :class="['sidebar-listItem active', { active: activeItem === 'dashboard' }]">
+                <!-- <li :class="['sidebar-listItem active', { active: activeItem === 'dashboard' }]">
                     <RouterLink :to="{ name: 'Admin_Dashboards_View' }">
                         <i class="bx bxs-dashboard"></i>
                         <span class="sidebar-listItemText">Dashboards</span>
@@ -63,7 +65,7 @@ const onSignOut = () => {
                         <i class="bx bx-group"></i>
                         <span class="sidebar-listItemText">Class</span>
                     </RouterLink>
-                </li>
+                </li> -->
                 <a-divider
                     class="divider"
                     orientation="left"
@@ -78,6 +80,12 @@ const onSignOut = () => {
                     <RouterLink :to="{}">
                         <i class="bx bx-cog"></i>
                         <span class="sidebar-listItemText">Settings</span>
+                    </RouterLink>
+                </li>
+                <li :class="['sidebar-listItem', { active: activeItem === 'account' }]">
+                    <RouterLink :to="{ name: 'Admin_Manager_Account' }">
+                        <i class="bx bx-cog"></i>
+                        <span class="sidebar-listItemText">Manager Account</span>
                     </RouterLink>
                 </li>
                 <li
