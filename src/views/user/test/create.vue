@@ -11,6 +11,7 @@ import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 import type { RequestQuestion } from "@/models/request/question";
 import type { ResponseQuestion } from "@/models/response/question";
 import type { Folder } from "@/models/response/folder/folder";
+import type { Class } from "@/models/response/class/class";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import TEST_GRADE_ATTEMPT_METHOD from "@/constants/testGradeAttempMethod";
@@ -33,6 +34,7 @@ const router = useRouter();
 
 //#region  check class
 const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
+const classData = ref<Class>();
 const getClassData = async () => {
     if (!Validator.isValidGuid(formState.classId)) {
         isDataValid.value = false;
@@ -44,7 +46,9 @@ const getClassData = async () => {
     if (!result.data.success) {
         isDataValid.value = false;
         router.push({ name: "404" });
+        return;
     }
+    classData.value = result.data.data;
 };
 //#endregion
 
@@ -466,7 +470,7 @@ onMounted(() => {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="23">
-                    <span>Assign new test for class SEP490</span><br />
+                    <span>Assign new test for class {{ classData?.name }} </span><br />
                     <span>Add questions, set answers and configure test settings</span>
                 </a-col>
             </a-row>
@@ -542,7 +546,7 @@ onMounted(() => {
     <SettingTestModal
         ref="settingModalRef"
         :form-ref="formRef"
-        :class-name="'SEP490'"
+        :class-name="classData?.name!"
         :form-state="formState"
     />
     <ChooseFolderModal

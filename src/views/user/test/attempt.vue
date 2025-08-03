@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import ApiTest from "@/api/ApiTest";
+
 import { ref, computed, onMounted, nextTick, onUnmounted } from "vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import type { ResponseQuestion } from "@/models/response/question";
+import type UserAnswersObject from "@/models/request/test/userAnswer";
+import TransferUserAnswerData from "@/services/TransferUserAnswerData";
 
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
@@ -364,6 +368,11 @@ const onSubmit = () => {
         centered: true,
         onOk: async () => {
             //call api
+            const answerObject = TransferUserAnswerData.transferToUserAnswersObject(userAnswer.value);
+            const answer = TransferUserAnswerData.transferFromUserAnswersObject(answerObject);
+            console.log(userAnswer.value);
+            console.log(answerObject);
+            console.log(answer);
         },
     });
 };

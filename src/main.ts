@@ -91,7 +91,7 @@ pinia.use(createPersistedState());
 /**
  * vue-i18n - multiple languges
  * **/
- import i18n from "@/services/i18n";
+import i18n from "@/services/i18n";
 // const i18n = createI18n({
 //     legacy: false,
 //     locale: "en",
@@ -134,6 +134,11 @@ const storedColorClass = localStorage.getItem("accent_color") || "purple";
 if (colors.includes(storedColorClass)) {
     document.documentElement.classList.add(storedColorClass);
 }
+/**
+ * vue-virtual-scroller
+ **/
+//please don't take my sun shine away
+import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
 
 (async () => {
     await initLocale();

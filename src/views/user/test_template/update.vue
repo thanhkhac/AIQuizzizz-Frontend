@@ -143,7 +143,7 @@ const componentMap = {
 
 //#region logic edit question
 const createQuestionTemplate = (): RequestQuestion => ({
-    id: "",
+    id: `new_${Date.now().toString()}`,
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
@@ -198,7 +198,7 @@ const onRemoveQuestion = (index: number) => {
     //add to delete existing question only
     //ignore new question
     const questionId = formState.createUpdateQuestions[index].id;
-    if (questionId) formState.deleteQuestionIds.push(questionId);
+    if (!questionId.startsWith("new_") && questionId) formState.deleteQuestionIds.push(questionId);
 
     formState.createUpdateQuestions = [
         ...formState.createUpdateQuestions.slice(0, index),
