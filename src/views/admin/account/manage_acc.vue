@@ -294,6 +294,7 @@ const getUsersData = async () => {
                                 <a-switch
                                     v-if="record.role !== 'Administrator'"
                                     v-model:checked="record.isBanned"
+                                    title="Ban/Active"
                                     :checked-children="''"
                                     :un-checked-children="''"
                                     @change="onToggle(record)"
