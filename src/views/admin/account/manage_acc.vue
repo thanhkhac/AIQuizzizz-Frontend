@@ -149,6 +149,46 @@ async function onToggle(record: ManageAccountsResp) {
     }
 }
 
+async function onPromoteToModerator(record: ManageAccountsResp) {
+    try {
+        console.log("Promote uid: ", record.id);
+        Modal.confirm({
+            title: "Promote User to Moderator",
+            content: "Are you sure you want to promote this user to Moderator?",
+            centered: true,
+            onOk: async () => {
+                await ApiAdmin.AssignRole(record.id, { role: "Moderator" });
+                await getUsersData();
+            },
+            onCancel: async () => {
+                await getUsersData();
+            },
+        });
+    } catch (error) {
+        console.error("Promote to Moderator:", error);
+    }
+}
+
+async function onDemoteToUser(record: ManageAccountsResp) {
+    try {
+        console.log("Demote uid: ", record.id);
+        Modal.confirm({
+            title: "Demote Moderator to User",
+            content: "Are you sure you want to demote this moderator to User?",
+            centered: true,
+            onOk: async () => {
+                await ApiAdmin.AssignRole(record.id, { role: "User" });
+                await getUsersData();
+            },
+            onCancel: async () => {
+                await getUsersData();
+            },
+        });
+    } catch (error) {
+        console.error("Toggle active ERROR:", error);
+    }
+}
+
 const payloadGetUsers = reactive<ManageAccountsParams>({
     fieldName: "Email",
     keyword: "",
@@ -232,6 +272,25 @@ const getUsersData = async () => {
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.key === 'ban'">
                             <div class="action-cell">
+                                <!-- icon assign moderator -->
+                                <i
+                                    v-if="record.role === 'Moderator'"
+                                    class="bx bx-id-card"
+                                    title="Demote moderator to User"
+                                    style="color: #ff002e; font-size: 25px"
+                                    @click="onDemoteToUser(record)"
+                                ></i>
+
+                                <!-- icon assign user -->
+                                <i
+                                    v-if="record.role === 'User'"
+                                    class="bx bx-id-card"
+                                    title="Promote user to Moderator"
+                                    style="color: #fff; font-size: 25px"
+                                    @click="onPromoteToModerator(record)"
+                                ></i>
+
+                                <!-- button ban.active user -->
                                 <a-switch
                                     v-if="record.role !== 'Administrator'"
                                     v-model:checked="record.isBanned"
@@ -290,7 +349,11 @@ const getUsersData = async () => {
     width: calc(100% - 60px);
     margin: 8px;
 }
-
+.action-cell {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
 .account-table :deep(.ant-table) {
     background-color: var(--content-item-background-color);
     border-radius: 8px;
