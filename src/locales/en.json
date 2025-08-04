@@ -316,7 +316,8 @@
             "profile": "Profile",
             "security": "Security",
             "appearance": "Appearance",
-            "subscription": "Subscription"
+            "subscription": "Subscription",
+            "billing": "BIlling"
         },
         "profile": {
             "title": "Profile Information",
@@ -336,16 +337,21 @@
         }
     },
     "share_modal": {
-        "title": "Share Quiz",
-        "sub_title": "Share this quiz with students, colleagues, or on social media",
+        "title": "Share {mode} {name}",
+        "sub_title": "Share t his quiz with students, colleagues, or on social media",
+        "mode": {
+            "quiz": "Quiz",
+            "folder": "Folder",
+            "template": "Template"
+        },
         "visibility": {
             "Public": {
                 "mode": "Public",
-                "explain": "Only you and people you shared with can access"
+                "explain": "Everyone can access"
             },
             "Private": {
                 "mode": "Private",
-                "explain": "Everyone can access"
+                "explain": "Only you and people you shared with can access"
             },
             "InClass": {
                 "mode": "In Class",
@@ -598,6 +604,41 @@
             "Rating": "Rating"
         }
     },
+    "practice_test": {
+        "other": {
+            "question_list": "Question List",
+            "correct": "Correct: ",
+            "incorrect": "Incorrect: ",
+            "your_time": "Your time: ",
+            "second": "second",
+            "second_plural": "seconds",
+            "hour": "hour",
+            "hour_plural": "hours",
+            "minute": "minute",
+            "minute_plural": "minutes"
+        },
+        "final_modal": {
+            "button_title": "Next steps",
+            "buttons": {
+                "new_test": "New test",
+                "practice": "Practice in learn mode",
+                "re_test": "Retest using incorrect questions"
+            },
+            "buttons_ins": {
+                "new_test": "Attempt new test with current options.",
+                "practice": "Learn these questions in a different way build you knowledge.",
+                "re_test": "Test yourself again on the questions you got wrong."
+            }
+        },
+        "buttons": {
+            "previous": "Previous question"
+        },
+        "setting_modal": {
+            "title": "Practice test settings",
+            "max_question": "Number of question (max {length}):",
+            "create_new_test": "Create new test"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Forbidden",
         "COMMON_SERVER_INTERNAL_ERROR": "Internal server error",
@@ -641,7 +682,9 @@
         "QUESTION_SET_NOT_FOUND": "Question set not found",
         "QUESTION_SET_NOT_FOUND_IN_CLASS": "Question set not found in class",
 
-        "PLAN_REQUIRE_PLAN": "Plan required!"
+        "PLAN_REQUIRE_PLAN": "Plan required!",
+
+        "TEST_IS_OVERDUE": "Test overdue!"
     },
     "admin": {
         "manage_acc": {

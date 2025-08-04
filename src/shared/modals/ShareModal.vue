@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, reactive } from "vue";
+import { ref, computed, onMounted, watch, reactive, type Prop } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "../components/Common/Input.vue";
 
@@ -12,9 +12,12 @@ const { t } = useI18n();
 //#region props
 type Props = {
     id: string;
-    mode: string;
+    name: string;
+    mode: string; //quiz //folder //template
+    visibility: string;
+    options: any;
 };
-const props = defineProps<{ id: string }>();
+const props = defineProps<Props>();
 
 //#endregion
 
@@ -35,7 +38,7 @@ defineExpose({
 //#endregion
 
 /* visibility-select */
-const visibilityKeys = Object.values(VISIBILITY);
+const visibilityKeys = Object.values(props.options);
 const visibility_options = computed(() =>
     visibilityKeys.map((key) => ({
         label: t(`share_modal.visibility.${key}.mode`),
@@ -268,7 +271,8 @@ onMounted(() => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="22">
-                        <span>{{ $t("share_modal.title") }}</span> <br />
+                        <span>{{ $t("share_modal.title", { name: name, mode: mode }) }}</span>
+                        <br />
                         <span>{{ $t("share_modal.sub_title") }}</span>
                     </a-col>
                 </a-row>

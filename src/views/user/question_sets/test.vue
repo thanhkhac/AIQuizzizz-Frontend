@@ -513,7 +513,7 @@ const onUserAnswerChange = () => {
 
     //user changed but still chose to skip
     const isSkipped = currentQuestionIsSkipped.value;
-    const resultText = currentQuestionIsSkipped.value ? "Skipped" : "";
+    const resultText = currentQuestionIsSkipped.value ? t("learn_QS.result.skipped") : "";
 
     switch (currentQuestion.value.type) {
         case QUESTION_TYPE.MULTIPLE_CHOICE: {
@@ -644,7 +644,7 @@ const handleSkippedQuestion = () => {
             type: x.type,
             isSkipped: true,
             result: false,
-            resultText: "Skipped",
+            resultText: t("learn_QS.result.skipped"),
             multipleChoices: null,
             matchingLeft: null,
             matchingRight: null,
@@ -704,7 +704,9 @@ const getUserAnswerResult = () => {
                 case QUESTION_TYPE.MULTIPLE_CHOICE: {
                     result = checkMultipleChoice(answer.questionId, answer.multipleChoices!);
                     answer.result = result;
-                    answer.resultText = result ? "Correct!" : "Wrong answer";
+                    answer.resultText = result
+                        ? t("learn_QS.result.correct")
+                        : t("learn_QS.result.wrong");
                     break;
                 }
                 case QUESTION_TYPE.MATCHING: {
@@ -714,19 +716,25 @@ const getUserAnswerResult = () => {
                         answer.matchingRight!,
                     );
                     answer.result = result;
-                    answer.resultText = result ? "Correct!" : "Wrong answer";
+                    answer.resultText = result
+                        ? t("learn_QS.result.correct")
+                        : t("learn_QS.result.wrong");
                     break;
                 }
                 case QUESTION_TYPE.ORDERING: {
                     result = checkOrdering(answer.questionId, answer.ordering!);
                     answer.result = result;
-                    answer.resultText = result ? "Correct!" : "Wrong answer";
+                    answer.resultText = result
+                        ? t("learn_QS.result.correct")
+                        : t("learn_QS.result.wrong");
                     break;
                 }
                 case QUESTION_TYPE.SHORT_TEXT: {
                     result = checkShortText(answer.questionId, answer.shortText);
                     answer.result = result;
-                    answer.resultText = result ? "Correct!" : "Wrong answer";
+                    answer.resultText = result
+                        ? t("learn_QS.result.correct")
+                        : t("learn_QS.result.wrong");
                     break;
                 }
             }
@@ -765,13 +773,16 @@ const onLoadCurrentQuestion = (index: number) => {
 
     switch (currentQuestion.value.type) {
         case QUESTION_TYPE.MULTIPLE_CHOICE: {
-            currentQuestionInstruction.value = `Choose (${currentQuestion.value.questionData.multipleChoice?.filter((x) => x.isAnswer).length}) options.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.multiple_choice", {
+                number: currentQuestion.value.questionData.multipleChoice?.filter((x) => x.isAnswer)
+                    .length,
+            });
             userAnswerMultipleChoice.value = answer ? answer?.multipleChoices! : [];
             break;
         }
 
         case QUESTION_TYPE.ORDERING: {
-            currentQuestionInstruction.value = `Arrange these options to their correct order.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.matching");
             userAnswerOrdering.value = answer
                 ? answer?.ordering!
                 : currentQuestion.value.questionData.ordering?.map((x) => x) || [];
@@ -779,7 +790,7 @@ const onLoadCurrentQuestion = (index: number) => {
         }
 
         case QUESTION_TYPE.MATCHING: {
-            currentQuestionInstruction.value = `Arrange the items to align with their correct matches.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.ordering");
             userAnswerMatchingLeft.value = answer
                 ? answer?.matchingLeft!
                 : currentQuestion.value.questionData.matching!.leftItems.map((x) => x) || [];
@@ -792,7 +803,7 @@ const onLoadCurrentQuestion = (index: number) => {
         }
 
         case QUESTION_TYPE.SHORT_TEXT: {
-            currentQuestionInstruction.value = `Fill in the blank the correct answer.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.short_text");
             userAnswerShortText.value = answer ? answer?.shortText! : "";
             break;
         }
@@ -936,12 +947,12 @@ const generateChart = () => {
                 },
                 data: [
                     {
-                        name: "Correct",
+                        name: t("practice_test.other.correct"),
                         y: getCorrectPercentage(),
                         color: "var(--correct-answer-color)",
                     },
                     {
-                        name: "Incorrect",
+                        name: t("practice_test.other.incorrect"),
                         y: getInCorrectPercentage(),
                         color: "var(--incorrect-answer-color)",
                     },
@@ -970,15 +981,17 @@ const timerEnd = () => {
     const diffSeconds = Math.floor(diffMs / 1000); //convert to second
 
     if (diffSeconds < 60) {
-        timerResult.value = `Your time: ${diffSeconds} second${diffSeconds === 1 ? "" : "s"}`;
+        timerResult.value = `${t("practice_test.other.your_time")} ${diffSeconds} ${diffSeconds === 1 ? t("practice_test.other.second") : t("practice_test.other.second_plural")}`;
     } else {
         const duration_ms = dayjs.duration(diffMs);
         const hours = duration_ms.hours();
         const minutes = duration_ms.minutes();
 
-        let result = "Your time: ";
-        if (hours > 0) result += `${hours} hour${hours > 1 ? "s" : ""} `;
-        if (minutes > 0) result += `${minutes} minute${minutes > 1 ? "s" : ""}`;
+        let result = t("practice_test.other.your_time");
+        if (hours > 0)
+            result += `${hours} ${hours > 1 ? t("practice_test.other.hour") : t("practice_test.other.hour_plural")} `;
+        if (minutes > 0)
+            result += `${minutes} ${minutes > 1 ? t("practice_test.other.minute") : t("practice_test.other.minute_plural")}`;
         timerResult.value = result.trim();
     }
 };
@@ -1063,7 +1076,9 @@ onMounted(() => {
         <div class="content content-test d-flex flex-column">
             <div class="d-flex">
                 <div class="content-item question-navigators">
-                    <div class="question-navigator-title">Question list</div>
+                    <div class="question-navigator-title">
+                        {{ t("practice_test.other.question_list") }}
+                    </div>
                     <div class="question-navigator-container">
                         <div
                             :class="[
@@ -1087,7 +1102,7 @@ onMounted(() => {
                         :class="['main-color-btn', isSubmitted ? 'main-color-btn-disabled' : '']"
                         @click="onSubmitAnswer"
                     >
-                        Submit
+                        {{ $t("learn_QS.buttons.submit") }}
                     </a-button>
                 </div>
                 <div class="content-item content-item-test-result">
@@ -1100,34 +1115,39 @@ onMounted(() => {
                                 <div id="result_chart_container"></div>
                                 <div class="result-text-container">
                                     <div class="result-text correct">
-                                        Correct:
+                                        {{ $t("practice_test.other.correct") }}
                                         <span>{{ quiz.question.length - incorrect.length }}</span>
                                     </div>
                                     <div class="result-text incorrect">
-                                        Incorrect:
+                                        {{ $t("practice_test.other.incorrect") }}
                                         <span> {{ incorrect.length }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="result-section result-section-buttons">
-                            <div class="result-section-title">Next steps</div>
+                            <div class="result-section-title">
+                                {{ $t("practice_test.final_modal.button_title") }}
+                            </div>
                             <div class="result-button">
                                 <i class="bx bxs-news"></i>
                                 <div>
-                                    <div class="result-button-title">New test</div>
+                                    <div class="result-button-title">
+                                        {{ $t("practice_test.final_modal.buttons.new_test") }}
+                                    </div>
                                     <div class="result-button-content">
-                                        Attempt new test with current options
+                                        {{ $t("practice_test.final_modal.buttons_ins.new_test") }}
                                     </div>
                                 </div>
                             </div>
                             <div class="result-button" v-if="getInCorrectPercentage() <= 30">
                                 <i class="bx bx-analyse"></i>
                                 <div>
-                                    <div class="result-button-title">Practice in learn mode</div>
+                                    <div class="result-button-title">
+                                        {{ $t("practice_test.final_modal.buttons.practice") }}
+                                    </div>
                                     <div class="result-button-content">
-                                        Learn these questions in a different way build you
-                                        knowledge.
+                                        {{ $t("practice_test.final_modal.buttons_ins.practice") }}
                                     </div>
                                 </div>
                             </div>
@@ -1135,10 +1155,10 @@ onMounted(() => {
                                 <i class="bx bx-reset"></i>
                                 <div>
                                     <div class="result-button-title">
-                                        Retest using incorrect questions
+                                        {{ $t("practice_test.final_modal.buttons.re_test") }}
                                     </div>
                                     <div class="result-button-content">
-                                        Test yourself again on the questions you got wrong.
+                                        {{ $t("practice_test.final_modal.buttons_ins.re_test") }}
                                     </div>
                                 </div>
                             </div>
@@ -1429,7 +1449,7 @@ onMounted(() => {
                             @click="onPreviousQuestion"
                         >
                             <i class="bx bx-chevron-left"></i>
-                            Previous question
+                            {{ $t("practice_test.buttons.previous") }}
                         </a-button>
                         <div
                             :class="[
@@ -1440,7 +1460,7 @@ onMounted(() => {
                             ]"
                             @click="onSkipQuestion()"
                         >
-                            Don't know?
+                            {{ $t("learn_QS.buttons.dont_know") }}
                         </div>
                         <div class="d-flex">
                             <a-button
@@ -1452,7 +1472,7 @@ onMounted(() => {
                                 size="large"
                                 @click="onNextQuestion"
                             >
-                                Next question
+                                {{ $t("learn_QS.buttons.next_question") }}
                                 <i class="bx bx-chevron-right"></i>
                             </a-button>
                         </div>
@@ -1481,7 +1501,7 @@ onMounted(() => {
                     size="large"
                     @click="onNextQuestion"
                 >
-                    Next question
+                    {{ $t("learn_QS.buttons.next_question") }}
                     <i class="bx bx-chevron-right"></i>
                 </a-button>
             </div>
@@ -1502,14 +1522,20 @@ onMounted(() => {
                     </div>
                 </a-col>
                 <a-col class="main-title" :span="20">
-                    <span>Practice test settings</span> <br />
+                    <span> {{ $t("practice_test.setting_modal.title") }}</span> <br />
                 </a-col>
             </a-row>
         </div>
         <a-form class="setting-form">
             <a-form-item>
                 <div class="setting-form-item">
-                    <div>Number of question (max {{ quiz.question.length }}):</div>
+                    <div>
+                        {{
+                            $t("practice_test.setting_modal.max_question", {
+                                length: quiz.question.length,
+                            })
+                        }}
+                    </div>
                     <a-input-number
                         size="large"
                         id="inputNumber"
@@ -1522,7 +1548,7 @@ onMounted(() => {
             <a-divider style="background-color: var(--form-item-border-color)"></a-divider>
             <a-form-item>
                 <div class="setting-form-item setting-form-switch" v-for="type in QUESTION_TYPE">
-                    <div>{{ type }}</div>
+                    <div>{{ t(`create_QS.type.${type}`) }}</div>
                     <a-switch
                         :disabled="
                             settingFormState.questionTypes.length <= 1 &&
@@ -1543,7 +1569,7 @@ onMounted(() => {
                 shape="round"
                 @click="onCreateNewTest"
             >
-                Create new test
+                {{ t("practice_test.setting_modal.create_new_test") }}
             </a-button>
         </template>
     </a-modal>

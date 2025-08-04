@@ -181,6 +181,16 @@ onMounted(async () => {
 </script>
 <template>
     <div class="page-container">
+        <div class="title-container">
+            <a-row class="w-100 d-flex align-items-center">
+                <a-col :span="1">
+                    <RouterLink :to="{ name: 'User_Library' }">
+                        <i class="bx bx-chevron-left navigator-back-button"></i>
+                    </RouterLink>
+                </a-col>
+                <a-col class="main-title" :span="23"> <span> Library</span> <br /> </a-col>
+            </a-row>
+        </div>
         <div class="content">
             <div class="content-item">
                 <div class="content-item-title">
@@ -348,6 +358,24 @@ onMounted(async () => {
 .page-container {
     height: 100vh;
 }
+
+.navigator-back-link {
+    margin-left: 30px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.navigator-back-link i {
+    font-size: 24px;
+    transform: translateY(1px);
+    transition: all 0.2s ease-in-out;
+}
+
+.navigator-back-link:hover i {
+    transform: translate(-3px, 1px);
+}
+
 .content-item {
     width: 70%;
     margin: 10px auto;

@@ -193,7 +193,6 @@ onMounted(async () => {
                 <a-row class="w-100 d-flex align-items-center">
                     <a-col :span="1">
                         <RouterLink
-                            @click="closeModal"
                             :to="{ name: 'User_Class_Exam', params: { id: formState.classId } }"
                         >
                             <i class="bx bx-chevron-left navigator-back-button"></i>

@@ -53,28 +53,34 @@ const testTemplate = ref<TestTemplate>({
 const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
 
 const getTestTemplate = async () => {
-    loading.value = true;
-    if (!Validator.isValidGuid(testTemplateId.value)) {
-        isDataValid.value = false;
-        router.push({ name: "404" });
-        return;
-    }
+    try {
+        loading.value = true;
+        if (!Validator.isValidGuid(testTemplateId.value)) {
+            isDataValid.value = false;
+            router.push({ name: "404" });
+            return;
+        }
+        await getPermission();
 
-    let result = await ApiTestTemplate.GetById(testTemplateId.value);
-    if (!result.data.success) {
-        isDataValid.value = false;
-        router.push({ name: "404" });
-        return;
-    }
-    testTemplate.value = result.data.data;
-    formState.name = testTemplate.value.name;
-    formState.createUpdateQuestions = testTemplate.value.questions.map((x) =>
-        TranferQuestionData.transformResponseToRequest(x),
-    );
-    formState.testTemplateId = testTemplate.value.testTemplateId;
+        let result = await ApiTestTemplate.GetById(testTemplateId.value);
+        if (!result.data.success) {
+            isDataValid.value = false;
+            router.push({ name: "404" });
+            return;
+        }
+        testTemplate.value = result.data.data;
+        formState.name = testTemplate.value.name;
+        formState.createUpdateQuestions = testTemplate.value.questions.map((x) =>
+            TranferQuestionData.transformResponseToRequest(x),
+        );
+        formState.testTemplateId = testTemplate.value.testTemplateId;
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    loading.value = false;
+        window.addEventListener("beforeunload", handleBeforeUnload);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loading.value = false;
+    }
 };
 //#endregion
 
@@ -396,6 +402,23 @@ onUnmounted(() => {
 });
 //#endregion
 
+//#region permission
+const permission = ref({
+    canEdit: false,
+    canDelete: false,
+});
+const getPermission = async () => {
+    const result = await ApiTestTemplate.GetPermissions(testTemplateId.value);
+    if (result.data.success) {
+        permission.value = result.data.data;
+        if (!permission.value.canEdit) {
+            isDataValid.value = false;
+            router.push({ name: "404" });
+        }
+    }
+};
+//#endregion
+
 // @ts-ignore
 import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
 const scrollerRef = ref<any>(null);
@@ -416,7 +439,7 @@ onMounted(async () => {
         <div class="title-container">
             <a-row class="w-100 d-flex align-items-center">
                 <a-col :span="1">
-                    <RouterLink :to="{ name: 'User_Library' }">
+                    <RouterLink :to="{ name: 'User_Folder' }">
                         <i class="bx bx-chevron-left navigator-back-button"></i>
                     </RouterLink>
                 </a-col>

@@ -1,14 +1,5 @@
-import type UserAnswersObject from "@/models/request/test/userAnswer";
-
-interface UserAnswer {
-    questionId: string;
-    type: string;
-    multipleChoices: string[] | null;
-    matchingLeft: any[] | null;
-    matchingRight: any[] | null;
-    ordering: any[] | null;
-    shortText: string;
-}
+import type UserAnswerSubmit from "@/models/response/test/userAnswer";
+import type UserAnswerDTO from "@/models/response/test/userAnswerDTO";
 
 function combineMatching(
     left: any[] = [],
@@ -24,7 +15,7 @@ function combineMatching(
 }
 
 class TransferUserAnswerData {
-    transferToUserAnswersObject(userAnswers: UserAnswer[]): UserAnswersObject[] {
+    transferToUserAnswerSubmit(userAnswers: UserAnswerDTO[]): UserAnswerSubmit[] {
         return userAnswers.map((ans) => ({
             questionId: ans.questionId,
             userAnswerData: {
@@ -37,16 +28,20 @@ class TransferUserAnswerData {
         }));
     }
 
-    transferFromUserAnswersObject(userAnswersObj: UserAnswersObject[]): UserAnswer[] {
-        return userAnswersObj.map(({ questionId, userAnswerData }) => ({
-            questionId,
-            type: userAnswerData.type,
-            multipleChoices: userAnswerData.multipleChoice ?? [],
-            matchingLeft: userAnswerData.matching.map((x) => ({ id: x.leftId })),
-            matchingRight: userAnswerData.matching.map((x) => ({ id: x.rightId })),
-            ordering: userAnswerData.ordering.map(x=> ({id: x.itemId, correctOrder: x.order})) ?? [],
-            shortText: userAnswerData.shortText ?? "",
-        }));
+    transferFromUserAnswerSubmit(userAnswersObj: UserAnswerSubmit[]): UserAnswerDTO[] {
+        return userAnswersObj
+            .filter((x) => x != null)
+            .map(({ questionId, userAnswerData }) => ({
+                questionId,
+                type: userAnswerData.type,
+                multipleChoices: userAnswerData.multipleChoice ?? [],
+                matchingLeft: userAnswerData.matching.map((x) => ({ id: x.leftId })),
+                matchingRight: userAnswerData.matching.map((x) => ({ id: x.rightId })),
+                ordering:
+                    userAnswerData.ordering.map((x) => ({ id: x.itemId, correctOrder: x.order })) ??
+                    [],
+                shortText: userAnswerData.shortText ?? "",
+            }));
     }
 }
 

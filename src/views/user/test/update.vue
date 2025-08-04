@@ -110,39 +110,50 @@ const rules = {
 const loading = ref(false);
 const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
 const getData = async () => {
-    loading.value = true;
-    if (!Validator.isValidGuid(formState.testId)) {
-        isDataValid.value = false;
-        router.push({ name: "404" });
-        return;
+    try {
+        debugger;
+        loading.value = true;
+        if (!Validator.isValidGuid(formState.testId)) {
+            isDataValid.value = false;
+            router.push({ name: "404" });
+            return;
+        }
+
+        const result = await ApiTest.GetById(formState.testId);
+        if (!result.data.success) {
+            isDataValid.value = false;
+            router.push({ name: "404" });
+            return;
+        }
+
+        formState.classId = result.data.data.classId;
+        formState.testId = result.data.data.testId;
+        formState.name = result.data.data.name;
+        formState.startTime = result.data.data.startTime;
+        formState.endTime = result.data.data.endTime;
+        formState.gradeAttemptMethod = result.data.data.gradeAttemptMethod;
+        formState.gradeQuestionMethod = result.data.data.gradeQuestionMethod;
+        formState.isAllowReviewAfterSubmit = result.data.data.isAllowReviewAfterSubmit;
+        formState.isShowCorrectAnswerInReview = result.data.data.isShowCorrectAnswerInReview;
+        formState.maxAttempt = result.data.data.maxAttempt;
+        formState.shuffle = result.data.data.shuffle;
+        formState.passingScore = result.data.data.passingScore;
+        formState.timeLimit = result.data.data.timeLimit;
+
+        formState.createUpdateQuestions = result.data.data.questions.map((x: ResponseQuestion) =>
+            TransferQuestionData.transformResponseToRequest(x),
+        );
+        //clear redundant
+    } catch (error: any) {
+        debugger;
+        if (error.response.data.success === false) {
+            isDataValid.value = false;
+            router.push({ name: "404" });
+            return;
+        }
+    } finally {
+        loading.value = false;
     }
-
-    const result = await ApiTest.GetById(formState.testId);
-    if (!result.data.success) {
-        isDataValid.value = false;
-        router.push({ name: "404" });
-        return;
-    }
-
-    formState.classId = result.data.data.classId;
-    formState.testId = result.data.data.testId;
-    formState.name = result.data.data.name;
-    formState.startTime = result.data.data.startTime;
-    formState.endTime = result.data.data.endTime;
-    formState.gradeAttemptMethod = result.data.data.gradeAttemptMethod;
-    formState.gradeQuestionMethod = result.data.data.gradeQuestionMethod;
-    formState.isAllowReviewAfterSubmit = result.data.data.isAllowReviewAfterSubmit;
-    formState.isShowCorrectAnswerInReview = result.data.data.isShowCorrectAnswerInReview;
-    formState.maxAttempt = result.data.data.maxAttempt;
-    formState.shuffle = result.data.data.shuffle;
-    formState.passingScore = result.data.data.passingScore;
-    formState.timeLimit = result.data.data.timeLimit;
-
-    formState.createUpdateQuestions = result.data.data.questions.map((x: ResponseQuestion) =>
-        TransferQuestionData.transformResponseToRequest(x),
-    );
-    //clear redundant
-    loading.value = false;
 };
 //#endregion
 
@@ -483,8 +494,8 @@ const handleScroll = () => {
 };
 
 onMounted(async () => {
-    await getClassData();
     await getData();
+    await getClassData();
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     await nextTick();

@@ -6,6 +6,7 @@ const END_POINTS = {
     UPDATE: "Test/{testId}",
     DELETE: "Test/{testId}",
     ATTEMPT: "Test/{testId}/Attempt",
+    SUBMIT: "Test/Submit",
 };
 
 class ApiTest {
@@ -31,6 +32,10 @@ class ApiTest {
     Attempt = async (testId: string) => {
         const url = END_POINTS.ATTEMPT.replace("{testId}", testId);
         return await Api.post(url);
+    };
+
+    Submit = async (formState: object) => {
+        return await Api.post(`${END_POINTS.SUBMIT}`, formState);
     };
 }
 

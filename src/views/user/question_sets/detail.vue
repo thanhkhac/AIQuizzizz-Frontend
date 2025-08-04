@@ -61,24 +61,32 @@ const selected_type_option = ref(question_type_options.value[0].value);
 const searchValue = ref("");
 
 const getData = async () => {
-    loading.value = true;
-    if (!Validator.isValidGuid(question_set_id.value.toString())) router.push({ name: "404" });
+    try {
+        loading.value = true;
+        if (!Validator.isValidGuid(question_set_id.value.toString())) router.push({ name: "404" });
 
-    const question_set_result = await ApiQuestionSet.GetDetailById(
-        question_set_id.value.toString(),
-    );
+        const question_set_result = await ApiQuestionSet.GetDetailById(
+            question_set_id.value.toString(),
+        );
 
-    const question_result = await ApiQuestionSet.GetQuestionById(question_set_id.value.toString());
+        const question_result = await ApiQuestionSet.GetQuestionById(
+            question_set_id.value.toString(),
+        );
 
-    if (!question_set_result.data.success || !question_result.data.success)
-        router.push({ name: "User_Library" });
+        if (!question_set_result.data.success || !question_result.data.success)
+            router.push({ name: "User_Library" });
 
-    quiz.value = question_set_result.data.data;
-    quiz.value.createBy = question_set_result.data.data.createdBy.fullName;
-    quiz_questions.value = question_result.data.data.map((x: ResponseQuestion) =>
-        TransferQuestionData.transformResponseToRequest(x),
-    );
-    loading.value = false;
+        quiz.value = question_set_result.data.data;
+        quiz.value.createBy = question_set_result.data.data.createdBy.fullName;
+        quiz_questions.value = question_result.data.data.map((x: ResponseQuestion) =>
+            TransferQuestionData.transformResponseToRequest(x),
+        );
+
+        await getPermission();
+    } catch (error) {
+    } finally {
+        loading.value = false;
+    }
 };
 
 //preview uploaded content
@@ -98,6 +106,7 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 //share quiz
 import ShareModal from "@/shared/modals/ShareModal.vue";
 import type { ResponseQuestion } from "@/models/response/question";
+import VISIBILITY from "@/constants/visibility";
 const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
 
 const onOpenShareModal = () => {
@@ -125,6 +134,19 @@ const rateValue = ref(0);
 
 //#endregion
 
+//#region permission
+const permission = ref({
+    canEdit: false,
+    canDelete: false,
+});
+const getPermission = async () => {
+    const result = await ApiQuestionSet.GetPermissions(quiz.value.id);
+    if (result.data.success) {
+        permission.value = result.data.data;
+    }
+};
+//#endregion
+
 const onDelete = () => {
     Modal.confirm({
         title: "Are you sure to delete this question set from class?",
@@ -144,15 +166,18 @@ const onRedirectToSearch = (tag: Tag) => {
     router.push({ name: "User_QuestionSet_Search" });
 };
 
-onMounted(() => {
+onMounted(async () => {
     //get api quiz + check visibility to current user
     //format url
-    getData();
+    await getData();
 });
 </script>
 <template>
     <div class="content">
-        <RouterLink class="navigator-back-link d-flex align-items-center p-2" :to="{ name: '' }">
+        <RouterLink
+            class="navigator-back-link d-flex align-items-center p-2"
+            :to="{ name: 'User_Library' }"
+        >
             <i class="me-1 bx bx-chevron-left"></i>
             {{ $t("detail_QS.other.library") }}
         </RouterLink>
@@ -167,17 +192,28 @@ onMounted(() => {
                         <span>{{ quiz.name }}</span>
                         <span>{{ quiz.description }}</span>
                     </div>
-                    <div class="d-flex flex-row align-items-center quiz-header-functions">
+                    <div
+                        v-if="permission.canEdit || permission.canDelete"
+                        class="d-flex flex-row align-items-center quiz-header-functions"
+                    >
                         <a-dropdown :trigger="['click']" :placement="'bottomRight'">
                             <i class="bx bx-dots-horizontal-rounded ant-dropdown-link"></i>
                             <template #overlay>
                                 <a-menu class="drop-down-container">
-                                    <a-menu-item key="1" @click="onRedirectToEdit">
+                                    <a-menu-item
+                                        v-if="permission.canEdit"
+                                        key="1"
+                                        @click="onRedirectToEdit"
+                                    >
                                         <i class="bx bx-edit"></i>
                                         {{ $t("question_sets_index.buttons.edit") }}
                                     </a-menu-item>
                                     <a-menu-divider style="background-color: #ddd" />
-                                    <a-menu-item key="2" @click="onDelete">
+                                    <a-menu-item
+                                        v-if="permission.canDelete"
+                                        key="2"
+                                        @click="onDelete"
+                                    >
                                         <span class="d-flex align-items-center">
                                             <i class="bx bx-trash-alt"></i>
                                             {{ $t("question_sets_index.buttons.delete") }}
@@ -353,8 +389,15 @@ onMounted(() => {
         </div>
     </div>
 
-    <ShareModal ref="shareModalRef" :id="quiz.id" />
-    <a-modal wrap-class-name="medium-modal" :visible="modal_rate_open">
+    <ShareModal
+        ref="shareModalRef"
+        :id="quiz.id"
+        :name="quiz.name"
+        :mode="t('share_modal.mode.quiz')"
+        :options="VISIBILITY"
+        :visibility="quiz.visibilityMode"
+    />
+    <a-modal wrap-class-name="medium-modal" :open="modal_rate_open">
         <div class="title-container">
             <a-row class="w-100 d-flex align-items-center justify-content-between">
                 <a-col :span="1">

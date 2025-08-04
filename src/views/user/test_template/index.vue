@@ -107,11 +107,27 @@ const onRefirectToCreate = () => {
     router.push({ name: "User_TestTemplate_Create" });
 };
 
-const onRefirectToUpdate = (id: string) => {
+const onRefirectToUpdate = async (id: string) => {
+    await getPermission(id);
+    if (!permission.value.canEdit) {
+        message.warning("You don't have permission to perform this function!");
+        return;
+    }
     router.push({ name: "User_TestTemplate_Update", params: { id } });
 };
 
-const onDelete = (id: string) => {
+const onDelete = async (id: string) => {
+    await getPermission(id);
+    if (!permission.value.canDelete) {
+        message.warning("You don't have permission to perform this function!");
+        return;
+    }
+
+    if (permission.value.canEdit) router.push({ name: "User_TestTemplate_Update", params: { id } });
+    else {
+        message.warning("You don't have permission to perform this function!");
+    }
+
     Modal.confirm({
         title: "Are you sure to delete this test template?",
         content: "Please double check the important resources!",
@@ -124,10 +140,43 @@ const onDelete = (id: string) => {
     });
 };
 
+//#region permission
+const permission = ref({
+    canEdit: false,
+    canDelete: false,
+});
+const getPermission = async (testTemplateId: string) => {
+    const result = await ApiTestTemplate.GetPermissions(testTemplateId);
+    if (result.data.success) {
+        permission.value = result.data.data;
+    }
+};
+//#endregion
+
+import ShareModal from "@/shared/modals/ShareModal.vue";
+import VISIBILITY from "@/constants/visibility";
+const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
+
+const onOpenShareModal = (template: TestTemplate) => {
+    chosenTemplate.value = template;
+    shareModalRef.value?.openModal();
+};
+
+const chosenTemplate = ref<TestTemplate>({
+    testTemplateId: "",
+    name: "",
+    createdBy: "",
+    numberOfQuestion: 0,
+    dateCreated: 0,
+});
+
+//#endregion
+
 onMounted(async () => {
     const sidebarActiveItem = "folder";
     emit("updateSidebar", sidebarActiveItem);
     await getData();
+    chosenTemplate.value = test_template_data.value[0];
 });
 </script>
 <template>
@@ -211,6 +260,7 @@ onMounted(async () => {
                             </div>
                         </div>
                         <div class="exam-item-actions">
+                            <i class="bx bx-share-alt" @click="onOpenShareModal(template)"></i>
                             <i
                                 class="bx bx-edit"
                                 @click="onRefirectToUpdate(template.testTemplateId)"
@@ -252,6 +302,14 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+    <ShareModal
+        ref="shareModalRef"
+        :id="chosenTemplate.testTemplateId"
+        :name="chosenTemplate.name"
+        :mode="t('share_modal.mode.template')"
+        :options="[VISIBILITY.PRIVATE]"
+        :visibility="VISIBILITY.PRIVATE"
+    />
 </template>
 <style scoped>
 .quiz-item-icon {

@@ -4,27 +4,40 @@ import ApiTest from "@/api/ApiTest";
 import { ref, computed, onMounted, nextTick, onUnmounted } from "vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import type { ResponseQuestion } from "@/models/response/question";
-import type UserAnswersObject from "@/models/request/test/userAnswer";
+
+import type UserAnswerDTO from "@/models/response/test/userAnswerDTO";
+
+import type { UserAnswerData } from "@/models/response/test/userAnswer";
+import type UserAnswerSubmit from "@/models/response/test/userAnswer";
+
 import TransferUserAnswerData from "@/services/TransferUserAnswerData";
 
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
+import Validator from "@/services/Validator";
 
 import { useI18n } from "vue-i18n";
-import dayjs, { Dayjs } from "dayjs";
 import { Modal, message } from "ant-design-vue";
+import { useRoute, useRouter } from "vue-router";
+
+import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 
-interface UserAnswer {
-    questionId: string;
-    type: string;
-    multipleChoices: string[] | null;
-    matchingLeft: any[] | null;
-    matchingRight: any[] | null;
-    ordering: any[] | null;
-    shortText: string;
+interface AttemptData {
+    attemptId: string;
+    name: string;
+    questionCount: number;
+    timeStart: string;
+    timeEnd: string;
+    timeLimit: number;
+    timeRemaining: number;
+    questions: { questionData: ResponseQuestion; userAnswerDataDto: UserAnswerSubmit }[];
 }
 
 const QUESTION_FORMAT = {
@@ -32,239 +45,25 @@ const QUESTION_FORMAT = {
     PLAIN_TEXT: "PlainText",
 };
 
-const quiz = {
-    id: "123456",
-    title: "Programming fundamental",
-    description: "Basic knowledge about programming.",
-    totalQuestion: 30,
-    completed: 8,
-    question: [
-        {
-            id: "11111111-aaaa-aaaa-aaaa-111111111111",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "MultipleChoice",
-            textFormat: "HTML",
-            questionText:
-                "<p>Which of the following are valid variable declarations in JavaScript?<br/><pre>let x = 5;<br>const y = 'hello';<br>var 1name = 'error';</pre></p>",
-            score: 10.0,
-            scoreGraded: 0.0,
-            explainText:
-                "Variables in JavaScript cannot start with a number. 'let x = 5' and 'const y = \"hello\"' are valid, but 'var 1name = \"error\"' is invalid.",
-            questionData: {
-                multipleChoice: [
-                    {
-                        id: "a1",
-                        text: "Giữ vững địa vị thống trị của giai cấp công nhân thông qua Đảng Cộng sản Việt Nam trong mối liên minh giai cấp",
-                        isAnswer: true,
-                    },
-                    {
-                        id: "a2",
-                        text: "Giữ vững lập trường chính trị - tư tưởng của giai cấp công nhân, vai trò lãnh đạo của Đảng Cộng sản Việt Nam, giữ vững độc lập dân tộc và định hướng đi lên chủ nghĩa xã hội",
-                        isAnswer: true,
-                    },
-                    {
-                        id: "a3",
-                        text: "Giữ vững nền kinh tế thị trường theo hướng hiện đại, kiên định con đường đi lên chủ nghĩa xã hội",
-                        isAnswer: false,
-                    },
-                    {
-                        id: "a4",
-                        text: "Giữ vững nền kinh tế thị trường theo hướng hiện đại, kiên định con đường đi lên chủ nghĩa xã hội",
-                        isAnswer: false,
-                    },
-                ],
-                matching: null,
-                ordering: null,
-                shortText: null,
-            },
-        },
-        {
-            id: "44444444-dddd-dddd-dddd-444444444444",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "ShortText",
-            textFormat: "HTML",
-            questionText:
-                "What is the output of the following code?<br/><pre>console.log(typeof null);</pre>",
-            score: 5.0,
-            scoreGraded: 5.0,
-            explainText:
-                "`typeof null` returns `'object'` due to a historical bug in JavaScript that has been preserved for backward compatibility.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                ordering: null,
-                shortText: "object",
-            },
-        },
-        {
-            id: "22222222-bbbb-bbbb-bbbb-222222222222",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Matching",
-            textFormat: "PlainText",
-            questionText: "Match the data types with appropriate examples.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "A string is a series of characters like 'Hello World'. A boolean can be true or false. A number is a numeric value like 42.",
-            questionData: {
-                multipleChoice: null,
-                ordering: null,
-                shortText: null,
-                matching: {
-                    leftItems: [
-                        { id: "l1", text: "String" },
-                        { id: "l2", text: "Boolean" },
-                        { id: "l3", text: "Number" },
-                    ],
-                    rightItems: [
-                        { id: "r1", text: "'Hello World'" },
-                        { id: "r2", text: "true" },
-                        { id: "r3", text: "42" },
-                    ],
-                    matches: [
-                        { leftId: "l1", rightId: "r1" },
-                        { leftId: "l2", rightId: "r2" },
-                        { leftId: "l3", rightId: "r3" },
-                    ],
-                },
-            },
-        },
-        {
-            id: "33333333-cccc-cccc-cccc-333333333333",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Ordering",
-            textFormat: "PlainText",
-            questionText: "Arrange the steps of executing a JavaScript function.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "First, the function must be declared. Then it can be called, at which point the body of the function will execute.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                shortText: null,
-                ordering: [
-                    { id: "s2", text: "Function is called", correctOrder: 2 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s1", text: "Function is declared", correctOrder: 1 },
-                ],
-            },
-        },
-        {
-            id: "55555555-aaaa-aaaa-aaaa-555555555555",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "MultipleChoice",
-            textFormat: "HTML",
-            questionText:
-                "Which of the following statements correctly define a function in JavaScript?<br/><pre>function greet() { return 'Hi'; }</pre>",
-            score: 10.0,
-            scoreGraded: 0.0,
-            explainText:
-                "`function greet()` and `let greet = () => 'Hi';` are valid JavaScript function declarations. `def greet()` is Python syntax and not valid in JavaScript.",
-            questionData: {
-                multipleChoice: [
-                    { id: "f1", text: "function greet() { return 'Hi'; }", isAnswer: true },
-                    { id: "f2", text: "def greet(): return 'Hi'", isAnswer: false },
-                    { id: "f3", text: "let greet = () => 'Hi';", isAnswer: true },
-                ],
-                matching: null,
-                ordering: null,
-                shortText: null,
-            },
-        },
-        {
-            id: "66666666-bbbb-bbbb-bbbb-666666666666",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Matching",
-            textFormat: "PlainText",
-            questionText: "Match the loop type with its primary use case.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "`for` is used when the number of iterations is known, `while` is better when the condition is dynamic, and `forEach` is designed for arrays.",
-            questionData: {
-                multipleChoice: null,
-                ordering: null,
-                shortText: null,
-                matching: {
-                    leftItems: [
-                        { id: "lp1", text: "for loop" },
-                        { id: "lp2", text: "while loop" },
-                        { id: "lp3", text: "forEach loop" },
-                    ],
-                    rightItems: [
-                        { id: "ru1", text: "Known number of iterations" },
-                        { id: "ru2", text: "Iterating over array elements" },
-                        { id: "ru3", text: "Unknown loop condition" },
-                    ],
-                    matches: [
-                        { leftId: "lp1", rightId: "ru1" },
-                        { leftId: "lp2", rightId: "ru3" },
-                        { leftId: "lp3", rightId: "ru2" },
-                    ],
-                },
-            },
-        },
-        {
-            id: "77777777-cccc-cccc-cccc-777777777777",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Ordering",
-            textFormat: "PlainText",
-            questionText: "Arrange the steps for writing and running a basic JavaScript program.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "JavaScript code is typically written in a .js file, then linked in HTML, and finally run in the browser when the HTML is opened.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                shortText: null,
-                ordering: [
-                    { id: "j1", text: "Write code in a .js file", correctOrder: 1 },
-                    { id: "j2", text: "Link the file to an HTML document", correctOrder: 2 },
-                    { id: "j3", text: "Open the HTML file in a browser", correctOrder: 3 },
-                ],
-            },
-        },
-        {
-            id: "88888888-dddd-dddd-dddd-888888888888",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "ShortText",
-            textFormat: "HTML",
-            questionText:
-                "What will be the output of the following JavaScript code?<br/><pre>console.log(2 + '2');</pre>",
-            score: 5.0,
-            scoreGraded: 5.0,
-            explainText:
-                "When using `+` with a number and a string, JavaScript performs string concatenation. So `2 + '2'` becomes `'22'`.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                ordering: null,
-                shortText: "22",
-            },
-        },
-        {
-            id: "99999999-eeee-eeee-eeee-999999999999",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "ShortText",
-            textFormat: "PlainText",
-            questionText: "In programming, what does 'DRY' stand for?",
-            score: 5.0,
-            scoreGraded: 5.0,
-            explainText:
-                "DRY stands for 'Don't Repeat Yourself', a principle aimed at reducing code duplication and improving maintainability.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                ordering: null,
-                shortText: "Don't Repeat Yourself",
-            },
-        },
-    ],
-};
+const quiz = ref<ResponseQuestion[]>([]);
+const userAnswer = ref<UserAnswerDTO[]>([]);
 
-const currentQuestion = ref<ResponseQuestion>(quiz.question[0] as ResponseQuestion);
+const currentQuestion = ref<ResponseQuestion>({
+    id: "",
+    explainText: "",
+    questionSetId: "",
+    questionText: "",
+    score: 0,
+    scoreGraded: 0,
+    textFormat: "0",
+    type: "MultipleChoice",
+    questionData: {
+        matching: null,
+        multipleChoice: null,
+        ordering: null,
+        shortText: "",
+    },
+});
 
 const currentQuestionInstruction = ref("");
 const currentQuestionIsSkipped = ref(false);
@@ -278,15 +77,56 @@ const userAnswerMatchingRight = ref<any[]>([]);
 const userAnswerOrdering = ref<any[]>([]);
 const userAnswerShortText = ref<string>("");
 
-const userAnswer = ref<UserAnswer[]>([]);
-
 //#region init data
+const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
+const testId = ref<string>(route.params.id.toString());
+const attemptData = ref<AttemptData>({
+    attemptId: "",
+    name: "",
+    questionCount: 0,
+    timeStart: "",
+    timeEnd: "",
+    timeLimit: 0,
+    timeRemaining: 0,
+    questions: [],
+});
+const loading = ref(false);
+const getAttemptData = async () => {
+    try {
+        loading.value = true;
+        if (!Validator.isValidGuid(testId.value)) {
+            isDataValid.value = false;
+            router.push({ name: "404" });
+            return;
+        }
+
+        const result = await ApiTest.Attempt(testId.value);
+        attemptData.value = result.data.data;
+
+        quiz.value = [...result.data.data.questions.map((x: any) => ({ id: x.questionId, ...x }))];
+
+        userAnswer.value = TransferUserAnswerData.transferFromUserAnswerSubmit(
+            result.data.data.questions.map((x: any) => x.userAnswerDataDto),
+        );
+
+        currentQuestion.value = quiz.value[0] as ResponseQuestion;
+    } catch (error: any) {
+        if (!error.response.data.success) {
+            isDataValid.value = false;
+            router.push({ name: "404" });
+            return;
+        }
+        console.log(error);
+    } finally {
+        loading.value = false;
+    }
+};
 
 //#endregion
 
 //#region logic complete question
 /* handle logic complete question */
-const updateUserAnswer = (index: number, newAnswer: UserAnswer) => {
+const updateUserAnswer = (index: number, newAnswer: UserAnswerDTO) => {
     if (index === -1) {
         userAnswer.value.push(newAnswer);
     } else {
@@ -368,11 +208,20 @@ const onSubmit = () => {
         centered: true,
         onOk: async () => {
             //call api
-            const answerObject = TransferUserAnswerData.transferToUserAnswersObject(userAnswer.value);
-            const answer = TransferUserAnswerData.transferFromUserAnswersObject(answerObject);
-            console.log(userAnswer.value);
-            console.log(answerObject);
-            console.log(answer);
+            const answerObject = TransferUserAnswerData.transferToUserAnswerSubmit(
+                userAnswer.value,
+            );
+            const result = await ApiTest.Submit({
+                attemptId: attemptData.value.attemptId,
+                userAnswers: answerObject,
+            });
+
+            if (!result.data.success) {
+                message.error("Submit failed!");
+                return;
+            }
+            message.info("Submit successfully!");
+            // router.push({ name: "" });
         },
     });
 };
@@ -381,7 +230,7 @@ const onLoadCurrentQuestion = (index: number) => {
     syncMatchingHeights();
     currentQuestionIsSkipped.value = false;
 
-    currentQuestion.value = quiz.question[index] as ResponseQuestion;
+    currentQuestion.value = quiz.value[index] as ResponseQuestion;
     const answer = userAnswer.value.find((x) => x.questionId === currentQuestion.value.id);
 
     switch (currentQuestion.value.type) {
@@ -421,14 +270,14 @@ const onLoadCurrentQuestion = (index: number) => {
 };
 
 const onNextQuestion = () => {
-    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
-    if (index < quiz.question.length - 1) {
+    const index = quiz.value.findIndex((x) => x.id === currentQuestion.value.id);
+    if (index < quiz.value.length - 1) {
         onLoadCurrentQuestion(index + 1);
     }
 };
 
 const onPreviousQuestion = () => {
-    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+    const index = quiz.value.findIndex((x) => x.id === currentQuestion.value.id);
     if (index > 0) {
         onLoadCurrentQuestion(index - 1);
     }
@@ -439,12 +288,12 @@ const userAnswerContainQuestion = (questionId: string) => {
 };
 
 const hasNextQuestion = computed(() => {
-    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
-    return index !== -1 && index < quiz.question.length - 1;
+    const index = quiz.value.findIndex((x) => x.id === currentQuestion.value.id);
+    return index !== -1 && index < quiz.value.length - 1;
 });
 
 const hasPreviousQuestion = computed(() => {
-    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+    const index = quiz.value.findIndex((x) => x.id === currentQuestion.value.id);
     return index !== -1 && index > 0;
 });
 
@@ -496,9 +345,9 @@ const isOptionExceed = computed(() => {
 //#endregion
 
 //#region timer
-const endTime: Dayjs = dayjs().add(61, "second");
+const endTime: Dayjs = dayjs().add((attemptData.value.timeRemaining * 60), "second");
 
-const remainingTime = ref<number>(endTime.diff(dayjs(), "second"));
+const remainingTime = ref<number>(attemptData.value.timeRemaining * 60);
 let timer: ReturnType<typeof setInterval> | null = null;
 
 const formattedTime = computed<string>(() => {
@@ -515,19 +364,31 @@ const updateCountdown = (): void => {
     if (diff <= 0 && timer) {
         clearInterval(timer);
         timer = null;
+        //trigger submit final here
     }
 };
-
-timer = setInterval(updateCountdown, 1000);
 
 //#endregion
 
 //#region auto save
-const autoSaver = ref<number>();
-const autoSave = () => {
+let autoSaver: ReturnType<typeof setInterval> | null = null;
+const autoSave = async () => {
+    //call api submit
+    const answerObject = TransferUserAnswerData.transferToUserAnswerSubmit(userAnswer.value);
+
+    const result = await ApiTest.Submit({
+        attemptId: attemptData.value.attemptId,
+        userAnswers: answerObject,
+        isSubmit: false,
+    });
+
+    if (!result.data.success) {
+        message.error("Auto failed!");
+        return;
+    }
+
     message.info("Auto saved");
 };
-
 //#endregion
 
 //#region flag
@@ -555,18 +416,20 @@ const isCurrentQuestionFlagged = computed(() => {
 //#region leave guard
 onUnmounted(() => {
     if (timer) clearInterval(timer);
-    if (autoSaver.value) clearInterval(autoSaver.value);
+    if (autoSaver) clearInterval(autoSaver);
 });
 //#endregion
 
-onMounted(() => {
-    onLoadCurrentQuestion(0);
+onMounted(async () => {
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
 
+    await getAttemptData();
+    onLoadCurrentQuestion(0);
+
     updateCountdown();
     timer = setInterval(updateCountdown, 1000);
-    autoSaver.value = setInterval(autoSave, 60_000); //save each 60s
+    autoSaver = setInterval(autoSave, 60_000); //save each 60s
 });
 </script>
 
@@ -580,9 +443,9 @@ onMounted(() => {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="22">
-                    <span> {{ quiz.title }}</span> <br />
+                    <span> {{ attemptData?.name }}</span> <br />
                     <span>
-                        {{ quiz.description }}
+                        {{ attemptData?.questionCount }}
                     </span>
                 </a-col>
             </a-row>
@@ -608,7 +471,7 @@ onMounted(() => {
                                 userAnswerContainQuestion(item.id) ? 'completed-question' : '',
                                 flagContainQuestion(item.id) ? 'flagged-question' : '',
                             ]"
-                            v-for="(item, index) in quiz.question"
+                            v-for="(item, index) in quiz"
                             @click="onLoadCurrentQuestion(index)"
                         >
                             <span> {{ index + 1 }} </span>
@@ -624,20 +487,18 @@ onMounted(() => {
                 </div>
             </div>
             <div class="content-item">
-                <div class="section question-section">
+                <div v-if="loading">
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                </div>
+                <div v-else class="section question-section">
                     <div
-                        :class="[
-                            'learn-question',
-                            currentQuestion.textFormat === QUESTION_FORMAT.HTML ? '' : 'd-none',
-                        ]"
+                        v-if="currentQuestion.textFormat.toString() === '0'"
+                        :class="['learn-question']"
                         v-html="currentQuestion.questionText"
                     ></div>
-                    <div
-                        :class="[
-                            'learn-question',
-                            currentQuestion.textFormat === QUESTION_FORMAT.HTML ? 'd-none' : '',
-                        ]"
-                    >
+                    <div v-else :class="['learn-question']">
                         {{ currentQuestion.questionText }}
                     </div>
                     <div class="section answer-section">

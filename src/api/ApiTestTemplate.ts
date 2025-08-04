@@ -9,6 +9,7 @@ const END_POINTS = {
     UPDATE: "TestTemplate/{testTemplateId}",
     DELETE: "TestTemplate/{testTemplateId}",
     IMPORT_FILE: "TestTemplate/ImportFile",
+    GET_PERMISSION: "TestTemplate/{testTemplateId}/Permissions",
 };
 
 class ApiTestTemplate {
@@ -50,6 +51,11 @@ class ApiTestTemplate {
                 "Content-Type": "multipart/form-data",
             },
         });
+    };
+
+    GetPermissions = async (templateId: string) => {
+        const url = END_POINTS.GET_PERMISSION.replace("{testTemplateId}", templateId);
+        return await Api.get(url);
     };
 }
 

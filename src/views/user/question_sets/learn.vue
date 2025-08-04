@@ -556,18 +556,18 @@ const resetUserAnswer = () => {
             break;
         }
         case QUESTION_TYPE.ORDERING: {
-            currentQuestionInstruction.value = `Arrange these options to their correct order.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.matching");
             userAnswerOrdering.value = currentQuestion.value.questionData.ordering!;
             break;
         }
         case QUESTION_TYPE.MATCHING: {
-            currentQuestionInstruction.value = `Arrange the items to align with their correct matches.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.ordering");
             userAnswerMatchingLeft.value = currentQuestion.value.questionData.matching!.leftItems;
             userAnswerMatchingRight.value = currentQuestion.value.questionData.matching!.rightItems;
             break;
         }
         case QUESTION_TYPE.SHORT_TEXT: {
-            currentQuestionInstruction.value = `Fill in the blank the correct answer.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.short_text");
             userAnswerShortText.value = "";
             break;
         }

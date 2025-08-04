@@ -13,6 +13,11 @@ onMounted(() => {});
         <div class="header-logo">
             <RouterLink :to="{ name: 'home' }">AIQuizizz</RouterLink>
         </div>
+        <div class="header-navigator">
+            <RouterLink :to="{ name: 'User_Dashboard' }">Dashboards</RouterLink>
+            <RouterLink :to="{ name: 'User_Library' }">Library</RouterLink>
+            <RouterLink :to="{ name: 'User_Class' }">Class</RouterLink>
+        </div>
         <div
             class="header-authentication-navigator"
             :style="isUserLogged ? { display: 'none' } : {}"
@@ -52,8 +57,7 @@ onMounted(() => {});
     display: flex;
     list-style: none;
     align-items: center;
-    justify-content: space-between;
-    flex: 0.3;
+    justify-content: center;
     margin: 0;
 
     color: var(--text-color);
@@ -61,6 +65,36 @@ onMounted(() => {});
     font-style: normal;
     font-weight: 400;
     line-height: 100%; /* 16px */
+
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.header-navigator a {
+    color: var(--text-color);
+    text-decoration: none;
+    margin: 0px 10px;
+    position: relative;
+}
+
+.header-navigator a::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 0;
+    height: 3px;
+    background: var(--main-color);
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 2px;
+}
+
+.header-navigator a:hover::after,
+.header-navigator a:focus::after {
+    width: 100%;
 }
 
 .header-authentication-navigator {
@@ -107,6 +141,4 @@ onMounted(() => {});
         display: none;
     }
 }
-
-
 </style>

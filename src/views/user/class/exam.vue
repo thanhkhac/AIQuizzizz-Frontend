@@ -193,7 +193,7 @@ const onDeleteTest = (testId: string) => {
 };
 
 const onRedirectToAttempt = (testId: string) => {
-    router.push({ name: "User_Test_Attempt" });
+    router.push({ name: "User_Test_Attempt", params: { id: testId } });
 };
 
 onMounted(async () => {

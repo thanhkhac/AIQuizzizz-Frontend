@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import ApiAuthentication from "@/api/ApiAuthentication";
+
 import { ref, reactive, createVNode } from "vue";
 
 import { message, Modal } from "ant-design-vue";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
-
-import google_logo from "@/assets/google_logo.png";
+import { useAuthStore } from "@/stores/AuthStore";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
+
+const authStore = useAuthStore();
 
 const changePasswordFormState = reactive({
     currentPassword: "",
@@ -58,10 +61,9 @@ const onFinishChangePassword = () => {
     formRef.value
         .validate()
         .then(() => {
-            console.log("valid");
             showModalConfirmation();
         })
-        .catch((error: Error) => message.error(error.message));
+        .catch((error: any) => {});
 };
 
 const showModalConfirmation = () => {
@@ -72,9 +74,17 @@ const showModalConfirmation = () => {
         okText: "Yes",
         cancelText: "Cancel",
         onOk: async () => {
-            //call api change password
-            //message result
-            //logout
+            const result = await ApiAuthentication.ChangePassword({
+                currentPassword: changePasswordFormState.currentPassword,
+                newPassword: changePasswordFormState.newPassword,
+            });
+
+            if (result.data.success) {
+                message.success("Change password successfully!");
+                authStore.logOut();
+                return;
+            }
+            message.success("Change password failed!");
         },
     });
 };
@@ -136,26 +146,6 @@ const showModalConfirmation = () => {
                     </a-col>
                 </a-row>
             </a-form>
-        </div>
-        <div class="mt-4 content-item">
-            <div class="content-item-title">
-                <div>
-                    <span>Connect accounts</span>
-                    <span>Connect your account to other services</span>
-                </div>
-            </div>
-            <a-row class="mt-3">
-                <a-col :span="24" class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <img class="external-service-item" :src="google_logo" alt="" />
-                        <div class="ms-3 d-flex flex-column">
-                            <div class="fs-6 fw-bold">Google</div>
-                            <div class="text-secondary">Connect your Google account</div>
-                        </div>
-                    </div>
-                    <a-button class="main-color-btn" type="primary" size="large">Connect</a-button>
-                </a-col>
-            </a-row>
         </div>
         <div class="mt-4 content-item">
             <div class="content-item-title">
