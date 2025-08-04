@@ -5,6 +5,7 @@ const END_POINTS = {
     CREATE: "Test",
     UPDATE: "Test/{testId}",
     DELETE: "Test/{testId}",
+    ATTEMPT: "Test/{testId}/Attempt",
 };
 
 class ApiTest {
@@ -17,14 +18,19 @@ class ApiTest {
         return await Api.post(`${END_POINTS.CREATE}`, formState);
     };
 
-    Update = async (testId: string, formState: object) => {
-        const url = END_POINTS.UPDATE.replace("{testId}", testId);
+    Update = async (formState: any) => {
+        const url = END_POINTS.UPDATE.replace("{testId}", formState.testId);
         return await Api.patch(url, formState); //body 2 //query 3
     };
 
     Delete = async (testId: string) => {
         const url = END_POINTS.DELETE.replace("{testId}", testId);
         return await Api.delete(url);
+    };
+
+    Attempt = async (testId: string) => {
+        const url = END_POINTS.ATTEMPT.replace("{testId}", testId);
+        return await Api.post(url);
     };
 }
 

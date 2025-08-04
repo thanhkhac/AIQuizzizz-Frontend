@@ -192,12 +192,15 @@ onMounted(async () => {
             <div class="modal-title-container">
                 <a-row class="w-100 d-flex align-items-center">
                     <a-col :span="1">
-                        <RouterLink @click="closeModal" :to="{ name: '' }">
+                        <RouterLink
+                            @click="closeModal"
+                            :to="{ name: 'User_Class_Exam', params: { id: formState.classId } }"
+                        >
                             <i class="bx bx-chevron-left navigator-back-button"></i>
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span>Assign new test for class SEP490</span>
+                        <span>Assign new test for class {{ className }}</span>
                     </a-col>
                 </a-row>
             </div>
@@ -369,7 +372,13 @@ onMounted(async () => {
             </div>
         </div>
         <template #footer>
-            <a-button class="main-color-btn" size="large" key="submit" type="ghost">
+            <a-button
+                class="main-color-btn-ghost"
+                size="large"
+                key="submit"
+                type="ghost"
+                @click="closeModal"
+            >
                 Cancel
             </a-button>
             <a-button

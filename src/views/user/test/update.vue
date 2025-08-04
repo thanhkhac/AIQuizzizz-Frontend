@@ -11,6 +11,7 @@ import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 import type { RequestQuestion } from "@/models/request/question";
 import type { ResponseQuestion } from "@/models/response/question";
 import type { Folder } from "@/models/response/folder/folder";
+import type { Class } from "@/models/response/class/class";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import TEST_GRADE_ATTEMPT_METHOD from "@/constants/testGradeAttempMethod";
@@ -31,6 +32,25 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
+//#region  check class
+const classData = ref<Class>();
+const getClassData = async () => {
+    if (!Validator.isValidGuid(formState.classId)) {
+        isDataValid.value = false;
+        router.push({ name: "404" });
+        return;
+    }
+
+    const result = await ApiClass.GetById(formState.classId);
+    if (!result.data.success) {
+        isDataValid.value = false;
+        router.push({ name: "404" });
+        return;
+    }
+    classData.value = result.data.data;
+};
+//#endregion
+
 //#region formState
 
 interface FormState {
@@ -47,7 +67,8 @@ interface FormState {
     shuffle: number;
     maxAttempt: number;
     passingScore: number;
-    questions: RequestQuestion[]; // Define this interface below
+    createUpdateQuestions: RequestQuestion[];
+    deleteQuestionIds: string[];
 }
 
 const formRef = ref();
@@ -65,7 +86,8 @@ const formState = reactive<FormState>({
     shuffle: 2,
     maxAttempt: 2,
     passingScore: 50,
-    questions: [],
+    createUpdateQuestions: [],
+    deleteQuestionIds: [],
 });
 
 const rules = {
@@ -102,19 +124,31 @@ const getData = async () => {
         return;
     }
 
-    Object.assign(formState, result.data.data);
-    formState.startTime = result.data.data.timeStart;
-    formState.endTime = result.data.data.timeEnd;
-    formState.questions = result.data.data.questions.map((x: ResponseQuestion) =>
+    formState.classId = result.data.data.classId;
+    formState.testId = result.data.data.testId;
+    formState.name = result.data.data.name;
+    formState.startTime = result.data.data.startTime;
+    formState.endTime = result.data.data.endTime;
+    formState.gradeAttemptMethod = result.data.data.gradeAttemptMethod;
+    formState.gradeQuestionMethod = result.data.data.gradeQuestionMethod;
+    formState.isAllowReviewAfterSubmit = result.data.data.isAllowReviewAfterSubmit;
+    formState.isShowCorrectAnswerInReview = result.data.data.isShowCorrectAnswerInReview;
+    formState.maxAttempt = result.data.data.maxAttempt;
+    formState.shuffle = result.data.data.shuffle;
+    formState.passingScore = result.data.data.passingScore;
+    formState.timeLimit = result.data.data.timeLimit;
+
+    formState.createUpdateQuestions = result.data.data.questions.map((x: ResponseQuestion) =>
         TransferQuestionData.transformResponseToRequest(x),
     );
+    //clear redundant
     loading.value = false;
 };
 //#endregion
 
 //#region crud question
 const createQuestionTemplate = (): RequestQuestion => ({
-    id: Date.now().toString(),
+    id: `new_${Date.now().toString()}`,
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
@@ -140,21 +174,39 @@ const createQuestionTemplate = (): RequestQuestion => ({
 });
 
 const onAddQuestion = () => {
-    if (formState.questions.length >= 10) {
+    if (formState.createUpdateQuestions.length >= 100) {
         message.warning("Each question set could have at most 100 questions");
         return;
     }
 
-    formState.questions.push(createQuestionTemplate());
+    formState.createUpdateQuestions = [
+        ...formState.createUpdateQuestions,
+        createQuestionTemplate(),
+    ];
+
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+        nextTick(() => {
+            const lastIndex = formState.createUpdateQuestions.length;
+            requestAnimationFrame(() => {
+                scrollerRef.value?.scrollToItem(lastIndex);
+            });
+        });
+    });
 };
 
 const onRemoveQuestion = (index: number) => {
-    if (formState.questions.length <= 1) {
+    if (formState.createUpdateQuestions.length <= 1) {
         message.warning("Each question set must have at least 1 questions");
         return;
     }
+    const questionId = formState.createUpdateQuestions[index].id;
+    if (!questionId.startsWith("new_") && questionId) formState.deleteQuestionIds.push(questionId);
 
-    formState.questions.splice(index, 1);
+    formState.createUpdateQuestions = [
+        ...formState.createUpdateQuestions.slice(0, index),
+        ...formState.createUpdateQuestions.slice(index + 1),
+    ];
 };
 
 //#endregion
@@ -176,7 +228,7 @@ const onFinish = async () => {
 
     const validation: RequestQuestion[][] = [
         //invalid question text
-        formState.questions.filter((x) => {
+        formState.createUpdateQuestions.filter((x) => {
             const questionText = x.questionText
                 .replace(/^<p>/, "") //replace <p> at the start
                 .replace(/<\/p>$/, "") //replace </p> at the end
@@ -186,7 +238,7 @@ const onFinish = async () => {
         }),
 
         //invalid explain text
-        formState.questions.filter((x) => {
+        formState.createUpdateQuestions.filter((x) => {
             const explainText = x.explainText
                 ? x.explainText
                       .replace(/^<p>/, "")
@@ -198,7 +250,7 @@ const onFinish = async () => {
         }),
 
         //invalid multiplechoice
-        formState.questions.filter(
+        formState.createUpdateQuestions.filter(
             (x) =>
                 x.type === QUESTION_TYPE.MULTIPLE_CHOICE &&
                 (x.multipleChoices.some(
@@ -208,7 +260,7 @@ const onFinish = async () => {
         ),
 
         //invalid matching
-        formState.questions.filter(
+        formState.createUpdateQuestions.filter(
             (x) =>
                 x.type === QUESTION_TYPE.MATCHING &&
                 (x.matchingPairs.some(
@@ -220,7 +272,7 @@ const onFinish = async () => {
         ),
 
         //invalid ordering
-        formState.questions.filter(
+        formState.createUpdateQuestions.filter(
             (x) =>
                 x.type === QUESTION_TYPE.ORDERING &&
                 x.orderingItems.some(
@@ -229,7 +281,7 @@ const onFinish = async () => {
         ),
 
         //invalid short text
-        formState.questions.filter(
+        formState.createUpdateQuestions.filter(
             (x) =>
                 x.type === QUESTION_TYPE.SHORT_TEXT &&
                 (x.shortAnswer.trim().length === 0 || x.shortAnswer.trim().length > 500),
@@ -243,7 +295,9 @@ const onFinish = async () => {
         }
     });
 
-    let indexes = Array.from(invalidQuestion).map((x) => formState.questions.indexOf(x) + 1);
+    let indexes = Array.from(invalidQuestion).map(
+        (x) => formState.createUpdateQuestions.indexOf(x) + 1,
+    );
 
     if (isInvalid) {
         Modal.error({
@@ -261,11 +315,16 @@ const showModalConfirmation = () => {
         content: "Make sure to review your contents before proceeding.",
         centered: true,
         onOk: async () => {
-            const result = await ApiTest.Create(formState);
-            if (result.data.success) {
-                isDataValid.value = false; //disable safe guard
-                message.success("Updated successfully!");
-            }
+            formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
+                x.id.startsWith("new_") ? { ...x, id: "" } : x,
+            ); //remove new question id
+            console.log(formState);
+
+            // const result = await ApiTest.Update(formState);
+            // if (result.data.success) {
+            //     isDataValid.value = false; //disable safe guard
+            //     message.success("Updated successfully!");
+            // }
         },
     });
 };
@@ -366,13 +425,18 @@ const onBackToTestTemplate = () => {
 //use for both modal import event
 const onModalImport = (selected: ResponseQuestion[]) => {
     message.success(`Imported ${selected.length} questions`);
-    const importQuestions = selected.map((x) => TransferQuestionData.transformResponseToRequest(x));
-    formState.questions = [...formState.questions, ...importQuestions];
+    const importQuestions = selected
+        .map((x) => TransferQuestionData.transformResponseToRequest(x))
+        .map((item, i) => ({
+            ...item,
+            id: `new_${formState.createUpdateQuestions.length + i}`,
+        }));
+    formState.createUpdateQuestions = [...formState.createUpdateQuestions, ...importQuestions];
 
     nextTick(() => {
         scrollerRef.value?.forceUpdate?.();
         nextTick(() => {
-            const lastIndex = formState.questions.length;
+            const lastIndex = formState.createUpdateQuestions.length;
             requestAnimationFrame(() => {
                 scrollerRef.value?.scrollToItem(lastIndex);
             });
@@ -419,6 +483,7 @@ const handleScroll = () => {
 };
 
 onMounted(async () => {
+    await getClassData();
     await getData();
     window.addEventListener("beforeunload", handleBeforeUnload);
 
@@ -436,7 +501,8 @@ onMounted(async () => {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="23">
-                    <span>Assign new test for class SEP490</span><br />
+                    <span>Update test for class {{ classData?.name }} | {{ formState.name }}</span>
+                    <br />
                     <span>Add questions, set answers and configure test settings</span>
                 </a-col>
             </a-row>
@@ -460,7 +526,7 @@ onMounted(async () => {
                             <div class="import-button">
                                 {{
                                     $t("create_QS.quiz.total", {
-                                        number: formState.questions.length
+                                        number: formState.createUpdateQuestions.length
                                             .toString()
                                             .padStart(3, "0"),
                                     })
@@ -488,7 +554,7 @@ onMounted(async () => {
                         ref="scrollerRef"
                         class="scroller"
                         key-field="id"
-                        :items="formState.questions"
+                        :items="formState.createUpdateQuestions"
                         :min-item-size="650"
                         :buffer="800"
                         :prerender="10"
@@ -520,7 +586,7 @@ onMounted(async () => {
     <SettingTestModal
         ref="settingModalRef"
         :form-ref="formRef"
-        :class-name="'SEP490'"
+        :class-name="classData?.name!"
         :form-state="formState"
     />
     <ChooseFolderModal
