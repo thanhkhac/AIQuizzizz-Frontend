@@ -123,7 +123,7 @@ async function onToggle(record: ManageAccountsResp) {
                 content: "Are you sure you want to activate this user?",
                 centered: true,
                 onOk: async () => {
-                    await ApiAdmin.ActiveUser(record.id);
+                    await ApiAdmin.BanUser(record.id, { isBanned: false });
                     await getUsersData();
                 },
                 onCancel: async () => {
@@ -136,7 +136,7 @@ async function onToggle(record: ManageAccountsResp) {
                 content: "Are you sure you want to ban this user?",
                 centered: true,
                 onOk: async () => {
-                    await ApiAdmin.BanUser(record.id);
+                    await ApiAdmin.BanUser(record.id, { isBanned: true });
                     await getUsersData();
                 },
                 onCancel: async () => {
