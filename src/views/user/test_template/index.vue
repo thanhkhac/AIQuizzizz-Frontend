@@ -306,7 +306,7 @@ onMounted(async () => {
         ref="shareModalRef"
         :id="chosenTemplate.testTemplateId"
         :name="chosenTemplate.name"
-        :mode="t('share_modal.mode.template')"
+        :mode="'template'"
         :options="[VISIBILITY.PRIVATE]"
         :visibility="VISIBILITY.PRIVATE"
     />

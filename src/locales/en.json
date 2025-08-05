@@ -337,7 +337,7 @@
         }
     },
     "share_modal": {
-        "title": "Share {mode} {name}",
+        "title": "Share ",
         "sub_title": "Share t his quiz with students, colleagues, or on social media",
         "mode": {
             "quiz": "Quiz",
@@ -359,11 +359,11 @@
             }
         },
         "permission": {
-            "edit": {
+            "Editable": {
                 "mode": "edit",
                 "explain": "Organise, add and edit"
             },
-            "view": {
+            "ViewOnly": {
                 "mode": "view",
                 "explain": "View only"
             }
@@ -378,7 +378,7 @@
         "component_title": {
             "visibility": "Visibility",
             "share_with_email": "Share with email",
-            "people_with_access": "People with access",
+            "people_with_access": "People with access ({number})",
             "share_with_class": "Share with your classes"
         },
         "other": {

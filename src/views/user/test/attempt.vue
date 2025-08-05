@@ -345,7 +345,7 @@ const isOptionExceed = computed(() => {
 //#endregion
 
 //#region timer
-const endTime: Dayjs = dayjs().add((attemptData.value.timeRemaining * 60), "second");
+const endTime = ref<Dayjs>(dayjs().add(attemptData.value.timeRemaining * 60, "second"));
 
 const remainingTime = ref<number>(attemptData.value.timeRemaining * 60);
 let timer: ReturnType<typeof setInterval> | null = null;
@@ -359,7 +359,7 @@ const formattedTime = computed<string>(() => {
 });
 
 const updateCountdown = (): void => {
-    const diff = endTime.diff(dayjs(), "second");
+    const diff = endTime.value.diff(dayjs(), "second");
     remainingTime.value = diff > 0 ? diff : 0;
     if (diff <= 0 && timer) {
         clearInterval(timer);
@@ -425,6 +425,9 @@ onMounted(async () => {
     window.addEventListener("resize", syncMatchingHeights);
 
     await getAttemptData();
+    remainingTime.value = attemptData.value.timeRemaining * 60;
+    endTime.value = dayjs().add(attemptData.value.timeRemaining * 60, "second");
+
     onLoadCurrentQuestion(0);
 
     updateCountdown();

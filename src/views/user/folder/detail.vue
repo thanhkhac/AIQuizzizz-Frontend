@@ -14,14 +14,13 @@ import { useRoute, useRouter } from "vue-router";
 import Input from "@/shared/components/Common/Input.vue";
 import { Modal, message } from "ant-design-vue";
 
-
 const route = useRoute();
 const router = useRouter();
 
 const { t } = useI18n();
 const emit = defineEmits(["updateSidebar"]);
 
-const folderId = ref(route.params.id || "");
+const folderId = ref(route.params.id.toString() || "");
 const folderData = ref<Folder>({
     folderTestId: "",
     name: "",
@@ -208,6 +207,17 @@ const onUpdateFolder = async () => {
 };
 //#endregion
 
+//#region share modal
+import ShareModal from "@/shared/modals/ShareModal.vue";
+import VISIBILITY from "@/constants/visibility";
+const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
+
+const onOpenShareModal = (template: TestTemplate) => {
+    shareModalRef.value?.openModal();
+};
+
+//#endregion
+
 onMounted(async () => {
     const sidebarActiveItem = "folder";
     emit("updateSidebar", sidebarActiveItem);
@@ -221,7 +231,12 @@ onMounted(async () => {
         <div class="title-container">
             <div class="main-title"><span>Library Folder Test Details</span> <br /></div>
             <div class="title-button-container">
-                <a-button type="primary" class="ms-3 main-color-btn" size="large">
+                <a-button
+                    type="primary"
+                    class="ms-3 main-color-btn"
+                    size="large"
+                    @click="onOpenShareModal"
+                >
                     <i class="me-2 bx bx-share-alt"></i>
                     {{ $t("detail_QS.buttons.share_quiz") }}
                 </a-button>
@@ -389,6 +404,15 @@ onMounted(async () => {
             </a-button>
         </template>
     </a-modal>
+
+    <ShareModal
+        ref="shareModalRef"
+        :id="folderId"
+        :name="folderData.name"
+        :mode="'folder'"
+        :options="[VISIBILITY.PRIVATE]"
+        :visibility="VISIBILITY.PRIVATE"
+    />
 </template>
 <style scoped>
 .danger-zone {

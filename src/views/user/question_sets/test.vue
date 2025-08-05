@@ -2,7 +2,7 @@
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 const animationPath = new URL("@/assets/confetti.lottie", import.meta.url).href;
 
-import { ref, computed, onMounted, nextTick, reactive } from "vue";
+import { ref, computed, onMounted, nextTick, reactive, watch } from "vue";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import type { ResponseQuestion } from "@/models/response/question";
 
@@ -11,6 +11,9 @@ import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import { Modal } from "ant-design-vue";
 import Highcharts from "highcharts";
+import { useRouter, useRoute } from "vue-router";
+const route = useRoute();
+const router = useRouter();
 
 import { useI18n } from "vue-i18n";
 
@@ -266,8 +269,6 @@ const quiz = {
     ],
 };
 
-const completed = ref<ResponseQuestion[]>([]); // for session
-
 const incorrect = computed((): UserAnswer[] => {
     return userAnswer.value.filter((x) => x.result === false);
 });
@@ -292,6 +293,10 @@ const userAnswerOrdering = ref<any[]>([]);
 const userAnswerShortText = ref<string>("");
 
 const userAnswer = ref<UserAnswer[]>([]);
+
+//#region init data
+const questionSetId = ref<string>(route.params.id.toString());
+//#endregion
 
 //#region animation
 const animationRef = ref();
@@ -873,10 +878,13 @@ const getInCorrectPercentage = () => {
     return Math.floor((incorrect.value.length / quiz.question.length) * 100);
 };
 
-const generateChart = () => {
+const toggleResult = () => {
     const content_item_result = $(".content-item-test-result");
     if (content_item_result) $(content_item_result).slideToggle();
+};
 
+const generateChart = () => {
+    toggleResult();
     Highcharts.setOptions({
         lang: {
             decimalPoint: ".",
@@ -998,6 +1006,7 @@ const timerEnd = () => {
 
 //#endregion
 
+//#region calculate UI
 const dragOptions = {
     scroll: true,
     scrollSensitivity: 100,
@@ -1034,8 +1043,33 @@ function syncMatchingHeights() {
         });
     });
 }
+//#endregion
+
+//#region final buttons
+const onNewTest = () => {
+    window.location.reload();
+};
+
+const onRedirectToLearn = () => {
+    router.push({ name: "User_QuestionSet_Learn", params: { id: questionSetId.value } });
+};
+
+const onRetest = () => {
+    const incorrectIds = incorrect.value.map((x) => x.questionId);
+    quiz.question = quiz.question.filter((x) => incorrectIds.includes(x.id));
+
+    userAnswer.value = [];
+    isSubmitted.value = false;
+    onLoadCurrentQuestion(0);
+    syncMatchingHeights();
+    timerStart();
+    toggleResult();
+};
+
+//#endregion
 
 onMounted(() => {
+    openSettingModal();
     onLoadCurrentQuestion(0);
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
@@ -1129,7 +1163,7 @@ onMounted(() => {
                             <div class="result-section-title">
                                 {{ $t("practice_test.final_modal.button_title") }}
                             </div>
-                            <div class="result-button">
+                            <div class="result-button" @click="onNewTest">
                                 <i class="bx bxs-news"></i>
                                 <div>
                                     <div class="result-button-title">
@@ -1140,7 +1174,11 @@ onMounted(() => {
                                     </div>
                                 </div>
                             </div>
-                            <div class="result-button" v-if="getInCorrectPercentage() <= 30">
+                            <div
+                                class="result-button"
+                                v-if="getInCorrectPercentage() <= 30"
+                                @click="onRedirectToLearn"
+                            >
                                 <i class="bx bx-analyse"></i>
                                 <div>
                                     <div class="result-button-title">
@@ -1151,7 +1189,11 @@ onMounted(() => {
                                     </div>
                                 </div>
                             </div>
-                            <div class="result-button" v-if="getInCorrectPercentage() > 30">
+                            <div
+                                class="result-button"
+                                v-if="getInCorrectPercentage() > 30"
+                                @click="onRetest"
+                            >
                                 <i class="bx bx-reset"></i>
                                 <div>
                                     <div class="result-button-title">

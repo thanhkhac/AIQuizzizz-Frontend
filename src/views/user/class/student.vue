@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ApiClass from "@/api/ApiClass";
 
-import { ref, onMounted, reactive, computed, onUpdated, h } from "vue";
+import { ref, onMounted, reactive, computed, onUpdated, h, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
 
@@ -194,21 +194,27 @@ const allowCopy = ref(true);
 const isInvitaionLoading = ref(false);
 const onOpenInvitationModal = async () => {
     //call api get current code
-    if (invitationFormState.code) return;
-
-    const result = await ApiClass.GetInivationCode(classId.value.toString());
-    if (result.data.success) {
-        invitationFormState.code = result.data.data;
-    } else {
-        invitationFormState.code = "Code empty or expired!";
-        inivitationLink.value = "Code empty or expired!";
-        allowCopy.value = false;
-    }
-
+    await getInvitationCode();
     modal_invitation_open.value = true;
 };
 
-const onResetInvitation = () => {};
+const getInvitationCode = async () => {
+    debugger;
+    const result = await ApiClass.GetInivationCode(classId.value.toString());
+    if (result.data.success) {
+        invitationFormState.code = result.data.data;
+        inivitationLink.value =
+            window.location.origin + `/user/class/invitation/${invitationFormState.code}`;
+    }
+};
+
+const onResetInvitation = async () => {
+    const result = await ApiClass.CreateNewInvitation(invitationFormState);
+    if (result.data.success) {
+        message.success("Created new inivation code!");
+        onOpenInvitationModal();
+    }
+};
 
 const onCopyInvitationCode = (mode: string) => {
     if (!allowCopy.value) return;
@@ -223,7 +229,7 @@ const onCopyInvitationCode = (mode: string) => {
             message.success("Copied!");
         })
         .catch(() => {
-            message.error("Copied failed!");
+            message.error("Copy failed!");
         });
 };
 

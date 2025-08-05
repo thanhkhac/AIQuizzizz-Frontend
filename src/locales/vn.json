@@ -337,7 +337,7 @@
         }
     },
     "share_modal": {
-        "title": "Chia sẻ {mode} {name}",
+        "title": "Chia sẻ ",
         "sub_title": "Chia sẻ bộ câu hỏi này với học sinh, đồng nghiệp hoặc trên mạng xã hội",
         "mode": {
             "quiz": "bộ câu hỏi",
@@ -359,11 +359,11 @@
             }
         },
         "permission": {
-            "edit": {
+            "Editable": {
                 "mode": "Chỉnh sửa",
                 "explain": "Sắp xếp, thêm và chỉnh sửa"
             },
-            "view": {
+            "ViewOnly": {
                 "mode": "Xem",
                 "explain": "Chỉ được xem"
             }
@@ -378,7 +378,7 @@
         "component_title": {
             "visibility": "Quyền hiển thị",
             "share_with_email": "Chia sẻ qua email",
-            "people_with_access": "Người có quyền truy cập",
+            "people_with_access": "Người có quyền truy cập ({number})",
             "share_with_class": "Chia sẻ với lớp của bạn"
         },
         "other": {
