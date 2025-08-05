@@ -697,9 +697,9 @@
             },
             "acc_role": {
                 "all": "All",
-                "admin": "Admin",
-                "moderator": "Moderator",
-                "user": "User"
+                "Administrator": "Administrator",
+                "Moderator": "Moderator",
+                "User": "User"
             }
         },
         "manage_subscription": {},

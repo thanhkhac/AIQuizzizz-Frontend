@@ -697,9 +697,9 @@
             },
             "acc_role": {
                 "all": "Tất cả",
-                "admin": "Quản trị viên",
-                "moderator": "Điều hành viên",
-                "user": "Người dùng"
+                "Administrator": "Quản trị viên",
+                "Moderator": "Điều hành viên",
+                "User": "Người dùng"
             }
         },
         "manage_subscription": {},
