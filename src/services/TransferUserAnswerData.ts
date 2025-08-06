@@ -18,13 +18,15 @@ function combineMatching(
 
 class TransferUserAnswerData {
     transferToUserAnswerSubmit(userAnswers: UserAnswerDTO[]): UserAnswerSubmit[] {
+        console.log(userAnswers);
+
         return userAnswers.map((ans) => ({
             questionId: ans.questionId,
             userAnswerData: {
                 type: ans.type,
                 multipleChoice: ans.multipleChoices ?? [],
                 matching: combineMatching(ans.matchingLeft ?? [], ans.matchingRight ?? []),
-                ordering: ans.ordering?.map((x) => ({ itemId: x.id, order: x.correctOrder })) ?? [],
+                ordering: ans.ordering?.map((x, index) => ({ itemId: x.id, order: index })) ?? [],
                 shortText: ans.shortText ?? "",
             },
         }));
@@ -47,7 +49,6 @@ class TransferUserAnswerData {
                     ordering: x.userAnswerData.ordering?.length
                         ? x.userAnswerData.ordering.map((x) => ({
                               id: x.itemId,
-                              correctOrder: x.order,
                           }))
                         : [],
                     shortText: x.userAnswerData.shortText ?? "",

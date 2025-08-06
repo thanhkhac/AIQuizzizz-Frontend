@@ -57,6 +57,7 @@ const currentQuestion = ref<ResponseQuestion>({
     scoreGraded: 0,
     textFormat: "0",
     type: "MultipleChoice",
+    correctMultipleChoiceCount: 0,
     questionData: {
         matching: null,
         multipleChoice: null,
@@ -248,7 +249,7 @@ const onLoadCurrentQuestion = (index: number) => {
 
     switch (currentQuestion.value.type) {
         case QUESTION_TYPE.MULTIPLE_CHOICE: {
-            currentQuestionInstruction.value = `Choose (${currentQuestion.value.questionData.multipleChoice?.filter((x) => x.isAnswer).length}) options.`;
+            currentQuestionInstruction.value = `Choose (${currentQuestion.value.correctMultipleChoiceCount}) options.`;
             userAnswerMultipleChoice.value = answer ? answer?.multipleChoices! : [];
             break;
         }
@@ -256,7 +257,11 @@ const onLoadCurrentQuestion = (index: number) => {
         case QUESTION_TYPE.ORDERING: {
             currentQuestionInstruction.value = `Arrange these options to their correct order.`;
             userAnswerOrdering.value = answer
-                ? answer?.ordering!
+                ? answer?.ordering!.map((x) => ({
+                      id: x.id,
+                      text: currentQuestion.value.questionData.ordering?.find((c) => c.id === x.id)
+                          ?.text,
+                  }))
                 : currentQuestion.value.questionData.ordering?.map((x) => x) || [];
             break;
         }
@@ -264,11 +269,21 @@ const onLoadCurrentQuestion = (index: number) => {
         case QUESTION_TYPE.MATCHING: {
             currentQuestionInstruction.value = `Arrange the items to align with their correct matches.`;
             userAnswerMatchingLeft.value = answer
-                ? answer?.matchingLeft!
+                ? answer?.matchingLeft!.map((x) => ({
+                      id: x.id,
+                      text: currentQuestion.value.questionData.matching?.leftItems.find(
+                          (m) => m.id === x.id,
+                      )?.text,
+                  }))
                 : currentQuestion.value.questionData.matching!.leftItems.map((x) => x) || [];
 
             userAnswerMatchingRight.value = answer
-                ? answer?.matchingRight!
+                ? answer?.matchingRight!.map((x) => ({
+                      id: x.id,
+                      text: currentQuestion.value.questionData.matching?.rightItems.find(
+                          (m) => m.id === x.id,
+                      )?.text,
+                  }))
                 : currentQuestion.value.questionData.matching!.rightItems.map((x) => x) || {};
 
             break;
@@ -375,13 +390,20 @@ const formattedTime = computed<string>(() => {
     return `${min}:${sec}`;
 });
 
-const updateCountdown = (): void => {
+const updateCountdown = async () => {
     const diff = endTime.value.diff(dayjs(), "second");
     remainingTime.value = diff > 0 ? diff : 0;
     if (diff <= 0 && timer) {
         clearInterval(timer);
         timer = null;
         //trigger submit final here
+        const result = await sendUserAnswer(true);
+        if (!result) {
+            message.error("Submit failed");
+            return;
+        }
+        message.error("Time's up auto submit");
+        router.push({ name: "User_Class" });
     }
 };
 
@@ -391,33 +413,15 @@ const updateCountdown = (): void => {
 let autoSaver: ReturnType<typeof setInterval> | null = null;
 const autoSave = async () => {
     //call api submit
-    // const answerObject = TransferUserAnswerData.transferToUserAnswerSubmit(userAnswer.value);
 
-    // const result = await ApiTest.Submit({
-    //     attemptId: attemptData.value.attemptId,
-    //     userAnswers: answerObject,
-    //     isSubmit: false,
-    // });
-
-    if (remainingTime.value > 0) {
-        //auto save
-        const result = await sendUserAnswer(false);
-        if (!result) {
-            message.error("Auto save failed!");
-            return;
-        }
-
-        message.info("Auto saved");
-    } else {
-        //time's up
-        const result = await sendUserAnswer(true);
-        if (!result) {
-            message.error("Submit failed");
-            return;
-        }
-        message.error("Time's up auto submit");
-        router.push({ name: "User_Class" });
+    //auto save
+    const result = await sendUserAnswer(false);
+    if (!result) {
+        message.error("Auto save failed!");
+        return;
     }
+
+    message.info("Auto saved");
 };
 //#endregion
 
@@ -487,7 +491,7 @@ onMounted(async () => {
 
     updateCountdown();
     timer = setInterval(updateCountdown, 1000);
-    autoSaver = setInterval(autoSave, 60_000); //save each 60s
+    autoSaver = setInterval(autoSave, 30_000); //save each 30s
 });
 </script>
 
