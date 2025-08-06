@@ -24,7 +24,7 @@ export const useAuthStore = defineStore("authStore", {
         },
 
         logOut() {
-            // ApiAuthentication.LogOut();
+            ApiAuthentication.LogOut();
             this.user_info = "";
             localStorageService.ClearUserInfo();
             this.router.push("/login");

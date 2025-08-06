@@ -155,10 +155,10 @@ const onJoinClass = async () => {
         await joinClassFormRef.value.validate(); //this will throw err to catch
         const result = await ApiClass.JoinClass(joinClassFormState);
         if (!result.data.success) {
-            message.error("Join class failed");
+            message.error(t("message.join_class_failed"));
             return;
         }
-        message.success("Join class successfully.");
+        message.success(t("message.join_class_successfully"));
         await getData();
     } catch (error) {
         console.log(error);

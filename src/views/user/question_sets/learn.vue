@@ -30,7 +30,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const QUESTION_FORMAT = {
-    HTML: "HTML",
+    HTML: "Html",
     PLAIN_TEXT: "PlainText",
 };
 
@@ -347,11 +347,11 @@ const onAddComment = async () => {
     }
 
     if (result.data.success) {
-        message.success("Added successfully!");
+        message.success(t("message.added_successfully"));
         await getCommentData();
         return;
     }
-    message.success("Added failed!");
+    message.success(t("message.added_failed"));
 };
 
 const onEditComment = async (commentId: string) => {
@@ -366,11 +366,11 @@ const onEditComment = async (commentId: string) => {
 const onDeleteComment = async (commentId: string) => {
     const result = await ApiComment.Delete(commentId);
     if (result.data.success) {
-        message.success("Delete successfully!");
+        message.success(t("message.deleted_successfully"));
         await getCommentData();
         return;
     }
-    message.success("Delete failed!");
+    message.error(t("message.deleted_failed"));
 };
 
 const onTriggerReply = (comment: Comment) => {

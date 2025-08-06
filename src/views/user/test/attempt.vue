@@ -41,7 +41,7 @@ interface AttemptData {
 }
 
 const QUESTION_FORMAT = {
-    HTML: "HTML",
+    HTML: "Html",
     PLAIN_TEXT: "PlainText",
 };
 
@@ -103,20 +103,29 @@ const getAttemptData = async () => {
         const result = await ApiTest.Attempt(testId.value);
         attemptData.value = result.data.data;
 
+        if (attemptData.value.timeRemaining <= 0) {
+            message.error("Time's up");
+            router.push({ name: "User_Class" });
+            return;
+        }
+
         quiz.value = [...result.data.data.questions.map((x: any) => ({ id: x.questionId, ...x }))];
 
         userAnswer.value = TransferUserAnswerData.transferFromUserAnswerSubmit(
-            result.data.data.questions.map((x: any) => x.userAnswerDataDto),
+            result.data.data.questions.map((x: any) => ({
+                questionId: x.id,
+                userAnswerData: x.userAnswerDataDto,
+            })),
         );
 
         currentQuestion.value = quiz.value[0] as ResponseQuestion;
     } catch (error: any) {
+        console.log(error);
         if (!error.response.data.success) {
             isDataValid.value = false;
             router.push({ name: "404" });
             return;
         }
-        console.log(error);
     } finally {
         loading.value = false;
     }
@@ -201,6 +210,17 @@ const onUserAnswerChange = () => {
     }
 };
 
+const sendUserAnswer = async (isSubmit: boolean) => {
+    const answerObject = TransferUserAnswerData.transferToUserAnswerSubmit(userAnswer.value);
+    const result = await ApiTest.Submit({
+        attemptId: attemptData.value.attemptId,
+        userAnswers: answerObject,
+        isSubmit: isSubmit,
+    });
+
+    return result.data.success;
+};
+
 const onSubmit = () => {
     Modal.confirm({
         title: "Are you sure to submit your test?",
@@ -208,20 +228,13 @@ const onSubmit = () => {
         centered: true,
         onOk: async () => {
             //call api
-            const answerObject = TransferUserAnswerData.transferToUserAnswerSubmit(
-                userAnswer.value,
-            );
-            const result = await ApiTest.Submit({
-                attemptId: attemptData.value.attemptId,
-                userAnswers: answerObject,
-            });
-
-            if (!result.data.success) {
+            const result = await sendUserAnswer(true);
+            if (!result) {
                 message.error("Submit failed!");
                 return;
             }
             message.info("Submit successfully!");
-            // router.push({ name: "" });
+            router.push({ name: "User_Class" });
         },
     });
 };
@@ -295,6 +308,10 @@ const hasNextQuestion = computed(() => {
 const hasPreviousQuestion = computed(() => {
     const index = quiz.value.findIndex((x) => x.id === currentQuestion.value.id);
     return index !== -1 && index > 0;
+});
+
+const currentQuestionIndex = computed(() => {
+    return quiz.value.findIndex((x) => x.id === currentQuestion.value.id);
 });
 
 //#endregion
@@ -374,20 +391,33 @@ const updateCountdown = (): void => {
 let autoSaver: ReturnType<typeof setInterval> | null = null;
 const autoSave = async () => {
     //call api submit
-    const answerObject = TransferUserAnswerData.transferToUserAnswerSubmit(userAnswer.value);
+    // const answerObject = TransferUserAnswerData.transferToUserAnswerSubmit(userAnswer.value);
 
-    const result = await ApiTest.Submit({
-        attemptId: attemptData.value.attemptId,
-        userAnswers: answerObject,
-        isSubmit: false,
-    });
+    // const result = await ApiTest.Submit({
+    //     attemptId: attemptData.value.attemptId,
+    //     userAnswers: answerObject,
+    //     isSubmit: false,
+    // });
 
-    if (!result.data.success) {
-        message.error("Auto failed!");
-        return;
+    if (remainingTime.value > 0) {
+        //auto save
+        const result = await sendUserAnswer(false);
+        if (!result) {
+            message.error("Auto save failed!");
+            return;
+        }
+
+        message.info("Auto saved");
+    } else {
+        //time's up
+        const result = await sendUserAnswer(true);
+        if (!result) {
+            message.error("Submit failed");
+            return;
+        }
+        message.error("Time's up auto submit");
+        router.push({ name: "User_Class" });
     }
-
-    message.info("Auto saved");
 };
 //#endregion
 
@@ -400,6 +430,30 @@ const onToggleFlagQuestion = () => {
     if (!flaggedQuestion.value.delete(questionId)) {
         flaggedQuestion.value.add(questionId);
     }
+
+    localStorage.setItem(
+        "flagged_question",
+        JSON.stringify({
+            attemptId: attemptData.value.attemptId,
+            questions: Array.from(flaggedQuestion.value),
+        }),
+    );
+};
+
+const onLoadFlaggedQuestion = () => {
+    const data = localStorage.getItem("flagged_question");
+    if (!data) return;
+    const parsed = JSON.parse(data);
+    const attemptId = parsed.attemptId;
+    if (attemptId != attemptData.value.attemptId) {
+        localStorage.removeItem("flagged_question");
+        return;
+    }
+    if (!Array.isArray(parsed.questions)) {
+        localStorage.removeItem("flagged_question");
+        return;
+    }
+    flaggedQuestion.value = new Set(parsed.questions);
 };
 
 const flagContainQuestion = (questionId: string) => {
@@ -429,6 +483,7 @@ onMounted(async () => {
     endTime.value = dayjs().add(attemptData.value.timeRemaining * 60, "second");
 
     onLoadCurrentQuestion(0);
+    onLoadFlaggedQuestion();
 
     updateCountdown();
     timer = setInterval(updateCountdown, 1000);
@@ -469,15 +524,21 @@ onMounted(async () => {
                     <div class="question-navigator-container">
                         <div
                             :class="[
-                                'question-navigator-item',
+                                'question-navigation-item-outer',
                                 currentQuestion.id === item.id ? 'current-question' : '',
-                                userAnswerContainQuestion(item.id) ? 'completed-question' : '',
                                 flagContainQuestion(item.id) ? 'flagged-question' : '',
                             ]"
                             v-for="(item, index) in quiz"
                             @click="onLoadCurrentQuestion(index)"
                         >
-                            <span> {{ index + 1 }} </span>
+                            <div
+                                :class="[
+                                    'question-navigator-item',
+                                    userAnswerContainQuestion(item.id) ? 'completed-question' : '',
+                                ]"
+                            >
+                                <span> {{ index + 1 }} </span>
+                            </div>
                         </div>
                     </div>
                     <a-button
@@ -496,8 +557,11 @@ onMounted(async () => {
                     <a-skeleton :loading="loading"></a-skeleton>
                 </div>
                 <div v-else class="section question-section">
+                    <div class="question-info-index">
+                        {{ $t("create_QS.question.question") }} {{ currentQuestionIndex + 1 }}
+                    </div>
                     <div
-                        v-if="currentQuestion.textFormat.toString() === '0'"
+                        v-if="currentQuestion.textFormat === QUESTION_FORMAT.HTML"
                         :class="['learn-question']"
                         v-html="currentQuestion.questionText"
                     ></div>
@@ -759,19 +823,27 @@ onMounted(async () => {
     flex-wrap: wrap;
     margin: 10px 0px;
 }
-.question-navigator-item {
+.question-navigation-item-outer {
     width: calc(100% / 4 - 8px);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0px 0px 3px 3px;
-    padding: 5px;
-    border: 1px solid var(--form-item-border-color);
+    padding: 3px;
+    border: 2px solid var(--form-item-border-color);
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     position: relative;
     overflow: hidden;
+}
+
+.question-navigator-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
 }
 
 .question-navigator-item:hover {
@@ -808,5 +880,15 @@ onMounted(async () => {
 }
 .flag-button:hover {
     transform: scale(1.2);
+}
+
+.question-info-index {
+    font-size: 16px;
+    font-weight: 500;
+    padding: 5px 10px;
+    background-color: var(--main-color);
+    border: 1px solid var(--main-color);
+    border-radius: 5px;
+    width: fit-content;
 }
 </style>

@@ -201,8 +201,8 @@
                 "sub_title": "Your recently activities"
             },
             "schedule": {
-                "title": "Up comming activities",
-                "sub_title": "Assignment and test schedules"
+                "title": "Popular quiz 🔥",
+                "sub_title": "Discover what's trending now"
             }
         },
         "list_items": {
@@ -307,6 +307,31 @@
             "minimum_options": "Each question must have at least 2 options",
             "maximum_options": "Each question must have at most 10 options",
             "maximum_tag": "Limit {tag} tags"
+        },
+        "modal": {
+            "invalid": {
+                "title": "Cannot create new question set!",
+                "content": "There are errors at questions: "
+            },
+            "valid": {
+                "title": "Create new question set!",
+                "content": "Make sure to review your contents before proceeding."
+            },
+            "leave": {
+                "title": "Leave already?",
+                "content": "You have unsaved changes."
+            }
+        }
+    },
+    "update_QS": {
+        "buttons": {
+            "update": "Update"
+        },
+        "modal": {
+            "valid": {
+                "title": "Update question set",
+                "content": "Make sure to review your contents before proceeding."
+            }
         }
     },
     "settings": {
@@ -321,15 +346,47 @@
         },
         "profile": {
             "title": "Profile Information",
-            "sub_title": "Update your profile information and public details"
+            "sub_title": "Update your profile information and public details",
+            "fullname_label": "FullName",
+            "fullname_placeholder": "Enter your full name",
+            "email_label": "Email",
+            "email_placeholder": "Enter your email",
+            "bio_label": "Bio",
+            "bio_placeholder": "Enter your bio",
+            "save_change": "Save changes"
         },
         "security": {
             "title": "Account Security",
-            "sub_title": "Update your password and security settings"
+            "sub_title": "Update your password and security settings",
+            "current_password_label": "Current Password",
+            "current_password_placeholder": "Enter your current password",
+            "new_password_label": "New Password",
+            "new_password_placeholder": "Enter your new password",
+            "confirm_new_password_label": "Confirm New Password",
+            "confirm_new_password_placeholder": "Re-enter your new password",
+            "change_password": "Change password"
         },
         "appearance": {
             "title": "Appearance",
-            "sub_title": "Customize how AIQuizizz looks for you"
+            "sub_title": "Customize how AIQuizizz looks for you",
+            "theme": {
+                "title": "Theme",
+                "light": "Light",
+                "dark": "Dark",
+                "system": "System"
+            },
+            "color": {
+                "title": "Accent color",
+                "purple": "Purple",
+                "blue": "Blue",
+                "green": "Green",
+                "red": "Red",
+                "amber": "Amber",
+                "pink": "Pink"
+            },
+            "language": {
+                "title": "Language"
+            }
         },
         "subscription": {
             "title": "Subscription Plan",
@@ -685,6 +742,41 @@
         "PLAN_REQUIRE_PLAN": "Plan required!",
 
         "TEST_IS_OVERDUE": "Test overdue!"
+    },
+    "message": {
+        "added_successfully": "Added successfully!",
+        "added_failed": "Added failed!",
+        "created_successfully": "Created successfully!",
+        "created_failed": "Created failed!",
+        "updated_successfully": "Updated successfully!",
+        "updated_failed": "Updated failed!",
+        "deleted_successfully": "Deleted successfully!",
+        "deleted_failed": "Deleted failed!",
+        "removed_successfully": "Removed successfully!",
+        "removed_failed": "Removed failed!",
+        "copied": "Copied!",
+        "copied_failed": "Copied failed!",
+
+        "join_class_successfully": "Joined class successfully!",
+        "join_class_failed": "Joined class failed!",
+        "created_new_invitation": "Created new invitation code!",
+
+        "invalid_title": "Invalid title",
+        "invalid_question": "Invalid question",
+        "invalid_description": "Invalid description",
+        "limit_tag": "Limit: {number} tags",
+        "invalid_tag_content": "Invalid tag content",
+        "limit_question": "Limit: {number} questions",
+        "minimum_question": "Minimum {number} questions",
+
+        "required": "This field is required",
+        "out_of_range": "Limit {max_length} characters",
+        "have_no_answer": "Question {index} must have at least one correct answer",
+        "minimum_options": "Each question must have at least 2 options",
+        "maximum_options": "Each question must have at most 10 options",
+        "maximum_tag": "Limit {tag} tags",
+
+        "imported_question": "Imported {number} questions."
     },
     "admin": {
         "manage_acc": {

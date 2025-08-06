@@ -73,7 +73,7 @@ class ApiQuestionSet {
             params: {
                 pageNumber: pageParams.pageNumber || 1,
                 pageSize: pageParams.pageSize || 5,
-                name: pageParams.name.toLowerCase() || "",
+                name: pageParams.name?.toLowerCase() || "",
                 tagIds: pageParams.tagIds || [],
                 sortBy: pageParams.sortBy || "",
             },

@@ -51,7 +51,8 @@ const props = defineProps<Props>();
 //#region modal
 const visibility = ref(false);
 
-const openModal = () => {
+const openModal = async () => {
+    await getSharedUser();
     selected_visibility_option.value = visibility_options.value[0].value;
     visibility.value = true;
 };
@@ -127,7 +128,6 @@ const sharingFormState = ref<SharingFormState>();
 const deleteUserIds = ref<string[]>([]);
 
 const getSharedUser = async () => {
-    debugger;
     let result;
 
     switch (props.mode) {

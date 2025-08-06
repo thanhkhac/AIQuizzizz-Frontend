@@ -185,7 +185,7 @@ const onDeleteTest = (testId: string) => {
         onOk: async () => {
             let result = await ApiTest.Delete(testId);
             if (result.data.success) {
-                message.success("Delete test successfully.");
+                message.success(t("message.deleted_successfully"));
                 getData();
             }
         },

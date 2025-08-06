@@ -95,8 +95,8 @@ const showModalConfirmation = () => {
         <div class="content-item">
             <div class="content-item-title">
                 <div>
-                    <span>Account Security</span>
-                    <span>Manage your account settings and preferences</span>
+                    <span>{{ $t("settings.security.title") }}</span>
+                    <span>{{ $t("settings.security.sub_title") }}</span>
                 </div>
             </div>
             <a-form
@@ -108,23 +108,34 @@ const showModalConfirmation = () => {
             >
                 <a-row>
                     <a-col :span="10">
-                        <a-form-item name="currentPassword" label="Current password">
+                        <a-form-item
+                            name="currentPassword"
+                            :label="t('settings.security.current_password_label')"
+                        >
                             <a-input-password
+                                :placeholder="t('settings.security.current_password_placeholder')"
                                 size="large"
                                 v-model:value="changePasswordFormState.currentPassword"
                             ></a-input-password>
                         </a-form-item>
-                        <a-form-item name="newPassword" label="New password">
+                        <a-form-item
+                            name="newPassword"
+                            :label="t('settings.security.new_password_label')"
+                        >
                             <a-input-password
+                                :placeholder="t('settings.security.new_password_placeholder')"
                                 size="large"
                                 v-model:value="changePasswordFormState.newPassword"
                             ></a-input-password>
                         </a-form-item>
                         <a-form-item
                             name="newPasswordConfirmation"
-                            label="New password confirmation"
+                            :label="t('settings.security.confirm_new_password_label')"
                         >
                             <a-input-password
+                                :placeholder="
+                                    t('settings.security.confirm_new_password_placeholder')
+                                "
                                 size="large"
                                 v-model:value="changePasswordFormState.newPasswordConfirmation"
                             ></a-input-password>
@@ -140,7 +151,7 @@ const showModalConfirmation = () => {
                                 type="primary"
                                 size="large"
                             >
-                                Change password
+                                {{ $t("settings.security.change_password") }}
                             </a-button>
                         </a-form-item>
                     </a-col>
@@ -196,6 +207,10 @@ const showModalConfirmation = () => {
 ::v-deep(.ant-input-password input) {
     background-color: var(--form-item-background-color) !important;
     color: var(--text-color);
+}
+
+::v-deep(.ant-input-password input)::placeholder {
+    color: var(--text-color-grey);
 }
 
 ::v-deep(.ant-input-password-icon) {

@@ -211,8 +211,10 @@ const getInvitationCode = async () => {
 const onResetInvitation = async () => {
     const result = await ApiClass.CreateNewInvitation(invitationFormState);
     if (result.data.success) {
-        message.success("Created new inivation code!");
+        message.success(t("message.created_new_invitation"));
         onOpenInvitationModal();
+    } else {
+        message.error(t("message.created_failed"));
     }
 };
 
@@ -226,10 +228,10 @@ const onCopyInvitationCode = (mode: string) => {
     navigator.clipboard
         .writeText(content)
         .then(() => {
-            message.success("Copied!");
+            message.success(t("message.copied"));
         })
         .catch(() => {
-            message.error("Copy failed!");
+            message.error(t("message.copied_failed"));
         });
 };
 
@@ -248,10 +250,10 @@ const onConfirmDeleteMember = (userId: string) => {
                 userId.toString(),
             );
             if (!result.data.success) {
-                message.success("Remove failed.");
+                message.error(t("message.removed_failed"));
                 return;
             }
-            message.success("Remove successfully.");
+            message.success(t("message.removed_successfully"));
             await getData();
         },
     });
@@ -270,10 +272,10 @@ const onConfirmUpdateMemberPosition = (userId: string, position: string) => {
                 position,
             );
             if (!result.data.success) {
-                message.success("Update failed.");
+                message.error(t("message.updated_failed"));
                 return;
             }
-            message.success("Update successfully.");
+            message.success(t("message.updated_successfully"));
             await getData();
         },
     });
@@ -293,10 +295,10 @@ const onOpenConfirmDeleteClass = () => {
         onOk: async () => {
             let result = await ApiClass.Delete(classId.value.toString());
             if (!result.data.success) {
-                message.success("Delete class failed.");
+                message.error(t("message.deleted_failed"));
                 return;
             }
-            message.success("Delete class successfully.");
+            message.success(t("message.deleted_successfully"));
             router.push({ name: "User_Class" });
         },
     });
@@ -386,6 +388,7 @@ onMounted(async () => {
                     </div>
                 </div>
                 <a-table
+                    v-if="student_data.length > 0"
                     :columns="columns"
                     :data-source="student_data"
                     row-key="studentId"
@@ -429,6 +432,15 @@ onMounted(async () => {
                         </template>
                     </template>
                 </a-table>
+                <template v-else>
+                    <div class="w-100 d-flex justify-content-center">
+                        <a-empty>
+                            <template #description>
+                                <span> {{ $t("class_index.other.no_data_matches") }}</span>
+                            </template>
+                        </a-empty>
+                    </div>
+                </template>
                 <div class="pagination-container">
                     <a-pagination
                         @change="onPaginationChange"

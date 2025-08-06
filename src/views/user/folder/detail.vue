@@ -132,8 +132,11 @@ const onRemoveTestTemplate = (testTemplateId: string) => {
                 folderData.value.folderTestId,
                 testTemplateId,
             );
-            if (!result.data.success) return;
-            message.success("Removed successfully!");
+            if (!result.data.success) {
+                message.error(t("message.removed_failed"));
+                return;
+            }
+            message.success(t("message.removed_successylly"));
             await getData();
         },
     });
@@ -153,10 +156,10 @@ const onOpenConfirmDelete = () => {
         onOk: async () => {
             let result = await ApiFolder.DeleteFolder(folderId.value.toString());
             if (!result.data.success) {
-                message.success("Delete folder failed.");
+                message.error(t("message.deleted_failed"));
                 return;
             }
-            message.success("Delete folder successfully.");
+            message.success(t("message.deleted_successfully"));
             router.push({ name: "User_Folder" });
         },
     });
@@ -193,11 +196,11 @@ const onUpdateFolder = async () => {
         await updateFolderFormRef.value?.validate(); //this will throw err to catch
         let result = await ApiFolder.Update(folderId.value.toString(), updateFolderFormState.name);
         if (!result.data.success) {
-            message.error("Update folder failed");
+            message.error(t("message.updated_failed"));
             return;
         }
+        message.success(t("message.updated_successfully"));
         modal_update_open.value = false;
-        message.success("Update folder successfully.");
         await getData();
     } catch (error) {
         console.log(error);

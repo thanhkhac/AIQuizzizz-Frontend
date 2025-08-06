@@ -1,5 +1,7 @@
 import type UserAnswerSubmit from "@/models/response/test/userAnswer";
+import type { UserAnswerData } from "@/models/response/test/userAnswer";
 import type UserAnswerDTO from "@/models/response/test/userAnswerDTO";
+import QUESTION_TYPE from "@/constants/questionTypes";
 
 function combineMatching(
     left: any[] = [],
@@ -30,18 +32,27 @@ class TransferUserAnswerData {
 
     transferFromUserAnswerSubmit(userAnswersObj: UserAnswerSubmit[]): UserAnswerDTO[] {
         return userAnswersObj
-            .filter((x) => x != null)
-            .map(({ questionId, userAnswerData }) => ({
-                questionId,
-                type: userAnswerData.type,
-                multipleChoices: userAnswerData.multipleChoice ?? [],
-                matchingLeft: userAnswerData.matching.map((x) => ({ id: x.leftId })),
-                matchingRight: userAnswerData.matching.map((x) => ({ id: x.rightId })),
-                ordering:
-                    userAnswerData.ordering.map((x) => ({ id: x.itemId, correctOrder: x.order })) ??
-                    [],
-                shortText: userAnswerData.shortText ?? "",
-            }));
+            .filter((x: UserAnswerSubmit) => x.userAnswerData != null)
+            .map((x: UserAnswerSubmit) => {
+                return {
+                    questionId: x.questionId,
+                    type: x.userAnswerData.type,
+                    multipleChoices: x.userAnswerData.multipleChoice ?? [],
+                    matchingLeft: x.userAnswerData.matching?.length
+                        ? x.userAnswerData.matching.map((y) => ({ id: y.leftId }))
+                        : [],
+                    matchingRight: x.userAnswerData.matching?.length
+                        ? x.userAnswerData.matching.map((y) => ({ id: y.rightId }))
+                        : [],
+                    ordering: x.userAnswerData.ordering?.length
+                        ? x.userAnswerData.ordering.map((x) => ({
+                              id: x.itemId,
+                              correctOrder: x.order,
+                          }))
+                        : [],
+                    shortText: x.userAnswerData.shortText ?? "",
+                };
+            });
     }
 }
 

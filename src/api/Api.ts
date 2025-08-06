@@ -32,7 +32,10 @@ instance.interceptors.response.use(
             const errorKeys = Object.keys(error.response.data?.errors);
 
             //display all error except refresh token
-            if (!errorKeys.includes(ERROR.COMMON_UNAUTHORIZED)) {
+            if (
+                !errorKeys.includes(ERROR.COMMON_UNAUTHORIZED) &&
+                !errorKeys.includes(ERROR.ACCOUNT_INVALID_CREDENTIALS)
+            ) {
                 notification["error"]({
                     message: "ERROR",
                     description: translate(`ERROR_CODE.${errorKeys[0]}`),

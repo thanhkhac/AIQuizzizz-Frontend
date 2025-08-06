@@ -17,108 +17,11 @@ const emit = defineEmits(["updateSidebar"]);
 const { t } = useI18n();
 const router = useRouter();
 
-//#region sample data
-
-// const quiz_data = ref([
-//     {
-//         title: "Introduction to Biology",
-//         numberOfQuestions: 56,
-//         compeletedQuestion: 24,
-//     },
-//     {
-//         title: "Basics of Chemistry",
-//         numberOfQuestions: 40,
-//         compeletedQuestion: 18,
-//     },
-//     {
-//         title: "Fundamentals of Physics",
-//         numberOfQuestions: 50,
-//         compeletedQuestion: 25,
-//     },
-//     {
-//         title: "Introduction to Computer Science",
-//         numberOfQuestions: 60,
-//         compeletedQuestion: 54,
-//     },
-//     {
-//         title: "Decrete Mathematic",
-//         numberOfQuestions: 160,
-//         compeletedQuestion: 14,
-//     },
-// ]);
-
-const schedule_data = ref([
-    {
-        title: "Science Mid-term Quiz",
-        class: "SC101",
-        date: "06/26/2025 10:00 AM",
-    },
-    {
-        title: "Math Final Exam",
-        class: "MA201",
-        date: "06/27/2025 01:30 PM",
-    },
-    {
-        title: "History Pop Quiz",
-        class: "HI102",
-        date: "06/28/2025 09:00 AM",
-    },
-    {
-        title: "English Literature Quiz",
-        class: "EN110",
-        date: "06/29/2025 11:15 AM",
-    },
-    {
-        title: "Biology Practical Test",
-        class: "BI205",
-        date: "06/30/2025 02:45 PM",
-    },
-    {
-        title: "Computer Science Assessment",
-        class: "CS150",
-        date: "07/01/2025 10:00 AM",
-    },
-]);
-//#endregion
-
 //#region calculate UI
 const getPercentageComplete = (total: number, completed: number) => {
     return Math.floor((completed / total) * 100);
 };
 
-const getCaculatedDateString = (date: string) => {
-    const diff = dayjs(date).startOf("day").diff(dayjs().startOf("day"), "days");
-
-    if (diff >= 2) {
-        return dayjs(date).format("DD/MM/YYYY - HH:mm");
-    } else if (diff === 1) {
-        return t("dashboards.list_items.schedule.tomorrow") + " - " + dayjs(date).format("HH:mm");
-    } else if (diff === 0) {
-        return t("dashboards.list_items.schedule.today") + " - " + dayjs(date).format("HH:mm");
-    } else {
-        return dayjs(date).format("DD/MM/YYYY - HH:mm");
-    }
-};
-
-const getScheduleItemMeta = (date: string) => {
-    const diff = dayjs(date).startOf("day").diff(dayjs().startOf("day"), "days");
-
-    const tag =
-        diff === 0
-            ? t("dashboards.list_items.schedule.today")
-            : diff >= 1
-              ? t("dashboards.list_items.schedule.upcoming")
-              : "";
-
-    return {
-        date,
-        tag,
-        border: {
-            borderColor: tag === t("dashboards.list_items.schedule.today") ? "#58181c" : "#153450",
-        },
-        color: tag === t("dashboards.list_items.schedule.today") ? "error" : "processing",
-    };
-};
 //#endregion
 
 //#region search bar
@@ -185,6 +88,36 @@ const getData = async () => {
 
 //#endregion
 
+//#region popular quiz
+
+const public_quiz_data = ref<QuestionSet[]>([]);
+
+const publicPageParams = reactive({
+    pageNumber: 1,
+    pageSize: 10,
+    sortBy: QUESTION_SET_SORT_CATEGORY.RATING,
+});
+
+const loading = ref(false);
+const getPublicQuizData = async () => {
+    try {
+        loading.value = true;
+        let result = await ApiQuestionSet.GetPublicByLimit(
+            publicPageParams as QuestionSetPublicPageParams,
+        );
+        if (result.data.success) {
+            let resultData = result.data.data;
+            public_quiz_data.value = resultData.items;
+        }
+    } catch (error) {
+        console.log("ERROR: GETALLEXAMBYLIMIT search qs: " + error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+//#endregion
+
 //#region redirect
 const onRedirectToDetail = (questionSetId: string) => {
     router.push({ name: "User_QuestionSet_Detail", params: { id: questionSetId } });
@@ -201,6 +134,7 @@ onMounted(async () => {
     emit("updateSidebar", sidebarActiveItem);
 
     await getData();
+    await getPublicQuizData();
 });
 </script>
 
@@ -257,7 +191,11 @@ onMounted(async () => {
                         <i class="bx bx-chevron-right"></i>
                     </RouterLink>
                 </div>
-                <div class="quiz-container">
+                <template v-if="loading">
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                </template>
+                <div e-else class="quiz-container">
                     <div
                         class="quiz-item"
                         v-for="quiz in quiz_data"
@@ -300,38 +238,44 @@ onMounted(async () => {
                         <span>{{ $t("dashboards.sections.schedule.title") }}</span>
                         <span>{{ $t("dashboards.sections.schedule.sub_title") }}</span>
                     </div>
-                    <RouterLink :to="{}" class="content-item-navigator">
+                    <RouterLink
+                        :to="{ name: 'User_QuestionSet_Search' }"
+                        class="content-item-navigator"
+                    >
                         <span>{{ $t("dashboards.buttons.viewAll") }}</span>
                         <i class="bx bx-chevron-right"></i>
                     </RouterLink>
                 </div>
-                <div class="schedule-container">
-                    <div class="schedule-item" v-for="schedule in schedule_data">
-                        <i class="bx bx-calendar-alt schedule-item-icon"></i>
-                        <div>
-                            <div class="schedule-item-info">
-                                <span>{{ schedule.title }}</span>
-                                <a-tag
-                                    :style="[
-                                        'background: transparent',
-                                        getScheduleItemMeta(schedule.date).border,
-                                    ]"
-                                    :color="getScheduleItemMeta(schedule.date).color"
-                                >
-                                    {{ getScheduleItemMeta(schedule.date).tag }}
-                                </a-tag>
+                <div class="popular-quiz-container">
+                    <template v-if="loading">
+                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
+                    </template>
+                    <template v-else>
+                        <div
+                            v-for="quiz in public_quiz_data"
+                            class="popular-quiz-item"
+                            @click="onRedirectToDetail(quiz.id)"
+                        >
+                            <div class="p-quiz-item-info">
+                                <div class="p-quiz-item-title">{{ quiz.name }}</div>
+                                <div class="p-quiz-item-description">{{ quiz.description }}</div>
                             </div>
-                            <div class="schedule-item-date">
-                                <i class="bx bx-time-five"></i>
-                                {{ getCaculatedDateString(schedule.date) }}
+                            <div class="p-quiz-item-rating">
+                                <div class="p-quiz-item-question-count">
+                                    {{ quiz.totalQuestionCount }}
+                                    {{ $t("dashboards.list_items.quiz.questions") }}
+                                </div>
+                                <div class="p-quiz-item-question-rate">
+                                    {{ quiz.ratingAverage }}⭐️ ({{ quiz.ratingCount }}
+                                    {{ $t("detail_QS.other.reviews") }})
+                                </div>
+                            </div>
+                            <div class="p-quiz-item-credit">
+                                <span><i class="bx bx-user"></i> {{ quiz.createBy }}</span>
                             </div>
                         </div>
-                        <div class="schedule-item-actions">
-                            <a-button type="primary">
-                                {{ $t("dashboards.buttons.view") }}
-                            </a-button>
-                        </div>
-                    </div>
+                    </template>
                 </div>
             </div>
         </div>
@@ -451,97 +395,6 @@ onMounted(async () => {
     font-size: 14px;
 }
 
-.schedule-container {
-    border-radius: 8px;
-    border-top: 1px solid var(--border-color);
-    max-height: 300px;
-    overflow-y: scroll;
-    margin-top: 10px;
-}
-.schedule-container::-webkit-scrollbar {
-    width: 10px;
-    margin: 5px 0;
-}
-
-.schedule-container::-webkit-scrollbar-track {
-    background: var(--background-color);
-    border-radius: 10px;
-}
-
-.schedule-container::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background: linear-gradient(
-        to bottom,
-        var(--background-sub-color1),
-        var(--background-sub-color2)
-    );
-    border: 1px solid var(--background-color);
-}
-
-.schedule-item {
-    background-color: var(--content-item-children-background-color);
-    margin: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 10px;
-    display: flex;
-    width: calc(100% - 50px);
-    align-items: center;
-    cursor: pointer;
-}
-.schedule-item:hover {
-    border: 1px solid var(--main-sub-color);
-}
-
-.schedule-item-icon {
-    display: flex;
-    width: 30px;
-    height: 30px;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
-    aspect-ratio: 1/1;
-    font-size: 18px;
-    border-radius: 50%;
-    background-color: #183826;
-    color: #16a34a;
-    margin-right: 12px;
-}
-
-.schedule-item-info {
-    color: var(--text-color);
-    font-size: 16px;
-    font-weight: 600;
-}
-.schedule-item-info span {
-    margin-right: 20px;
-}
-
-.schedule-item-date {
-    display: flex;
-    align-items: center;
-    color: var(--text-color-sub-white);
-    font-size: 14px;
-    font-weight: 400;
-}
-.schedule-item-date i {
-    font-size: 16px;
-    margin-right: 5px;
-}
-
-.schedule-item-actions {
-    flex: 1;
-    display: flex;
-    justify-content: end;
-}
-.schedule-item-actions button {
-    background-color: var(--main-color);
-}
-
-.schedule-item-actions button:hover {
-    background-color: var(--main-sub-color);
-}
-
 .search-bar {
     width: 95%;
     margin-left: 10px;
@@ -613,6 +466,87 @@ onMounted(async () => {
     width: 110px;
     display: flex;
     align-items: center;
+    margin-right: 10px;
+}
+
+.popular-quiz-container {
+    display: flex;
+    overflow-x: scroll;
+    flex-wrap: nowrap;
+    padding: 10px 0px;
+    gap: 16px;
+}
+
+.popular-quiz-container::-webkit-scrollbar {
+    height: 10px;
+}
+
+.popular-quiz-container::-webkit-scrollbar-thumb {
+    height: 10px;
+    background-color: var(--main-color);
+    border-radius: 10px;
+}
+
+.popular-quiz-item {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--main-color);
+    border-radius: 8px;
+    padding: 10px;
+    flex: 0 0 calc(33.3333% - 16px);
+    height: 200px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.popular-quiz-item:hover {
+    background-color: var(--content-item-border-color);
+}
+
+.popular-quiz-item:hover .p-quiz-item-title {
+    color: var(--main-color);
+}
+
+.p-quiz-item-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: all 0.2s ease-in-out;
+}
+
+.p-quiz-item-description {
+    font-size: 14px;
+    color: var(--text-color-grey);
+}
+
+.p-quiz-item-rating {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.p-quiz-item-question-count {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 0px 15px;
+    background-color: var(--main-color);
+    display: flex;
+    align-items: center;
+    height: fit-content;
+    border-radius: 20px;
+}
+.p-quiz-item-credit {
+    flex: 1;
+    display: flex;
+    align-items: end;
+}
+.p-quiz-item-credit span {
+    display: flex;
+    align-items: center;
+}
+.p-quiz-item-credit i {
+    font-size: 20px;
     margin-right: 10px;
 }
 </style>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import user_image from "@/assets/user.png";
+
 import ApiQuestionSet from "@/api/ApiQuestionSet";
 import type { RequestQuestion } from "@/models/request/question";
 import type QuestionSet from "@/models/response/question_set/questionSet";
@@ -153,8 +155,11 @@ const onDelete = () => {
         content: "Please double check for important resources!",
         onOk: async () => {
             const result = await ApiQuestionSet.Delete(quiz.value.id);
-            if (!result.data.success) return;
-            message.success("Delete successfully.");
+            if (!result.data.success) {
+                message.error(t("message.deleted_failed"));
+                return;
+            }
+            message.success(t("message.deleted_successfully"));
             router.push("User_Library");
         },
     });
@@ -254,7 +259,7 @@ onMounted(async () => {
                 </div>
                 <div class="action-container">
                     <div class="credit-user">
-                        <div class="user-image" alt=""></div>
+                        <img class="user-image" :src="user_image" alt="" />
                         <div class="credit-user-info">
                             <span>
                                 {{
@@ -508,6 +513,8 @@ onMounted(async () => {
     background-color: var(--background-color-contrast);
     border-radius: 50%;
     margin-right: 10px;
+    object-fit: contain;
+    padding: 3px;
 }
 
 .credit-user-info {

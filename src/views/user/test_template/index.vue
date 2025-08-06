@@ -5,7 +5,7 @@ import FOLDER_SHARE_MODE from "@/constants/folderShareMode";
 import type TestTemplatePageParams from "@/models/request/testTemplate/testTemplatePageParams";
 import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
 
-import { ref, onMounted, reactive, computed, onUpdated } from "vue";
+import { ref, onMounted, reactive, computed, onUpdated, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useRoute, useRouter } from "vue-router";
@@ -157,8 +157,9 @@ import ShareModal from "@/shared/modals/ShareModal.vue";
 import VISIBILITY from "@/constants/visibility";
 const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
 
-const onOpenShareModal = (template: TestTemplate) => {
+const onOpenShareModal = async (template: TestTemplate) => {
     chosenTemplate.value = template;
+    await nextTick();
     shareModalRef.value?.openModal();
 };
 
@@ -276,7 +277,7 @@ onMounted(async () => {
                     <div class="w-100 d-flex justify-content-center">
                         <a-empty>
                             <template #description>
-                                <span> No data matches. </span>
+                                <span> {{ $t("class_index.other.no_data_matches") }}</span>
                             </template>
                         </a-empty>
                     </div>

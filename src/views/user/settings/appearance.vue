@@ -1,98 +1,100 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 
 import SUPPORTED_LOCALES from "@/constants/languages";
 import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const ACCENT_COLOR = "accent_color";
 const THEME = "theme";
 
-const themes = [
+const themes = computed(() => [
     {
         key: "dark",
-        label: "Dark",
+        label: t("settings.appearance.theme.dark"),
         class: "theme-dark",
         icon: "moon",
     },
     {
         key: "light",
-        label: "Light",
+        label: t("settings.appearance.theme.light"),
         class: "theme-light",
         icon: "sun",
     },
     {
         key: "system",
-        label: "System",
+
+        label: t("settings.appearance.theme.system"),
         class: "theme-system",
         icon: "globe",
     },
-];
+]);
 
-const accent_color = [
+const accent_color = computed(() => [
     {
         code: "#7c3aed",
-        name: "Purple",
+        name: t("settings.appearance.color.purple"),
         class: "purple",
     },
     {
         code: "#3B82F6",
-        name: "Blue",
+        name: t("settings.appearance.color.blue"),
         class: "blue",
     },
     {
         code: "#22C55E",
-        name: "Green",
+        name: t("settings.appearance.color.green"),
         class: "green",
     },
     {
         code: "#EF4444",
-        name: "Red",
+        name: t("settings.appearance.color.red"),
         class: "red",
     },
     {
         code: "#F59E0B",
-        name: "Amber",
+        name: t("settings.appearance.color.amber"),
         class: "amber",
     },
     {
         code: "#EC4899",
-        name: "Pink",
+        name: t("settings.appearance.color.pink"),
         class: "pink",
     },
-];
+]);
 
-const color_active = ref(accent_color[0].class);
-const theme_active = ref(themes[0].class);
+const color_active = ref(accent_color.value[0].class);
+const theme_active = ref(themes.value[0].class);
 
 const media = window.matchMedia("(prefers-color-scheme: dark)");
 const isSystemDark = ref(media.matches);
 
 const getTheme = () => {
     const stored = localStorage.getItem(THEME);
-    const validTheme = themes.map((x) => x.class);
-    return validTheme.includes(stored || "") ? stored! : themes[0].class;
+    const validTheme = themes.value.map((x) => x.class);
+    return validTheme.includes(stored || "") ? stored! : themes.value[0].class;
 };
 
 const getAccentColor = () => {
     const stored = localStorage.getItem(ACCENT_COLOR);
-    const validColor = accent_color.map((x) => x.class.toLowerCase());
-    return validColor.includes(stored || "") ? stored! : accent_color[0].class;
+    const validColor = accent_color.value.map((x) => x.class.toLowerCase());
+    return validColor.includes(stored || "") ? stored! : accent_color.value[0].class;
 };
 
 const applyTheme = (themeClass: string) => {
-    themes.forEach((x) => document.documentElement.classList.remove(x.class));
+    themes.value.forEach((x) => document.documentElement.classList.remove(x.class));
 
     let targetClass = "";
     if (themeClass === "theme-system") {
         targetClass = isSystemDark.value ? "theme-dark" : "theme-light";
     } else {
-        targetClass = themes.find((x) => x.class === themeClass)?.class || "theme-dark";
+        targetClass = themes.value.find((x) => x.class === themeClass)?.class || "theme-dark";
     }
     document.documentElement.classList.add(targetClass);
 };
 
 const applyColor = (colorClass: string) => {
-    accent_color.forEach((x) => document.documentElement.classList.remove(x.class));
+    accent_color.value.forEach((x) => document.documentElement.classList.remove(x.class));
     document.documentElement.classList.add(colorClass);
 };
 
@@ -146,7 +148,7 @@ onMounted(() => {
                 </div>
             </div>
             <div class="appearance-section">
-                <div>Theme</div>
+                <div>{{ $t("settings.appearance.theme.title") }}</div>
                 <div class="theme-container">
                     <div
                         v-for="theme in themes"
@@ -178,7 +180,7 @@ onMounted(() => {
                 </div>
             </div>
             <div class="appearance-section">
-                <div>Accent color</div>
+                <div>{{ $t("settings.appearance.color.title") }}</div>
                 <div class="color-container">
                     <div class="color-item" v-for="color in accent_color">
                         <div
@@ -195,7 +197,7 @@ onMounted(() => {
                 </div>
             </div>
             <div class="appearance-section">
-                <div>Language</div>
+                <div>{{ $t("settings.appearance.language.title") }}</div>
                 <div class="language-select-container">
                     <a-select
                         @change="switchLanguage"
@@ -353,7 +355,6 @@ onMounted(() => {
     width: 100%;
     display: flex;
     justify-content: end;
-
 }
 
 .language-select {
