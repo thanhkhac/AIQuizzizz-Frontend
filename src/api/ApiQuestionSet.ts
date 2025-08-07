@@ -17,6 +17,7 @@ const END_POINTS = {
     GET_ALL_BY_LIMIT: "QuestionSet/SharedOrOwned",
     DELETE: "QuestionSet/{questionSetId}",
     GET_PERMISSION: "QuestionSet/{questionSetId}/Permissions",
+    TEST_QUESTION: "QuestionSet/{questionSetId}/Test",
 };
 
 class ApiQuestionSet {
@@ -95,6 +96,20 @@ class ApiQuestionSet {
     GetPermissions = async (questionSetId: string) => {
         const url = END_POINTS.GET_PERMISSION.replace("{questionSetId}", questionSetId);
         return await Api.get(url);
+    };
+
+    TestQuestions = async (
+        questionSetId: string,
+        numberOfQuestion: number,
+        questionTypes: string,
+    ) => {
+        const url = END_POINTS.TEST_QUESTION.replace("{questionSetId}", questionSetId);
+        return await Api.get(url, {
+            params: {
+                numberOfQuestion: numberOfQuestion,
+                questionTypes: questionTypes,
+            },
+        });
     };
 }
 

@@ -51,6 +51,9 @@ const ERROR = {
 
     //test
     TEST_IS_OVERDUE: "TEST_IS_OVERDUE",
+
+    //folder
+    TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER: "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER",
 };
 
 export default ERROR;

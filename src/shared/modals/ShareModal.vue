@@ -7,12 +7,22 @@ import ApiFolder from "@/api/ApiFolder";
 import { ref, computed, onMounted, watch, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "../components/Common/Input.vue";
+import { useAuthStore } from "@/stores/AuthStore";
 
 import VISIBILITY from "@/constants/visibility";
 import PERMISSION from "@/constants/permissions";
 import { message } from "ant-design-vue";
 
 const { t } = useI18n();
+const authStore = useAuthStore();
+
+//#region user
+const user = ref(authStore.getUserInfo());
+const isUserOwner = computed(() => {
+    const ownerId = sharedUser.value.find((x) => x.shareMode === PERMISSION.OWNER)?.userId;
+    return ownerId === user.value.id;
+});
+//#endregion
 
 //#region interface
 interface UserPermission {
@@ -402,7 +412,7 @@ onMounted(() => {
                         :span="24"
                         :class="[selected_visibility_option === VISIBILITY.PRIVATE ? '' : 'd-none']"
                     >
-                        <div class="form-item search-user" ref="searchUserResultRef">
+                        <div v-if="isUserOwner" class="form-item search-user" ref="searchUserResultRef">
                             <label
                                 >{{ $t("share_modal.component_title.share_with_email") }} -
                                 <span>enter full email to search user</span></label
@@ -456,7 +466,10 @@ onMounted(() => {
                                         </div>
                                         <div class="people-access-permission">
                                             <a-select
-                                                :disabled="people.shareMode === PERMISSION.OWNER"
+                                                :disabled="
+                                                    people.shareMode === PERMISSION.OWNER ||
+                                                    people.userId === user.id
+                                                "
                                                 @change="
                                                     onChangePeoplePermission(
                                                         people.userId,
@@ -482,7 +495,10 @@ onMounted(() => {
                                                 "
                                             >
                                                 <i
-                                                    v-if="people.shareMode !== PERMISSION.OWNER"
+                                                    v-if="
+                                                        people.userId !== user.id &&
+                                                        people.shareMode !== PERMISSION.OWNER
+                                                    "
                                                     class="ms-2 text-danger bx bx-trash"
                                                 ></i>
                                             </a-popconfirm>

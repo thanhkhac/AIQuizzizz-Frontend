@@ -741,7 +741,9 @@
 
         "PLAN_REQUIRE_PLAN": "Cần phải có gói sử dụng!",
 
-        "TEST_IS_OVERDUE": "Thời gian làm bài đã kết thúc!"
+        "TEST_IS_OVERDUE": "Thời gian làm bài đã kết thúc!",
+
+        "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER": "Mẫu bài kiểm tra đã tồn tại trong thư mục!"
     },
     "message": {
         "added_successfully": "Thêm thành công!",

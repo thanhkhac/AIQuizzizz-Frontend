@@ -16,7 +16,6 @@ import { message, Modal } from "ant-design-vue";
 const route = useRoute();
 const router = useRouter();
 
-const authStore = useAuthStore();
 const { t } = useI18n();
 
 const emit = defineEmits(["updateSidebar"]);
@@ -107,6 +106,15 @@ const onRefirectToCreate = () => {
     router.push({ name: "User_TestTemplate_Create" });
 };
 
+const onRefirectToDetail = async (id: string) => {
+    await getPermission(id);
+    if (!permission.value.canEdit) {
+        message.warning("You don't have permission to perform this function!");
+        return;
+    }
+    router.push({ name: "User_TestTemplate_Detail", params: { id } });
+};
+
 const onRefirectToUpdate = async (id: string) => {
     await getPermission(id);
     if (!permission.value.canEdit) {
@@ -123,10 +131,10 @@ const onDelete = async (id: string) => {
         return;
     }
 
-    if (permission.value.canEdit) router.push({ name: "User_TestTemplate_Update", params: { id } });
-    else {
-        message.warning("You don't have permission to perform this function!");
-    }
+    // if (permission.value.canEdit) router.push({ name: "User_TestTemplate_Update", params: { id } });
+    // else {
+    //     message.warning("You don't have permission to perform this function!");
+    // }
 
     Modal.confirm({
         title: "Are you sure to delete this test template?",
@@ -159,6 +167,11 @@ const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
 
 const onOpenShareModal = async (template: TestTemplate) => {
     chosenTemplate.value = template;
+    await getPermission(chosenTemplate.value.testTemplateId);
+    if (!permission.value.canEdit) {
+        message.warning("You don't have permission to perform this function!");
+        return;
+    }
     await nextTick();
     shareModalRef.value?.openModal();
 };
@@ -242,7 +255,11 @@ onMounted(async () => {
                     </div>
                 </div>
                 <div v-if="test_template_data.length > 0" class="quiz-item-container">
-                    <div class="quiz-item" v-for="template in test_template_data">
+                    <div
+                        class="quiz-item"
+                        v-for="template in test_template_data"
+                        @click="onRefirectToDetail(template.testTemplateId)"
+                    >
                         <i class="bx bx-book-open quiz-item-icon"></i>
                         <div>
                             <div class="quiz-item-title">
@@ -260,8 +277,12 @@ onMounted(async () => {
                                 </div>
                             </div>
                         </div>
-                        <div class="exam-item-actions">
+                        <!-- <div class="exam-item-actions">
                             <i class="bx bx-share-alt" @click="onOpenShareModal(template)"></i>
+                            <i
+                                class="bx bx-detail"
+                                @click="onRefirectToDetail(template.testTemplateId)"
+                            ></i>
                             <i
                                 class="bx bx-edit"
                                 @click="onRefirectToUpdate(template.testTemplateId)"
@@ -270,7 +291,7 @@ onMounted(async () => {
                                 class="text-danger bx bx-trash-alt"
                                 @click="onDelete(template.testTemplateId)"
                             ></i>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <template v-else>

@@ -252,12 +252,12 @@ onMounted(async () => {
                             <div class="quiz-item-info quiz-info-detail">
                                 <div class="quiz-item-questions">
                                     <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                    {{ exam.numberOfQuestions }}
+                                    {{ exam.totalQuestionCount }}
                                     {{ $t("dashboards.list_items.quiz.questions") }}
                                 </div>
                                 <div class="quiz-item-created-by">
                                     {{ $t("class_question_set.other.created_by") }}
-                                    {{ exam.createdBy }}
+                                    {{ exam.createBy }}
                                 </div>
                             </div>
                         </div>

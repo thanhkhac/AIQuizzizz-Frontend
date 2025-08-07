@@ -12,6 +12,7 @@ const END_POINTS = {
     DELETE_FOLDER: "Folder/{FolderId}",
     GET_SHARING: "Folder/{FolderId}/Sharing",
     UPDATE_SHARING: "Folder/{FolderId}/Sharing",
+    ADD_TEMPLATE_TO_FOLDER: "Folder/{FolderId}/TestTemplate/{TestTemplateId}",
 };
 
 class ApiFolder {
@@ -78,6 +79,14 @@ class ApiFolder {
     UpdateSharedUser = async (formState: any) => {
         const url = END_POINTS.GET_SHARING.replace("{FolderId}", formState.id);
         return await Api.patch(url, formState);
+    };
+
+    AddTestTemplate = async (folderId: string, testTemplateId: string) => {
+        const url = END_POINTS.ADD_TEMPLATE_TO_FOLDER.replace("{FolderId}", folderId).replace(
+            "{TestTemplateId}",
+            testTemplateId,
+        );
+        return await Api.post(url);
     };
 }
 

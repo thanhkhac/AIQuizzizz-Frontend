@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import dayjs, { Dayjs } from "dayjs";
 const chosenDate = ref<Dayjs>();
 
@@ -18,6 +18,12 @@ const getListData = (value: Dayjs) => {
     }
     return result;
 };
+
+const emit = defineEmits(["updateSidebar"]);
+onMounted(async () => {
+    const sidebarActiveItem = "schedule";
+    emit("updateSidebar", sidebarActiveItem);
+});
 </script>
 <template>
     <div class="page-container">

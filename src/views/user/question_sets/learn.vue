@@ -4,6 +4,7 @@ import type { ResponseQuestion } from "@/models/response/question";
 import type { Comment } from "@/models/response/comment/comment";
 import type CommentPageParams from "@/models/request/comment/commentPageParams";
 import ERROR from "@/constants/errors";
+import QUESTION_FORMAT from "@/constants/questionTextFormat";
 
 import { ref, computed, onMounted, nextTick, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -28,11 +29,6 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
-
-const QUESTION_FORMAT = {
-    HTML: "Html",
-    PLAIN_TEXT: "PlainText",
-};
 
 interface LearnQuizModel {
     title: string;

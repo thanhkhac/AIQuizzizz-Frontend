@@ -76,6 +76,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+    border-color: transparent !important;
 }
 
 ::v-deep(.ant-tabs-tab-active) {
@@ -84,10 +85,14 @@ onMounted(() => {
 }
 
 ::v-deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
-    color: var(--text-color) !important;
+    color: var(--text-color-contrast) !important;
 }
 
 ::v-deep(.ant-tabs-tab:hover .ant-tabs-tab-btn) {
-    color: var(--text-color) !important;
+    color: var(--text-color-contrast) !important;
+}
+
+::v-deep(.ant-tabs-tab:hover) {
+    background-color: var(--main-color) !important;
 }
 </style>

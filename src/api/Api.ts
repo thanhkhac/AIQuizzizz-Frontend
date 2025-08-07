@@ -78,6 +78,10 @@ instance.interceptors.response.use(
                     case 500: {
                         //to do
                         console.log("ERROR: Status code 500");
+                        notification["error"]({
+                            message: "ERROR",
+                            description: translate(`ERROR_CODE.${errorKeys[0]}`),
+                        });
                         break;
                     }
                     case 403: {

@@ -26,7 +26,7 @@ const userRoutes = [
                 path: "question-set/:id",
                 component: () => import("@/views/user/question_sets/detail.vue"),
                 meta: {
-                    title: "updateQS",
+                    title: "detailQS",
                 },
             },
             {
@@ -91,6 +91,14 @@ const userRoutes = [
                 component: () => import("@/views/user/schedule.vue"),
                 meta: {
                     title: "schedule",
+                },
+            },
+            {
+                name: "User_TestTemplate_Detail",
+                path: "test-template/:id",
+                component: () => import("@/views/user/test_template/detail.vue"),
+                meta: {
+                    title: "detail",
                 },
             },
         ],

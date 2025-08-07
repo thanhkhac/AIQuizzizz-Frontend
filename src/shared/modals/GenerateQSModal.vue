@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from "vue";
-import { Modal, message } from "ant-design-vue";
-import { InboxOutlined } from "@ant-design/icons-vue";
-
-import { useI18n } from "vue-i18n";
-
+import ApiQuestionSet from "@/api/ApiQuestionSet";
 import type { RequestQuestion } from "@/models/request/question";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 import QUESTION_DIFFICULTY from "@/constants/questiondifficulties";
+import SUPPORTED_LOCALES from "@/constants/languages";
+
+import { ref, reactive, watch, onMounted } from "vue";
+import { Modal, message } from "ant-design-vue";
+import { InboxOutlined } from "@ant-design/icons-vue";
+
+import TextArea from "../components/Common/TextArea.vue";
+
+import { useI18n } from "vue-i18n";
 
 const question_data_raw = [
     {
@@ -93,46 +97,16 @@ const question_data_raw = [
 
 const { t } = useI18n();
 
+//#region modal
 interface Props {
     title: string;
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits<{
-    (e: "import", selected: RequestQuestion[]): void;
-}>();
+const emit = defineEmits<(e: "import", selected: RequestQuestion[]) => void>();
 
 const modal_generate_ai_open = ref(false);
-const generatedQuestions = ref<RequestQuestion[]>();
-
-const generateModalState = reactive({
-    checkAll: false,
-    indeterminate: false,
-    checkedList: [] as string[],
-});
-
-const questionTypeOptions = Object.values(QUESTION_TYPE).map((questionType) => ({
-    label: t(`create_QS.type.${questionType}`),
-    value: questionType,
-}));
-
-const questionDifficultyOptions = Object.values(QUESTION_DIFFICULTY).map((difficulty) => ({
-    label: difficulty,
-    value: difficulty,
-}));
-
-const questionMaximumOptions = ref<any>([]);
-for (let i = 10; i <= 100; i += 10) {
-    questionMaximumOptions.value.push({ label: i, value: i });
-}
-
-const generateByAIModalState = reactive({
-    selectedQuestionTypes: [questionTypeOptions[0]],
-    maxQuestion: questionMaximumOptions.value[0].value,
-    difficulty: questionDifficultyOptions[0].value,
-});
-
 const openGenerateAIModal = () => {
     generateModalState.checkedList = []; //reset checked list
     modal_generate_ai_open.value = true;
@@ -147,6 +121,61 @@ defineExpose({
     openGenerateAIModal,
 });
 
+const handleModalImport = () => {
+    Modal.confirm({
+        title: "Are your sure? ",
+        content: "Import: " + generateModalState.checkedList.length + "into " + props.title + " ? ",
+        okText: "Confirm",
+        onOk: () => {
+            const selectedQuestions = question_data_raw.filter((question) =>
+                generateModalState.checkedList.includes(question.id),
+            ) as RequestQuestion[];
+
+            //emit event & params to main
+            emit("import", selectedQuestions);
+            closeGenerateAIModal();
+        },
+    });
+};
+//#endregion
+
+//#region init data
+const questionTypeOptions = Object.values(QUESTION_TYPE).map((questionType) => ({
+    label: t(`create_QS.type.${questionType}`),
+    value: questionType,
+}));
+
+const questionDifficultyOptions = Object.values(QUESTION_DIFFICULTY).map((difficulty) => ({
+    label: difficulty,
+    value: difficulty,
+}));
+
+const questionMaximumOptions = ref<any>([]);
+for (let i = 10; i <= 100; i += 10) {
+    questionMaximumOptions.value.push({ label: i, value: i });
+}
+//#endregion
+
+//#region form state
+const generatedQuestions = ref<RequestQuestion[]>();
+
+const generateModalState = reactive({
+    checkAll: false,
+    indeterminate: false,
+    checkedList: [] as string[],
+});
+
+const generateByAIModalState = reactive({
+    selectedQuestionTypes: [questionTypeOptions[0]],
+    maxQuestion: questionMaximumOptions.value[0].value,
+    difficulty: questionDifficultyOptions[0].value,
+    language: SUPPORTED_LOCALES[0].code,
+    enableExplain: true,
+    title: "",
+});
+//#endregion
+
+//#region file
 //file-upload customized events
 const files = ref<File[]>([]);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -185,6 +214,7 @@ const handleDrop = (event: DragEvent) => {
         files.value = [];
         message.success(file.name + " uploaded successfully.");
         files.value.push(file);
+        generateByAIModalState.title = file.name;
         return;
     }
     message.error("Upload failed");
@@ -194,6 +224,9 @@ const onRemoveUploadedFile = (index: number) => {
     files.value?.splice(index, 1);
 };
 
+//#endregion
+
+//#region check all
 //checkboxes  / checkbox-all for importing question back to the page
 const onCheckAll = (event: any) => {
     Object.assign(generateModalState, {
@@ -220,23 +253,7 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
     const answer = $(`#question-item-answer-${index}`);
     if (answer) $(answer).slideToggle();
 };
-
-const handleModalImport = () => {
-    Modal.confirm({
-        title: "Are your sure? ",
-        content: "Import: " + generateModalState.checkedList.length + "into " + props.title + " ? ",
-        okText: "Confirm",
-        onOk: () => {
-            const selectedQuestions = question_data_raw.filter((question) =>
-                generateModalState.checkedList.includes(question.id),
-            ) as RequestQuestion[];
-
-            //emit event & params to main
-            emit("import", selectedQuestions);
-            closeGenerateAIModal();
-        },
-    });
-};
+//#endregion
 
 onMounted(() => {
     generatedQuestions.value = question_data_raw as RequestQuestion[];
@@ -351,8 +368,41 @@ onMounted(() => {
                                 :options="questionTypeOptions"
                             />
                         </a-form-item>
-
-                        <a-form-item class="generate-ai-btn-container">
+                        <a-row class="d-flex justify-content-between">
+                            <a-col :span="12">
+                                <a-form-item label="Language">
+                                    <a-select
+                                        class="language-select"
+                                        v-model:value="generateByAIModalState.language"
+                                    >
+                                        <a-select-option
+                                            v-for="locale in SUPPORTED_LOCALES"
+                                            :key="`locale-${locale.code}`"
+                                            :value="locale.code"
+                                        >
+                                            {{ locale.label }}
+                                        </a-select-option>
+                                    </a-select>
+                                </a-form-item>
+                            </a-col>
+                            <a-col :span="11">
+                                <a-form-item label="Enable explaination">
+                                    <a-switch
+                                        v-model:checked="generateByAIModalState.enableExplain"
+                                    />
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+                        <a-form-item label="Language">
+                            <TextArea
+                                v-model:value="generateByAIModalState.title"
+                                :is-required="generateByAIModalState.enableExplain"
+                                :max-length="200"
+                                :placeholder="'Enter document title for citation'"
+                                :readonly="!generateByAIModalState.enableExplain"
+                            />
+                        </a-form-item>
+                        <a-form-item style="margin-top: 7px" class="generate-ai-btn-container">
                             <a-button
                                 size="large"
                                 class="w-100 main-color-btn generate_ai"
@@ -498,19 +548,37 @@ onMounted(() => {
                             AI can make mistakes. Please check carefully the important info.
                         </span>
                     </div>
+                    <div class="w-100 d-flex justify-content-end">
+                        <a-button
+                            class="main-color-btn"
+                            key="submit"
+                            type="primary"
+                            size="large"
+                            @click="handleModalImport"
+                        >
+                            Import
+                        </a-button>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <template #footer>
-            <a-button class="main-color-btn" key="submit" type="primary" @click="handleModalImport"
-                >Import</a-button
-            >
-        </template>
+        <template #footer></template>
     </a-modal>
 </template>
 <style scoped>
 .main-color-btn.generate_ai {
     display: block;
+}
+.preview-section .section-content {
+    height: 550px;
+    max-height: 550px;
+}
+
+::v-deep(.ant-form-item-control-input-content textarea) {
+    height: 95px;
+    resize: none;
+}
+.generate-modal-info {
+    color: var(--main-color) !important;
 }
 </style>

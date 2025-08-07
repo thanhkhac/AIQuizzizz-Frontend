@@ -2,13 +2,12 @@
 import ApiTest from "@/api/ApiTest";
 
 import { ref, computed, onMounted, nextTick, onUnmounted } from "vue";
-import QUESTION_TYPE from "@/constants/questionTypes";
 import type { ResponseQuestion } from "@/models/response/question";
-
 import type UserAnswerDTO from "@/models/response/test/userAnswerDTO";
-
 import type { UserAnswerData } from "@/models/response/test/userAnswer";
 import type UserAnswerSubmit from "@/models/response/test/userAnswer";
+import QUESTION_TYPE from "@/constants/questionTypes";
+import QUESTION_FORMAT from "@/constants/questionTextFormat";
 
 import TransferUserAnswerData from "@/services/TransferUserAnswerData";
 
@@ -39,11 +38,6 @@ interface AttemptData {
     timeRemaining: number;
     questions: { questionData: ResponseQuestion; userAnswerDataDto: UserAnswerSubmit }[];
 }
-
-const QUESTION_FORMAT = {
-    HTML: "Html",
-    PLAIN_TEXT: "PlainText",
-};
 
 const quiz = ref<ResponseQuestion[]>([]);
 const userAnswer = ref<UserAnswerDTO[]>([]);
@@ -500,7 +494,7 @@ onMounted(async () => {
         <div class="title-container title-container-header">
             <a-row class="w-100 d-flex align-items-center">
                 <a-col :span="1">
-                    <RouterLink :to="{ name: 'User_Library' }">
+                    <RouterLink :to="{ name: 'User_Class' }">
                         <i class="bx bx-chevron-left navigator-back-button"></i>
                     </RouterLink>
                 </a-col>

@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import ApiQuestionSet from "@/api/ApiQuestionSet";
+import QUESTION_FORMAT from "@/constants/questionTextFormat";
+import QUESTION_TYPE from "@/constants/questionTypes";
+import type { ResponseQuestion } from "@/models/response/question";
+import ERROR from "@/constants/errors";
+
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 const animationPath = new URL("@/assets/confetti.lottie", import.meta.url).href;
 
 import { ref, computed, onMounted, nextTick, reactive, watch } from "vue";
-import QUESTION_TYPE from "@/constants/questionTypes";
-import type { ResponseQuestion } from "@/models/response/question";
 
 import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
@@ -12,6 +16,9 @@ import { HolderOutlined } from "@ant-design/icons-vue";
 import { Modal } from "ant-design-vue";
 import Highcharts from "highcharts";
 import { useRouter, useRoute } from "vue-router";
+import Validator from "@/services/Validator";
+import ShuffleQuestionData from "@/services/ShuffleQuestionData";
+
 const route = useRoute();
 const router = useRouter();
 
@@ -32,248 +39,25 @@ interface UserAnswer {
     shortText: string;
 }
 
-const QUESTION_FORMAT = {
-    HTML: "HTML",
-    PLAIN_TEXT: "PlainText",
-};
+interface TestQuizModel {
+    title: string;
+    description: string;
+    totalQuestionCount: number;
+    questions: ResponseQuestion[];
+}
 
-const quiz = {
-    id: "123456",
-    title: "Programming fundamental",
-    description: "Basic knowledge about programming.",
-    totalQuestion: 30,
-    completed: 8,
-    question: [
-        {
-            id: "11111111-aaaa-aaaa-aaaa-111111111111",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "MultipleChoice",
-            textFormat: "HTML",
-            questionText:
-                "<p>Which of the following are valid variable declarations in JavaScript?<br/><pre>let x = 5;<br>const y = 'hello';<br>var 1name = 'error';</pre></p>",
-            score: 10.0,
-            scoreGraded: 0.0,
-            explainText:
-                "Variables in JavaScript cannot start with a number. 'let x = 5' and 'const y = \"hello\"' are valid, but 'var 1name = \"error\"' is invalid.",
-            questionData: {
-                multipleChoice: [
-                    {
-                        id: "a1",
-                        text: "Giữ vững địa vị thống trị của giai cấp công nhân thông qua Đảng Cộng sản Việt Nam trong mối liên minh giai cấp",
-                        isAnswer: true,
-                    },
-                    {
-                        id: "a2",
-                        text: "Giữ vững lập trường chính trị - tư tưởng của giai cấp công nhân, vai trò lãnh đạo của Đảng Cộng sản Việt Nam, giữ vững độc lập dân tộc và định hướng đi lên chủ nghĩa xã hội",
-                        isAnswer: true,
-                    },
-                    {
-                        id: "a3",
-                        text: "Giữ vững nền kinh tế thị trường theo hướng hiện đại, kiên định con đường đi lên chủ nghĩa xã hội",
-                        isAnswer: false,
-                    },
-                    {
-                        id: "a4",
-                        text: "Giữ vững nền kinh tế thị trường theo hướng hiện đại, kiên định con đường đi lên chủ nghĩa xã hội",
-                        isAnswer: false,
-                    },
-                ],
-                matching: null,
-                ordering: null,
-                shortText: null,
-            },
-        },
-        {
-            id: "44444444-dddd-dddd-dddd-444444444444",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "ShortText",
-            textFormat: "HTML",
-            questionText:
-                "What is the output of the following code?<br/><pre>console.log(typeof null);</pre>",
-            score: 5.0,
-            scoreGraded: 5.0,
-            explainText:
-                "`typeof null` returns `'object'` due to a historical bug in JavaScript that has been preserved for backward compatibility.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                ordering: null,
-                shortText: "object",
-            },
-        },
-        {
-            id: "22222222-bbbb-bbbb-bbbb-222222222222",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Matching",
-            textFormat: "PlainText",
-            questionText: "Match the data types with appropriate examples.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "A string is a series of characters like 'Hello World'. A boolean can be true or false. A number is a numeric value like 42.",
-            questionData: {
-                multipleChoice: null,
-                ordering: null,
-                shortText: null,
-                matching: {
-                    leftItems: [
-                        { id: "l1", text: "String" },
-                        { id: "l2", text: "Boolean" },
-                        { id: "l3", text: "Number" },
-                    ],
-                    rightItems: [
-                        { id: "r1", text: "'Hello World'" },
-                        { id: "r2", text: "true" },
-                        { id: "r3", text: "42" },
-                    ],
-                    matches: [
-                        { leftId: "l1", rightId: "r1" },
-                        { leftId: "l2", rightId: "r2" },
-                        { leftId: "l3", rightId: "r3" },
-                    ],
-                },
-            },
-        },
-        {
-            id: "33333333-cccc-cccc-cccc-333333333333",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Ordering",
-            textFormat: "PlainText",
-            questionText: "Arrange the steps of executing a JavaScript function.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "First, the function must be declared. Then it can be called, at which point the body of the function will execute.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                shortText: null,
-                ordering: [
-                    { id: "s2", text: "Function is called", correctOrder: 2 },
-                    { id: "s3", text: "Function body is executed", correctOrder: 3 },
-                    { id: "s1", text: "Function is declared", correctOrder: 1 },
-                ],
-            },
-        },
-        {
-            id: "55555555-aaaa-aaaa-aaaa-555555555555",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "MultipleChoice",
-            textFormat: "HTML",
-            questionText:
-                "Which of the following statements correctly define a function in JavaScript?<br/><pre>function greet() { return 'Hi'; }</pre>",
-            score: 10.0,
-            scoreGraded: 0.0,
-            explainText:
-                "`function greet()` and `let greet = () => 'Hi';` are valid JavaScript function declarations. `def greet()` is Python syntax and not valid in JavaScript.",
-            questionData: {
-                multipleChoice: [
-                    { id: "f1", text: "function greet() { return 'Hi'; }", isAnswer: true },
-                    { id: "f2", text: "def greet(): return 'Hi'", isAnswer: false },
-                    { id: "f3", text: "let greet = () => 'Hi';", isAnswer: true },
-                ],
-                matching: null,
-                ordering: null,
-                shortText: null,
-            },
-        },
-        {
-            id: "66666666-bbbb-bbbb-bbbb-666666666666",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Matching",
-            textFormat: "PlainText",
-            questionText: "Match the loop type with its primary use case.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "`for` is used when the number of iterations is known, `while` is better when the condition is dynamic, and `forEach` is designed for arrays.",
-            questionData: {
-                multipleChoice: null,
-                ordering: null,
-                shortText: null,
-                matching: {
-                    leftItems: [
-                        { id: "lp1", text: "for loop" },
-                        { id: "lp2", text: "while loop" },
-                        { id: "lp3", text: "forEach loop" },
-                    ],
-                    rightItems: [
-                        { id: "ru1", text: "Known number of iterations" },
-                        { id: "ru2", text: "Iterating over array elements" },
-                        { id: "ru3", text: "Unknown loop condition" },
-                    ],
-                    matches: [
-                        { leftId: "lp1", rightId: "ru1" },
-                        { leftId: "lp2", rightId: "ru3" },
-                        { leftId: "lp3", rightId: "ru2" },
-                    ],
-                },
-            },
-        },
-        {
-            id: "77777777-cccc-cccc-cccc-777777777777",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "Ordering",
-            textFormat: "PlainText",
-            questionText: "Arrange the steps for writing and running a basic JavaScript program.",
-            score: 10.0,
-            scoreGraded: 10.0,
-            explainText:
-                "JavaScript code is typically written in a .js file, then linked in HTML, and finally run in the browser when the HTML is opened.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                shortText: null,
-                ordering: [
-                    { id: "j1", text: "Write code in a .js file", correctOrder: 1 },
-                    { id: "j2", text: "Link the file to an HTML document", correctOrder: 2 },
-                    { id: "j3", text: "Open the HTML file in a browser", correctOrder: 3 },
-                ],
-            },
-        },
-        {
-            id: "88888888-dddd-dddd-dddd-888888888888",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "ShortText",
-            textFormat: "HTML",
-            questionText:
-                "What will be the output of the following JavaScript code?<br/><pre>console.log(2 + '2');</pre>",
-            score: 5.0,
-            scoreGraded: 5.0,
-            explainText:
-                "When using `+` with a number and a string, JavaScript performs string concatenation. So `2 + '2'` becomes `'22'`.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                ordering: null,
-                shortText: "22",
-            },
-        },
-        {
-            id: "99999999-eeee-eeee-eeee-999999999999",
-            questionSetId: "11111111-1111-1111-1111-111111111111",
-            type: "ShortText",
-            textFormat: "PlainText",
-            questionText: "In programming, what does 'DRY' stand for?",
-            score: 5.0,
-            scoreGraded: 5.0,
-            explainText:
-                "DRY stands for 'Don't Repeat Yourself', a principle aimed at reducing code duplication and improving maintainability.",
-            questionData: {
-                multipleChoice: null,
-                matching: null,
-                ordering: null,
-                shortText: "Don't Repeat Yourself",
-            },
-        },
-    ],
-};
+const quiz = ref<TestQuizModel>({
+    title: "",
+    description: "",
+    totalQuestionCount: 0,
+    questions: [],
+});
 
 const incorrect = computed((): UserAnswer[] => {
     return userAnswer.value.filter((x) => x.result === false);
 });
 
-const currentQuestion = ref<ResponseQuestion>(quiz.question[0] as ResponseQuestion);
+const currentQuestion = ref<ResponseQuestion>({} as ResponseQuestion);
 
 const currentQuestionInstruction = ref("");
 const currentQuestionIsSkipped = ref(false);
@@ -294,8 +78,110 @@ const userAnswerShortText = ref<string>("");
 
 const userAnswer = ref<UserAnswer[]>([]);
 
+const reset = () => {
+    userAnswer.value = [];
+    isSubmitted.value = false;
+    onLoadCurrentQuestion(0);
+    syncMatchingHeights();
+    timerStart();
+};
+
+//#region setting modal
+/* setting modal  */
+const setting_modal_open = ref(false);
+
+const openSettingModal = () => {
+    setting_modal_open.value = true;
+
+    //get settings from session or default
+    let session_settings = sessionStorage.getItem("test_settings");
+    if (!session_settings) return;
+
+    settingFormState.numberOfQuestion = JSON.parse(session_settings).numberOfQuestion;
+    settingFormState.questionTypes = JSON.parse(session_settings).questionTypes;
+};
+
+const closeSettingModal = () => {
+    setting_modal_open.value = false;
+};
+
+const settingFormRef = ref();
+const settingFormState = reactive({
+    numberOfQuestion: 5,
+    questionTypes: [
+        QUESTION_TYPE.MULTIPLE_CHOICE,
+        QUESTION_TYPE.MATCHING,
+        QUESTION_TYPE.ORDERING,
+        QUESTION_TYPE.SHORT_TEXT,
+    ],
+});
+
+const toggleQuestionType = (type: string, checked: boolean) => {
+    if (checked) {
+        if (!settingFormState.questionTypes.includes(type)) {
+            settingFormState.questionTypes.push(type);
+        }
+    } else {
+        const index = settingFormState.questionTypes.indexOf(type);
+        if (index !== -1) {
+            settingFormState.questionTypes.splice(index, 1);
+        }
+    }
+};
+
+const onCreateNewTest = async () => {
+    reset();
+
+    await getQuizData();
+
+    //save settings to session
+    sessionStorage.setItem("test_settings", JSON.stringify(settingFormState));
+
+    closeSettingModal();
+};
+
+//#endregion
+
 //#region init data
 const questionSetId = ref<string>(route.params.id.toString());
+
+const getQuizData = async () => {
+    if (!Validator.isValidGuid(questionSetId.value.toString())) {
+        router.push({ name: "404" });
+        return;
+    }
+    try {
+        let detail_result = await ApiQuestionSet.GetDetailById(questionSetId.value.toString());
+
+        quiz.value.title = detail_result.data.data.name;
+        quiz.value.description = detail_result.data.data.description;
+        quiz.value.totalQuestionCount = detail_result.data.data.questionCount;
+
+        let result = await ApiQuestionSet.TestQuestions(
+            questionSetId.value.toString(),
+            settingFormState.numberOfQuestion,
+            settingFormState.questionTypes.join(","),
+        );
+
+        if (!detail_result.data.success || !result.data.success) {
+            router.push({ name: "404" });
+            return;
+        }
+
+        quiz.value.questions = result.data.data.map((x: ResponseQuestion) =>
+            ShuffleQuestionData.shuffleQuestionOptions(x),
+        );
+        // quiz.value.questions = result.data.data;
+
+        onLoadCurrentQuestion(0);
+    } catch (error: any) {
+        const errorKeys = Object.keys(error.response.data.errors);
+        if (errorKeys.includes(ERROR.PLAN_REQUIRE_PLAN)) {
+            router.push({ name: "not-allowed" });
+        }
+    }
+};
+
 //#endregion
 
 //#region animation
@@ -314,10 +200,10 @@ const triggerAnimation = () => {
 
 //#region check user answer
 const checkMultipleChoice = (id: string, answer: string[]) => {
-    const index = quiz.question.findIndex((x) => x.id === id);
+    const index = quiz.value.questions.findIndex((x) => x.id === id);
     if (index === -1) return false;
 
-    let correctAnswer = quiz.question[index].questionData.multipleChoice
+    let correctAnswer = quiz.value.questions[index].questionData.multipleChoice
         ?.filter((x) => x.isAnswer)
         .map((x) => x.id || [])
         .sort();
@@ -331,8 +217,8 @@ const checkMultipleChoice = (id: string, answer: string[]) => {
 const checkMultipleChoiceAnswerCorrect = (option: any) => {
     //only 2 cases allowed to display result: correct and user_answer + incorrect
 
-    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
-    let correctAnswer = quiz.question[index].questionData.multipleChoice
+    const index = quiz.value.questions.findIndex((x) => x.id === currentQuestion.value.id);
+    let correctAnswer = quiz.value.questions[index].questionData.multipleChoice
         ?.filter((x) => x.isAnswer)
         .map((x) => x.id || []);
 
@@ -348,20 +234,20 @@ const checkMultipleChoiceAnswerCorrect = (option: any) => {
 };
 
 const checkOrdering = (id: string, answer: any[]) => {
-    const index = quiz.question.findIndex((x) => x.id === id);
+    const index = quiz.value.questions.findIndex((x) => x.id === id);
     if (index === -1) return false;
 
     let correctAnswer =
-        quiz.question[index].questionData.ordering?.map((x) => x.correctOrder).sort() || [];
+        quiz.value.questions[index].questionData.ordering?.map((x) => x.correctOrder).sort() || [];
 
     let userAnswer = answer.map((x) => x.correctOrder);
     return userAnswer.every((value: number, i: number) => value === correctAnswer[i]);
 };
 
 const checkMatching = (id: string, answerLeft: any[], answerRight: any[]) => {
-    const index = quiz.question.findIndex((x) => x.id === id);
+    const index = quiz.value.questions.findIndex((x) => x.id === id);
     if (index === -1) return false;
-    let correctMatch = quiz.question[index].questionData.matching!.matches;
+    let correctMatch = quiz.value.questions[index].questionData.matching!.matches;
 
     let userAnswerLeft = answerLeft.map((x) => x.id);
     let userAnswerRight = answerRight.map((x) => x.id);
@@ -406,11 +292,11 @@ const cleanShortTextAnswer = (text: string) => {
 
 //get user answer result
 const checkShortText = (id: string, answer: string) => {
-    const index = quiz.question.findIndex((x) => x.id === id);
+    const index = quiz.value.questions.findIndex((x) => x.id === id);
     if (index === -1) return false;
     return (
         cleanShortTextAnswer(answer) ===
-        cleanShortTextAnswer(quiz.question[index].questionData.shortText!)
+        cleanShortTextAnswer(quiz.value.questions[index].questionData.shortText!)
     );
 };
 
@@ -421,8 +307,8 @@ const checkShortextCorrect = () => {
     )?.shortText;
     if (!answer) return false;
 
-    const correct = quiz.question.find((x) => x.id === currentQuestion.value.id)?.questionData
-        .shortText!;
+    const correct = quiz.value.questions.find((x) => x.id === currentQuestion.value.id)
+        ?.questionData.shortText!;
 
     return cleanShortTextAnswer(answer) === cleanShortTextAnswer(correct);
 };
@@ -434,7 +320,8 @@ const getShortTextCorrectAnswer = computed(() => {
         isSubmitted.value &&
         !checkShortextCorrect()
     ) {
-        return quiz.question.find((x) => x.id === currentQuestion.value.id)?.questionData.shortText;
+        return quiz.value.questions.find((x) => x.id === currentQuestion.value.id)?.questionData
+            .shortText;
     }
 });
 
@@ -446,56 +333,6 @@ const explainModal = ref<HTMLElement | null>(null);
 const explainModalOpen = ref(false);
 const toggleExplainModal = () => {
     explainModalOpen.value = !explainModalOpen.value;
-};
-
-//#endregion
-
-//#region setting modal
-/* setting modal  */
-const setting_modal_open = ref(false);
-
-const openSettingModal = () => {
-    setting_modal_open.value = true;
-
-    //get settings from session or default
-    let session_settings = sessionStorage.getItem("test_settings");
-    if (!session_settings) return;
-
-    settingFormState.numberOfQuestion = JSON.parse(session_settings).numberOfQuestion;
-    settingFormState.questionTypes = JSON.parse(session_settings).questionTypes;
-};
-
-const closeSettingModal = () => {
-    setting_modal_open.value = false;
-};
-
-const settingFormRef = ref();
-const settingFormState = reactive({
-    numberOfQuestion: 20,
-    questionTypes: [
-        QUESTION_TYPE.MULTIPLE_CHOICE,
-        QUESTION_TYPE.MATCHING,
-        QUESTION_TYPE.ORDERING,
-        QUESTION_TYPE.SHORT_TEXT,
-    ],
-});
-
-const toggleQuestionType = (type: string, checked: boolean) => {
-    if (checked) {
-        if (!settingFormState.questionTypes.includes(type)) {
-            settingFormState.questionTypes.push(type);
-        }
-    } else {
-        const index = settingFormState.questionTypes.indexOf(type);
-        if (index !== -1) {
-            settingFormState.questionTypes.splice(index, 1);
-        }
-    }
-};
-
-const onCreateNewTest = () => {
-    //save settings to session
-    sessionStorage.setItem("test_settings", JSON.stringify(settingFormState));
 };
 
 //#endregion
@@ -643,7 +480,7 @@ const refactorLeftOverUserAnswer = (quiz_answer: any, base: UserAnswer): UserAns
 };
 
 const handleSkippedQuestion = () => {
-    quiz.question.forEach((x) => {
+    quiz.value.questions.forEach((x) => {
         const base = {
             questionId: x.id,
             type: x.type,
@@ -678,10 +515,11 @@ const handleSkippedQuestion = () => {
 const onSubmitAnswer = () => {
     timerEnd();
     // onUserAnswerChange();
-    if (userAnswer.value.length < quiz.question.length) {
+    if (userAnswer.value.length < quiz.value.questions.length) {
         Modal.confirm({
-            title: `You missed ${quiz.question.length - userAnswer.value.length} questions.`,
+            title: `You missed ${quiz.value.questions.length - userAnswer.value.length} questions.`,
             content: "Are you certain about this decision?",
+            centered: true,
             onOk: () => {
                 //import all left over question from quiz in to userAnswer
                 isSubmitted.value = true;
@@ -698,7 +536,7 @@ const onSubmitAnswer = () => {
 //calculate user result
 const getUserAnswerResult = () => {
     //incase user does not interact anything in currentquestion and skip => show them correct answer
-    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+    const index = quiz.value.questions.findIndex((x) => x.id === currentQuestion.value.id);
     onLoadCurrentQuestion(index);
 
     userAnswer.value
@@ -773,7 +611,7 @@ const onLoadCurrentQuestion = (index: number) => {
     syncMatchingHeights();
     currentQuestionIsSkipped.value = false;
 
-    currentQuestion.value = quiz.question[index] as ResponseQuestion;
+    currentQuestion.value = quiz.value.questions[index] as ResponseQuestion;
     const answer = userAnswer.value.find((x) => x.questionId === currentQuestion.value.id);
 
     switch (currentQuestion.value.type) {
@@ -818,9 +656,9 @@ const onLoadCurrentQuestion = (index: number) => {
 const onNextQuestion = () => {
     currentQuestionIsSkipped.value = false;
 
-    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+    const index = quiz.value.questions.findIndex((x) => x.id === currentQuestion.value.id);
 
-    if (index < quiz.question.length - 1) {
+    if (index < quiz.value.questions.length - 1) {
         onLoadCurrentQuestion(index + 1);
     }
 };
@@ -828,7 +666,7 @@ const onNextQuestion = () => {
 const onPreviousQuestion = () => {
     currentQuestionIsSkipped.value = false;
 
-    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+    const index = quiz.value.questions.findIndex((x) => x.id === currentQuestion.value.id);
 
     if (index > 0) {
         onLoadCurrentQuestion(index - 1);
@@ -856,12 +694,12 @@ const userAnswerCurrentQuestionResult = computed(() => {
 });
 
 const hasNextQuestion = computed(() => {
-    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
-    return index !== -1 && index < quiz.question.length - 1;
+    const index = quiz.value.questions.findIndex((x) => x.id === currentQuestion.value.id);
+    return index !== -1 && index < quiz.value.questions.length - 1;
 });
 
 const hasPreviousQuestion = computed(() => {
-    const index = quiz.question.findIndex((x) => x.id === currentQuestion.value.id);
+    const index = quiz.value.questions.findIndex((x) => x.id === currentQuestion.value.id);
     return index !== -1 && index > 0;
 });
 
@@ -870,12 +708,13 @@ const hasPreviousQuestion = computed(() => {
 //#region final chart
 const getCorrectPercentage = () => {
     return Math.floor(
-        ((quiz.question.length - incorrect.value.length) / quiz.question.length) * 100,
+        ((quiz.value.questions.length - incorrect.value.length) / quiz.value.questions.length) *
+            100,
     );
 };
 
 const getInCorrectPercentage = () => {
-    return Math.floor((incorrect.value.length / quiz.question.length) * 100);
+    return Math.floor((incorrect.value.length / quiz.value.questions.length) * 100);
 };
 
 const toggleResult = () => {
@@ -1056,23 +895,27 @@ const onRedirectToLearn = () => {
 
 const onRetest = () => {
     const incorrectIds = incorrect.value.map((x) => x.questionId);
-    quiz.question = quiz.question.filter((x) => incorrectIds.includes(x.id));
+    quiz.value.questions = quiz.value.questions.filter((x) => incorrectIds.includes(x.id));
 
-    userAnswer.value = [];
-    isSubmitted.value = false;
-    onLoadCurrentQuestion(0);
-    syncMatchingHeights();
-    timerStart();
+    reset();
     toggleResult();
 };
 
 //#endregion
 
-onMounted(() => {
+onMounted(async () => {
+    let session_settings = sessionStorage.getItem("test_settings");
+    if (!session_settings) return;
+
+    settingFormState.numberOfQuestion = JSON.parse(session_settings).numberOfQuestion;
+    settingFormState.questionTypes = JSON.parse(session_settings).questionTypes;
+    await getQuizData();
+
     openSettingModal();
     onLoadCurrentQuestion(0);
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
+    console.log(currentQuestion.value);
 
     timerStart();
 });
@@ -1125,7 +968,7 @@ onMounted(() => {
                                         : 'incorrect'
                                     : '',
                             ]"
-                            v-for="(item, index) in quiz.question"
+                            v-for="(item, index) in quiz.questions"
                             @click="onLoadCurrentQuestion(index)"
                         >
                             <span> {{ index + 1 }} </span>
@@ -1150,7 +993,7 @@ onMounted(() => {
                                 <div class="result-text-container">
                                     <div class="result-text correct">
                                         {{ $t("practice_test.other.correct") }}
-                                        <span>{{ quiz.question.length - incorrect.length }}</span>
+                                        <span>{{ quiz.questions.length - incorrect.length }}</span>
                                     </div>
                                     <div class="result-text incorrect">
                                         {{ $t("practice_test.other.incorrect") }}
@@ -1411,7 +1254,7 @@ onMounted(() => {
                                             :class="[
                                                 'answer-option answer-option-ordering',
                                                 isSubmitted
-                                                    ? index + 1 === option.correctOrder
+                                                    ? index === option.correctOrder
                                                         ? 'answer-correct'
                                                         : 'answer-incorrect'
                                                     : '',
@@ -1431,7 +1274,7 @@ onMounted(() => {
                                                 ]"
                                             >
                                                 <i class="bx bx-hash answer-icon"></i>
-                                                {{ option.correctOrder }}
+                                                {{ option.correctOrder + 1 }}
                                             </div>
                                         </div>
                                     </template>
@@ -1574,7 +1417,7 @@ onMounted(() => {
                     <div>
                         {{
                             $t("practice_test.setting_modal.max_question", {
-                                length: quiz.question.length,
+                                length: quiz.totalQuestionCount,
                             })
                         }}
                     </div>
@@ -1583,7 +1426,7 @@ onMounted(() => {
                         id="inputNumber"
                         v-model:value="settingFormState.numberOfQuestion"
                         :min="5"
-                        :max="quiz.totalQuestion"
+                        :max="quiz.totalQuestionCount"
                     />
                 </div>
             </a-form-item>
@@ -1715,6 +1558,9 @@ onMounted(() => {
 .completed-question.incorrect {
     background-color: var(--incorrect-answer-color);
     border-color: var(--incorrect-answer-color);
+}
+.learn-question-footer {
+    padding: 0px;
 }
 
 #result_chart_container {

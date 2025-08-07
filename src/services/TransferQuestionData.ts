@@ -68,6 +68,8 @@ class TranferQuestionData {
             explainText: requestQuestion.explainText,
             score: requestQuestion.score,
             scoreGraded: requestQuestion.score,
+            correctMultipleChoiceCount: requestQuestion.multipleChoices.filter((x) => x.isAnswer)
+                .length,
             questionData: {
                 multipleChoice:
                     requestQuestion.multipleChoices.length > 0

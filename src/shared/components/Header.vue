@@ -32,7 +32,7 @@ onMounted(() => {});
     display: flex;
     justify-content: space-between;
     padding: 10px 20px;
-    background-color: var(--background-color);
+    background-color: var(--content-item-background-color);
     position: sticky;
     top: 0px;
     z-index: 100;

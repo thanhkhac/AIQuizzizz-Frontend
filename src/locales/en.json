@@ -741,7 +741,9 @@
 
         "PLAN_REQUIRE_PLAN": "Plan required!",
 
-        "TEST_IS_OVERDUE": "Test overdue!"
+        "TEST_IS_OVERDUE": "Test overdue!",
+
+        "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER": "Test template already exists in this folder."
     },
     "message": {
         "added_successfully": "Added successfully!",

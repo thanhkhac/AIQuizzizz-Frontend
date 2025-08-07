@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import user_image from "@/assets/user.png";
 
-import ApiQuestionSet from "@/api/ApiQuestionSet";
+import ApiTestTemplate from "@/api/ApiTestTemplate";
+import ApiFolder from "@/api/ApiFolder";
+import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
+
 import type { RequestQuestion } from "@/models/request/question";
 import type QuestionSet from "@/models/response/question_set/questionSet";
-import type Tag from "@/models/response/tag/tag";
 import QUESTION_TYPE from "@/constants/questionTypes";
 
 import { ref, reactive, computed, onMounted } from "vue";
@@ -27,21 +29,14 @@ const router = useRouter();
 const loading = ref(false);
 const question_set_id = ref(route.params.id);
 
-const quiz = ref<QuestionSet>({
-    id: "",
+const quiz = ref<TestTemplate>({
+    testTemplateId: "",
     name: "",
-    description: "",
-    totalQuestionCount: 0,
-    completedQuestionCount: 0,
-    ratingCount: 0,
-    ratingAverage: 0,
-    createBy: "",
-    createdAt: "",
-    createdById: "",
-    tags: [],
-    lastAccessByMe: "",
-    visibilityMode: "",
+    createdBy: "",
+    numberOfQuestion: 0,
+    dateCreated: 0,
 });
+
 const quiz_questions = ref<RequestQuestion[]>([]);
 const questions = ref<RequestQuestion[]>([]);
 
@@ -68,26 +63,21 @@ const getData = async () => {
         loading.value = true;
         if (!Validator.isValidGuid(question_set_id.value.toString())) router.push({ name: "404" });
 
-        const question_set_result = await ApiQuestionSet.GetDetailById(
-            question_set_id.value.toString(),
-        );
+        const result = await ApiTestTemplate.GetById(question_set_id.value.toString());
 
-        const question_result = await ApiQuestionSet.GetQuestionById(
-            question_set_id.value.toString(),
-        );
+        if (!result.data.success) router.push({ name: "User_Library" });
 
-        if (!question_set_result.data.success || !question_result.data.success)
-            router.push({ name: "User_Library" });
+        quiz.value = result.data.data;
+        // quiz.value.createdBy = question_set_result.data.data.createdBy.fullName;
 
-        quiz.value = question_set_result.data.data;
-        quiz.value.createBy = question_set_result.data.data.createdBy.fullName;
-        quiz_questions.value = question_result.data.data.map((x: ResponseQuestion) =>
+        quiz_questions.value = result.data.data.questions.map((x: ResponseQuestion) =>
             TransferQuestionData.transformResponseToRequest(x),
         );
         questions.value = quiz_questions.value;
 
         await getPermission();
     } catch (error) {
+        console.log(error);
     } finally {
         loading.value = false;
     }
@@ -107,7 +97,6 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 
 //#region share modal
 
-//share quiz
 import ShareModal from "@/shared/modals/ShareModal.vue";
 import type { ResponseQuestion } from "@/models/response/question";
 import VISIBILITY from "@/constants/visibility";
@@ -118,24 +107,46 @@ const onOpenShareModal = () => {
 };
 //#endregion
 
-//#region  redirect
-const onRedirectToLearn = () => {
-    router.push({ name: "User_QuestionSet_Learn", params: { id: quiz.value.id } });
+//#region folder modal
+import ShareToFolder from "@/shared/modals/ShareToFolder.vue";
+import ERROR from "@/constants/errors";
+import type { Folder } from "@/models/response/folder/folder";
+const shareToFolderModalRef = ref<InstanceType<typeof ShareToFolder> | null>(null);
+const openFolderModal = () => {
+    shareToFolderModalRef.value?.openModal();
 };
 
-const onRedirectToTest = () => {
-    router.push({ name: "User_QuestionSet_Test", params: { id: quiz.value.id } });
-};
-
-const onRedirectToEdit = () => {
-    router.push({ name: "User_QuestionSet_Update", params: { id: quiz.value.id } });
+const onAddToFolder = (folder: Folder) => {
+    Modal.confirm({
+        title: "Are your sure to perform this action?",
+        content: `Add test template ${quiz.value.name} into folder ${folder.name}`,
+        centered: true,
+        onOk: async () => {
+            const result = await ApiFolder.AddTestTemplate(
+                folder.folderTestId,
+                quiz.value.testTemplateId,
+            );
+            if (
+                !result.data.success &&
+                Object.keys(result.data.errors).includes(
+                    ERROR.TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER,
+                )
+            ) {
+                message.error(t("mesage.TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER"));
+                return;
+            }
+            message.success(t("message.added_successfully"));
+            shareToFolderModalRef.value?.closeModal();
+        },
+    });
 };
 //#endregion
 
-//#region  rating
-const modal_rate_open = ref(false);
-const rateValue = ref(0);
+//#region  redirect
 
+const onRedirectToEdit = () => {
+    router.push({ name: "User_TestTemplate_Update", params: { id: quiz.value.testTemplateId } });
+};
 //#endregion
 
 //#region permission
@@ -144,7 +155,7 @@ const permission = ref({
     canDelete: false,
 });
 const getPermission = async () => {
-    const result = await ApiQuestionSet.GetPermissions(quiz.value.id);
+    const result = await ApiTestTemplate.GetPermissions(quiz.value.testTemplateId);
     if (result.data.success) {
         permission.value = result.data.data;
     }
@@ -156,7 +167,7 @@ const onDelete = () => {
         title: "Are you sure to delete this question set from class?",
         content: "Please double check for important resources!",
         onOk: async () => {
-            const result = await ApiQuestionSet.Delete(quiz.value.id);
+            const result = await ApiTestTemplate.Delete(quiz.value.testTemplateId);
             if (!result.data.success) {
                 message.error(t("message.deleted_failed"));
                 return;
@@ -167,15 +178,7 @@ const onDelete = () => {
     });
 };
 
-const onRedirectToSearch = (tag: Tag) => {
-    const array = [tag];
-    sessionStorage.setItem("selected_tags", JSON.stringify(array));
-    router.push({ name: "User_QuestionSet_Search" });
-};
-
 const onFilter = () => {
-    console.log(selected_type_option.value);
-
     let filtered = quiz_questions.value;
     filtered = quiz_questions.value.filter((x) => {
         const matches = x.questionText.includes(searchValue.value);
@@ -198,7 +201,7 @@ onMounted(async () => {
     <div class="content">
         <RouterLink
             class="navigator-back-link d-flex align-items-center p-2"
-            :to="{ name: 'User_Library' }"
+            :to="{ name: 'User_TestTemplate' }"
         >
             <i class="me-1 bx bx-chevron-left"></i>
             {{ $t("detail_QS.other.library") }}
@@ -212,13 +215,12 @@ onMounted(async () => {
                 <div class="content-item-title">
                     <div>
                         <span>{{ quiz.name }}</span>
-                        <span>{{ quiz.description }}</span>
                     </div>
                     <div
                         v-if="permission.canEdit || permission.canDelete"
-                        class="d-flex flex-row align-items-center quiz-header-functions"
+                        class="d-flex flex-row align-items-center justify-content-between quiz-header-functions"
                     >
-                        <a-dropdown :trigger="['click']" :placement="'bottomRight'">
+                        <!-- <a-dropdown :trigger="['click']" :placement="'bottomRight'">
                             <i class="bx bx-dots-horizontal-rounded ant-dropdown-link"></i>
                             <template #overlay>
                                 <a-menu class="drop-down-container">
@@ -243,25 +245,31 @@ onMounted(async () => {
                                     </a-menu-item>
                                 </a-menu>
                             </template>
-                        </a-dropdown>
-                    </div>
-                </div>
-                <div class="quiz-info">
-                    <div class="quiz-rating" @click="modal_rate_open = true">
-                        {{ quiz.ratingAverage }} ⭐️ ({{ quiz.ratingCount }}
-                        {{ $t("detail_QS.other.reviews") }})
-                    </div>
-                    <div class="quiz-tag-container">
-                        <div
-                            class="quiz-tag-item"
-                            v-for="tag in quiz.tags"
-                            @click="onRedirectToSearch(tag)"
-                        >
-                            {{ tag.name }}
-                        </div>
+                        </a-dropdown> -->
+                        <i
+                            v-if="permission.canEdit"
+                            class="bx bx-edit"
+                            @click="onRedirectToEdit"
+                        ></i>
+                        <i
+                            v-if="permission.canDelete"
+                            class="text-danger bx bx-trash-alt"
+                            @click="onDelete"
+                        ></i>
                     </div>
                 </div>
                 <div class="quiz-credit">
+                    <div class="share-btn-container">
+                        <a-button
+                            type="primary"
+                            class="main-color-btn share-btn"
+                            size="large"
+                            @click="openFolderModal"
+                        >
+                            <i class="bx bx-plus"></i>
+                            Add to folder
+                        </a-button>
+                    </div>
                     <div class="share-btn-container">
                         <a-button
                             type="primary"
@@ -272,31 +280,6 @@ onMounted(async () => {
                             <i class="bx bx-share-alt"></i>
                             {{ $t("detail_QS.buttons.share_quiz") }}
                         </a-button>
-                    </div>
-                </div>
-                <div class="action-container">
-                    <div class="credit-user">
-                        <img class="user-image" :src="user_image" alt="" />
-                        <div class="credit-user-info">
-                            <span>
-                                {{
-                                    $t("detail_QS.other.created_by", {
-                                        username: quiz.createBy,
-                                    })
-                                }}
-                            </span>
-                            <span>{{ dayjs(quiz.createdAt).format("DD/MM/YYYY") }}</span>
-                        </div>
-                    </div>
-                    <div class="d-flex">
-                        <div class="action-item" @click="onRedirectToLearn">
-                            {{ $t("detail_QS.buttons.learn") }}
-                            <i class="bx bx-analyse"></i>
-                        </div>
-                        <div class="action-item" @click="onRedirectToTest">
-                            {{ $t("detail_QS.buttons.test") }}
-                            <i class="bx bx-detail"></i>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -343,13 +326,16 @@ onMounted(async () => {
             <div v-else class="preview-question-container">
                 <div class="preview-question-item" v-for="(question, index) in questions">
                     <div class="question-item-content">
-                        <div
-                            v-if="question.questionHTML"
-                            class="question-html"
-                            v-html="question.questionHTML"
-                        ></div>
-                        <div v-else class="question-text">
-                            {{ question.questionText }}
+                        <div class="d-flex pb-2">
+                            <div class="question-index">{{ index + 1 }}</div>
+                            <div
+                                v-if="question.questionHTML"
+                                class="question-html"
+                                v-html="question.questionHTML"
+                            ></div>
+                            <div v-else class="question-text">
+                                {{ question.questionText }}
+                            </div>
                         </div>
                         <div
                             class="question-item-answer"
@@ -421,32 +407,14 @@ onMounted(async () => {
 
     <ShareModal
         ref="shareModalRef"
-        :id="quiz.id"
+        :id="quiz.testTemplateId"
         :name="quiz.name"
-        :mode="t('share_modal.mode.quiz')"
-        :options="VISIBILITY"
-        :visibility="quiz.visibilityMode"
+        :mode="'template'"
+        :options="[VISIBILITY.PRIVATE]"
+        :visibility="''"
     />
-    <a-modal wrap-class-name="medium-modal" :open="modal_rate_open">
-        <div class="title-container">
-            <a-row class="w-100 d-flex align-items-center justify-content-between">
-                <a-col :span="1">
-                    <div @click="modal_rate_open = false">
-                        <i class="bx bx-chevron-left navigator-back-button"></i>
-                    </div>
-                </a-col>
-                <a-col class="main-title" :span="20">
-                    <span>Rate the question set</span> <br />
-                </a-col>
-            </a-row>
-        </div>
-        <div class="modal-rate-container">
-            <a-rate v-model:value="rateValue" style="font-size: 40px" />
-        </div>
-        <template #footer>
-            <a-button type="primary" class="main-color-btn">Send</a-button>
-        </template>
-    </a-modal>
+
+    <ShareToFolder ref="shareToFolderModalRef" @add-to-folder="onAddToFolder" />
 </template>
 
 <style scoped>
@@ -474,6 +442,7 @@ onMounted(async () => {
 .quiz-header-functions i {
     cursor: pointer;
     transition: all 0.2s ease-in-out;
+    margin-left: 10px;
 }
 
 .quiz-header-functions i:nth-child(1):hover {
@@ -614,5 +583,15 @@ onMounted(async () => {
 
 ::v-deep(.ant-rate-star-second) {
     color: var(--border-color);
+}
+
+.question-index {
+    font-weight: 500;
+    margin-right: 10px;
+    border: 1px solid var(--form-item-border-color);
+    border-radius: 5px;
+    background-color: var(--main-color);
+    padding: 3px 8px;
+    color: var();
 }
 </style>
