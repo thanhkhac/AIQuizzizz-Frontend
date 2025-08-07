@@ -188,8 +188,8 @@ const createQuestionTemplate = (): RequestQuestion => ({
 });
 
 const onAddQuestion = () => {
-    if (formState.createUpdateQuestions.length >= 100) {
-        message.warning("Each question set could have at most 100 questions");
+    if (formState.createUpdateQuestions.length >= 500) {
+        message.warning(t("maximum_tag.limit_question", { number: 500 }));
         return;
     }
 
@@ -211,7 +211,7 @@ const onAddQuestion = () => {
 
 const onRemoveQuestion = (index: number) => {
     if (formState.createUpdateQuestions.length <= 1) {
-        message.warning("Each question set must have at least 1 questions");
+        message.warning(t("maximum_tag.minimum_question", { number: 1 }));
         return;
     }
     //add to delete existing question only
@@ -227,19 +227,19 @@ const onRemoveQuestion = (index: number) => {
 
 const onFinish = () => {
     let isInvalid = false;
-    let msg = "Invalid question.";
+    let msg = t("message.invalid_question");
     let invalidQuestion = new Set<RequestQuestion>();
 
     if (formState.name.trim().length > 100 || formState.name.trim().length === 0) {
         isInvalid = true;
-        msg = "Invalid title.";
+        msg = t("message.invalid_title");
         message.error(msg);
         return;
     }
 
     if (formState.description.trim().length > 250) {
         isInvalid = true;
-        msg = "Invalid description.";
+        msg = t("message.invalid_description");
         message.error(msg);
         return;
     }
@@ -319,8 +319,8 @@ const onFinish = () => {
 
     if (isInvalid) {
         Modal.error({
-            title: "Cannot create new question set!",
-            content: "There are errors at questions: " + indexes.sort().join(", "),
+            title: t("create_QS.modal.invalid.title"),
+            content: t("create_QS.modal.invalid.content") + indexes.sort().join(", "),
         });
     } else {
         showModalConfirmation();
@@ -329,8 +329,8 @@ const onFinish = () => {
 
 const showModalConfirmation = () => {
     Modal.confirm({
-        title: "Create new quiz!",
-        content: "Make sure to review your contents before proceeding.",
+        title: t("update_QS.modal.valid.title"),
+        content: t("update_QS.modal.valid.content"),
         centered: true,
         onOk: async () => {
             formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
@@ -542,7 +542,7 @@ onMounted(async () => {
                                 <i class="bx bx-upload"></i>
                             </RouterLink>
                             <div class="import-button" @click="onFinish">
-                                {{ $t("create_QS.buttons.create") }}
+                                {{ $t("update_QS.buttons.update") }}
                             </div>
                             <div class="import-button">
                                 {{

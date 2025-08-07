@@ -338,9 +338,24 @@ Custome a-select
 
 .question-container {
     border: 1px solid var(--main-color);
-    border-radius: 8px;
+    border-radius: 5px;
     padding: 10px;
     margin-bottom: 20px;
+    max-height: 635px;
+    overflow: auto;
+    background-clip: padding-box;
+}
+
+.question-container::-webkit-scrollbar {
+    border-radius: 8px;
+    width: 8px;
+    background-color: var(--content-item-background-color);
+}
+
+.question-container::-webkit-scrollbar-thumb {
+    width: 8px;
+    background-color: var(--form-item-border-color);
+    border-radius: 10px;
 }
 
 .question-header {

@@ -38,19 +38,19 @@ const rules = {
     title: [
         {
             required: "true",
-            message: "This field is required",
+            message: t("message.required"),
             trigger: "change",
         },
         {
             length: 100,
-            message: "Limit 100",
+            message: t("message.out_of_range", { max_length: 100 }),
             trigger: "change",
         },
     ],
     description: [
         {
             length: 200,
-            message: "Limit 200",
+            message: t("message.out_of_range", { max_length: 200 }),
             trigger: "change",
         },
     ],
@@ -58,7 +58,7 @@ const rules = {
         {
             validator: (rule: string, value: []) => {
                 if (value && value.length > 5) {
-                    return Promise.reject("You can only add up to 5 tags.");
+                    return Promise.reject(t("maximum_tag.out_of_range", { tag: 5 }));
                 }
                 return Promise.resolve();
             },
@@ -69,7 +69,7 @@ const rules = {
         {
             validator: (rule: string, value: []) => {
                 if (value && value.length > 500) {
-                    return Promise.reject("You can only add up to 5 questions.");
+                    return Promise.reject(t("maximum_tag.limit_question", { number: 500 }));
                 }
                 return Promise.resolve();
             },
@@ -170,14 +170,14 @@ const question_data_raw = [
 const tagContent = ref("");
 const addTag = () => {
     if (formState.tags.length >= 5) {
-        message.warning("Limit : 5 tags");
+        message.warning(t("maximum_tag.out_of_range", { tag: 5 }));
         return;
     }
     if (tagContent.value && tagContent.value.trim().length <= 50) {
         formState.tags.push(tagContent.value);
         tagContent.value = "";
     } else {
-        message.warning("Invalid tag content");
+        message.warning(t("maximum_tag.invalid_tag_content"));
     }
 };
 
@@ -215,8 +215,8 @@ const createQuestionTemplate = (): RequestQuestion => ({
 });
 
 const onAddQuestion = async () => {
-    if (formState.questions.length >= 10) {
-        message.warning("Each question set could have at most 100 questions");
+    if (formState.questions.length >= 500) {
+        message.warning(t("maximum_tag.limit_question", { number: 500 }));
         return;
     }
 
@@ -235,7 +235,7 @@ const onAddQuestion = async () => {
 
 const onRemoveQuestion = (index: number) => {
     if (formState.questions.length <= 1) {
-        message.warning("Each question set must have at least 1 questions");
+        message.warning(t("maximum_tag.minimum_question", { number: 1 }));
         return;
     }
 
@@ -247,19 +247,19 @@ const onRemoveQuestion = (index: number) => {
 
 const onFinish = () => {
     let isInvalid = false;
-    let msg = "Invalid question.";
+    let msg = t("message.invalid_question");
     let invalidQuestion = new Set<RequestQuestion>();
 
     if (formState.name.trim().length > 100 || formState.name.trim().length === 0) {
         isInvalid = true;
-        msg = "Invalid title.";
+        msg = t("message.invalid_title");
         message.error(msg);
         return;
     }
 
     if (formState.description.trim().length > 250) {
         isInvalid = true;
-        msg = "Invalid description.";
+        msg = t("message.invalid_description");
         message.error(msg);
         return;
     }
@@ -337,8 +337,8 @@ const onFinish = () => {
 
     if (isInvalid) {
         Modal.error({
-            title: "Cannot create new question set!",
-            content: "There are errors at questions: " + indexes.sort().join(", "),
+            title: t("create_QS.modal.invalid.title"),
+            content: t("create_QS.modal.invalid.content") + indexes.sort().join(", "),
         });
     } else {
         showModalConfirmation();
@@ -347,8 +347,8 @@ const onFinish = () => {
 
 const showModalConfirmation = () => {
     Modal.confirm({
-        title: "Create new quiz!",
-        content: "Make sure to review your contents before proceeding.",
+        title: t("create_QS.modal.valid.title"),
+        content: t("create_QS.modal.valid.content"),
         centered: true,
         onOk: async () => {
             //logic here
@@ -384,13 +384,14 @@ const openGenerateAIModal = () => {
 
 //use for both modal import event
 const onModalImport = (selected: RequestQuestion[]) => {
+    if (selected.length === 0) return;
     formState.questions.push(
         ...selected.map((item, i) => ({
             ...item,
             id: `new_${formState.questions.length + i}`,
         })),
     );
-    message.success(`Imported ${selected.length} questions.`);
+    message.success(`${t("message.imported_question", { number: selected.length })}`);
 };
 
 //#endregion
@@ -407,8 +408,8 @@ const onModalImport = (selected: RequestQuestion[]) => {
 
 onBeforeRouteLeave((to, from, next) => {
     Modal.confirm({
-        title: "Leave already?",
-        content: "You have unsaved changes.",
+        title: t("create_QS.modal.leave.title"),
+        content: t("create_QS.modal.leave.content"),
         onOk: () => {
             next();
         },

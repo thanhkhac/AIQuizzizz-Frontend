@@ -6,8 +6,7 @@ export interface UserAnswerData {
     shortText: string;
 }
 
-export default interface UserAnswersObject {
+export default interface UserAnswerSubmit {
     questionId: string;
     userAnswerData: UserAnswerData;
 }
-

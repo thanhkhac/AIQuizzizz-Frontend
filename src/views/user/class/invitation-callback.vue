@@ -6,6 +6,9 @@ import { useRoute, useRouter } from "vue-router";
 
 import { message } from "ant-design-vue";
 
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 const route = useRoute();
 const router = useRouter();
 
@@ -25,9 +28,10 @@ const onJoinClass = async () => {
     try {
         const result = await ApiClass.JoinClass(joinClassFormState);
         if (!result.data.success) {
-            message.error("Join class failed");
+            message.error(t("message.join_class_failed"));
+            return;
         }
-        message.success("Join class successfully.");
+        message.success(t("message.join_class_successfully"));
     } catch (error) {
         console.log(error);
         router.push({ name: "User_Class" });

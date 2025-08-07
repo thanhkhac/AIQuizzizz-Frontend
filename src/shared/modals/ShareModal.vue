@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import ApiUser from "@/api/ApiUser";
+import ApiQuestionSet from "@/api/ApiQuestionSet";
+import ApiTestTemplate from "@/api/ApiTestTemplate";
+import ApiFolder from "@/api/ApiFolder";
+
 import { ref, computed, onMounted, watch, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "../components/Common/Input.vue";
@@ -9,19 +14,46 @@ import { message } from "ant-design-vue";
 
 const { t } = useI18n();
 
+//#region interface
+interface UserPermission {
+    userId: string;
+    email: string;
+    fullName: string;
+    shareMode: string;
+}
+interface SearchUserWithEmail {
+    id: string;
+    fullName: string;
+    email: string;
+}
+interface SharingFormState {
+    id: string;
+    sharingModels: {
+        shareMode: string;
+        sharingUserId: string;
+    }[];
+    deleteUserIds: string[];
+}
+//#endregion
+
 //#region props
 type Props = {
     id: string;
-    mode: string;
+    name: string;
+    mode: string; //quiz //folder //template
+    visibility: string;
+    options: any;
 };
-const props = defineProps<{ id: string }>();
+const props = defineProps<Props>();
 
 //#endregion
 
 //#region modal
 const visibility = ref(false);
 
-const openModal = () => {
+const openModal = async () => {
+    await getSharedUser();
+    selected_visibility_option.value = visibility_options.value[0].value;
     visibility.value = true;
 };
 
@@ -34,26 +66,31 @@ defineExpose({
 });
 //#endregion
 
+//#region init data UI
 /* visibility-select */
-const visibilityKeys = Object.values(VISIBILITY);
+const visibilityKeys = Object.values(props.options);
 const visibility_options = computed(() =>
     visibilityKeys.map((key) => ({
         label: t(`share_modal.visibility.${key}.mode`),
         value: key,
     })),
 );
-const selected_visibility_option = ref(visibility_options.value[0].value);
+const selected_visibility_option = ref();
 const selected_visibility_explain = ref("");
 
 watch(
     () => selected_visibility_option.value,
-    (visibility) => {
+    async (visibility) => {
         selected_visibility_explain.value = t(`share_modal.visibility.${visibility}.explain`);
+
+        if (visibility === VISIBILITY.PRIVATE) {
+            await getSharedUser();
+        }
     },
 );
 
 /* permission-select */
-const permissionKeys = [PERMISSION.VIEW, PERMISSION.EDIT];
+const permissionKeys = [PERMISSION.EDITABLE, PERMISSION.VIEW_ONLY];
 const permission_options = computed(() =>
     permissionKeys.map((key) => ({
         label: t(`share_modal.permission.${key}.mode`),
@@ -61,36 +98,11 @@ const permission_options = computed(() =>
     })),
 );
 const selected_permission_option = ref(permission_options.value[0].value);
+//#endregion
 
-/* email sample for searching */
-const user_sample = [
-    { id: "1", email: "ducnthe173064@fpt.edu.vn", hasAccess: true },
-    { id: "2", email: "ducnthe173064@fpt.edu.vn", hasAccess: true },
-    { id: "4", email: "ducnguyen@gmail.com", hasAccess: true },
-    { id: "5", email: "ducnguyen@gmail.com", hasAccess: true },
-    { id: "6", email: "ducntan1234@gmail.com", hasAccess: false },
-    { id: "7", email: "ducntan1234@gmail.com", hasAccess: false },
-    { id: "8", email: "qwert@gmail.com", hasAccess: false },
-    { id: "9", email: "qwert@gmail.com", hasAccess: false },
-    { id: "10", email: "asdfg@gmail.com", hasAccess: false },
-    { id: "11", email: "asdfg@gmail.com", hasAccess: false },
-];
+//#region sample data
 
 /* user sample for quiz permission */
-const user_permission_sample = [
-    {
-        id: "1",
-        fullName: "NguyenTanDuc",
-        email: "ducnthe173064@fpt.edu.vn",
-        permission: PERMISSION.EDIT,
-    },
-    {
-        id: "2",
-        fullName: "NguyenDuc",
-        email: "ducnguyen@gmail.com",
-        permission: PERMISSION.VIEW,
-    },
-];
 
 /* class sample for InClass mode */
 const user_class_sample = ref([
@@ -108,20 +120,39 @@ const user_class_sample = ref([
     },
 ]);
 
-interface UserPermission {
-    id: string;
-    email: string;
-    permission: string;
-}
-interface SearchUserWithEmail {
-    id: string;
-    email: string;
-    hasAccess: boolean;
-}
+//#endregion
 
-/**
- * Search user
- **/
+//#region get sharedUser
+const sharedUser = ref<UserPermission[]>([]);
+const sharingFormState = ref<SharingFormState>();
+const deleteUserIds = ref<string[]>([]);
+
+const getSharedUser = async () => {
+    let result;
+
+    switch (props.mode) {
+        case "quiz": {
+            break;
+        }
+        case "template": {
+            result = await ApiTestTemplate.GetSharedUser(props.id);
+
+            break;
+        }
+        case "folder": {
+            result = await ApiFolder.GetSharedUser(props.id);
+            break;
+        }
+    }
+    if (result?.data.success) {
+        sharedUser.value = result.data.data.sharingModel;
+    }
+};
+
+//#endregion
+
+//#region share private user
+
 const searchUserEmailValue = ref("");
 
 /* use this for result */
@@ -141,56 +172,102 @@ function handleMouseClickOutside(event: MouseEvent) {
     }
 }
 
-const onSearchUser = () => {
+const onSearchUser = async () => {
     if (!searchUserEmailValue.value.trim()) {
         userFound.value = [];
         lastSearchResult.value = [];
         return;
     }
 
-    let result = user_sample.filter((x) =>
-        x.email.includes(searchUserEmailValue.value.trim()),
-    ) as SearchUserWithEmail[];
-
-    userFound.value = result;
-    lastSearchResult.value = [...result];
+    const result = await ApiUser.SearchByEmail(searchUserEmailValue.value);
+    if (result.data.success) {
+        userFound.value = result.data.data;
+        lastSearchResult.value = [...result.data.data];
+    }
 };
 
 /* use this for query and generate list of user when mode = private */
-const userWithPermission = ref<UserPermission[]>([]);
+const updateSharedUsers = async ({
+    sharingModels = [] as any[],
+    deleteUserIds = [] as string[],
+    successMsg = "Updated successfully",
+    errorMsg = "Update failed!",
+}) => {
+    sharingFormState.value = {
+        id: props.id,
+        sharingModels,
+        deleteUserIds,
+    };
+    let result;
 
-const onShareWithResultUser = (user: SearchUserWithEmail) => {
-    user_permission_sample.push({
-        id: user.id,
-        email: user.email,
-        fullName: user.email,
-        permission: PERMISSION.VIEW,
+    switch (props.mode) {
+        case "quiz": {
+            break;
+        }
+        case "template": {
+            result = await ApiTestTemplate.UpdateSharedUser(sharingFormState.value);
+            break;
+        }
+        case "folder": {
+            result = await ApiFolder.UpdateSharedUser({
+                folderId: sharingFormState.value.id,
+                ...sharingFormState.value,
+            });
+            break;
+        }
+    }
+
+    if (result?.data.success) {
+        await getSharedUser();
+        message.success(successMsg);
+    } else {
+        message.error(errorMsg);
+    }
+};
+const onShareWithResultUser = async (user: SearchUserWithEmail) => {
+    await updateSharedUsers({
+        sharingModels: [
+            {
+                sharingUserId: user.id,
+                shareMode: PERMISSION.VIEW_ONLY,
+            },
+        ],
+        successMsg: "Added successfully",
+        errorMsg: "Add failed!",
     });
-    user.hasAccess = true;
-    message.success("Added successfully");
-
-    //call api insert qs-user
-    //message result
-    //re-fetch the people access list
 };
 
 //change people permission
-const onChangePeoplePermission = (peopleId: string, permission: string) => {
-    //call api update qs-user
-    //message result
-    //re-fetch the people access list
+const onChangePeoplePermission = async (userId: string, permission: string) => {
+    await updateSharedUsers({
+        sharingModels: [
+            {
+                sharingUserId: userId,
+                shareMode: permission,
+            },
+        ],
+        successMsg: "Updated successfully",
+        errorMsg: "Update failed!",
+    });
 };
 
 /* remove people access */
-
-const onConfirmRemovePeopleAccess = (id: string) => {
-    //call api disable qs-user
-    //message result
-    //re-fetch the people access list
+const onConfirmRemovePeopleAccess = async (id: string) => {
+    deleteUserIds.value.push(id);
+    await updateSharedUsers({
+        sharingModels: [],
+        deleteUserIds: deleteUserIds.value,
+        successMsg: "Removed successfully",
+        errorMsg: "Remove failed!",
+    });
 };
 
-/* use this for add quiz to list class mode = InClass */
+const isSharedUserContain = (id: string) => {
+    return sharedUser.value.some((x) => x.userId === id);
+};
+//#endregion
 
+//#region share in class
 const shareClassState = reactive({
     checkAll: false,
     indeterminate: false,
@@ -221,6 +298,9 @@ const onShareClass = () => {
     closeModal();
 };
 
+//#endregion
+
+//#region share public
 const getPublicShareUrl = () => {
     const origin = window.location.origin;
     return origin + `/user/library/${props.id}`;
@@ -236,10 +316,11 @@ const onCopyPublicShareUrl = () => {
             message.error("Empty");
         });
 };
+//#endregion
 
 onMounted(() => {
     document.addEventListener("click", handleMouseClickOutside);
-    userWithPermission.value.push(...(user_permission_sample as UserPermission[]));
+    // userWithPermission.value.push(...(user_permission_sample as UserPermission[]));
 
     selected_visibility_explain.value = t(
         `share_modal.visibility.${selected_visibility_option.value}.explain`,
@@ -268,7 +349,12 @@ onMounted(() => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="22">
-                        <span>{{ $t("share_modal.title") }}</span> <br />
+                        <span>
+                            {{ $t("share_modal.title") }}
+                            {{ $t(`share_modal.mode.${mode}`) }}
+                            {{ name }}
+                        </span>
+                        <br />
                         <span>{{ $t("share_modal.sub_title") }}</span>
                     </a-col>
                 </a-row>
@@ -316,10 +402,13 @@ onMounted(() => {
                         :span="24"
                         :class="[selected_visibility_option === VISIBILITY.PRIVATE ? '' : 'd-none']"
                     >
-                        <div class="search-user" ref="searchUserResultRef">
+                        <div class="form-item search-user" ref="searchUserResultRef">
+                            <label
+                                >{{ $t("share_modal.component_title.share_with_email") }} -
+                                <span>enter full email to search user</span></label
+                            >
                             <Input
                                 @change="onSearchUser"
-                                :label="t('share_modal.component_title.share_with_email')"
                                 v-model:value="searchUserEmailValue"
                                 :placeholder="t('share_modal.other.search_email_placeholder')"
                             >
@@ -327,19 +416,14 @@ onMounted(() => {
                                     <i class="bx bx-envelope"></i>
                                 </template>
                             </Input>
-                            <div
-                                :class="[
-                                    'search-user-container',
-                                    userFound.length <= 0 ? 'd-none' : '',
-                                ]"
-                            >
+                            <div v-if="userFound.length > 0" :class="['search-user-container']">
                                 <div class="search-user-result">
                                     <div class="search-user-item" v-for="user in userFound">
                                         <div class="user-item-email">{{ user.email }}</div>
                                         <div
                                             :class="[
                                                 'user-item-access',
-                                                user.hasAccess ? 'd-none' : '',
+                                                isSharedUserContain(user.id) ? 'd-none' : '',
                                             ]"
                                         >
                                             <a-button
@@ -356,10 +440,14 @@ onMounted(() => {
                         </div>
                         <div class="list-item-section">
                             <div class="list-item-title">
-                                {{ $t("share_modal.component_title.people_with_access") }}
+                                {{
+                                    $t("share_modal.component_title.people_with_access", {
+                                        number: sharedUser.length,
+                                    })
+                                }}
                             </div>
                             <div class="list-item-container">
-                                <template v-for="people in user_permission_sample">
+                                <template v-for="people in sharedUser">
                                     <div class="list-item">
                                         <img class="people-access-img" src="" alt="" />
                                         <div class="people-access-info">
@@ -368,14 +456,15 @@ onMounted(() => {
                                         </div>
                                         <div class="people-access-permission">
                                             <a-select
+                                                :disabled="people.shareMode === PERMISSION.OWNER"
                                                 @change="
                                                     onChangePeoplePermission(
-                                                        people.id,
-                                                        people.permission,
+                                                        people.userId,
+                                                        people.shareMode,
                                                     )
                                                 "
                                                 style="width: 130px"
-                                                v-model:value="people.permission"
+                                                v-model:value="people.shareMode"
                                             >
                                                 <a-select-option
                                                     v-for="option in permission_options"
@@ -388,9 +477,14 @@ onMounted(() => {
                                                 :title="$t('share_modal.other.delete_warning')"
                                                 :ok-text="$t('share_modal.buttons.yes')"
                                                 :cancel-text="$t('share_modal.buttons.no')"
-                                                @confirm="onConfirmRemovePeopleAccess(people.id)"
+                                                @confirm="
+                                                    onConfirmRemovePeopleAccess(people.userId)
+                                                "
                                             >
-                                                <i class="ms-2 text-danger bx bx-trash"></i>
+                                                <i
+                                                    v-if="people.shareMode !== PERMISSION.OWNER"
+                                                    class="ms-2 text-danger bx bx-trash"
+                                                ></i>
                                             </a-popconfirm>
                                         </div>
                                     </div>
@@ -503,6 +597,10 @@ onMounted(() => {
     border: 1px solid var(--border-color);
     color: var(--text-color);
     border-radius: 5px;
+}
+
+.search-user {
+    padding: 0px;
 }
 
 .search-user-container {

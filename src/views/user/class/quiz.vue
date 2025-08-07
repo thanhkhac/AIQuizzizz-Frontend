@@ -140,8 +140,11 @@ const onDeleteQSFromClass = (questionSetId: string) => {
                 classData.value.classId,
                 questionSetId,
             );
-            if (!result.data.success) return;
-            message.success("Removed successfully.");
+            if (!result.data.success) {
+                message.success(t("message.removed_failed"));
+                return;
+            }
+            message.success(t("message.removed_successfully"));
             getData();
         },
     });
@@ -274,7 +277,7 @@ onMounted(async () => {
                     <div class="w-100 d-flex justify-content-center">
                         <a-empty>
                             <template #description>
-                                <span> No data matches. </span>
+                                <span> {{ $t("class_index.other.no_data_matches") }}</span>
                             </template>
                         </a-empty>
                     </div>

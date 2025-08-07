@@ -16,6 +16,7 @@ const END_POINTS = {
     GET_PUBLIC_BY_LIMIT: "QuestionSet/Public",
     GET_ALL_BY_LIMIT: "QuestionSet/SharedOrOwned",
     DELETE: "QuestionSet/{questionSetId}",
+    GET_PERMISSION: "QuestionSet/{questionSetId}/Permissions",
 };
 
 class ApiQuestionSet {
@@ -72,7 +73,7 @@ class ApiQuestionSet {
             params: {
                 pageNumber: pageParams.pageNumber || 1,
                 pageSize: pageParams.pageSize || 5,
-                name: pageParams.name.toLowerCase() || "",
+                name: pageParams.name?.toLowerCase() || "",
                 tagIds: pageParams.tagIds || [],
                 sortBy: pageParams.sortBy || "",
             },
@@ -89,6 +90,11 @@ class ApiQuestionSet {
                 filterBy: pageParams.filterBy || "",
             },
         });
+    };
+
+    GetPermissions = async (questionSetId: string) => {
+        const url = END_POINTS.GET_PERMISSION.replace("{questionSetId}", questionSetId);
+        return await Api.get(url);
     };
 }
 

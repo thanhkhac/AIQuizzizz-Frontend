@@ -133,11 +133,11 @@ const onCreateFolder = async () => {
         await createFolderFormRef.value.validate(); //this will throw err to catch
         let result = await ApiFolder.Create(createFolderFormState);
         if (!result.data.success) {
-            message.error("Create folder failed");
+            message.error(t("message.created_failed"));
             return;
         }
+        message.success(t("message.created_successfully"));
         modal_create_open.value = false;
-        message.success("Create folder successfully.");
         await getData();
     } catch (error) {
         console.log(error);

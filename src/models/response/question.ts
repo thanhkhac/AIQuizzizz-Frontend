@@ -35,6 +35,7 @@ export interface ResponseQuestion {
     explainText: string;
     score: number;
     scoreGraded: number;
+    correctMultipleChoiceCount: number;
     questionData: {
         multipleChoice: MultipleChoice[] | null;
         matching: Matching | null;

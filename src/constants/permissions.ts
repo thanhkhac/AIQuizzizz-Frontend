@@ -1,6 +1,7 @@
 const PERMISSION = {
-    EDIT: "edit",
-    VIEW: "view",
+    OWNER: "Owner",
+    EDITABLE: "Editable",
+    VIEW_ONLY: "ViewOnly",
 };
 
 export default PERMISSION;

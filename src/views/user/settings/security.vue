@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import ApiAuthentication from "@/api/ApiAuthentication";
+
 import { ref, reactive, createVNode } from "vue";
 
 import { message, Modal } from "ant-design-vue";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
-
-import google_logo from "@/assets/google_logo.png";
+import { useAuthStore } from "@/stores/AuthStore";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
+
+const authStore = useAuthStore();
 
 const changePasswordFormState = reactive({
     currentPassword: "",
@@ -58,10 +61,9 @@ const onFinishChangePassword = () => {
     formRef.value
         .validate()
         .then(() => {
-            console.log("valid");
             showModalConfirmation();
         })
-        .catch((error: Error) => message.error(error.message));
+        .catch((error: any) => {});
 };
 
 const showModalConfirmation = () => {
@@ -72,9 +74,17 @@ const showModalConfirmation = () => {
         okText: "Yes",
         cancelText: "Cancel",
         onOk: async () => {
-            //call api change password
-            //message result
-            //logout
+            const result = await ApiAuthentication.ChangePassword({
+                currentPassword: changePasswordFormState.currentPassword,
+                newPassword: changePasswordFormState.newPassword,
+            });
+
+            if (result.data.success) {
+                message.success("Change password successfully!");
+                authStore.logOut();
+                return;
+            }
+            message.success("Change password failed!");
         },
     });
 };
@@ -85,8 +95,8 @@ const showModalConfirmation = () => {
         <div class="content-item">
             <div class="content-item-title">
                 <div>
-                    <span>Account Security</span>
-                    <span>Manage your account settings and preferences</span>
+                    <span>{{ $t("settings.security.title") }}</span>
+                    <span>{{ $t("settings.security.sub_title") }}</span>
                 </div>
             </div>
             <a-form
@@ -98,23 +108,34 @@ const showModalConfirmation = () => {
             >
                 <a-row>
                     <a-col :span="10">
-                        <a-form-item name="currentPassword" label="Current password">
+                        <a-form-item
+                            name="currentPassword"
+                            :label="t('settings.security.current_password_label')"
+                        >
                             <a-input-password
+                                :placeholder="t('settings.security.current_password_placeholder')"
                                 size="large"
                                 v-model:value="changePasswordFormState.currentPassword"
                             ></a-input-password>
                         </a-form-item>
-                        <a-form-item name="newPassword" label="New password">
+                        <a-form-item
+                            name="newPassword"
+                            :label="t('settings.security.new_password_label')"
+                        >
                             <a-input-password
+                                :placeholder="t('settings.security.new_password_placeholder')"
                                 size="large"
                                 v-model:value="changePasswordFormState.newPassword"
                             ></a-input-password>
                         </a-form-item>
                         <a-form-item
                             name="newPasswordConfirmation"
-                            label="New password confirmation"
+                            :label="t('settings.security.confirm_new_password_label')"
                         >
                             <a-input-password
+                                :placeholder="
+                                    t('settings.security.confirm_new_password_placeholder')
+                                "
                                 size="large"
                                 v-model:value="changePasswordFormState.newPasswordConfirmation"
                             ></a-input-password>
@@ -130,32 +151,12 @@ const showModalConfirmation = () => {
                                 type="primary"
                                 size="large"
                             >
-                                Change password
+                                {{ $t("settings.security.change_password") }}
                             </a-button>
                         </a-form-item>
                     </a-col>
                 </a-row>
             </a-form>
-        </div>
-        <div class="mt-4 content-item">
-            <div class="content-item-title">
-                <div>
-                    <span>Connect accounts</span>
-                    <span>Connect your account to other services</span>
-                </div>
-            </div>
-            <a-row class="mt-3">
-                <a-col :span="24" class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <img class="external-service-item" :src="google_logo" alt="" />
-                        <div class="ms-3 d-flex flex-column">
-                            <div class="fs-6 fw-bold">Google</div>
-                            <div class="text-secondary">Connect your Google account</div>
-                        </div>
-                    </div>
-                    <a-button class="main-color-btn" type="primary" size="large">Connect</a-button>
-                </a-col>
-            </a-row>
         </div>
         <div class="mt-4 content-item">
             <div class="content-item-title">
@@ -206,6 +207,10 @@ const showModalConfirmation = () => {
 ::v-deep(.ant-input-password input) {
     background-color: var(--form-item-background-color) !important;
     color: var(--text-color);
+}
+
+::v-deep(.ant-input-password input)::placeholder {
+    color: var(--text-color-grey);
 }
 
 ::v-deep(.ant-input-password-icon) {

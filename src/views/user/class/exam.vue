@@ -185,7 +185,7 @@ const onDeleteTest = (testId: string) => {
         onOk: async () => {
             let result = await ApiTest.Delete(testId);
             if (result.data.success) {
-                message.success("Delete test successfully.");
+                message.success(t("message.deleted_successfully"));
                 getData();
             }
         },
@@ -193,7 +193,7 @@ const onDeleteTest = (testId: string) => {
 };
 
 const onRedirectToAttempt = (testId: string) => {
-    router.push({ name: "User_Test_Attempt" });
+    router.push({ name: "User_Test_Attempt", params: { id: testId } });
 };
 
 onMounted(async () => {

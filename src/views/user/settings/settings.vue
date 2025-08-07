@@ -6,17 +6,19 @@ import Profile from "@/views/user/settings/profile.vue";
 import Security from "@/views/user/settings/security.vue";
 import Appearance from "@/views/user/settings/appearance.vue";
 import Subscription from "@/views/user/settings/subscription.vue";
+import Billing from "@/views/user/settings/Billing.vue";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
-type TabKey = "Profile" | "Security" | "Appearance" | "Subscription";
+type TabKey = "Profile" | "Security" | "Appearance" | "Subscription" | "Billing";
 
 const tabs: { key: TabKey; tab: string }[] = [
     { key: "Profile", tab: t("settings.tabs.profile") },
     { key: "Security", tab: t("settings.tabs.security") },
     { key: "Appearance", tab: t("settings.tabs.appearance") },
     { key: "Subscription", tab: t("settings.tabs.subscription") },
+    { key: "Billing", tab: t("settings.tabs.billing") },
 ];
 
 //record = dictionary
@@ -25,6 +27,7 @@ const tab_component: Record<TabKey, Component> = {
     Security,
     Appearance,
     Subscription,
+    Billing,
 };
 
 const activeKey = ref(tabs[0].key);

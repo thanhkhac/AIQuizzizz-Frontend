@@ -201,8 +201,8 @@
                 "sub_title": "Hoạt động gần đây của bạn"
             },
             "schedule": {
-                "title": "Các hoạt động sắp tới",
-                "sub_title": "Lịch bài tập và kiểm tra"
+                "title": "Bộ câu hỏi phổ biến",
+                "sub_title": "Khám phá xu hướng hiện tại"
             }
         },
         "list_items": {
@@ -307,6 +307,31 @@
             "minimum_options": "Mỗi câu hỏi phải có ít nhất 2 lựa chọn",
             "maximum_options": "Mỗi câu hỏi có tối đa 10 lựa chọn",
             "maximum_tag": "Tối đa {tag} thẻ"
+        },
+        "modal": {
+            "invalid": {
+                "title": "Không thể tạo bộ câu hỏi mới!",
+                "content": "Có lỗi ở các câu hỏi: "
+            },
+            "valid": {
+                "title": "Tạo bộ câu hỏi mới!",
+                "content": "Hãy kiểm tra lại nội dung trước khi tiếp tục."
+            },
+            "leave": {
+                "title": "Rời đi thật sao?",
+                "content": "Bạn có thay đổi chưa được lưu."
+            }
+        },
+        "update_QS": {
+            "buttons": {
+                "update": "Cập nhật"
+            },
+            "modal": {
+                "valid": {
+                    "title": "Cập nhật bộ câu hỏi",
+                    "content": "Hãy kiểm tra lại nội dung trước khi tiếp tục."
+                }
+            }
         }
     },
     "settings": {
@@ -316,19 +341,52 @@
             "profile": "Hồ sơ",
             "security": "Bảo mật",
             "appearance": "Giao diện",
-            "subscription": "Gói đăng ký"
+            "subscription": "Gói đăng ký",
+            "billing": "Giao dịch"
         },
         "profile": {
             "title": "Thông tin hồ sơ",
-            "sub_title": "Cập nhật thông tin và chi tiết hiển thị công khai của bạn"
+            "sub_title": "Cập nhật thông tin và chi tiết hiển thị công khai của bạn",
+            "fullname_label": "Họ và tên",
+            "fullname_placeholder": "Nhập họ và tên của bạn",
+            "email_label": "Email",
+            "email_placeholder": "Nhập email của bạn",
+            "bio_label": "Giới thiệu",
+            "bio_placeholder": "Nhập phần giới thiệu bản thân",
+            "save_change": "Lưu thay đổi"
         },
         "security": {
             "title": "Bảo mật tài khoản",
-            "sub_title": "Cập nhật mật khẩu và các cài đặt bảo mật"
+            "sub_title": "Cập nhật mật khẩu và các cài đặt bảo mật",
+            "current_password_label": "Mật khẩu hiện tại",
+            "current_password_placeholder": "Nhập mật khẩu hiện tại của bạn",
+            "new_password_label": "Mật khẩu mới",
+            "new_password_placeholder": "Nhập mật khẩu mới của bạn",
+            "confirm_new_password_label": "Xác nhận mật khẩu mới",
+            "confirm_new_password_placeholder": "Nhập lại mật khẩu mới",
+            "change_password": "Đổi mật khẩu"
         },
         "appearance": {
             "title": "Giao diện",
-            "sub_title": "Tùy chỉnh giao diện AIQuizizz theo sở thích của bạn"
+            "sub_title": "Tùy chỉnh giao diện AIQuizizz theo sở thích của bạn",
+            "theme": {
+                "title": "Giao diện",
+                "light": "Sáng",
+                "dark": "Tối",
+                "system": "Hệ thống"
+            },
+            "color": {
+                "title": "Màu chủ đạo",
+                "purple": "Tím",
+                "blue": "Xanh dương",
+                "green": "Xanh lá",
+                "red": "Đỏ",
+                "amber": "Vàng cam",
+                "pink": "Hồng"
+            },
+            "language": {
+                "title": "Ngôn ngữ"
+            }
         },
         "subscription": {
             "title": "Gói đăng ký",
@@ -336,16 +394,21 @@
         }
     },
     "share_modal": {
-        "title": "Chia sẻ bộ câu hỏi",
+        "title": "Chia sẻ ",
         "sub_title": "Chia sẻ bộ câu hỏi này với học sinh, đồng nghiệp hoặc trên mạng xã hội",
+        "mode": {
+            "quiz": "bộ câu hỏi",
+            "folder": "thư mục",
+            "template": "mẫu kiểm tra"
+        },
         "visibility": {
             "Public": {
                 "mode": "Công khai",
-                "explain": "Chỉ bạn và những người được chia sẻ mới có thể truy cập"
+                "explain": "Mọi người đều có thể truy cập"
             },
             "Private": {
                 "mode": "Riêng tư",
-                "explain": "Mọi người đều có thể truy cập"
+                "explain": "Chỉ bạn và những người được chia sẻ mới có thể truy cập"
             },
             "InClass": {
                 "mode": "Trong lớp",
@@ -353,11 +416,11 @@
             }
         },
         "permission": {
-            "edit": {
+            "Editable": {
                 "mode": "Chỉnh sửa",
                 "explain": "Sắp xếp, thêm và chỉnh sửa"
             },
-            "view": {
+            "ViewOnly": {
                 "mode": "Xem",
                 "explain": "Chỉ được xem"
             }
@@ -372,7 +435,7 @@
         "component_title": {
             "visibility": "Quyền hiển thị",
             "share_with_email": "Chia sẻ qua email",
-            "people_with_access": "Người có quyền truy cập",
+            "people_with_access": "Người có quyền truy cập ({number})",
             "share_with_class": "Chia sẻ với lớp của bạn"
         },
         "other": {
@@ -598,6 +661,41 @@
             "Rating": "Rating"
         }
     },
+    "practice_test": {
+        "other": {
+            "question_list": "Danh sách câu hỏi",
+            "correct": "Đúng: ",
+            "incorrect": "Sai: ",
+            "your_time": "Thời gian của bạn: ",
+            "second": "giây",
+            "second_plural": "giây",
+            "hour": "giờ",
+            "hour_plural": "giờ",
+            "minute": "phút",
+            "minute_plural": "phút"
+        },
+        "final_modal": {
+            "button_title": "Bước tiếp theo",
+            "buttons": {
+                "new_test": "Làm bài mới",
+                "practice": "Luyện tập ở chế độ học",
+                "re_test": "Làm lại các câu sai"
+            },
+            "buttons_ins": {
+                "new_test": "Thực hiện bài kiểm tra mới với các tuỳ chọn hiện tại.",
+                "practice": "Học các câu hỏi này theo cách khác để nâng cao kiến thức.",
+                "re_test": "Kiểm tra lại bản thân với các câu đã trả lời sai."
+            }
+        },
+        "buttons": {
+            "previous": "Câu trước"
+        },
+        "setting_modal": {
+            "title": "Cài đặt bài luyện tập",
+            "max_question": "Số lượng câu hỏi (tối đa {length}):",
+            "create_new_test": "Tạo bài kiểm tra mới"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Không có quyền truy cập",
         "COMMON_SERVER_INTERNAL_ERROR": "Lỗi máy chủ nội bộ",
@@ -641,7 +739,44 @@
         "QUESTION_SET_NOT_FOUND": "Không tìm thấy bộ câu hỏi",
         "QUESTION_SET_NOT_FOUND_IN_CLASS": "Không tìm thấy bộ câu hỏi trong lớp",
 
-        "PLAN_REQUIRE_PLAN": "Cần phải có gói sử dụng!"
+        "PLAN_REQUIRE_PLAN": "Cần phải có gói sử dụng!",
+
+        "TEST_IS_OVERDUE": "Thời gian làm bài đã kết thúc!"
+    },
+    "message": {
+        "added_successfully": "Thêm thành công!",
+        "added_failed": "Thêm thất bại!",
+        "created_successfully": "Tạo mới thành công!",
+        "created_failed": "Tạo mới thất bại!",
+        "updated_successfully": "Cập nhật thành công!",
+        "updated_failed": "Cập nhật thất bại!",
+        "deleted_successfully": "Xóa thành công!",
+        "deleted_failed": "Xóa thất bại!",
+        "removed_successfully": "Gỡ bỏ thành công!",
+        "removed_failed": "Gỡ bỏ thất bại!",
+        "copied": "Đã sao chép!",
+        "copied_failed": "Sao chép thất bại!",
+
+        "join_class_successfully": "Tham gia lớp học thành công!",
+        "join_class_failed": "Tham gia lớp học thất bại!",
+        "created_new_invitation": "Đã tạo mã mời mới!",
+
+        "invalid_title": "Tiêu đề không hợp lệ",
+        "invalid_question": "Câu hỏi không hợp lệ",
+        "invalid_description": "Mô tả không hợp lệ",
+        "limit_tag": "Giới hạn: {number} thẻ",
+        "invalid_tag_content": "Nội dung thẻ không hợp lệ",
+        "limit_question": "Giới hạn: {number} câu hỏi",
+        "minimum_question": "Tối thiểu {number} câu hỏi",
+
+        "required": "Trường này là bắt buộc",
+        "out_of_range": "Giới hạn {max_length} ký tự",
+        "have_no_answer": "Câu hỏi {index} phải có ít nhất một đáp án đúng",
+        "minimum_options": "Mỗi câu hỏi phải có ít nhất 2 lựa chọn",
+        "maximum_options": "Mỗi câu hỏi có tối đa 10 lựa chọn",
+        "maximum_tag": "Giới hạn {tag} thẻ",
+
+        "imported_question": "Đã nhập {number} câu hỏi."
     },
     "admin": {
         "manage_acc": {

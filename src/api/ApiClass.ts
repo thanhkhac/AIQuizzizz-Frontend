@@ -118,9 +118,9 @@ class ApiUser {
         return await Api.get(url);
     }
 
-    async CreateNewInvitation(classId: string, expiredTime: number) {
-        const url = END_POINTS.GET_INVITATION_CODE.replace("{ClassId}", classId);
-        return await Api.post(url);
+    async CreateNewInvitation(formState: any) {
+        const url = END_POINTS.CREATE_INVITATION.replace("{ClassId}", formState.classId);
+        return await Api.post(url, formState);
     }
 }
 

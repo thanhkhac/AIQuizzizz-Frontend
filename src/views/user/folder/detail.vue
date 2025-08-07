@@ -14,14 +14,13 @@ import { useRoute, useRouter } from "vue-router";
 import Input from "@/shared/components/Common/Input.vue";
 import { Modal, message } from "ant-design-vue";
 
-
 const route = useRoute();
 const router = useRouter();
 
 const { t } = useI18n();
 const emit = defineEmits(["updateSidebar"]);
 
-const folderId = ref(route.params.id || "");
+const folderId = ref(route.params.id.toString() || "");
 const folderData = ref<Folder>({
     folderTestId: "",
     name: "",
@@ -133,8 +132,11 @@ const onRemoveTestTemplate = (testTemplateId: string) => {
                 folderData.value.folderTestId,
                 testTemplateId,
             );
-            if (!result.data.success) return;
-            message.success("Removed successfully!");
+            if (!result.data.success) {
+                message.error(t("message.removed_failed"));
+                return;
+            }
+            message.success(t("message.removed_successylly"));
             await getData();
         },
     });
@@ -154,10 +156,10 @@ const onOpenConfirmDelete = () => {
         onOk: async () => {
             let result = await ApiFolder.DeleteFolder(folderId.value.toString());
             if (!result.data.success) {
-                message.success("Delete folder failed.");
+                message.error(t("message.deleted_failed"));
                 return;
             }
-            message.success("Delete folder successfully.");
+            message.success(t("message.deleted_successfully"));
             router.push({ name: "User_Folder" });
         },
     });
@@ -194,11 +196,11 @@ const onUpdateFolder = async () => {
         await updateFolderFormRef.value?.validate(); //this will throw err to catch
         let result = await ApiFolder.Update(folderId.value.toString(), updateFolderFormState.name);
         if (!result.data.success) {
-            message.error("Update folder failed");
+            message.error(t("message.updated_failed"));
             return;
         }
+        message.success(t("message.updated_successfully"));
         modal_update_open.value = false;
-        message.success("Update folder successfully.");
         await getData();
     } catch (error) {
         console.log(error);
@@ -206,6 +208,17 @@ const onUpdateFolder = async () => {
         isUpdateLoading.value = false;
     }
 };
+//#endregion
+
+//#region share modal
+import ShareModal from "@/shared/modals/ShareModal.vue";
+import VISIBILITY from "@/constants/visibility";
+const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
+
+const onOpenShareModal = (template: TestTemplate) => {
+    shareModalRef.value?.openModal();
+};
+
 //#endregion
 
 onMounted(async () => {
@@ -221,7 +234,12 @@ onMounted(async () => {
         <div class="title-container">
             <div class="main-title"><span>Library Folder Test Details</span> <br /></div>
             <div class="title-button-container">
-                <a-button type="primary" class="ms-3 main-color-btn" size="large">
+                <a-button
+                    type="primary"
+                    class="ms-3 main-color-btn"
+                    size="large"
+                    @click="onOpenShareModal"
+                >
                     <i class="me-2 bx bx-share-alt"></i>
                     {{ $t("detail_QS.buttons.share_quiz") }}
                 </a-button>
@@ -389,6 +407,15 @@ onMounted(async () => {
             </a-button>
         </template>
     </a-modal>
+
+    <ShareModal
+        ref="shareModalRef"
+        :id="folderId"
+        :name="folderData.name"
+        :mode="'folder'"
+        :options="[VISIBILITY.PRIVATE]"
+        :visibility="VISIBILITY.PRIVATE"
+    />
 </template>
 <style scoped>
 .danger-zone {

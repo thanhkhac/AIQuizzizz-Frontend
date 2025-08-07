@@ -1,14 +1,7 @@
-import type UserAnswersObject from "@/models/request/test/userAnswer";
-
-interface UserAnswer {
-    questionId: string;
-    type: string;
-    multipleChoices: string[] | null;
-    matchingLeft: any[] | null;
-    matchingRight: any[] | null;
-    ordering: any[] | null;
-    shortText: string;
-}
+import type UserAnswerSubmit from "@/models/response/test/userAnswer";
+import type { UserAnswerData } from "@/models/response/test/userAnswer";
+import type UserAnswerDTO from "@/models/response/test/userAnswerDTO";
+import QUESTION_TYPE from "@/constants/questionTypes";
 
 function combineMatching(
     left: any[] = [],
@@ -24,29 +17,43 @@ function combineMatching(
 }
 
 class TransferUserAnswerData {
-    transferToUserAnswersObject(userAnswers: UserAnswer[]): UserAnswersObject[] {
+    transferToUserAnswerSubmit(userAnswers: UserAnswerDTO[]): UserAnswerSubmit[] {
+        console.log(userAnswers);
+
         return userAnswers.map((ans) => ({
             questionId: ans.questionId,
             userAnswerData: {
                 type: ans.type,
                 multipleChoice: ans.multipleChoices ?? [],
                 matching: combineMatching(ans.matchingLeft ?? [], ans.matchingRight ?? []),
-                ordering: ans.ordering?.map((x) => ({ itemId: x.id, order: x.correctOrder })) ?? [],
+                ordering: ans.ordering?.map((x, index) => ({ itemId: x.id, order: index })) ?? [],
                 shortText: ans.shortText ?? "",
             },
         }));
     }
 
-    transferFromUserAnswersObject(userAnswersObj: UserAnswersObject[]): UserAnswer[] {
-        return userAnswersObj.map(({ questionId, userAnswerData }) => ({
-            questionId,
-            type: userAnswerData.type,
-            multipleChoices: userAnswerData.multipleChoice ?? [],
-            matchingLeft: userAnswerData.matching.map((x) => ({ id: x.leftId })),
-            matchingRight: userAnswerData.matching.map((x) => ({ id: x.rightId })),
-            ordering: userAnswerData.ordering.map(x=> ({id: x.itemId, correctOrder: x.order})) ?? [],
-            shortText: userAnswerData.shortText ?? "",
-        }));
+    transferFromUserAnswerSubmit(userAnswersObj: UserAnswerSubmit[]): UserAnswerDTO[] {
+        return userAnswersObj
+            .filter((x: UserAnswerSubmit) => x.userAnswerData != null)
+            .map((x: UserAnswerSubmit) => {
+                return {
+                    questionId: x.questionId,
+                    type: x.userAnswerData.type,
+                    multipleChoices: x.userAnswerData.multipleChoice ?? [],
+                    matchingLeft: x.userAnswerData.matching?.length
+                        ? x.userAnswerData.matching.map((y) => ({ id: y.leftId }))
+                        : [],
+                    matchingRight: x.userAnswerData.matching?.length
+                        ? x.userAnswerData.matching.map((y) => ({ id: y.rightId }))
+                        : [],
+                    ordering: x.userAnswerData.ordering?.length
+                        ? x.userAnswerData.ordering.map((x) => ({
+                              id: x.itemId,
+                          }))
+                        : [],
+                    shortText: x.userAnswerData.shortText ?? "",
+                };
+            });
     }
 }
 

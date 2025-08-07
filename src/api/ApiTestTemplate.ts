@@ -9,6 +9,9 @@ const END_POINTS = {
     UPDATE: "TestTemplate/{testTemplateId}",
     DELETE: "TestTemplate/{testTemplateId}",
     IMPORT_FILE: "TestTemplate/ImportFile",
+    GET_PERMISSION: "TestTemplate/{testTemplateId}/Permissions",
+    GET_SHARING: "TestTemplate/{testTemplateId}/Sharing",
+    UPDATE_SHARING: "TestTemplate/{testTemplateId}/Sharing",
 };
 
 class ApiTestTemplate {
@@ -50,6 +53,21 @@ class ApiTestTemplate {
                 "Content-Type": "multipart/form-data",
             },
         });
+    };
+
+    GetPermissions = async (templateId: string) => {
+        const url = END_POINTS.GET_PERMISSION.replace("{testTemplateId}", templateId);
+        return await Api.get(url);
+    };
+
+    GetSharedUser = async (templateId: string) => {
+        const url = END_POINTS.GET_SHARING.replace("{testTemplateId}", templateId);
+        return await Api.get(url);
+    };
+
+    UpdateSharedUser = async (formState: any) => {
+        const url = END_POINTS.GET_SHARING.replace("{testTemplateId}", formState.id);
+        return await Api.patch(url, formState);
     };
 }
 

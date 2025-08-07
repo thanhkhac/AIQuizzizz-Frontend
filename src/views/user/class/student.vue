@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ApiClass from "@/api/ApiClass";
 
-import { ref, onMounted, reactive, computed, onUpdated, h } from "vue";
+import { ref, onMounted, reactive, computed, onUpdated, h, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
 
@@ -194,21 +194,29 @@ const allowCopy = ref(true);
 const isInvitaionLoading = ref(false);
 const onOpenInvitationModal = async () => {
     //call api get current code
-    if (invitationFormState.code) return;
-
-    const result = await ApiClass.GetInivationCode(classId.value.toString());
-    if (result.data.success) {
-        invitationFormState.code = result.data.data;
-    } else {
-        invitationFormState.code = "Code empty or expired!";
-        inivitationLink.value = "Code empty or expired!";
-        allowCopy.value = false;
-    }
-
+    await getInvitationCode();
     modal_invitation_open.value = true;
 };
 
-const onResetInvitation = () => {};
+const getInvitationCode = async () => {
+    debugger;
+    const result = await ApiClass.GetInivationCode(classId.value.toString());
+    if (result.data.success) {
+        invitationFormState.code = result.data.data;
+        inivitationLink.value =
+            window.location.origin + `/user/class/invitation/${invitationFormState.code}`;
+    }
+};
+
+const onResetInvitation = async () => {
+    const result = await ApiClass.CreateNewInvitation(invitationFormState);
+    if (result.data.success) {
+        message.success(t("message.created_new_invitation"));
+        onOpenInvitationModal();
+    } else {
+        message.error(t("message.created_failed"));
+    }
+};
 
 const onCopyInvitationCode = (mode: string) => {
     if (!allowCopy.value) return;
@@ -220,10 +228,10 @@ const onCopyInvitationCode = (mode: string) => {
     navigator.clipboard
         .writeText(content)
         .then(() => {
-            message.success("Copied!");
+            message.success(t("message.copied"));
         })
         .catch(() => {
-            message.error("Copied failed!");
+            message.error(t("message.copied_failed"));
         });
 };
 
@@ -242,10 +250,10 @@ const onConfirmDeleteMember = (userId: string) => {
                 userId.toString(),
             );
             if (!result.data.success) {
-                message.success("Remove failed.");
+                message.error(t("message.removed_failed"));
                 return;
             }
-            message.success("Remove successfully.");
+            message.success(t("message.removed_successfully"));
             await getData();
         },
     });
@@ -264,10 +272,10 @@ const onConfirmUpdateMemberPosition = (userId: string, position: string) => {
                 position,
             );
             if (!result.data.success) {
-                message.success("Update failed.");
+                message.error(t("message.updated_failed"));
                 return;
             }
-            message.success("Update successfully.");
+            message.success(t("message.updated_successfully"));
             await getData();
         },
     });
@@ -287,10 +295,10 @@ const onOpenConfirmDeleteClass = () => {
         onOk: async () => {
             let result = await ApiClass.Delete(classId.value.toString());
             if (!result.data.success) {
-                message.success("Delete class failed.");
+                message.error(t("message.deleted_failed"));
                 return;
             }
-            message.success("Delete class successfully.");
+            message.success(t("message.deleted_successfully"));
             router.push({ name: "User_Class" });
         },
     });
@@ -380,6 +388,7 @@ onMounted(async () => {
                     </div>
                 </div>
                 <a-table
+                    v-if="student_data.length > 0"
                     :columns="columns"
                     :data-source="student_data"
                     row-key="studentId"
@@ -423,6 +432,15 @@ onMounted(async () => {
                         </template>
                     </template>
                 </a-table>
+                <template v-else>
+                    <div class="w-100 d-flex justify-content-center">
+                        <a-empty>
+                            <template #description>
+                                <span> {{ $t("class_index.other.no_data_matches") }}</span>
+                            </template>
+                        </a-empty>
+                    </div>
+                </template>
                 <div class="pagination-container">
                     <a-pagination
                         @change="onPaginationChange"

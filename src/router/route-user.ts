@@ -85,6 +85,14 @@ const userRoutes = [
                     title: "folder-detail",
                 },
             },
+            {
+                name: "User_Schedule",
+                path: "schedule",
+                component: () => import("@/views/user/schedule.vue"),
+                meta: {
+                    title: "schedule",
+                },
+            },
         ],
     },
     {
@@ -161,7 +169,7 @@ const userRoutes = [
     },
     {
         name: "User_Test_Attempt",
-        path: "/user/test/attempt",
+        path: "/user/test/:id/attempt",
         component: () => import("@/views/user/test/attempt.vue"),
         meta: {
             title: "attempt-test",

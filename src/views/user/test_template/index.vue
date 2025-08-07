@@ -5,7 +5,7 @@ import FOLDER_SHARE_MODE from "@/constants/folderShareMode";
 import type TestTemplatePageParams from "@/models/request/testTemplate/testTemplatePageParams";
 import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
 
-import { ref, onMounted, reactive, computed, onUpdated } from "vue";
+import { ref, onMounted, reactive, computed, onUpdated, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useRoute, useRouter } from "vue-router";
@@ -107,11 +107,27 @@ const onRefirectToCreate = () => {
     router.push({ name: "User_TestTemplate_Create" });
 };
 
-const onRefirectToUpdate = (id: string) => {
+const onRefirectToUpdate = async (id: string) => {
+    await getPermission(id);
+    if (!permission.value.canEdit) {
+        message.warning("You don't have permission to perform this function!");
+        return;
+    }
     router.push({ name: "User_TestTemplate_Update", params: { id } });
 };
 
-const onDelete = (id: string) => {
+const onDelete = async (id: string) => {
+    await getPermission(id);
+    if (!permission.value.canDelete) {
+        message.warning("You don't have permission to perform this function!");
+        return;
+    }
+
+    if (permission.value.canEdit) router.push({ name: "User_TestTemplate_Update", params: { id } });
+    else {
+        message.warning("You don't have permission to perform this function!");
+    }
+
     Modal.confirm({
         title: "Are you sure to delete this test template?",
         content: "Please double check the important resources!",
@@ -124,10 +140,44 @@ const onDelete = (id: string) => {
     });
 };
 
+//#region permission
+const permission = ref({
+    canEdit: false,
+    canDelete: false,
+});
+const getPermission = async (testTemplateId: string) => {
+    const result = await ApiTestTemplate.GetPermissions(testTemplateId);
+    if (result.data.success) {
+        permission.value = result.data.data;
+    }
+};
+//#endregion
+
+import ShareModal from "@/shared/modals/ShareModal.vue";
+import VISIBILITY from "@/constants/visibility";
+const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
+
+const onOpenShareModal = async (template: TestTemplate) => {
+    chosenTemplate.value = template;
+    await nextTick();
+    shareModalRef.value?.openModal();
+};
+
+const chosenTemplate = ref<TestTemplate>({
+    testTemplateId: "",
+    name: "",
+    createdBy: "",
+    numberOfQuestion: 0,
+    dateCreated: 0,
+});
+
+//#endregion
+
 onMounted(async () => {
     const sidebarActiveItem = "folder";
     emit("updateSidebar", sidebarActiveItem);
     await getData();
+    chosenTemplate.value = test_template_data.value[0];
 });
 </script>
 <template>
@@ -211,6 +261,7 @@ onMounted(async () => {
                             </div>
                         </div>
                         <div class="exam-item-actions">
+                            <i class="bx bx-share-alt" @click="onOpenShareModal(template)"></i>
                             <i
                                 class="bx bx-edit"
                                 @click="onRefirectToUpdate(template.testTemplateId)"
@@ -226,7 +277,7 @@ onMounted(async () => {
                     <div class="w-100 d-flex justify-content-center">
                         <a-empty>
                             <template #description>
-                                <span> No data matches. </span>
+                                <span> {{ $t("class_index.other.no_data_matches") }}</span>
                             </template>
                         </a-empty>
                     </div>
@@ -252,6 +303,14 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+    <ShareModal
+        ref="shareModalRef"
+        :id="chosenTemplate.testTemplateId"
+        :name="chosenTemplate.name"
+        :mode="'template'"
+        :options="[VISIBILITY.PRIVATE]"
+        :visibility="VISIBILITY.PRIVATE"
+    />
 </template>
 <style scoped>
 .quiz-item-icon {

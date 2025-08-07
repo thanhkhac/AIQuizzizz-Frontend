@@ -179,6 +179,10 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 };
 
 const handleModalImport = () => {
+    if (importModalState.checkedList.length === 0) {
+        message.warning("Please choose at least 1 question to import!");
+        return;
+    }
     Modal.confirm({
         title: "Are your sure? ",
         content: "Import: " + importModalState.checkedList.length + " into " + props.title + " ? ",
@@ -187,7 +191,7 @@ const handleModalImport = () => {
             const selectedQuestions = uploadedQuestions.value?.filter((question) =>
                 importModalState.checkedList.includes(question),
             ) as RequestQuestion[];
-    
+
             //emit event & params to main
             emit("import", selectedQuestions);
             closeImportModal();

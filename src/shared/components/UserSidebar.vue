@@ -89,7 +89,7 @@ const onSignOut = () => {
                     </RouterLink>
                 </li>
                 <li :class="['sidebar-listItem', { active: activeItem === 'schedule' }]">
-                    <RouterLink :to="{}">
+                    <RouterLink :to="{ name: 'User_Schedule' }">
                         <i class="bx bxs-calendar"></i>
                         <span class="sidebar-listItemText">
                             {{ $t("sidebar.navigators.examSchedule") }}
