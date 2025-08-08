@@ -144,13 +144,14 @@ const onCreateNewTest = async () => {
 
 //#region init data
 const questionSetId = ref<string>(route.params.id.toString());
-
+const loading = ref(false);
 const getQuizData = async () => {
     if (!Validator.isValidGuid(questionSetId.value.toString())) {
         router.push({ name: "404" });
         return;
     }
     try {
+        loading.value = true;
         let detail_result = await ApiQuestionSet.GetDetailById(questionSetId.value.toString());
 
         quiz.value.title = detail_result.data.data.name;
@@ -179,6 +180,8 @@ const getQuizData = async () => {
         if (errorKeys.includes(ERROR.PLAN_REQUIRE_PLAN)) {
             router.push({ name: "not-allowed" });
         }
+    } finally {
+        loading.value = false;
     }
 };
 
@@ -703,6 +706,10 @@ const hasPreviousQuestion = computed(() => {
     return index !== -1 && index > 0;
 });
 
+const currentQuestionIndex = computed(() => {
+    return quiz.value.questions.findIndex((x) => x.id === currentQuestion.value.id);
+});
+
 //#endregion
 
 //#region final chart
@@ -905,10 +912,11 @@ const onRetest = () => {
 
 onMounted(async () => {
     let session_settings = sessionStorage.getItem("test_settings");
-    if (!session_settings) return;
+    if (session_settings) {
+        settingFormState.numberOfQuestion = JSON.parse(session_settings).numberOfQuestion;
+        settingFormState.questionTypes = JSON.parse(session_settings).questionTypes;
+    }
 
-    settingFormState.numberOfQuestion = JSON.parse(session_settings).numberOfQuestion;
-    settingFormState.questionTypes = JSON.parse(session_settings).questionTypes;
     await getQuizData();
 
     openSettingModal();
@@ -956,22 +964,31 @@ onMounted(async () => {
                     <div class="question-navigator-title">
                         {{ t("practice_test.other.question_list") }}
                     </div>
-                    <div class="question-navigator-container">
+                    <template v-if="loading">
+                        <a-skeleton :loading="loading"></a-skeleton>
+                    </template>
+                    <div v-else class="question-navigator-container">
                         <div
                             :class="[
-                                'question-navigator-item',
+                                'question-navigation-item-outer',
                                 currentQuestion.id === item.id ? 'current-question' : '',
-                                userAnswerContainQuestion(item.id) ? 'completed-question' : '',
-                                isSubmitted
-                                    ? getUserAnswerResultById(item.id)
-                                        ? 'correct'
-                                        : 'incorrect'
-                                    : '',
                             ]"
                             v-for="(item, index) in quiz.questions"
-                            @click="onLoadCurrentQuestion(index)"
                         >
-                            <span> {{ index + 1 }} </span>
+                            <div
+                                :class="[
+                                    'question-navigator-item',
+                                    userAnswerContainQuestion(item.id) ? 'completed-question' : '',
+                                    isSubmitted
+                                        ? getUserAnswerResultById(item.id)
+                                            ? 'correct'
+                                            : 'incorrect'
+                                        : '',
+                                ]"
+                                @click="onLoadCurrentQuestion(index)"
+                            >
+                                <span> {{ index + 1 }} </span>
+                            </div>
                         </div>
                     </div>
                     <a-button
@@ -1052,7 +1069,15 @@ onMounted(async () => {
                 </div>
             </div>
             <div class="content-item">
-                <div class="section question-section">
+                <template v-if="loading">
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                </template>
+                <div v-else class="section question-section">
+                    <div class="question-info-index">
+                        {{ $t("create_QS.question.question") }} {{ currentQuestionIndex + 1 }}
+                    </div>
                     <div
                         :class="[
                             'learn-question',
@@ -1524,20 +1549,30 @@ onMounted(async () => {
     flex-wrap: wrap;
     margin: 10px 0px;
 }
-.question-navigator-item {
+.question-navigation-item-outer {
     width: calc(100% / 4 - 8px);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0px 0px 3px 3px;
-    padding: 5px;
-    border: 1px solid var(--form-item-border-color);
+    padding: 3px;
+    border: 2px solid var(--form-item-border-color);
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
+    position: relative;
+    overflow: hidden;
 }
 
-.question-navigator-item:hover {
+.question-navigator-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+}
+
+.question-navigation-item-outer:hover {
     border-color: var(--main-color);
 }
 
@@ -1711,5 +1746,15 @@ onMounted(async () => {
     width: 100%;
     height: 100%;
     z-index: 100;
+}
+
+.question-info-index {
+    font-size: 16px;
+    font-weight: 500;
+    padding: 5px 10px;
+    background-color: var(--main-color);
+    border: 1px solid var(--main-color);
+    border-radius: 5px;
+    width: fit-content;
 }
 </style>

@@ -29,20 +29,23 @@ const pageParams = reactive({
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
-
+const loading = ref(false);
 const getData = async () => {
     try {
         if (!props.folder?.folderTestId) return;
+        loading.value = true;
+
         let result = await ApiFolder.GetAllTestTemplateByLimit(
-            props.folder?.folderTestId,
+            props.folder.folderTestId,
             pageParams as FolderTestTemplatePageParams,
         );
         if (result.data.success) {
             let resultData = result.data.data;
-            test_template_data.value = resultData.items;
-            pageParams.pageNumber = resultData.pageNumber;
-            pageParams.pageSize = resultData.pageSize;
-            pageParams.totalCount = resultData.totalCount;
+            test_template_data.value = resultData.testTemplates.items;
+
+            pageParams.pageNumber = resultData.testTemplates.pageNumber;
+            pageParams.pageSize = resultData.testTemplates.pageSize;
+            pageParams.totalCount = resultData.testTemplates.totalCount;
         }
     } catch (error) {
         console.log("ERROR: GETALLBYLIMIT testtemplate: " + error);
@@ -72,7 +75,7 @@ const onPaginationChange = (page: number, pageSize: number) => {
 
 //#region modal
 const emit = defineEmits<{
-    (e: "openTestTemplate", testTemplateId: string): void;
+    (e: "openTestTemplate", testTemplateId: string, folder: Folder | null): void;
     (e: "backToFolderModal"): void;
 }>();
 
@@ -88,7 +91,8 @@ const closeModal = () => {
 };
 
 const handleOpenTestTemplate = (testTemplateId: string) => {
-    emit("openTestTemplate", testTemplateId);
+    closeModal();
+    emit("openTestTemplate", testTemplateId, props.folder);
 };
 
 //expose functions to main ref

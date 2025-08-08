@@ -128,6 +128,7 @@ const openModal = async () => {
 };
 
 const closeModal = () => {
+    debugger;
     modal_open.value = false;
     if (props.folder !== null) {
         emit("backToFolderTestTemplateModal", props.folder);

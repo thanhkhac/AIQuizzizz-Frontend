@@ -47,19 +47,19 @@ const columns: MyColumn[] = [
         customRender: (info: { index: number }) => info.index + 1,
     },
     {
-        title: "FullName",
+        title: t("class_member.column.fullName"),
         dataIndex: "fullName",
         key: "fullName",
         sorter: (a: any, b: any) => a.fullName.localeCompare(b.fullName),
     },
     {
-        title: "Email",
+        title: t("class_member.column.email"),
         dataIndex: "email",
         key: "email",
         sorter: (a: any, b: any) => a.email.localeCompare(b.email),
     },
     {
-        title: "Position",
+        title: t("class_member.column.position"),
         dataIndex: "position",
         key: "position",
     },
@@ -91,6 +91,18 @@ const getClassData = async () => {
         console.log("ERROR: GETBYID class: " + error);
     }
 };
+const userRoleInClass = ref<string>("");
+const getPermission = async () => {
+    try {
+        const result = await ApiClass.GetUserPermission(classData.value.classId);
+        if (result.data.success) {
+            userRoleInClass.value = result.data.data;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 //#endregion
 
 //#region student pagination
@@ -309,6 +321,7 @@ onMounted(async () => {
     emit("updateSidebar", sidebarActiveItem);
 
     await getClassData();
+    await getPermission();
     await getData();
 });
 </script>
@@ -401,8 +414,14 @@ onMounted(async () => {
                                 <div class="student-name">{{ record.fullName }}</div>
                             </div>
                         </template>
+                        <template v-if="column.key === 'position'">
+                            {{ $t(`class_member.position.${record.position}`) }}
+                        </template>
                         <template v-if="column.key === 'action'">
-                            <div class="student-action">
+                            <div
+                                v-if="userRoleInClass === CLASS_STUDENT_POSITION.OWNER"
+                                class="student-action"
+                            >
                                 <i
                                     v-if="record.position === CLASS_STUDENT_POSITION.STUDENT"
                                     style="cursor: pointer"

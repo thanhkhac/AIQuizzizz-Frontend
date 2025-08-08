@@ -390,7 +390,24 @@
         },
         "subscription": {
             "title": "Subscription Plan",
-            "sub_title": "Manage your subscription and billing details"
+            "sub_title": "Manage your subscription and billing details",
+            "plan": {
+                "title": "Plan comparation",
+                "sub_title": "Compare available subscription plans",
+                "popular": "Popular",
+                "learn": "Learn",
+                "test": "Test",
+                "day_plural": "days",
+                "year_singular": "year",
+                "year_plural": "years"
+            },
+            "buttons": {
+                "Change_plan": "Change plan"
+            }
+        },
+        "billing": {
+            "title": "Billing and transaction",
+            "sub_title": "Observe your transaction history and upgrade your plan."
         }
     },
     "share_modal": {
@@ -605,6 +622,16 @@
             "invitation_link": "Invitation link",
             "or": "OR",
             "time_limit_label": "Time limit"
+        },
+        "position": {
+            "Onwer": "Owner",
+            "Teacher": "Teacher",
+            "Student": "Student"
+        },
+        "column": {
+            "fullName": "Full Name",
+            "email": "Email",
+            "position": "Position"
         }
     },
     "class_question_set": {
@@ -696,6 +723,12 @@
             "create_new_test": "Create new test"
         }
     },
+    "attempt_test": {
+        "submit_modal": {
+            "title": "Are you sure to submit your test?",
+            "content": "Please double check your answer before submitting!"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Forbidden",
         "COMMON_SERVER_INTERNAL_ERROR": "Internal server error",
@@ -740,24 +773,32 @@
         "QUESTION_SET_NOT_FOUND_IN_CLASS": "Question set not found in class",
 
         "PLAN_REQUIRE_PLAN": "Plan required!",
+        "INSUFFICIENT_BALANCE": "Insufficient balance!",
 
         "TEST_IS_OVERDUE": "Test overdue!",
 
         "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER": "Test template already exists in this folder."
     },
     "message": {
-        "added_successfully": "Added successfully!",
-        "added_failed": "Added failed!",
+        "added_successfully": "Add successfully!",
+        "added_failed": "Add failed!",
         "created_successfully": "Created successfully!",
-        "created_failed": "Created failed!",
-        "updated_successfully": "Updated successfully!",
-        "updated_failed": "Updated failed!",
-        "deleted_successfully": "Deleted successfully!",
-        "deleted_failed": "Deleted failed!",
-        "removed_successfully": "Removed successfully!",
-        "removed_failed": "Removed failed!",
+        "created_failed": "Create failed!",
+        "updated_successfully": "Update successfully!",
+        "updated_failed": "Update failed!",
+        "deleted_successfully": "Delete successfully!",
+        "deleted_failed": "Delete failed!",
+        "removed_successfully": "Remove successfully!",
+        "removed_failed": "Remove failed!",
         "copied": "Copied!",
-        "copied_failed": "Copied failed!",
+        "copied_failed": "Copy failed!",
+        "purchased_successfully": "Purchase successfully!",
+        "purchased_failed": "Purchase failed",
+        "submited_successfully": "Submit successfully!",
+        "submited_failed": "Submit failed",
+        "auto_save_successfully": "Auto save successfully!",
+        "auto_save_failed": "Auto save failed",
+        "time_up": "Time's up",
 
         "join_class_successfully": "Joined class successfully!",
         "join_class_failed": "Joined class failed!",

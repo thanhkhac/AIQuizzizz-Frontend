@@ -2,6 +2,7 @@
 import ApiClass from "@/api/ApiClass";
 import ApiTest from "@/api/ApiTest";
 
+import CLASS_STUDENT_POSITION from "@/constants/classStudentPosition";
 import CLASS_EXAM_STATUS from "@/constants/classExamStatus";
 import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
 import type { Class } from "@/models/response/class/class";
@@ -49,6 +50,17 @@ const pageParams = reactive({
 });
 
 const exam_data = ref<ClassExam[]>([]);
+const userRoleInClass = ref<string>("");
+const getPermission = async () => {
+    try {
+        const result = await ApiClass.GetUserPermission(classData.value.classId);
+        if (result.data.success) {
+            userRoleInClass.value = result.data.data;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
 
 const getClassData = async () => {
     try {
@@ -201,6 +213,7 @@ onMounted(async () => {
     emit("updateSidebar", sidebarActiveItem);
 
     await getClassData();
+    await getPermission();
     await getData();
 });
 </script>
@@ -330,21 +343,23 @@ onMounted(async () => {
                             </div>
                         </div>
                         <div class="exam-item-actions">
-                            <a-button
+                            <a-button v-if="exam.status === CLASS_EXAM_STATUS.ACTIVE"
                                 type="primary"
                                 class="main-color-btn"
                                 @click="onRedirectToAttempt(exam.testId)"
                             >
                                 {{ $t("class_exam.buttons.attempt") }}
                             </a-button>
-                            <i class="bx bx-edit" @click="onRedirectToUpdate(exam.testId)"></i>
-                            <i>
-                                <FileDoneOutlined />
-                            </i>
-                            <i
-                                class="text-danger bx bx-trash-alt"
-                                @click="onDeleteTest(exam.testId)"
-                            ></i>
+                            <template v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT">
+                                <i class="bx bx-edit" @click="onRedirectToUpdate(exam.testId)"></i>
+                                <i>
+                                    <FileDoneOutlined />
+                                </i>
+                                <i
+                                    class="text-danger bx bx-trash-alt"
+                                    @click="onDeleteTest(exam.testId)"
+                                ></i>
+                            </template>
                         </div>
                     </div>
                 </div>

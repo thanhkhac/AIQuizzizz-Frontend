@@ -113,7 +113,8 @@ router.beforeEach(async (to, from, next) => {
         (to.name === "login" || to.name === "google-authentication-callback") &&
         useAuthStore().checkUser()
     ) {
-        if (useAuthStore().user_info.claims.includes("Admin_Dashboard_View")) {
+        // if (useAuthStore().user_info.claims.includes("Admin_Dashboard_View")) {
+        if (useAuthStore().getUserInfo().roles.includes("Administrator")) {
             next({ name: "Admin_Dashboards_View" });
         } else {
             next({ name: "/" });
@@ -127,6 +128,7 @@ router.beforeEach(async (to, from, next) => {
         Admin_User_Create: "Admin_User_Create",
         Admin_User_Update: "Admin_User_Update",
         Admin_Dashboards_View: "Admin_Dashboards_View",
+        Admin_Manager_Account: "Admin_Manager_Account",
     };
 
     //type for ts only
@@ -134,7 +136,8 @@ router.beforeEach(async (to, from, next) => {
         | "Admin_User_View"
         | "Admin_User_Create"
         | "Admin_User_Update"
-        | "Admin_Dashboards_View";
+        | "Admin_Dashboards_View"
+        | "Admin_Manager_Account";
 
     //function to check to.name is one of admin routes
     const isAdminRouteName = (name: any): name is AdminRouteName => {
@@ -143,9 +146,13 @@ router.beforeEach(async (to, from, next) => {
 
     //filter check claim
     if (isAdminRouteName(to.name)) {
-        const claimKey = adminClaimRoutes[to.name];
+        // const claimKey = adminClaimRoutes[to.name];
 
-        if (useAuthStore().getUserInfo().claims[claimKey] === "1") {
+        // if (useAuthStore().getUserInfo().claims[claimKey] === "1") {
+        //     next();
+        // }
+
+        if (useAuthStore().getUserInfo().roles.includes("Administrator")) {
             next();
         }
         next({ name: "404" });

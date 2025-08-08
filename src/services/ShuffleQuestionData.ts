@@ -24,14 +24,14 @@ class ShuffleQuestionData {
             json_question.questionData.matching.rightItems = this.shuffleArray(
                 json_question.questionData.matching.rightItems,
             );
-            json_question.questionData.matching.leftItems = this.shuffleArray(
-                json_question.questionData.matching.leftItems,
-            );
+            // json_question.questionData.matching.leftItems = this.shuffleArray(
+            //     json_question.questionData.matching.leftItems,
+            // );
         }
 
         if (json_question.type === QUESTION_TYPE.ORDERING && json_question.questionData.ordering) {
             json_question.questionData.ordering = this.shuffleArray(
-                json_question.questionData.ordering,
+                json_question.questionData.ordering.sort((a, b) => a.correctOrder - b.correctOrder),
             );
         }
 

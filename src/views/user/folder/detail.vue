@@ -36,80 +36,77 @@ const pageParams = reactive({
 });
 
 const test_template_data = ref<TestTemplate[]>([]);
-
-const getFolderData = async () => {
-    if (!Validator.isValidGuid(folderId.value.toString())) {
-        router.push({ name: "404" });
-        return;
-    }
+const loading = ref(false);
+const getData = async () => {
     try {
+        loading.value = true;
+        if (!Validator.isValidGuid(folderId.value.toString())) {
+            router.push({ name: "404" });
+            return;
+        }
         if (!folderId.value) router.push({ name: "404" });
 
         let result = await ApiFolder.GetAllTestTemplateByLimit(
             folderId.value.toString(),
             pageParams as FolderTestTemplatePageParams,
         );
-        if (!result.data.success) router.push({ name: "404" });
+        if (result.data.success) {
+            let resultData = result.data.data;
+            test_template_data.value = resultData.testTemplates.items;
+            folderData.value.name = resultData.folderName;
 
-        folderId.value = result.data.data;
+            pageParams.pageNumber = resultData.testTemplates.pageNumber;
+            pageParams.pageSize = resultData.testTemplates.pageSize;
+            pageParams.totalCount = resultData.testTemplates.totalCount;
+            if (pageParams.statusFilter) {
+                //check if filter is active
+                if (pageParams.pageNumber > resultData.totalPages && pageParams.totalCount > 0) {
+                    pageParams.pageNumber = 1;
+                    router.push({
+                        name: "User_Folder_Detail",
+                        params: {
+                            id: folderId.value,
+                        },
+                        query: {
+                            pageNumber: 1,
+                            pageSize: pageParams.pageSize,
+                            testTemplateName: pageParams.testTemplateName,
+                        },
+                    });
+                } else {
+                    router.push({
+                        name: "User_Folder_Detail",
+                        params: {
+                            id: folderId.value,
+                        },
+                        query: {
+                            pageNumber: pageParams.pageNumber,
+                            pageSize: pageParams.pageSize,
+                            testTemplateName: pageParams.testTemplateName,
+                        },
+                    });
+                }
+                pageParams.statusFilter = !pageParams.statusFilter; //toggle filter status
+            }
+        }
     } catch (error) {
-        console.log("ERROR: GETBYID class: " + error);
+        console.log("ERROR: GETALLBYLIMIT testtemplate: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 
-const getData = async () => {
-    // try {
-    //     let result = await ApiFolder.GetAllTestTemplateByLimit(
-    //         folderId.value.toString(),
-    //         pageParams as TestTemplatePageParams,
-    //     );
-    //     if (result.data.success) {
-    //         let resultData = result.data.data;
-    //         test_template_data.value = resultData.items;
-    //         pageParams.pageNumber = resultData.pageNumber;
-    //         pageParams.pageSize = resultData.pageSize;
-    //         pageParams.totalCount = resultData.totalCount;
-    //         if (pageParams.statusFilter) {
-    //             //check if filter is active
-    //             if (pageParams.pageNumber > resultData.totalPages && pageParams.totalCount > 0) {
-    //                 pageParams.pageNumber = 1;
-    //                 router.push({
-    //                     name: "User_Folder_TestTemplate",
-    //                     query: {
-    //                         pageNumber: 1,
-    //                         pageSize: pageParams.pageSize,
-    //                         name: pageParams.name,
-    //                     },
-    //                 });
-    //             } else {
-    //                 router.push({
-    //                     name: "User_Folder_TestTemplate",
-    //                     query: {
-    //                         pageNumber: pageParams.pageNumber,
-    //                         pageSize: pageParams.pageSize,
-    //                         name: pageParams.name,
-    //                     },
-    //                 });
-    //             }
-    //             pageParams.statusFilter = !pageParams.statusFilter; //toggle filter status
-    //         }
-    //     }
-    // } catch (error) {
-    //     console.log("ERROR: GETALLBYLIMIT testtemplate: " + error);
-    // }
-};
-
 //update when page change (url)
-// onUpdated(() => {
-//     if (Object.keys(route.query).length === 0) {
-//         pageParams.pageNumber = route.query.pageNumber || 1;
-//         pageParams.pageSize = route.query.pageSize || 10;
-//         pageParams.name = route.query.name?.toString() || "";
-//         pageParams.statusFilter = true;
+onUpdated(() => {
+    if (Object.keys(route.query).length === 0) {
+        pageParams.pageNumber = route.query.pageNumber || 1;
+        pageParams.pageSize = route.query.pageSize || 10;
+        pageParams.testTemplateName = route.query.testTemplateName?.toString() || "";
+        pageParams.statusFilter = true;
 
-//         getData();
-//     }
-// });
+        getData();
+    }
+});
 
 // //change when page change (pageParams)
 const onPaginationChange = (page: number, pageSize: number) => {
@@ -117,10 +114,6 @@ const onPaginationChange = (page: number, pageSize: number) => {
     pageParams.pageSize = pageSize;
     pageParams.statusFilter = true;
     getData();
-};
-
-const onRefirectToUpdate = (id: string) => {
-    router.push({ name: "User_TestTemplate_Update", params: { id } });
 };
 
 const onRemoveTestTemplate = (testTemplateId: string) => {
@@ -186,15 +179,24 @@ const modal_update_open = ref(false);
 
 const updateFolderFormRef = ref();
 const updateFolderFormState = reactive({
-    name: folderData.value.name || "123",
+    name: folderData.value.name,
 });
+
+const openUpdateModal = () => {
+    modal_update_open.value = true;
+    updateFolderFormState.name = folderData.value.name;
+    updateFolderFormRef.value?.validate();
+};
 
 const isUpdateLoading = ref(false);
 const onUpdateFolder = async () => {
     isUpdateLoading.value = true;
     try {
-        await updateFolderFormRef.value?.validate(); //this will throw err to catch
-        let result = await ApiFolder.Update(folderId.value.toString(), updateFolderFormState.name);
+        updateFolderFormRef.value?.validate(); //this will throw err to catch
+        let result = await ApiFolder.Update(folderId.value.toString(), {
+            folderId: folderId.value,
+            name: updateFolderFormState.name,
+        });
         if (!result.data.success) {
             message.error(t("message.updated_failed"));
             return;
@@ -226,7 +228,7 @@ onMounted(async () => {
     emit("updateSidebar", sidebarActiveItem);
 
     // await getFolderData();
-    //     await getData();
+    await getData();
 });
 </script>
 <template>
@@ -253,8 +255,8 @@ onMounted(async () => {
             <div class="content-item">
                 <div class="content-item-title">
                     <span>
-                        Folder name
-                        <i class="bx bx-edit" @click="modal_update_open = true"></i>
+                        {{ folderData.name }}
+                        <i class="bx bx-edit" @click="openUpdateModal"></i>
                     </span>
                 </div>
                 <div class="content-item-functions">
@@ -272,48 +274,51 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <div v-if="test_template_data.length > 0" class="quiz-item-container">
-                    <div class="quiz-item" v-for="template in test_template_data">
-                        <i class="bx bx-book-open quiz-item-icon"></i>
-                        <div>
-                            <div class="quiz-item-title">
-                                {{ template.name }}
-                            </div>
-                            <div class="quiz-item-info quiz-info-detail">
-                                <div class="quiz-item-questions">
-                                    <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                    {{ template.numberOfQuestion }}
-                                    {{ $t("dashboards.list_items.quiz.questions") }}
-                                </div>
-                                <div class="quiz-item-created-by">
-                                    {{ $t("class_question_set.other.created_by") }}
-                                    {{ template.createdBy }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="exam-item-actions">
-                            <a-button type="primary" class="me-3 main-color-btn">
-                                {{ $t("class_question_set.buttons.view") }}
-                            </a-button>
-                            <i
-                                class="bx bx-edit"
-                                @click="onRefirectToUpdate(template.testTemplateId)"
-                            ></i>
-                            <i
-                                class="text-danger bx bx-trash-alt"
-                                @click="onRemoveTestTemplate(template.testTemplateId)"
-                            ></i>
-                        </div>
-                    </div>
-                </div>
+                <template v-if="loading">
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                </template>
                 <template v-else>
-                    <div class="w-100 d-flex justify-content-center">
-                        <a-empty>
-                            <template #description>
-                                <span> No data matches. </span>
-                            </template>
-                        </a-empty>
+                    <div v-if="test_template_data.length > 0" class="quiz-item-container">
+                        <div class="quiz-item" v-for="template in test_template_data">
+                            <i class="bx bx-book-open quiz-item-icon"></i>
+                            <div>
+                                <div class="quiz-item-title">
+                                    {{ template.name }}
+                                </div>
+                                <div class="quiz-item-info quiz-info-detail">
+                                    <div class="quiz-item-questions">
+                                        <i class="bx bx-message-square-edit bx-rotate-270"></i>
+                                        {{ template.numberOfQuestion }}
+                                        {{ $t("dashboards.list_items.quiz.questions") }}
+                                    </div>
+                                    <div class="quiz-item-created-by">
+                                        {{ $t("class_question_set.other.created_by") }}
+                                        {{ template.createdBy }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="exam-item-actions">
+                                <a-button type="primary" class="me-3 main-color-btn">
+                                    {{ $t("class_question_set.buttons.view") }}
+                                </a-button>
+                                <i
+                                    class="text-danger bx bx-trash-alt"
+                                    @click="onRemoveTestTemplate(template.testTemplateId)"
+                                ></i>
+                            </div>
+                        </div>
                     </div>
+                    <template v-else>
+                        <div class="w-100 d-flex justify-content-center">
+                            <a-empty>
+                                <template #description>
+                                    <span> No data matches. </span>
+                                </template>
+                            </a-empty>
+                        </div>
+                    </template>
                 </template>
                 <div class="pagination-container">
                     <a-pagination
@@ -388,7 +393,7 @@ onMounted(async () => {
                 <Input
                     :label="'Folder name'"
                     :name="'name'"
-                    v-model:value="updateFolderFormState.name"
+                    v-model="updateFolderFormState.name"
                     :placeholder="t('folder_index.modal.create_folder_name_placeholder')"
                     :is-required="true"
                     :max-length="100"

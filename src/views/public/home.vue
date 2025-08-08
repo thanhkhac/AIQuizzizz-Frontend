@@ -34,10 +34,10 @@ import Header from "@/shared/components/Header.vue";
                     {{ $t("homepage.ultimateExperience.content") }}
                 </div>
                 <div class="home-content-item">
-                    <RouterLink :to="{}">
+                    <RouterLink :to="{ name: 'User_Dashboard' }">
                         {{ $t("homepage.ultimateExperience.buttons.started") }}
                     </RouterLink>
-                    <RouterLink :to="{}">
+                    <RouterLink :to="{ name: 'User_QuestionSet_Search' }">
                         {{ $t("homepage.ultimateExperience.buttons.explore") }}
                     </RouterLink>
                 </div>
@@ -75,7 +75,7 @@ import Header from "@/shared/components/Header.vue";
                                     {{ $t("homepage.categories.scienceTech.description") }}
                                 </span>
                                 <br />
-                                <RouterLink :to="{}">
+                                <RouterLink :to="{ name: 'User_QuestionSet_Search' }">
                                     {{ $t("homepage.categories.categories_link") }}
                                     <i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
@@ -92,7 +92,7 @@ import Header from "@/shared/components/Header.vue";
                                     {{ $t("homepage.categories.mathematics.description") }}
                                 </span>
                                 <br />
-                                <RouterLink :to="{}">
+                                <RouterLink :to="{ name: 'User_QuestionSet_Search' }">
                                     {{ $t("homepage.categories.categories_link")
                                     }}<i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
@@ -109,7 +109,7 @@ import Header from "@/shared/components/Header.vue";
                                     {{ $t("homepage.categories.chemistry.description") }}
                                 </span>
                                 <br />
-                                <RouterLink :to="{}">
+                                <RouterLink :to="{ name: 'User_QuestionSet_Search' }">
                                     {{ $t("homepage.categories.categories_link")
                                     }}<i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
@@ -126,7 +126,7 @@ import Header from "@/shared/components/Header.vue";
                                     {{ $t("homepage.categories.biology.description") }}
                                 </span>
                                 <br />
-                                <RouterLink :to="{}">
+                                <RouterLink :to="{ name: 'User_QuestionSet_Search' }">
                                     {{ $t("homepage.categories.categories_link") }}
                                     <i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
@@ -143,7 +143,7 @@ import Header from "@/shared/components/Header.vue";
                                     {{ $t("homepage.categories.generalKnowledge.description") }}
                                 </span>
                                 <br />
-                                <RouterLink :to="{}">
+                                <RouterLink :to="{ name: 'User_QuestionSet_Search' }">
                                     {{ $t("homepage.categories.categories_link") }}
                                     <i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
@@ -159,7 +159,7 @@ import Header from "@/shared/components/Header.vue";
                                 <span>
                                     {{ $t("homepage.categories.currentAffairs.description") }}
                                 </span>
-                                <RouterLink :to="{}">
+                                <RouterLink :to="{ name: 'User_QuestionSet_Search' }">
                                     {{ $t("homepage.categories.categories_link") }}
                                     <i class="bx bx-right-arrow-alt"></i>
                                 </RouterLink>
@@ -261,10 +261,10 @@ import Header from "@/shared/components/Header.vue";
                         {{ $t("homepage.banner.content") }}
                     </div>
                     <div>
-                        <RouterLink :to="{}">{{
+                        <RouterLink :to="{ name: 'register' }">{{
                             $t("homepage.banner.buttons.createAccount")
                         }}</RouterLink>
-                        <RouterLink :to="{}">{{
+                        <RouterLink :to="{ name: 'User_QuestionSet_Search' }">{{
                             $t("homepage.banner.buttons.explore")
                         }}</RouterLink>
                     </div>
@@ -387,7 +387,7 @@ import Header from "@/shared/components/Header.vue";
     border-radius: 10px;
     background-color: var(--background-color-contrast);
     margin: 0 10px;
-    color: var(--text-color-contrast);
+    color: var(--text-color-black);
     font-weight: 500;
 }
 
@@ -632,7 +632,7 @@ import Header from "@/shared/components/Header.vue";
     margin-right: 15px;
     background-color: var(--background-color-contrast);
     border-radius: 10px;
-    color: var(--text-color-contrast);
+    color: var(--text-color-black);
     text-decoration: none;
     font-weight: 500;
 }
@@ -643,7 +643,7 @@ import Header from "@/shared/components/Header.vue";
     color: var(--text-color);
 }
 .banner-item a:nth-child(1):hover {
-    background-color: var(--background-color-white-hovered);
+    opacity: 0.8;
 }
 
 .banner-item-img {

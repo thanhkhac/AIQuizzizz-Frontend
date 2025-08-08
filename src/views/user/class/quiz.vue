@@ -11,6 +11,7 @@ import { useRoute, useRouter } from "vue-router";
 import { message, Modal } from "ant-design-vue";
 import Input from "@/shared/components/Common/Input.vue";
 import { useI18n } from "vue-i18n";
+import CLASS_STUDENT_POSITION from "@/constants/classStudentPosition";
 
 const route = useRoute();
 const router = useRouter();
@@ -44,7 +45,17 @@ const pageParams = reactive({
 });
 
 const question_set_data = ref<ClassQuestionSet[]>([]);
-
+const userRoleInClass = ref<string>("");
+const getPermission = async () => {
+    try {
+        const result = await ApiClass.GetUserPermission(classData.value.classId);
+        if (result.data.success) {
+            userRoleInClass.value = result.data.data;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
 const getClassData = async () => {
     try {
         if (!classId.value) router.push({ name: "404" });
@@ -155,6 +166,7 @@ onMounted(async () => {
     emit("updateSidebar", sidebarActiveItem);
 
     await getClassData();
+    await getPermission();
     await getData();
 });
 </script>
@@ -265,7 +277,7 @@ onMounted(async () => {
                             <a-button type="primary" class="me-3 main-color-btn">
                                 {{ $t("class_question_set.buttons.view") }}
                             </a-button>
-                            <i
+                            <i v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT"
                                 style="cursor: pointer"
                                 class="text-danger bx bx-trash-alt"
                                 @click="onDeleteQSFromClass(exam.id)"

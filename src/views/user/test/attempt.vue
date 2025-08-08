@@ -99,7 +99,7 @@ const getAttemptData = async () => {
         attemptData.value = result.data.data;
 
         if (attemptData.value.timeRemaining <= 0) {
-            message.error("Time's up");
+            message.error(t("message.time_up"));
             router.push({ name: "User_Class" });
             return;
         }
@@ -218,17 +218,19 @@ const sendUserAnswer = async (isSubmit: boolean) => {
 
 const onSubmit = () => {
     Modal.confirm({
-        title: "Are you sure to submit your test?",
-        content: "Please double check your answer before submitting!",
+        title: t("attempt_test.submit_modal.title"),
+        content: t("attempt_test.submit_modal.content"),
         centered: true,
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             //call api
             const result = await sendUserAnswer(true);
             if (!result) {
-                message.error("Submit failed!");
+                message.error(t("message.submited_failed"));
                 return;
             }
-            message.info("Submit successfully!");
+            message.info(t("message.submited_successfully"));
             router.push({ name: "User_Class" });
         },
     });
@@ -243,13 +245,15 @@ const onLoadCurrentQuestion = (index: number) => {
 
     switch (currentQuestion.value.type) {
         case QUESTION_TYPE.MULTIPLE_CHOICE: {
-            currentQuestionInstruction.value = `Choose (${currentQuestion.value.correctMultipleChoiceCount}) options.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.multiple_choice", {
+                number: currentQuestion.value.correctMultipleChoiceCount,
+            });
             userAnswerMultipleChoice.value = answer ? answer?.multipleChoices! : [];
             break;
         }
 
         case QUESTION_TYPE.ORDERING: {
-            currentQuestionInstruction.value = `Arrange these options to their correct order.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.ordering");
             userAnswerOrdering.value = answer
                 ? answer?.ordering!.map((x) => ({
                       id: x.id,
@@ -261,7 +265,7 @@ const onLoadCurrentQuestion = (index: number) => {
         }
 
         case QUESTION_TYPE.MATCHING: {
-            currentQuestionInstruction.value = `Arrange the items to align with their correct matches.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.matching");
             userAnswerMatchingLeft.value = answer
                 ? answer?.matchingLeft!.map((x) => ({
                       id: x.id,
@@ -284,7 +288,7 @@ const onLoadCurrentQuestion = (index: number) => {
         }
 
         case QUESTION_TYPE.SHORT_TEXT: {
-            currentQuestionInstruction.value = `Fill in the blank the correct answer.`;
+            currentQuestionInstruction.value = t("learn_QS.instructions.short_text");
             userAnswerShortText.value = answer ? answer?.shortText! : "";
             break;
         }
@@ -393,10 +397,10 @@ const updateCountdown = async () => {
         //trigger submit final here
         const result = await sendUserAnswer(true);
         if (!result) {
-            message.error("Submit failed");
+            message.error(t("message.submited_failed"));
             return;
         }
-        message.error("Time's up auto submit");
+        message.info(t("message.time_up"));
         router.push({ name: "User_Class" });
     }
 };
@@ -411,11 +415,11 @@ const autoSave = async () => {
     //auto save
     const result = await sendUserAnswer(false);
     if (!result) {
-        message.error("Auto save failed!");
+        message.error(t("message.auto_save_failed"));
         return;
     }
 
-    message.info("Auto saved");
+    message.info(t("message.auto_save_successfully"));
 };
 //#endregion
 
@@ -513,13 +517,16 @@ onMounted(async () => {
                     <div
                         class="question-navigator-title d-flex justify-content-between align-items-center"
                     >
-                        <span>Questions</span>
+                        <span> {{ t("practice_test.other.question_list") }} </span>
                         <span class="countdown d-flex align-items-center">
                             <i class="bx bx-timer"></i>
                             {{ formattedTime }}
                         </span>
                     </div>
-                    <div class="question-navigator-container">
+                    <template v-if="loading">
+                        <a-skeleton :loading="loading"></a-skeleton>
+                    </template>
+                    <div v-else class="question-navigator-container">
                         <div
                             :class="[
                                 'question-navigation-item-outer',
@@ -544,7 +551,7 @@ onMounted(async () => {
                         :class="['main-color-btn', isSubmitted ? 'main-color-btn-disabled' : '']"
                         @click="onSubmit"
                     >
-                        Submit
+                        {{ $t("learn_QS.buttons.submit") }}
                     </a-button>
                 </div>
             </div>
@@ -713,7 +720,7 @@ onMounted(async () => {
                             @click="onPreviousQuestion"
                         >
                             <i class="bx bx-chevron-left"></i>
-                            Previous question
+                            {{ $t("practice_test.buttons.previous") }}
                         </a-button>
                         <i
                             :class="[
@@ -732,7 +739,7 @@ onMounted(async () => {
                                 size="large"
                                 @click="onNextQuestion"
                             >
-                                Next question
+                                {{ $t("learn_QS.buttons.next_question") }}
                                 <i class="bx bx-chevron-right"></i>
                             </a-button>
                         </div>
@@ -844,7 +851,7 @@ onMounted(async () => {
     border-radius: 3px;
 }
 
-.question-navigator-item:hover {
+.question-navigation-item-outer:hover {
     border-color: var(--main-color);
 }
 

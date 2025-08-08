@@ -390,7 +390,24 @@
         },
         "subscription": {
             "title": "Gói đăng ký",
-            "sub_title": "Quản lý gói đăng ký và thông tin thanh toán của bạn"
+            "sub_title": "Quản lý gói đăng ký và thông tin thanh toán của bạn",
+            "plan": {
+                "title": "So sánh gói",
+                "sub_title": "So sánh uy đãi các gói sẵn có trong hệ thống",
+                "popular": "Phổ biến",
+                "learn": "Học",
+                "test": "Kiểm tra",
+                "day_plural": "ngày",
+                "year_singular": "năm",
+                "year_plural": "năm"
+            },
+            "buttons": {
+                "Change_plan": "Thay đổi gói"
+            }
+        },
+        "billing": {
+            "title": "Lịch sử giao dịch",
+            "sub_title": "Kiểm tra lịch sử giao dịch và nâng cấp tài khoản của bạn"
         }
     },
     "share_modal": {
@@ -605,6 +622,16 @@
             "invitation_link": "Liên kết mời",
             "or": "HOẶC",
             "time_limit_label": "Thời gian giới hạn"
+        },
+        "position": {
+            "Onwer": "Chủ lớp",
+            "Teacher": "Giáo viên",
+            "Student": "Học sinh"
+        },
+        "column": {
+            "fullName": "Họ và tên",
+            "email": "Email",
+            "position": "Vị trí"
         }
     },
     "class_question_set": {
@@ -663,7 +690,7 @@
     },
     "practice_test": {
         "other": {
-            "question_list": "Danh sách câu hỏi",
+            "question_list": "Câu hỏi",
             "correct": "Đúng: ",
             "incorrect": "Sai: ",
             "your_time": "Thời gian của bạn: ",
@@ -694,6 +721,12 @@
             "title": "Cài đặt bài luyện tập",
             "max_question": "Số lượng câu hỏi (tối đa {length}):",
             "create_new_test": "Tạo bài kiểm tra mới"
+        }
+    },
+    "attempt_test": {
+        "submit_modal": {
+            "title": "Bạn có chắc chắn muốn nộp bài kiểm tra không?",
+            "content": "Vui lòng kiểm tra lại câu trả lời trước khi nộp!"
         }
     },
     "ERROR_CODE": {
@@ -740,6 +773,7 @@
         "QUESTION_SET_NOT_FOUND_IN_CLASS": "Không tìm thấy bộ câu hỏi trong lớp",
 
         "PLAN_REQUIRE_PLAN": "Cần phải có gói sử dụng!",
+        "INSUFFICIENT_BALANCE": "Số dư không đủ!",
 
         "TEST_IS_OVERDUE": "Thời gian làm bài đã kết thúc!",
 
@@ -758,6 +792,13 @@
         "removed_failed": "Gỡ bỏ thất bại!",
         "copied": "Đã sao chép!",
         "copied_failed": "Sao chép thất bại!",
+        "purchased_successfully": "Thanh toán thành công",
+        "purchased_failed": "Thanh toán thất bại",
+        "submited_successfully": "Gửi bài làm thành công!",
+        "submited_failed": "Gửi bài làm thất bại",
+        "auto_save_successfully": "Lưu tự động thành công!",
+        "auto_save_failed": "Lưu tự động thất bại",
+        "time_up": "Đã hết thời gian làm bài",
 
         "join_class_successfully": "Tham gia lớp học thành công!",
         "join_class_failed": "Tham gia lớp học thất bại!",

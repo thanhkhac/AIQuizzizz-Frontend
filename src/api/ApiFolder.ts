@@ -31,17 +31,9 @@ class ApiFolder {
         return await Api.post(`${END_POINTS.CREATE}`, formState);
     };
 
-    Update = async (folderId: string, name: string) => {
+    Update = async (folderId: string, formState: any) => {
         const url = END_POINTS.UPDATE.replace("{FolderId}", folderId);
-        return await Api.patch(
-            url,
-            {},
-            {
-                params: {
-                    name: name,
-                },
-            },
-        );
+        return await Api.patch(url, formState);
     };
 
     GetAllTestTemplateByLimit = async (

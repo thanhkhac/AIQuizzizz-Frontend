@@ -18,6 +18,7 @@ const END_POINTS = {
     UPDATE_CLASS_MEMBER_POSITION: "Class/{ClassId}/Members/{UserId}",
     DELETE_CLASS_QUESTION_SET: "Class/{ClassId}/QuestionSets/{QuestionSetId}",
     GET_INVITATION_CODE: "Class/{ClassId}/Invitation-Code",
+    GET_USER_PERMISSION: "Class/{ClassId}/Permissions",
 };
 
 class ApiUser {
@@ -121,6 +122,11 @@ class ApiUser {
     async CreateNewInvitation(formState: any) {
         const url = END_POINTS.CREATE_INVITATION.replace("{ClassId}", formState.classId);
         return await Api.post(url, formState);
+    }
+
+    async GetUserPermission(classId: string) {
+        const url = END_POINTS.GET_USER_PERMISSION.replace("{ClassId}", classId);
+        return await Api.get(url);
     }
 }
 

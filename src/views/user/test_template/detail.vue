@@ -214,7 +214,7 @@ onMounted(async () => {
             <div v-else>
                 <div class="content-item-title">
                     <div>
-                        <span>{{ quiz.name }}</span>
+                        <span> Mẫu đề thi: {{ quiz.name }}</span>
                     </div>
                     <div
                         v-if="permission.canEdit || permission.canDelete"
@@ -262,7 +262,7 @@ onMounted(async () => {
                     <div class="share-btn-container">
                         <a-button
                             type="primary"
-                            class="main-color-btn share-btn"
+                            class="me-3 main-color-btn share-btn"
                             size="large"
                             @click="openFolderModal"
                         >

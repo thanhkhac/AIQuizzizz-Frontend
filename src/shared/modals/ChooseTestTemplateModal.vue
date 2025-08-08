@@ -4,6 +4,7 @@ import ApiTestTemplate from "@/api/ApiTestTemplate";
 import FOLDER_SHARE_MODE from "@/constants/folderShareMode";
 import type TestTemplatePageParams from "@/models/request/testTemplate/testTemplatePageParams";
 import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
+import type { Folder } from "@/models/response/folder/folder";
 
 import { ref, onMounted, reactive, computed, onUpdated } from "vue";
 import { useI18n } from "vue-i18n";
@@ -120,14 +121,14 @@ defineExpose({
 
 const emit = defineEmits<{
     (e: "switchToFolder"): void;
-    (e: "openTestTemplate", testTemplateId: string): void;
+    (e: "openTestTemplate", testTemplateId: string, folder: Folder | null): void;
 }>();
 const handleSwitchToFolder = () => {
     emit("switchToFolder");
 };
 
 const handleOpenTestTemplate = (testTemplateId: string) => {
-    emit("openTestTemplate", testTemplateId);
+    emit("openTestTemplate", testTemplateId, null);
 };
 
 //#endregion

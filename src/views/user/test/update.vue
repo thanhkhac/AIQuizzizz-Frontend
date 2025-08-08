@@ -404,9 +404,10 @@ const onSwitchToFolder = () => {
 };
 
 //use for both case
-const onOpenTestTemplate = async (testTemplateId: string) => {
+const onOpenTestTemplate = async (testTemplateId: string, folder: Folder | null) => {
     chosenTestTemplateId.value = testTemplateId;
     testTemplateModalRef.value?.closeModal();
+    chosenFolder.value = folder;
     await nextTick();
     openQuestionModal();
 };
@@ -422,8 +423,9 @@ const openQuestionModal = () => {
     questionModalRef.value?.openModal();
 };
 
-const onBackToFolderTestTemplate = (folder: Folder) => {
+const onBackToFolderTestTemplate = async (folder: Folder) => {
     chosenFolder.value = folder;
+    await nextTick();
     openFolderTestTemplateModal();
 };
 
@@ -442,6 +444,8 @@ const onModalImport = (selected: ResponseQuestion[]) => {
             ...item,
             id: `new_${formState.createUpdateQuestions.length + i}`,
         }));
+
+    folderModalRef.value?.closeModal();
     formState.createUpdateQuestions = [...formState.createUpdateQuestions, ...importQuestions];
 
     nextTick(() => {
