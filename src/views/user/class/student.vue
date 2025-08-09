@@ -422,31 +422,46 @@ onMounted(async () => {
                                 v-if="userRoleInClass === CLASS_STUDENT_POSITION.OWNER"
                                 class="student-action"
                             >
-                                <i
+                                <a-tooltip
                                     v-if="record.position === CLASS_STUDENT_POSITION.STUDENT"
-                                    style="cursor: pointer"
-                                    class="bx bxs-id-card"
-                                    @click="
-                                        onConfirmUpdateMemberPosition(
-                                            record.studentId,
-                                            CLASS_STUDENT_POSITION.TEACHER,
-                                        )
-                                    "
-                                ></i>
-                                <i
-                                    v-else
-                                    class="text-danger bx bxs-id-card"
-                                    @click="
-                                        onConfirmUpdateMemberPosition(
-                                            record.studentId,
-                                            CLASS_STUDENT_POSITION.STUDENT,
-                                        )
-                                    "
-                                ></i>
-                                <i
-                                    class="text-danger bx bx-trash-alt"
-                                    @click="onConfirmDeleteMember(record.studentId)"
-                                ></i>
+                                >
+                                    <template #title>
+                                        {{ $t("class_member.buttons.assign_lecturer") }}
+                                    </template>
+                                    <i
+                                        style="cursor: pointer"
+                                        class="bx bxs-id-card"
+                                        @click="
+                                            onConfirmUpdateMemberPosition(
+                                                record.studentId,
+                                                CLASS_STUDENT_POSITION.TEACHER,
+                                            )
+                                        "
+                                    ></i>
+                                </a-tooltip>
+                                <a-tooltip v-else>
+                                    <template #title>
+                                        {{ $t("class_member.buttons.remove_lecturer") }}
+                                    </template>
+                                    <i
+                                        class="text-danger bx bxs-id-card"
+                                        @click="
+                                            onConfirmUpdateMemberPosition(
+                                                record.studentId,
+                                                CLASS_STUDENT_POSITION.STUDENT,
+                                            )
+                                        "
+                                    ></i>
+                                </a-tooltip>
+                                <a-tooltip>
+                                    <template #title>
+                                        {{ $t("question_sets_index.buttons.delete") }}
+                                    </template>
+                                    <i
+                                        class="text-danger bx bx-trash-alt"
+                                        @click="onConfirmDeleteMember(record.studentId)"
+                                    ></i>
+                                </a-tooltip>
                             </div>
                         </template>
                     </template>

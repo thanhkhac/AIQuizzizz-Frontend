@@ -233,24 +233,7 @@ onMounted(async () => {
                         </Input>
                     </div>
                 </div>
-                <div class="pagination-container">
-                    <a-pagination
-                        @change="onPaginationChange"
-                        v-model:current="pageParams.pageNumber"
-                        :total="pageParams.totalCount"
-                        :pageSize="pageParams.pageSize"
-                        :show-total="
-                            (total: any, range: any) =>
-                                `${range[0]}-${range[1]} of ${total} ${t('class_question_set.other.items')}`
-                        "
-                        show-size-changer
-                        show-quick-jumper
-                        class="crud-layout-pagination"
-                        :locale="{
-                            items_per_page: t('class_index.other.pages'),
-                        }"
-                    ></a-pagination>
-                </div>
+
                 <div v-if="question_set_data.length > 0" class="quiz-item-container">
                     <div class="quiz-item" v-for="exam in question_set_data">
                         <i class="bx bx-book-open quiz-item-icon"></i>
@@ -277,11 +260,17 @@ onMounted(async () => {
                             <a-button type="primary" class="me-3 main-color-btn">
                                 {{ $t("class_question_set.buttons.view") }}
                             </a-button>
-                            <i v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT"
-                                style="cursor: pointer"
-                                class="text-danger bx bx-trash-alt"
-                                @click="onDeleteQSFromClass(exam.id)"
-                            ></i>
+
+                            <a-tooltip v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT">
+                                <template #title>
+                                    {{ $t("question_sets_index.buttons.delete") }}
+                                </template>
+                                <i
+                                    style="cursor: pointer"
+                                    class="text-danger bx bx-trash-alt"
+                                    @click="onDeleteQSFromClass(exam.id)"
+                                ></i>
+                            </a-tooltip>
                         </div>
                     </div>
                 </div>
@@ -294,6 +283,24 @@ onMounted(async () => {
                         </a-empty>
                     </div>
                 </template>
+                <div class="pagination-container">
+                    <a-pagination
+                        @change="onPaginationChange"
+                        v-model:current="pageParams.pageNumber"
+                        :total="pageParams.totalCount"
+                        :pageSize="pageParams.pageSize"
+                        :show-total="
+                            (total: any, range: any) =>
+                                `${range[0]}-${range[1]} of ${total} ${t('class_question_set.other.items')}`
+                        "
+                        show-size-changer
+                        show-quick-jumper
+                        class="crud-layout-pagination"
+                        :locale="{
+                            items_per_page: t('class_index.other.pages'),
+                        }"
+                    ></a-pagination>
+                </div>
             </div>
         </div>
     </div>

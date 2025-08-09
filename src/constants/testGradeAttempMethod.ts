@@ -1,5 +1,5 @@
 const TEST_GRADE_ATTEMPT_METHOD = {
-    LAST_ATTEMPT: "LastAttemp",
+    LAST_ATTEMPT: "LastAttempt",
     HIGHEST_SCORE: "HighestScore",
 };
 

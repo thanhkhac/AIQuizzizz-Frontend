@@ -63,7 +63,7 @@ const visibility = ref(false);
 
 const openModal = async () => {
     await getSharedUser();
-    selected_visibility_option.value = visibility_options.value[0].value;
+    selected_visibility_option.value = props.visibility || visibility_options.value[0].value;
     visibility.value = true;
 };
 
@@ -85,7 +85,7 @@ const visibility_options = computed(() =>
         value: key,
     })),
 );
-const selected_visibility_option = ref();
+const selected_visibility_option = ref(props.visibility || visibility_options.value[0].value);
 const selected_visibility_explain = ref("");
 
 watch(
@@ -142,11 +142,11 @@ const getSharedUser = async () => {
 
     switch (props.mode) {
         case "quiz": {
+            result = await ApiQuestionSet.GetSharedUser(props.id);
             break;
         }
         case "template": {
             result = await ApiTestTemplate.GetSharedUser(props.id);
-
             break;
         }
         case "folder": {
@@ -212,6 +212,10 @@ const updateSharedUsers = async ({
 
     switch (props.mode) {
         case "quiz": {
+            result = await ApiQuestionSet.UpdateSharedUser({
+                ...sharingFormState.value,
+                visibilityMode: selected_visibility_option.value,
+            });
             break;
         }
         case "template": {
@@ -328,6 +332,17 @@ const onCopyPublicShareUrl = () => {
 };
 //#endregion
 
+//#region change visibility
+const onChangeVisibility = async () => {
+    await updateSharedUsers({
+        sharingModels: [],
+        successMsg: "Updated successfully",
+        errorMsg: "Update failed!",
+    });
+};
+
+//#endregion
+
 onMounted(() => {
     document.addEventListener("click", handleMouseClickOutside);
     // userWithPermission.value.push(...(user_permission_sample as UserPermission[]));
@@ -374,6 +389,7 @@ onMounted(() => {
                     <a-col :span="24">
                         <a-form-item :label="$t('share_modal.component_title.visibility')">
                             <a-select
+                                @change="onChangeVisibility"
                                 class="me-3"
                                 v-model:value="selected_visibility_option"
                                 style="width: 200px"
@@ -412,7 +428,11 @@ onMounted(() => {
                         :span="24"
                         :class="[selected_visibility_option === VISIBILITY.PRIVATE ? '' : 'd-none']"
                     >
-                        <div v-if="isUserOwner" class="form-item search-user" ref="searchUserResultRef">
+                        <div
+                            v-if="isUserOwner"
+                            class="form-item search-user"
+                            ref="searchUserResultRef"
+                        >
                             <label
                                 >{{ $t("share_modal.component_title.share_with_email") }} -
                                 <span>enter full email to search user</span></label

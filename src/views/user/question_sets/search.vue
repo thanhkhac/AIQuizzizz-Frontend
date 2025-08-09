@@ -203,19 +203,19 @@ onMounted(async () => {
                     </div>
                 </div>
 
-                <div class="form-item">
-                    <label>Key words</label>
-                    <Input
-                        @input="getData"
-                        v-model="pageParams.name"
-                        :placeholder="t('class_index.other.search_class_placeholder')"
-                    >
-                        <template #icon>
-                            <i class="bx bx-search"></i>
-                        </template>
-                    </Input>
-                </div>
                 <div class="d-flex justify-content-between">
+                    <div class="form-item">
+                        <label>Key words</label>
+                        <Input
+                            @input="getData"
+                            v-model="pageParams.name"
+                            :placeholder="t('class_index.other.search_class_placeholder')"
+                        >
+                            <template #icon>
+                                <i class="bx bx-search"></i>
+                            </template>
+                        </Input>
+                    </div>
                     <div class="form-item form-item-sort">
                         <label>Sort by</label>
                         <a-select
@@ -228,6 +228,21 @@ onMounted(async () => {
                             </a-select-option>
                         </a-select>
                     </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <!-- <div class="form-item form-item-sort">
+                        <label>Sort by</label>
+                        <a-select
+                            v-model:value="pageParams.sortBy"
+                            style="width: 200px"
+                            @change="getData"
+                        >
+                            <a-select-option v-for="option in sort_options" :value="option.value">
+                                {{ option.label }}
+                            </a-select-option>
+                        </a-select>
+                    </div> -->
                     <div class="form-item form-item-tag">
                         <label>{{ $t("create_QS.quiz.tag") }}</label>
                         <div class="tag-container">
@@ -481,11 +496,5 @@ onMounted(async () => {
     color: #7c3aed;
     margin-right: 12px;
 }
-::v-deep(.ant-input-affix-wrapper) {
-    height: 50px !important;
-}
 
-::v-deep(.search-bar .ant-input) {
-    height: 50px !important;
-}
 </style>

@@ -58,7 +58,7 @@ const rules = {
         {
             validator: (rule: string, value: []) => {
                 if (value && value.length > 5) {
-                    return Promise.reject(t("maximum_tag.out_of_range", { tag: 5 }));
+                    return Promise.reject(t("message.maximum_tag.out_of_range", { tag: 5 }));
                 }
                 return Promise.resolve();
             },
@@ -69,7 +69,7 @@ const rules = {
         {
             validator: (rule: string, value: []) => {
                 if (value && value.length > 500) {
-                    return Promise.reject(t("maximum_tag.limit_question", { number: 500 }));
+                    return Promise.reject(t("message.maximum_tag.limit_question", { number: 500 }));
                 }
                 return Promise.resolve();
             },
@@ -216,7 +216,7 @@ const createQuestionTemplate = (): RequestQuestion => ({
 
 const onAddQuestion = async () => {
     if (formState.questions.length >= 500) {
-        message.warning(t("maximum_tag.limit_question", { number: 500 }));
+        message.warning(t("message.limit_question", { number: 500 }));
         return;
     }
 
@@ -235,7 +235,7 @@ const onAddQuestion = async () => {
 
 const onRemoveQuestion = (index: number) => {
     if (formState.questions.length <= 1) {
-        message.warning(t("maximum_tag.minimum_question", { number: 1 }));
+        message.warning(t("message.minimum_question", { number: 1 }));
         return;
     }
 
@@ -391,6 +391,17 @@ const onModalImport = (selected: RequestQuestion[]) => {
             id: `new_${formState.questions.length + i}`,
         })),
     );
+
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+        nextTick(() => {
+            const lastIndex = formState.questions.length;
+            requestAnimationFrame(() => {
+                scrollerRef.value?.scrollToItem(lastIndex);
+            });
+        });
+    });
+
     message.success(`${t("message.imported_question", { number: selected.length })}`);
 };
 

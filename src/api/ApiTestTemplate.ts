@@ -66,7 +66,7 @@ class ApiTestTemplate {
     };
 
     UpdateSharedUser = async (formState: any) => {
-        const url = END_POINTS.GET_SHARING.replace("{testTemplateId}", formState.id);
+        const url = END_POINTS.UPDATE_SHARING.replace("{testTemplateId}", formState.id);
         return await Api.patch(url, formState);
     };
 }

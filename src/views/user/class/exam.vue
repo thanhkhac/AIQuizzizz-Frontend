@@ -287,24 +287,7 @@ onMounted(async () => {
                         </Input>
                     </div>
                 </div>
-                <div class="pagination-container">
-                    <a-pagination
-                        @change="onPaginationChange"
-                        v-model:current="pageParams.pageNumber"
-                        :total="pageParams.totalCount"
-                        :pageSize="pageParams.pageSize"
-                        :show-total="
-                            (total: any, range: any) =>
-                                `${range[0]}-${range[1]} of ${total} ${t('class_exam.other.items')}`
-                        "
-                        show-size-changer
-                        show-quick-jumper
-                        class="crud-layout-pagination"
-                        :locale="{
-                            items_per_page: t('class_index.other.pages'),
-                        }"
-                    ></a-pagination>
-                </div>
+
                 <div v-if="exam_data.length > 0" class="exam-item-container">
                     <div class="exam-item" v-for="exam in exam_data">
                         <i class="bx bx-book-open exam-item-icon"></i>
@@ -343,7 +326,8 @@ onMounted(async () => {
                             </div>
                         </div>
                         <div class="exam-item-actions">
-                            <a-button v-if="exam.status === CLASS_EXAM_STATUS.ACTIVE"
+                            <a-button
+                                v-if="exam.status === CLASS_EXAM_STATUS.ACTIVE"
                                 type="primary"
                                 class="main-color-btn"
                                 @click="onRedirectToAttempt(exam.testId)"
@@ -351,14 +335,33 @@ onMounted(async () => {
                                 {{ $t("class_exam.buttons.attempt") }}
                             </a-button>
                             <template v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT">
-                                <i class="bx bx-edit" @click="onRedirectToUpdate(exam.testId)"></i>
-                                <i>
-                                    <FileDoneOutlined />
-                                </i>
-                                <i
-                                    class="text-danger bx bx-trash-alt"
-                                    @click="onDeleteTest(exam.testId)"
-                                ></i>
+                                <a-tooltip v-if="exam.status === CLASS_EXAM_STATUS.UPCOMING">
+                                    <template #title>
+                                        {{ $t("question_sets_index.buttons.edit") }}
+                                    </template>
+                                    <i
+                                        class="bx bx-edit"
+                                        @click="onRedirectToUpdate(exam.testId)"
+                                    ></i>
+                                </a-tooltip>
+                                <a-tooltip>
+                                    <template #title>
+                                        {{ $t("class_member.buttons.history_test") }}
+                                    </template>
+                                    <i>
+                                        <FileDoneOutlined />
+                                    </i>
+                                </a-tooltip>
+
+                                <a-tooltip>
+                                    <template #title>
+                                        {{ $t("question_sets_index.buttons.delete") }}
+                                    </template>
+                                    <i
+                                        class="text-danger bx bx-trash-alt"
+                                        @click="onDeleteTest(exam.testId)"
+                                    ></i>
+                                </a-tooltip>
                             </template>
                         </div>
                     </div>
@@ -372,6 +375,24 @@ onMounted(async () => {
                         </a-empty>
                     </div>
                 </template>
+                <div class="pagination-container">
+                    <a-pagination
+                        @change="onPaginationChange"
+                        v-model:current="pageParams.pageNumber"
+                        :total="pageParams.totalCount"
+                        :pageSize="pageParams.pageSize"
+                        :show-total="
+                            (total: any, range: any) =>
+                                `${range[0]}-${range[1]} of ${total} ${t('class_exam.other.items')}`
+                        "
+                        show-size-changer
+                        show-quick-jumper
+                        class="crud-layout-pagination"
+                        :locale="{
+                            items_per_page: t('class_index.other.pages'),
+                        }"
+                    ></a-pagination>
+                </div>
             </div>
         </div>
     </div>
@@ -473,5 +494,8 @@ a {
 }
 .main-color-btn {
     font-size: 16px;
+}
+.exam-item-container {
+    height: 400px;
 }
 </style>

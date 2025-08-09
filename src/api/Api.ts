@@ -27,14 +27,24 @@ instance.interceptors.response.use(
     async (error) => {
         const originalConfig = error.config; //original request
 
+        if (!error.response) {
+            notification["error"]({
+                message: "Network Error",
+                description: "No internet connection. Please check your network.",
+            });
+            window.location.assign("/404");
+            return;
+        }
+
         //avoid loop using additional _retry
         if (error.response && originalConfig.url !== "/Authentication/Login") {
             const errorKeys = Object.keys(error.response.data?.errors);
 
             //display all error except refresh token
             if (
-                !errorKeys.includes(ERROR.COMMON_UNAUTHORIZED) &&
-                !errorKeys.includes(ERROR.ACCOUNT_INVALID_CREDENTIALS)
+                !errorKeys.includes(ERROR.COMMON_UNAUTHORIZED) 
+              //  && !errorKeys.includes(ERROR.ACCOUNT_INVALID_CREDENTIALS
+              //   )
             ) {
                 notification["error"]({
                     message: "ERROR",
@@ -72,11 +82,13 @@ instance.interceptors.response.use(
                 switch (status) {
                     case 400: {
                         //to do
+                        // window.location.assign("/404");
                         console.log("ERROR: Status code 400");
                         break;
                     }
                     case 500: {
                         //to do
+                        window.location.assign("/404");
                         console.log("ERROR: Status code 500");
                         notification["error"]({
                             message: "ERROR",

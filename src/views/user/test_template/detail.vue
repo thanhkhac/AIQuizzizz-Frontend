@@ -77,7 +77,7 @@ const getData = async () => {
 
         await getPermission();
     } catch (error) {
-        console.log(error);
+        router.push({ name: "404" });
     } finally {
         loading.value = false;
     }
@@ -220,42 +220,26 @@ onMounted(async () => {
                         v-if="permission.canEdit || permission.canDelete"
                         class="d-flex flex-row align-items-center justify-content-between quiz-header-functions"
                     >
-                        <!-- <a-dropdown :trigger="['click']" :placement="'bottomRight'">
-                            <i class="bx bx-dots-horizontal-rounded ant-dropdown-link"></i>
-                            <template #overlay>
-                                <a-menu class="drop-down-container">
-                                    <a-menu-item
-                                        v-if="permission.canEdit"
-                                        key="1"
-                                        @click="onRedirectToEdit"
-                                    >
-                                        <i class="bx bx-edit"></i>
-                                        {{ $t("question_sets_index.buttons.edit") }}
-                                    </a-menu-item>
-                                    <a-menu-divider style="background-color: #ddd" />
-                                    <a-menu-item
-                                        v-if="permission.canDelete"
-                                        key="2"
-                                        @click="onDelete"
-                                    >
-                                        <span class="d-flex align-items-center">
-                                            <i class="bx bx-trash-alt"></i>
-                                            {{ $t("question_sets_index.buttons.delete") }}
-                                        </span>
-                                    </a-menu-item>
-                                </a-menu>
+                        <a-tooltip>
+                            <template #title>
+                                {{ $t("question_sets_index.buttons.edit") }}
                             </template>
-                        </a-dropdown> -->
-                        <i
-                            v-if="permission.canEdit"
-                            class="bx bx-edit"
-                            @click="onRedirectToEdit"
-                        ></i>
-                        <i
-                            v-if="permission.canDelete"
-                            class="text-danger bx bx-trash-alt"
-                            @click="onDelete"
-                        ></i>
+                            <i
+                                v-if="permission.canEdit"
+                                class="bx bx-edit"
+                                @click="onRedirectToEdit"
+                            ></i>
+                        </a-tooltip>
+                        <a-tooltip>
+                            <template #title>
+                                {{ $t("question_sets_index.buttons.delete") }}
+                            </template>
+                            <i
+                                v-if="permission.canDelete"
+                                class="text-danger bx bx-trash-alt"
+                                @click="onDelete"
+                            ></i>
+                        </a-tooltip>
                     </div>
                 </div>
                 <div class="quiz-credit">
@@ -267,7 +251,7 @@ onMounted(async () => {
                             @click="openFolderModal"
                         >
                             <i class="bx bx-plus"></i>
-                            Add to folder
+                            {{ $t("detail_test_template.buttons.add_to_folder") }}
                         </a-button>
                     </div>
                     <div class="share-btn-container">
@@ -545,6 +529,7 @@ onMounted(async () => {
 
 .action-item:hover {
     background-color: var(--main-color);
+    color: var(--text-color-contrast);
 }
 
 .content-item-title {
@@ -592,6 +577,6 @@ onMounted(async () => {
     border-radius: 5px;
     background-color: var(--main-color);
     padding: 3px 8px;
-    color: var();
+    color: var(--text-color-contrast);
 }
 </style>

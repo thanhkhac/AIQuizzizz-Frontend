@@ -95,7 +95,7 @@ const rules = {
         {
             validator: (rule: string, value: []) => {
                 if (value && value.length > 500) {
-                    return Promise.reject("You can only add up to 5 questions.");
+                    return Promise.reject(t("message.maximum_tag.limit_question", { number: 500 }));
                 }
                 return Promise.resolve();
             },
@@ -111,7 +111,6 @@ const loading = ref(false);
 const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
 const getData = async () => {
     try {
-        debugger;
         loading.value = true;
         if (!Validator.isValidGuid(formState.testId)) {
             isDataValid.value = false;
@@ -145,7 +144,6 @@ const getData = async () => {
         );
         //clear redundant
     } catch (error: any) {
-        debugger;
         if (error.response.data.success === false) {
             isDataValid.value = false;
             router.push({ name: "404" });
@@ -185,8 +183,8 @@ const createQuestionTemplate = (): RequestQuestion => ({
 });
 
 const onAddQuestion = () => {
-    if (formState.createUpdateQuestions.length >= 100) {
-        message.warning("Each question set could have at most 100 questions");
+    if (formState.createUpdateQuestions.length >= 500) {
+        message.warning(t("message.limit_question", { number: 500 }));
         return;
     }
 
@@ -208,7 +206,7 @@ const onAddQuestion = () => {
 
 const onRemoveQuestion = (index: number) => {
     if (formState.createUpdateQuestions.length <= 1) {
-        message.warning("Each question set must have at least 1 questions");
+        message.warning(t("message.minimum_question", { number: 1 }));
         return;
     }
     const questionId = formState.createUpdateQuestions[index].id;
@@ -226,12 +224,12 @@ const onRemoveQuestion = (index: number) => {
 const onFinish = async () => {
     await formRef.value?.validate();
     let isInvalid = false;
-    let msg = "Invalid question.";
+    let msg = t("message.invalid_question");
     let invalidQuestion = new Set<RequestQuestion>();
 
     if (formState.name.trim().length > 100 || formState.name.trim().length === 0) {
         isInvalid = true;
-        msg = "Invalid title.";
+        msg = t("message.invalid_title");
         message.error(msg);
         openSettingModal();
         return;
@@ -312,8 +310,8 @@ const onFinish = async () => {
 
     if (isInvalid) {
         Modal.error({
-            title: "Cannot create new question set!",
-            content: "There are errors at questions: " + indexes.sort().join(", "),
+            title: t("update_test.modal.invalid.title"),
+            content: t("update_test.modal.invalid.content") + indexes.sort().join(", "),
         });
     } else {
         showModalConfirmation();
@@ -322,8 +320,8 @@ const onFinish = async () => {
 
 const showModalConfirmation = () => {
     Modal.confirm({
-        title: "Create new quiz!",
-        content: "Make sure to review your contents before proceeding.",
+        title: t("update_test.modal.valid.title"),
+        content: t("update_test.modal.valid.content"),
         centered: true,
         onOk: async () => {
             formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
@@ -437,7 +435,6 @@ const onBackToTestTemplate = () => {
 
 //use for both modal import event
 const onModalImport = (selected: ResponseQuestion[]) => {
-    message.success(`Imported ${selected.length} questions`);
     const importQuestions = selected
         .map((x) => TransferQuestionData.transformResponseToRequest(x))
         .map((item, i) => ({
@@ -457,6 +454,7 @@ const onModalImport = (selected: ResponseQuestion[]) => {
             });
         });
     });
+    message.success(`${t("message.imported_question", { number: selected.length })}`);
 };
 
 //#region leave guard
@@ -466,8 +464,8 @@ onBeforeRouteLeave((to, from, next) => {
         return;
     }
     Modal.confirm({
-        title: "Leave already?",
-        content: "You have unsaved changes.",
+        title: t("create_QS.modal.leave.title"),
+        content: t("create_QS.modal.leave.content"),
         onOk: () => {
             // localStorage.removeItem(storage_draft_key);
             next();
@@ -516,9 +514,9 @@ onMounted(async () => {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="23">
-                    <span>Update test for class {{ classData?.name }} | {{ formState.name }}</span>
-                    <br />
-                    <span>Add questions, set answers and configure test settings</span>
+                    <span> {{ $t("update_test.title", { test_name: formState.name }) }} </span
+                    ><br />
+                    <span>{{ $t("update_test.sub_title") }} </span>
                 </a-col>
             </a-row>
         </div>
@@ -527,8 +525,10 @@ onMounted(async () => {
                 <div class="content-item">
                     <div class="content-item-title">
                         <div>
-                            <span>Test questions</span>
-                            <span>Create and manage your test questions</span>
+                            <span>
+                                {{ $t("assign_test.test_question.title") }}
+                            </span>
+                            <span>{{ $t("assign_test.test_question.sub_title") }} </span>
                         </div>
                         <div class="content-item-buttons">
                             <RouterLink
@@ -536,7 +536,7 @@ onMounted(async () => {
                                 :to="{ name: '' }"
                                 @click="openFolderModal"
                             >
-                                Choose from folder test
+                                {{ $t("assign_test.buttons.choose_from_folder") }}
                             </RouterLink>
                             <div class="import-button">
                                 {{
@@ -553,7 +553,7 @@ onMounted(async () => {
                                 size="large"
                                 @click="onFinish"
                             >
-                                Next
+                                {{ $t("assign_test.buttons.next") }}
                             </a-button>
                         </div>
                     </div>

@@ -1362,6 +1362,7 @@ onMounted(async () => {
                             {{ $t("practice_test.buttons.previous") }}
                         </a-button>
                         <div
+                            v-if="!isSubmitted"
                             :class="[
                                 'main-color-btn-ghost',
                                 userAnswerCurrentQuestionSkipped || isSubmitted
@@ -1371,6 +1372,14 @@ onMounted(async () => {
                             @click="onSkipQuestion()"
                         >
                             {{ $t("learn_QS.buttons.dont_know") }}
+                        </div>
+                        <div
+                            v-else
+                            :class="['main-color-btn-ghost me-3']"
+                            @click="toggleExplainModal"
+                        >
+                            <i class="bx bx-bulb me-2"></i>
+                            {{ $t("learn_QS.buttons.explaination") }}
                         </div>
                         <div class="d-flex">
                             <a-button
@@ -1394,9 +1403,7 @@ onMounted(async () => {
                 class="explain-modal explain-modal-up"
                 :class="{ show: explainModalOpen }"
             >
-                <div class="learn-question-explain">
-                    {{ currentQuestion.explainText }}
-                </div>
+                <div class="learn-question-explain" v-html="currentQuestion.explainText"></div>
                 <a-button
                     :class="['main-color-btn close-modal-btn']"
                     type="primary"
@@ -1406,7 +1413,7 @@ onMounted(async () => {
                     <i class="bx bx-chevrons-down"></i>
                 </a-button>
                 <a-button
-                    :class="['main-color-btn']"
+                    :class="['main-color-btn', !hasNextQuestion ? 'main-color-btn-disabled' : '']"
                     type="primary"
                     size="large"
                     @click="onNextQuestion"

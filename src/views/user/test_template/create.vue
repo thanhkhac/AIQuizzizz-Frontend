@@ -39,30 +39,20 @@ const rules = {
     title: [
         {
             required: "true",
-            message: "This field is required",
+            message: t("message.required"),
+
             trigger: "change",
         },
         {
             length: 100,
-            message: "Limit 100",
+            message: t("message.out_of_range", { max_length: 100 }),
             trigger: "change",
         },
     ],
     description: [
         {
             length: 200,
-            message: "Limit 200",
-            trigger: "change",
-        },
-    ],
-    tags: [
-        {
-            validator: (rule: string, value: []) => {
-                if (value && value.length > 5) {
-                    return Promise.reject("You can only add up to 5 tags.");
-                }
-                return Promise.resolve();
-            },
+            message: t("message.out_of_range", { max_length: 100 }),
             trigger: "change",
         },
     ],
@@ -70,7 +60,7 @@ const rules = {
         {
             validator: (rule: string, value: []) => {
                 if (value && value.length > 500) {
-                    return Promise.reject("You can only add up to 5 questions.");
+                    return Promise.reject(t("message.maximum_tag.limit_question", { number: 500 }));
                 }
                 return Promise.resolve();
             },
@@ -274,8 +264,8 @@ const createQuestionTemplate = (): RequestQuestion => ({
 });
 
 const onAddQuestion = () => {
-    if (formState.questions.length >= 10) {
-        message.warning("Each question set could have at most 100 questions");
+    if (formState.questions.length >= 500) {
+        message.warning(t("message.limit_question", { number: 500 }));
         return;
     }
 
@@ -294,7 +284,7 @@ const onAddQuestion = () => {
 
 const onRemoveQuestion = (index: number) => {
     if (formState.questions.length <= 1) {
-        message.warning("Each question set must have at least 1 questions");
+        message.warning(t("message.minimum_question", { number: 1 }));
         return;
     }
 
@@ -306,19 +296,19 @@ const onRemoveQuestion = (index: number) => {
 
 const onFinish = () => {
     let isInvalid = false;
-    let msg = "Invalid question.";
+    let msg = t("message.invalid_question");
     let invalidQuestion = new Set<RequestQuestion>();
 
     if (formState.name.trim().length > 100 || formState.name.trim().length === 0) {
         isInvalid = true;
-        msg = "Invalid title.";
+        msg = t("message.invalid_title");
         message.error(msg);
         return;
     }
 
     if (formState.description.trim().length > 250) {
         isInvalid = true;
-        msg = "Invalid description.";
+        msg = t("message.invalid_description");
         message.error(msg);
         return;
     }
@@ -394,8 +384,8 @@ const onFinish = () => {
 
     if (isInvalid) {
         Modal.error({
-            title: "Cannot create new question set!",
-            content: "There are errors at questions: " + indexes.sort().join(", "),
+            title: t("create_QS.modal.invalid.title"),
+            content: t("create_QS.modal.invalid.content") + indexes.sort().join(", "),
         });
     } else {
         showModalConfirmation();
@@ -404,8 +394,8 @@ const onFinish = () => {
 
 const showModalConfirmation = () => {
     Modal.confirm({
-        title: "Create new quiz!",
-        content: "Make sure to review your contents before proceeding.",
+        title: t("create_template.modal.valid.title"),
+        content: t("create_QS.modal.valid.content"),
         centered: true,
         onOk: async () => {
             //logic here
@@ -449,7 +439,7 @@ const onModalImport = (selected: RequestQuestion[]) => {
             id: `new_${formState.questions.length + i}`,
         })),
     );
-    message.success(`Imported ${selected.length} questions`);
+    message.success(`${t("message.imported_question", { number: selected.length })}`);
 };
 
 //#region leave guard
@@ -464,8 +454,8 @@ const onModalImport = (selected: RequestQuestion[]) => {
 
 onBeforeRouteLeave((to, from, next) => {
     Modal.confirm({
-        title: "Leave already?",
-        content: "You have unsaved changes.",
+        title: t("create_QS.modal.leave.title"),
+        content: t("create_QS.modal.leave.content"),
         onOk: () => {
             // localStorage.removeItem(storage_draft_key);
             next();
@@ -510,7 +500,7 @@ onMounted(() => {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="23">
-                    <span> {{ $t("create_QS.title") }}</span> <br />
+                    <span> {{ $t("create_template.title") }}</span> <br />
                     <span>
                         {{ $t("create_QS.sub_title") }}
                     </span>

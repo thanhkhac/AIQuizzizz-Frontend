@@ -54,7 +54,7 @@ defineExpose({
 //#region formstate range
 const formRef = ref(props.formRef);
 type RangeValue = [Dayjs, Dayjs];
-const range = ref<RangeValue>([dayjs(), dayjs()]);
+const range = ref<RangeValue>([dayjs(), dayjs().add(1, "day")]);
 const onRangeChange = (dates: RangeValue) => {
     if (dates) {
         props.formState.startTime = dates[0].toISOString();
@@ -69,12 +69,12 @@ const rules = {
         {
             validator(_: RuleObject, value: [Dayjs, Dayjs] | null) {
                 if (!range.value) {
-                    return Promise.reject("required");
+                    return Promise.reject(t("message.required"));
                 }
                 const diffInMinutes = range.value[1].diff(range.value[0], "minute");
                 if (diffInMinutes < props.formState.timeLimit) {
                     return Promise.reject(
-                        `Start time and end time must be at least ${props.formState.timeLimit} minutes (time limit) apart`,
+                        t("message.invalid_time_range", { time_limit: props.formState.timeLimit }),
                     );
                 }
                 return Promise.resolve();
@@ -85,12 +85,13 @@ const rules = {
     title: [
         {
             required: true,
-            message: "This field is required.",
+            message: t("message.required"),
             trigger: "change",
         },
         {
             validator: (rule: RuleObject, value: string) => {
-                if (value?.length > 100) return Promise.reject("Limit: 100 characters.");
+                if (value?.length > 100)
+                    return Promise.reject(t("message.out_of_range", { max_length: 100 }));
                 return Promise.resolve();
             },
             trigger: "change",
@@ -99,28 +100,28 @@ const rules = {
     timeLimit: [
         {
             required: true,
-            message: "This field is required.",
+            message: t("message.required"),
             trigger: "change",
         },
     ],
     passingScore: [
         {
             required: true,
-            message: "This field is required.",
+            message: t("message.required"),
             trigger: "change",
         },
     ],
     shuffle: [
         {
             required: true,
-            message: "This field is required.",
+            message: t("message.required"),
             trigger: "change",
         },
     ],
     maxAttempt: [
         {
             required: true,
-            message: "This field is required.",
+            message: t("message.required"),
             trigger: "change",
         },
     ],
@@ -132,7 +133,7 @@ const rules = {
 const optionAttemptKeys = Object.values(TEST_GRADE_ATTEMPT_METHOD);
 const select_attempt_options = computed(() =>
     optionAttemptKeys.map((key) => ({
-        label: key,
+        label: t(`setting_test_modal.final_score_options.${key}`),
         value: key,
     })),
 );
@@ -175,9 +176,7 @@ watch(
     },
 );
 
-onMounted(async () => {
-    message.info("Change to startTime endTime when api fixed");
-});
+onMounted(async () => {});
 </script>
 
 <template>
@@ -199,15 +198,15 @@ onMounted(async () => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span>Assign new test for class {{ className }}</span>
+                        <span>{{ t("setting_test_modal.other.back") }}</span>
                     </a-col>
                 </a-row>
             </div>
             <div class="content-item modal-test-setting">
                 <div class="content-item-title">
                     <div>
-                        <span>Test settings</span>
-                        <span>Config how your test work</span>
+                        <span>{{ t("setting_test_modal.title") }}</span>
+                        <span>{{ t("setting_test_modal.sub_title") }}</span>
                     </div>
                 </div>
                 <a-form
@@ -223,7 +222,7 @@ onMounted(async () => {
                             v-model="formState.name"
                             :isRequired="true"
                             :placeholder="'Enter test title'"
-                            :label="'Test title'"
+                            :label="t('setting_test_modal.form.title')"
                             :max-length="100"
                         />
                     </a-form-item>
@@ -232,7 +231,7 @@ onMounted(async () => {
                         <a-col :span="24">
                             <a-form-item
                                 :rules="rules.range"
-                                label="Start date | End date"
+                                :label="t('setting_test_modal.form.date')"
                                 class="input-item"
                                 name="range"
                             >
@@ -248,7 +247,7 @@ onMounted(async () => {
                     <a-row class="form-item-row">
                         <a-col :span="10">
                             <a-form-item
-                                label="Number of Attempts"
+                                :label="t('setting_test_modal.form.number_of_attempt')"
                                 class="input-item"
                                 name="maxAttempt"
                             >
@@ -266,7 +265,11 @@ onMounted(async () => {
                             </a-form-item>
                         </a-col>
                         <a-col :span="10">
-                            <a-form-item label="Shuffle" class="input-item" name="shuffle">
+                            <a-form-item
+                                :label="t('setting_test_modal.form.number_of_shuffle')"
+                                class="input-item"
+                                name="shuffle"
+                            >
                                 <a-input-number
                                     size="large"
                                     :addon-after="'times'"
@@ -283,7 +286,11 @@ onMounted(async () => {
                     </a-row>
                     <a-row class="form-item-row">
                         <a-col :span="10">
-                            <a-form-item label="Time Limit" class="input-item" name="timeLimit">
+                            <a-form-item
+                                :label="t('setting_test_modal.form.time_limit')"
+                                class="input-item"
+                                name="timeLimit"
+                            >
                                 <a-input-number
                                     size="large"
                                     :addon-after="'minutes'"
@@ -297,7 +304,7 @@ onMounted(async () => {
                         </a-col>
                         <a-col :span="10">
                             <a-form-item
-                                label="Passing score"
+                                :label="t('setting_test_modal.form.passing_score')"
                                 class="input-item"
                                 name="passingScore"
                             >
@@ -317,16 +324,21 @@ onMounted(async () => {
                     <a-row class="form-item-row">
                         <a-col :span="10" class="input-item switch">
                             <div class="switch-content">
-                                <div class="switch-title">Show correct answers</div>
+                                <div class="switch-title">
+                                    {{ t("setting_test_modal.form.show_correct_answer") }}
+                                </div>
                                 <div class="switch-sub-title">
-                                    Allow students to view correct answer after test
+                                    {{ t("setting_test_modal.form.show_correct_answer_ins") }}
                                 </div>
                             </div>
                             <a-switch v-model:checked="formState.isShowCorrectAnswerInReview">
                             </a-switch
                         ></a-col>
                         <a-col :span="10">
-                            <a-form-item label="Final score (optional)" class="input-item">
+                            <a-form-item
+                                :label="t('setting_test_modal.form.final_score')"
+                                class="input-item"
+                            >
                                 <a-select size="large" v-model:value="formState.gradeAttemptMethod">
                                     <a-select-option
                                         v-for="option in select_attempt_options"
@@ -341,10 +353,11 @@ onMounted(async () => {
                     <a-row class="form-item-row">
                         <a-col :span="10" class="input-item switch">
                             <div class="switch-content">
-                                <div class="switch-title">Partial grade method</div>
+                                <div class="switch-title">
+                                    {{ t("setting_test_modal.form.partial_grade_method") }}
+                                </div>
                                 <div class="switch-sub-title">
-                                    Give partial credit if the student’s answer partially matches
-                                    the expected answer
+                                    {{ t("setting_test_modal.form.partial_grade_method_ins") }}
                                 </div>
                             </div>
                             <a-switch
@@ -358,9 +371,11 @@ onMounted(async () => {
                         </a-col>
                         <a-col :span="10" class="input-item switch">
                             <div class="switch-content">
-                                <div class="switch-title">Review attempts</div>
+                                <div class="switch-title">
+                                    {{ t("setting_test_modal.form.review_attempt") }}
+                                </div>
                                 <div class="switch-sub-title">
-                                    Allow students to review their answers after taking the test
+                                    {{ t("setting_test_modal.form.review_attempt_ins") }}
                                 </div>
                             </div>
                             <a-switch v-model:checked="formState.isAllowReviewAfterSubmit">
@@ -378,7 +393,7 @@ onMounted(async () => {
                 type="ghost"
                 @click="closeModal"
             >
-                Cancel
+                {{ $t("sidebar.buttons.cancel") }}
             </a-button>
             <a-button
                 class="main-color-btn"
@@ -387,7 +402,7 @@ onMounted(async () => {
                 type="primary"
                 @click="closeModal"
             >
-                Next
+                {{ $t("assign_test.buttons.next") }}
             </a-button>
         </template>
     </a-modal>

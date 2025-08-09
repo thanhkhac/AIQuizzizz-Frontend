@@ -330,7 +330,7 @@ const onFinish = () => {
 const showModalConfirmation = () => {
     Modal.confirm({
         title: t("update_QS.modal.valid.title"),
-        content: t("update_QS.modal.valid.content"),
+        content: t("create_QS.modal.valid.content"),
         centered: true,
         onOk: async () => {
             formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>

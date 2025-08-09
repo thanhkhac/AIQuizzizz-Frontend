@@ -18,6 +18,8 @@ const END_POINTS = {
     DELETE: "QuestionSet/{questionSetId}",
     GET_PERMISSION: "QuestionSet/{questionSetId}/Permissions",
     TEST_QUESTION: "QuestionSet/{questionSetId}/Test",
+    GET_SHARING: "QuestionSet/{questionSetId}/Sharing",
+    UPDATE_SHARING: "QuestionSet/{questionSetId}/Sharing",
 };
 
 class ApiQuestionSet {
@@ -110,6 +112,16 @@ class ApiQuestionSet {
                 questionTypes: questionTypes,
             },
         });
+    };
+
+    GetSharedUser = async (questionSetId: string) => {
+        const url = END_POINTS.GET_SHARING.replace("{questionSetId}", questionSetId);
+        return await Api.get(url);
+    };
+
+    UpdateSharedUser = async (formState: any) => {
+        const url = END_POINTS.UPDATE_SHARING.replace("{questionSetId}", formState.id);
+        return await Api.patch(url, formState);
     };
 }
 

@@ -310,7 +310,7 @@
         },
         "modal": {
             "invalid": {
-                "title": "Cannot create new question set!",
+                "title": "Cannot perform this action!",
                 "content": "There are errors at questions: "
             },
             "valid": {
@@ -324,13 +324,29 @@
         }
     },
     "update_QS": {
+        "title": "Update question set: {name}",
         "buttons": {
             "update": "Update"
         },
         "modal": {
             "valid": {
-                "title": "Update question set",
-                "content": "Make sure to review your contents before proceeding."
+                "title": "Update question set"
+            }
+        }
+    },
+    "create_template": {
+        "title": "Create new test template",
+        "modal": {
+            "valid": {
+                "title": "Create new test template"
+            }
+        }
+    },
+    "update_template": {
+        "title": "Update test template: {name}",
+        "modal": {
+            "valid": {
+                "title": "Update test template"
             }
         }
     },
@@ -463,6 +479,7 @@
     "detail_QS": {
         "buttons": {
             "share_quiz": "Share quiz",
+            "share_class": "Add to class",
             "learn": "Learn",
             "test": "Test",
             "assign_to_class": "Assisng to class",
@@ -729,6 +746,63 @@
             "content": "Please double check your answer before submitting!"
         }
     },
+    "assign_test": {
+        "title": "Assign new test for class {class_name}",
+        "sub_title": "Add questions, set answers and configure test settings",
+        "test_question": {
+            "title": "Test question",
+            "sub_title": "Create and manage your test questions"
+        },
+        "buttons": {
+            "choose_from_folder": "Choose from folder",
+            "next": "Next"
+        }
+    },
+    "update_test": {
+        "title": "Update test: {test_name}",
+        "sub_title": "Add questions, set answers and configure test settings",
+        "modal": {
+            "invalid": {
+                "title": "Cannot update test!",
+                "content": "There are errors at questions: "
+            },
+            "valid": {
+                "title": "Update test!",
+                "content": "Make sure to review your contents before proceeding."
+            }
+        }
+    },
+    "setting_test_modal": {
+        "title": "Test settings",
+        "sub_title": "Config how your test work",
+        "form": {
+            "title": "Test title",
+            "date": "Start date & End date ",
+            "number_of_attempt": "Number of attempts",
+            "number_of_shuffle": "Shuffle",
+            "time_limit": "Time limit",
+            "passing_score": "Passing score",
+            "show_correct_answer": "Show correct answer",
+            "show_correct_answer_ins": "Allow students to view correct answer after test",
+            "final_score": "Final score (optional)",
+            "partial_grade_method": "Partial grading method",
+            "partial_grade_method_ins": "Give partial credit if the student's answer partially matches the expected answer",
+            "review_attempt": "Review attempts",
+            "review_attempt_ins": "Allow students to review their attempts after the test"
+        },
+        "final_score_options": {
+            "LastAttempt": "Last attempt",
+            "HighestScore": "Highest score"
+        },
+        "other": {
+            "back": "Back"
+        }
+    },
+    "detail_test_template": {
+        "buttons": {
+            "add_to_folder": "Add to folder"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Forbidden",
         "COMMON_SERVER_INTERNAL_ERROR": "Internal server error",
@@ -818,6 +892,8 @@
         "minimum_options": "Each question must have at least 2 options",
         "maximum_options": "Each question must have at most 10 options",
         "maximum_tag": "Limit {tag} tags",
+
+        "invalid_time_range": "Start time and end time must be at least {time_limit} minutes (time limit) apart",
 
         "imported_question": "Imported {number} questions."
     },

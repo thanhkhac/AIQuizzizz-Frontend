@@ -531,6 +531,7 @@ onMounted(async () => {
     font-weight: 500;
     padding: 0px 15px;
     background-color: var(--main-color);
+    color: var(--text-color-contrast);
     display: flex;
     align-items: center;
     height: fit-content;

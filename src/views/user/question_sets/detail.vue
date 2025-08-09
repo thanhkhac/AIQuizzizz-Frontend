@@ -118,7 +118,15 @@ const onOpenShareModal = () => {
 };
 //#endregion
 
-//#region  redirect
+//#region share class modal
+const shareClassModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
+
+const onOpenShareClassModal = () => {
+    shareClassModalRef.value?.openModal();
+};
+//#endregion
+
+//#region redirect
 const onRedirectToLearn = () => {
     router.push({ name: "User_QuestionSet_Learn", params: { id: quiz.value.id } });
 };
@@ -132,7 +140,7 @@ const onRedirectToEdit = () => {
 };
 //#endregion
 
-//#region  rating
+//#region rating
 const modal_rate_open = ref(false);
 const rateValue = ref(0);
 
@@ -174,8 +182,6 @@ const onRedirectToSearch = (tag: Tag) => {
 };
 
 const onFilter = () => {
-    console.log(selected_type_option.value);
-
     let filtered = quiz_questions.value;
     filtered = quiz_questions.value.filter((x) => {
         const matches = x.questionText.includes(searchValue.value);
@@ -218,32 +224,26 @@ onMounted(async () => {
                         v-if="permission.canEdit || permission.canDelete"
                         class="d-flex flex-row align-items-center quiz-header-functions"
                     >
-                        <a-dropdown :trigger="['click']" :placement="'bottomRight'">
-                            <i class="bx bx-dots-horizontal-rounded ant-dropdown-link"></i>
-                            <template #overlay>
-                                <a-menu class="drop-down-container">
-                                    <a-menu-item
-                                        v-if="permission.canEdit"
-                                        key="1"
-                                        @click="onRedirectToEdit"
-                                    >
-                                        <i class="bx bx-edit"></i>
-                                        {{ $t("question_sets_index.buttons.edit") }}
-                                    </a-menu-item>
-                                    <a-menu-divider style="background-color: #ddd" />
-                                    <a-menu-item
-                                        v-if="permission.canDelete"
-                                        key="2"
-                                        @click="onDelete"
-                                    >
-                                        <span class="d-flex align-items-center">
-                                            <i class="bx bx-trash-alt"></i>
-                                            {{ $t("question_sets_index.buttons.delete") }}
-                                        </span>
-                                    </a-menu-item>
-                                </a-menu>
+                        <a-tooltip>
+                            <template #title>
+                                {{ $t("question_sets_index.buttons.edit") }}
                             </template>
-                        </a-dropdown>
+                            <i
+                                v-if="permission.canEdit"
+                                class="me-3 bx bx-edit"
+                                @click="onRedirectToEdit"
+                            ></i>
+                        </a-tooltip>
+                        <a-tooltip>
+                            <template #title>
+                                {{ $t("question_sets_index.buttons.delete") }}
+                            </template>
+                            <i
+                                v-if="permission.canDelete"
+                                class="text-danger bx bx-trash-alt"
+                                @click="onDelete"
+                            ></i>
+                        </a-tooltip>
                     </div>
                 </div>
                 <div class="quiz-info">
@@ -262,6 +262,17 @@ onMounted(async () => {
                     </div>
                 </div>
                 <div class="quiz-credit">
+                    <div class="share-btn-container">
+                        <a-button
+                            type="primary"
+                            class="me-3 main-color-btn share-btn"
+                            size="large"
+                            @click="onOpenShareClassModal"
+                        >
+                            <i class="bx bx-share-alt"></i>
+                            {{ $t("detail_QS.buttons.share_class") }}
+                        </a-button>
+                    </div>
                     <div class="share-btn-container">
                         <a-button
                             type="primary"
@@ -304,9 +315,9 @@ onMounted(async () => {
         <div class="content-item">
             <div class="content-item-title">
                 <div>
-                    <span>{{
-                        $t("detail_QS.other.questions", { number: quiz_questions.length })
-                    }}</span>
+                    <span>
+                        {{ $t("detail_QS.other.questions", { number: quiz_questions.length }) }}
+                    </span>
                 </div>
             </div>
             <div class="content-item-functions">
@@ -343,13 +354,16 @@ onMounted(async () => {
             <div v-else class="preview-question-container">
                 <div class="preview-question-item" v-for="(question, index) in questions">
                     <div class="question-item-content">
-                        <div
-                            v-if="question.questionHTML"
-                            class="question-html"
-                            v-html="question.questionHTML"
-                        ></div>
-                        <div v-else class="question-text">
-                            {{ question.questionText }}
+                        <div class="d-flex pb-2">
+                            <div class="question-index">{{ index + 1 }}</div>
+                            <div
+                                v-if="question.questionHTML"
+                                class="question-html"
+                                v-html="question.questionHTML"
+                            ></div>
+                            <div v-else class="question-text">
+                                {{ question.questionText }}
+                            </div>
                         </div>
                         <div
                             class="question-item-answer"
@@ -423,9 +437,18 @@ onMounted(async () => {
         ref="shareModalRef"
         :id="quiz.id"
         :name="quiz.name"
-        :mode="t('share_modal.mode.quiz')"
-        :options="VISIBILITY"
+        :mode="'quiz'"
+        :options="[VISIBILITY.PUBLIC, VISIBILITY.PRIVATE]"
         :visibility="quiz.visibilityMode"
+    />
+
+    <ShareModal
+        ref="shareClassModalRef"
+        :id="quiz.id"
+        :name="quiz.name"
+        :mode="'quiz'"
+        :options="[VISIBILITY.IN_CLASS]"
+        :visibility="VISIBILITY.IN_CLASS"
     />
     <a-modal wrap-class-name="medium-modal" :open="modal_rate_open">
         <div class="title-container">
@@ -576,6 +599,7 @@ onMounted(async () => {
 
 .action-item:hover {
     background-color: var(--main-color);
+    color: var(--text-color-contrast);
 }
 
 .content-item-title {
@@ -614,5 +638,15 @@ onMounted(async () => {
 
 ::v-deep(.ant-rate-star-second) {
     color: var(--border-color);
+}
+.question-index {
+    font-weight: 500;
+    margin-right: 10px;
+    border: 1px solid var(--form-item-border-color);
+    border-radius: 5px;
+    background-color: var(--main-color);
+    padding: 3px 8px;
+    color: var(--text-color-contrast);
+    height: fit-content;
 }
 </style>

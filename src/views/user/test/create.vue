@@ -91,19 +91,19 @@ const rules = {
     title: [
         {
             required: "true",
-            message: "This field is required",
+            message: t("message.required"),
             trigger: "change",
         },
         {
             length: 100,
-            message: "Limit 100",
+            message: t("message.limit", { limit: 100 }),
             trigger: "change",
         },
     ],
     description: [
         {
             length: 200,
-            message: "Limit 200",
+            message: t("message.limit", { limit: 200 }),
             trigger: "change",
         },
     ],
@@ -111,7 +111,7 @@ const rules = {
         {
             validator: (rule: string, value: []) => {
                 if (value && value.length > 5) {
-                    return Promise.reject("You can only add up to 5 tags.");
+                    return Promise.reject(t("message.maximum_tag.out_of_range", { tag: 5 }));
                 }
                 return Promise.resolve();
             },
@@ -161,8 +161,8 @@ const createQuestionTemplate = (): RequestQuestion => ({
 });
 
 const onAddQuestion = () => {
-    if (formState.questions.length >= 10) {
-        message.warning("Each question set could have at most 100 questions");
+    if (formState.questions.length >= 100) {
+        message.warning(t("message.limit_question", { number: 100 }));
         return;
     }
 
@@ -180,7 +180,7 @@ const onAddQuestion = () => {
 
 const onRemoveQuestion = (index: number) => {
     if (formState.questions.length <= 1) {
-        message.warning("Each question set must have at least 1 questions");
+        message.warning(t("message.minimum_question", { number: 1 }));
         return;
     }
 
@@ -196,12 +196,12 @@ const onRemoveQuestion = (index: number) => {
 const onFinish = async () => {
     await formRef.value?.validate();
     let isInvalid = false;
-    let msg = "Invalid question.";
+    let msg = t("message.invalid_question");
     let invalidQuestion = new Set<RequestQuestion>();
 
     if (formState.name.trim().length > 100 || formState.name.trim().length === 0) {
         isInvalid = true;
-        msg = "Invalid title.";
+        msg = t("message.invalid_title");
         message.error(msg);
         openSettingModal();
         return;
@@ -280,8 +280,8 @@ const onFinish = async () => {
 
     if (isInvalid) {
         Modal.error({
-            title: "Cannot create new question set!",
-            content: "There are errors at questions: " + indexes.sort().join(", "),
+            title: t("create_QS.modal.invalid.title"),
+            content: t("create_QS.modal.invalid.content") + indexes.sort().join(", "),
         });
     } else {
         showModalConfirmation();
@@ -290,14 +290,14 @@ const onFinish = async () => {
 
 const showModalConfirmation = () => {
     Modal.confirm({
-        title: "Create new quiz!",
-        content: "Make sure to review your contents before proceeding.",
+        title: t("create_QS.modal.valid.title"),
+        content: t("create_QS.modal.valid.content"),
         centered: true,
         onOk: async () => {
             const result = await ApiTest.Create(formState);
             if (result.data.success) {
                 isDataValid.value = false; //disable safe guard
-                message.success("Created successfully!");
+                message.success(t("message.created_successfully"));
                 router.push({ name: "User_Class_Exam", params: { id: formState.classId } });
             }
         },
@@ -401,7 +401,6 @@ const onBackToTestTemplate = () => {
 
 //use for both modal import event
 const onModalImport = (selected: ResponseQuestion[]) => {
-    message.success(`Imported ${selected.length} questions`);
     const importQuestions = selected.map((x) => TransferQuestionData.transformResponseToRequest(x));
 
     folderModalRef.value?.closeModal();
@@ -416,6 +415,7 @@ const onModalImport = (selected: ResponseQuestion[]) => {
             });
         });
     });
+    message.success(`${t("message.imported_question", { number: selected.length })}`);
 };
 
 //#region leave guard
@@ -425,8 +425,8 @@ onBeforeRouteLeave((to, from, next) => {
         return;
     }
     Modal.confirm({
-        title: "Leave already?",
-        content: "You have unsaved changes.",
+        title: t("create_QS.modal.leave.title"),
+        content: t("create_QS.modal.leave.content"),
         onOk: () => {
             // localStorage.removeItem(storage_draft_key);
             next();
@@ -473,8 +473,9 @@ onMounted(() => {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="23">
-                    <span>Assign new test for class {{ classData?.name }} </span><br />
-                    <span>Add questions, set answers and configure test settings</span>
+                    <span> {{ $t("assign_test.title", { class_name: classData?.name }) }} </span
+                    ><br />
+                    <span>{{ $t("assign_test.sub_title") }} </span>
                 </a-col>
             </a-row>
         </div>
@@ -483,8 +484,10 @@ onMounted(() => {
                 <div class="content-item">
                     <div class="content-item-title">
                         <div>
-                            <span>Test questions</span>
-                            <span>Create and manage your test questions</span>
+                            <span>
+                                {{ $t("assign_test.test_question.title") }}
+                            </span>
+                            <span>{{ $t("assign_test.test_question.sub_title") }} </span>
                         </div>
                         <div class="content-item-buttons">
                             <RouterLink
@@ -492,7 +495,7 @@ onMounted(() => {
                                 :to="{ name: '' }"
                                 @click="openFolderModal"
                             >
-                                Choose from folder test
+                                {{ $t("assign_test.buttons.choose_from_folder") }}
                             </RouterLink>
                             <div class="import-button">
                                 {{
@@ -509,7 +512,7 @@ onMounted(() => {
                                 size="large"
                                 @click="onFinish"
                             >
-                                Next
+                                {{ $t("assign_test.buttons.next") }}
                             </a-button>
                         </div>
                     </div>

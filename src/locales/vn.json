@@ -252,7 +252,7 @@
     },
     "create_QS": {
         "title": "Tạo bài kiểm tra mới",
-        "sub_title": "Thêm câu hỏi, đặt đáp án và cấu hình bài kiểm tra",
+        "sub_title": "Thêm câu hỏi, đặt đáp án và cấu hình",
 
         "quiz": {
             "title": "Tiêu đề bài kiểm tra",
@@ -321,16 +321,32 @@
                 "title": "Rời đi thật sao?",
                 "content": "Bạn có thay đổi chưa được lưu."
             }
+        }
+    },
+    "update_QS": {
+        "title": "Chỉnh sửa bộ câu hỏi: {name}",
+        "buttons": {
+            "update": "Cập nhật"
         },
-        "update_QS": {
-            "buttons": {
-                "update": "Cập nhật"
-            },
-            "modal": {
-                "valid": {
-                    "title": "Cập nhật bộ câu hỏi",
-                    "content": "Hãy kiểm tra lại nội dung trước khi tiếp tục."
-                }
+        "modal": {
+            "valid": {
+                "title": "Cập nhật bộ câu hỏi"
+            }
+        }
+    },
+    "create_template": {
+        "title": "Tạo mới mẫu kiểm tra",
+        "modal": {
+            "valid": {
+                "title": "Tạo mới mẫu kiểm tra"
+            }
+        }
+    },
+    "update_template": {
+        "title": "Cập nhật mẫu kiểm tra: {name}",
+        "modal": {
+            "valid": {
+                "title": "Cập nhật mẫu kiểm tra"
             }
         }
     },
@@ -463,6 +479,7 @@
     "detail_QS": {
         "buttons": {
             "share_quiz": "Chia sẻ",
+            "share_class": "Thêm vào lớp",
             "learn": "Học",
             "test": "Kiểm tra",
             "assign_to_class": "Giao cho lớp",
@@ -729,6 +746,63 @@
             "content": "Vui lòng kiểm tra lại câu trả lời trước khi nộp!"
         }
     },
+    "assign_test": {
+        "title": "Giao bài kiểm tra mới cho lớp {class_name}",
+        "sub_title": "Thêm câu hỏi, đặt đáp án và cấu hình cài đặt bài kiểm tra",
+        "test_question": {
+            "title": "Câu hỏi kiểm tra",
+            "sub_title": "Tạo và quản lý câu hỏi kiểm tra của bạn"
+        },
+        "buttons": {
+            "choose_from_folder": "Chọn từ thư mục",
+            "next": "Tiếp theo"
+        }
+    },
+    "update_test": {
+        "title": "Cập nhật bài kiểm tra: {test_name}",
+        "sub_title": "Thêm câu hỏi, đặt đáp án và cấu hình cài đặt bài kiểm tra",
+        "modal": {
+            "invalid": {
+                "title": "Không thể cập nhật bài kiểm tra!",
+                "content": "Có lỗi ở các câu hỏi: "
+            },
+            "valid": {
+                "title": "Cập nhật bài kiểm tra!",
+                "content": "Hãy đảm bảo bạn đã xem lại nội dung trước khi tiếp tục."
+            }
+        }
+    },
+    "setting_test_modal": {
+        "title": "Cài đặt bài kiểm tra",
+        "sub_title": "Cấu hình cách thức hoạt động của bài kiểm tra",
+        "form": {
+            "title": "Tiêu đề bài kiểm tra",
+            "date": "Ngày bắt đầu & Ngày kết thúc",
+            "number_of_attempt": "Số lần làm bài",
+            "number_of_shuffle": "Số lần xáo trộn",
+            "time_limit": "Giới hạn thời gian",
+            "passing_score": "Điểm đạt",
+            "show_correct_answer": "Hiển thị đáp án đúng",
+            "show_correct_answer_ins": "Cho phép học sinh xem đáp án đúng sau khi làm bài",
+            "final_score": "Điểm cuối cùng (tuỳ chọn)",
+            "partial_grade_method": "Phương pháp chấm điểm một phần",
+            "partial_grade_method_ins": "Cộng điểm nếu câu trả lời của học sinh khớp một phần với đáp án mong đợi",
+            "review_attempt": "Xem lại bài làm",
+            "review_attempt_ins": "Cho phép học sinh xem lại bài làm của mình sau khi kết thúc"
+        },
+        "final_score_options": {
+            "LastAttempt": "Lần làm bài cuối",
+            "HighestScore": "Điểm cao nhất"
+        },
+        "other": {
+            "back": "Quay lại"
+        }
+    },
+    "detail_test_template": {
+        "buttons": {
+            "add_to_folder": "Thêm vào thư mục"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Không có quyền truy cập",
         "COMMON_SERVER_INTERNAL_ERROR": "Lỗi máy chủ nội bộ",
@@ -811,6 +885,8 @@
         "invalid_tag_content": "Nội dung thẻ không hợp lệ",
         "limit_question": "Giới hạn: {number} câu hỏi",
         "minimum_question": "Tối thiểu {number} câu hỏi",
+
+        "invalid_time_range": "Thời gian bắt đầu và kết thúc phải cách nhau ít nhất {time_limit} phút (giới hạn thời gian)",
 
         "required": "Trường này là bắt buộc",
         "out_of_range": "Giới hạn {max_length} ký tự",

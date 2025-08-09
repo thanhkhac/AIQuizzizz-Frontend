@@ -693,12 +693,12 @@ pre {
 
 .navigator-item:hover {
     background-color: var(--main-color);
-    color: var(--text-color-contrast);
+    color: var(--text-color-contrast) !important;
 }
 
 .navigator-active {
     background-color: var(--main-color);
-    color: var(--text-color-contrast);
+    color: var(--text-color-contrast) !important;
 }
 
 .ant-form-item-label label {
@@ -2116,6 +2116,19 @@ Custom a-switch
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/**
+* custom a-tooltip
+**/
+
+.ant-tooltip .ant-tooltip-inner {
+    background-color: var(--main-color);
+    color: var(--text-color-contrast);
+}
+
+.ant-tooltip .ant-tooltip-arrow::before {
+    background-color: var(--main-color);
 }
 
 /* ========================================User folder and siblings====================================================== */
