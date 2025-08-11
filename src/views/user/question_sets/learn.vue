@@ -267,7 +267,7 @@ const onAddComment = async () => {
         await getCommentData();
         return;
     }
-    message.success(t("message.added_failed"));
+    message.error(t("message.added_failed"));
 };
 
 const onEditComment = async (commentId: string) => {

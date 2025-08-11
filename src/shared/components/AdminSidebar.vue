@@ -1,4 +1,6 @@
 <script setup>
+import user_image from "@/assets/user.png";
+
 import { ref, onBeforeMount } from "vue";
 import { useAuthStore } from "/src/stores/AuthStore.ts";
 import { Modal } from "ant-design-vue";
@@ -99,7 +101,7 @@ const onSignOut = () => {
                 </li>
             </ul>
             <div class="sidebar-profileSection">
-                <img :src="user.image" />
+                <img :src="user_image" />
                 <div>
                     <span>{{ user.fullName }}</span>
                     <span class="sign-out-btn" @click="onSignOut">

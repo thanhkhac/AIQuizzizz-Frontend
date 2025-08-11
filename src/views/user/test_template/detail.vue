@@ -118,8 +118,13 @@ const openFolderModal = () => {
 
 const onAddToFolder = (folder: Folder) => {
     Modal.confirm({
-        title: "Are your sure to perform this action?",
-        content: `Add test template ${quiz.value.name} into folder ${folder.name}`,
+        title: t("detail_test_template.modal.add_to_folder_title"),
+        content: t("detail_test_template.modal.add_to_folder_content", {
+            name: quiz.value.name,
+            folder_name: folder.name,
+        }),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         centered: true,
         onOk: async () => {
             const result = await ApiFolder.AddTestTemplate(
@@ -164,8 +169,10 @@ const getPermission = async () => {
 
 const onDelete = () => {
     Modal.confirm({
-        title: "Are you sure to delete this question set from class?",
-        content: "Please double check for important resources!",
+        title: t("detail_test_template.modal.delete_title"),
+        content: t("detail_test_template.modal.delete_content"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             const result = await ApiTestTemplate.Delete(quiz.value.testTemplateId);
             if (!result.data.success) {

@@ -124,29 +124,31 @@ const onRefirectToUpdate = async (id: string) => {
     router.push({ name: "User_TestTemplate_Update", params: { id } });
 };
 
-const onDelete = async (id: string) => {
-    await getPermission(id);
-    if (!permission.value.canDelete) {
-        message.warning("You don't have permission to perform this function!");
-        return;
-    }
+// const onDelete = async (id: string) => {
+//     await getPermission(id);
+//     if (!permission.value.canDelete) {
+//         message.warning("You don't have permission to perform this function!");
+//         return;
+//     }
 
-    // if (permission.value.canEdit) router.push({ name: "User_TestTemplate_Update", params: { id } });
-    // else {
-    //     message.warning("You don't have permission to perform this function!");
-    // }
+//     // if (permission.value.canEdit) router.push({ name: "User_TestTemplate_Update", params: { id } });
+//     // else {
+//     //     message.warning("You don't have permission to perform this function!");
+//     // }
 
-    Modal.confirm({
-        title: "Are you sure to delete this test template?",
-        content: "Please double check the important resources!",
-        onOk: async () => {
-            const result = await ApiTestTemplate.Delete(id);
-            if (!result.data.success) return;
-            message.success("Removed successfully!");
-            await getData();
-        },
-    });
-};
+//     Modal.confirm({
+//         title: "Are you sure to delete this test template?",
+//         content: "Please double check the important resources!",
+//         okText: t("sidebar.buttons.ok"),
+//         cancelText: t("sidebar.buttons.cancel"),
+//         onOk: async () => {
+//             const result = await ApiTestTemplate.Delete(id);
+//             if (!result.data.success) return;
+//             message.success("Removed successfully!");
+//             await getData();
+//         },
+//     });
+// };
 
 //#region permission
 const permission = ref({

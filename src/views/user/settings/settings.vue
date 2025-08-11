@@ -6,7 +6,7 @@ import Profile from "@/views/user/settings/profile.vue";
 import Security from "@/views/user/settings/security.vue";
 import Appearance from "@/views/user/settings/appearance.vue";
 import Subscription from "@/views/user/settings/subscription.vue";
-import Billing from "@/views/user/settings/Billing.vue";
+import Billing from "@/views/user/settings/billing.vue";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();

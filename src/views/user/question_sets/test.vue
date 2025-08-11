@@ -522,6 +522,8 @@ const onSubmitAnswer = () => {
         Modal.confirm({
             title: `You missed ${quiz.value.questions.length - userAnswer.value.length} questions.`,
             content: "Are you certain about this decision?",
+            okText: t("sidebar.buttons.ok"),
+            cancelText: t("sidebar.buttons.cancel"),
             centered: true,
             onOk: () => {
                 //import all left over question from quiz in to userAnswer
@@ -628,7 +630,7 @@ const onLoadCurrentQuestion = (index: number) => {
         }
 
         case QUESTION_TYPE.ORDERING: {
-            currentQuestionInstruction.value = t("learn_QS.instructions.matching");
+            currentQuestionInstruction.value = t("learn_QS.instructions.ordering");
             userAnswerOrdering.value = answer
                 ? answer?.ordering!
                 : currentQuestion.value.questionData.ordering?.map((x) => x) || [];
@@ -636,7 +638,7 @@ const onLoadCurrentQuestion = (index: number) => {
         }
 
         case QUESTION_TYPE.MATCHING: {
-            currentQuestionInstruction.value = t("learn_QS.instructions.ordering");
+            currentQuestionInstruction.value = t("learn_QS.instructions.matching");
             userAnswerMatchingLeft.value = answer
                 ? answer?.matchingLeft!
                 : currentQuestion.value.questionData.matching!.leftItems.map((x) => x) || [];
@@ -1498,21 +1500,6 @@ onMounted(async () => {
 </style>
 <!-- /* for test */ -->
 <style scoped>
-.content-test {
-    display: flex;
-    flex-direction: row;
-}
-
-.title-container-header {
-    background-color: var(--content-item-background-color);
-    border-bottom: 1px solid var(--content-item-border-color);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    margin: 0;
-    padding: 10px;
-}
-
 .page-container {
     width: 100%;
     height: 100vh;
@@ -1528,21 +1515,6 @@ onMounted(async () => {
     margin: 10px auto;
 }
 
-/* for test only */
-.answer-short-text {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-}
-.short-text-correct-answer {
-    margin-top: 10px;
-}
-.short-text-correct-answer span {
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--correct-answer-color);
-}
-
 .content-item.question-navigators {
     position: absolute;
     top: 75px;
@@ -1551,46 +1523,10 @@ onMounted(async () => {
     margin: 10px 0px 0px 10px;
 }
 
-.question-navigator-container {
+.answer-short-text {
     display: flex;
-    flex-wrap: wrap;
-    margin: 10px 0px;
-}
-.question-navigation-item-outer {
-    width: calc(100% / 4 - 8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0px 0px 3px 3px;
-    padding: 3px;
-    border: 2px solid var(--form-item-border-color);
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    position: relative;
-    overflow: hidden;
-}
-
-.question-navigator-item {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 3px;
-}
-
-.question-navigation-item-outer:hover {
-    border-color: var(--main-color);
-}
-
-.current-question {
-    border-color: var(--main-color);
-    color: var(--main-color);
-}
-
-.completed-question {
-    background-color: var(--main-color);
-    color: var(--text-color);
+    flex-direction: column;
+    align-items: start;
 }
 
 .completed-question.correct {
@@ -1708,14 +1644,17 @@ onMounted(async () => {
 }
 .result-button:hover {
     background-color: var(--main-color);
+    color: var(--text-color-contrast);
 }
-.result-button:hover .result-button-title {
-    color: var(--text-color);
+.result-button:hover .result-button-title,
+.result-button:hover .result-button-content {
+    color: var(--text-color-contrast);
 }
 
 .result-button i {
     margin: 10px;
     font-size: 30px;
+    transition: all 0.2s ease-in-out;
 }
 
 .result-button-title {
@@ -1728,6 +1667,7 @@ onMounted(async () => {
 .result-button-content {
     font-size: 15px;
     color: var(--text-color);
+    transition: all 0.2s ease-in-out;
 }
 
 .setting-form {
@@ -1753,15 +1693,5 @@ onMounted(async () => {
     width: 100%;
     height: 100%;
     z-index: 100;
-}
-
-.question-info-index {
-    font-size: 16px;
-    font-weight: 500;
-    padding: 5px 10px;
-    background-color: var(--main-color);
-    border: 1px solid var(--main-color);
-    border-radius: 5px;
-    width: fit-content;
 }
 </style>

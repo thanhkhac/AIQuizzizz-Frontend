@@ -144,8 +144,10 @@ const onPaginationChange = (page: any, pageSize: any) => {
 
 const onDeleteQSFromClass = (questionSetId: string) => {
     Modal.confirm({
-        title: "Are you sure to delete this question set from class?",
-        content: "Please double check for important resources!",
+        title: t("class_question_set.modal.delete_title"),
+        content: t("class_question_set.modal.delete_content"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             const result = await ApiClass.DeleteQuestionSetFromClass(
                 classData.value.classId,
@@ -306,12 +308,6 @@ onMounted(async () => {
     </div>
 </template>
 <style scoped>
-.breadcrumb-container li,
-a {
-    color: var(--text-color) !important;
-    font-size: 24px !important;
-}
-
 .navigator-item {
     font-size: 14px !important;
 }

@@ -380,7 +380,17 @@
             "new_password_placeholder": "Enter your new password",
             "confirm_new_password_label": "Confirm New Password",
             "confirm_new_password_placeholder": "Re-enter your new password",
-            "change_password": "Change password"
+            "change_password": "Change password",
+            "danger_zone": {
+                "title": "Danger Zone",
+                "sub_title": "Irreversible actions for your account",
+                "warning": "Delete account",
+                "warning_explain": "Once you delete your account, there is no going back. All your data will be permanently removed"
+            },
+            "modal": {
+                "change_password_title": "Change password?",
+                "change_password_content": "After changing password you will have to login again."
+            }
         },
         "appearance": {
             "title": "Appearance",
@@ -490,6 +500,25 @@
             "created_by": "Created by {username}",
             "reviews": "reviews",
             "questions": "Questions ({number})"
+        },
+        "modal": {
+            "delete_title": "Are you sure to delete this question set?",
+            "delete_content": "This action is irreversible, every related data will be erased forever. Careful!"
+        }
+    },
+    "search_QS": {
+        "title": "Search Question Sets",
+        "sub_title": "Discover question sets using keywords, tags, or titles from the great archive.",
+        "form": {
+            "key_word": "Key words",
+            "key_word_placeholder": "Enter key words",
+            "tags": "Tags",
+            "tag_placeholder": "Enter tag name",
+            "sort_by": "Sort by"
+        },
+        "other": {
+            "result_title": "Result({number})",
+            "rating": "Rating: {average}⭐️ ({count})"
         }
     },
     "learn_QS": {
@@ -603,6 +632,10 @@
             "min": "min",
             "completions": "completions",
             "assigned": "Assigned"
+        },
+        "modal": {
+            "delete_title": "Are you sure to delete this test from class?",
+            "delete_content": "This action will remove the test from the class and all student's attempts will be deleted."
         }
     },
     "class_member": {
@@ -638,7 +671,11 @@
             "class_code_label": "Class code",
             "invitation_link": "Invitation link",
             "or": "OR",
-            "time_limit_label": "Time limit"
+            "time_limit_label": "Time limit",
+            "delete_member_title": "Are you sure to remove this member from class?",
+            "delete_member_content": "This action is irreversible, every related data will be erased forever. Careful!",
+            "update_member_title": "Update member position in class",
+            "update_member_content": "Please make sure to double check the important information!"
         },
         "position": {
             "Onwer": "Owner",
@@ -668,6 +705,10 @@
             "items": "quizzes",
             "questions": "questions",
             "created_by": "Created by"
+        },
+        "modal": {
+            "delete_title": "Are you sure to remove this question set from class?",
+            "delete_content": "Please double check for important resources!"
         }
     },
     "folder_index": {
@@ -697,6 +738,24 @@
             "no_data_matches": "No data matches.",
             "items": "folders",
             "pages": " / pages"
+        }
+    },
+    "folder_detail": {
+        "title": "Folder Detail",
+        "modal": {
+            "create_title": "Update folder",
+            "delete_template_warning": "Are you sure to remove this test template?",
+            "delete_template_ins": "Please double check the important information.",
+            "delete_folder_warning": "Are you sure to delete this folder?"
+        },
+        "buttons": {
+            "create_new_template": "Create new test template"
+        },
+        "danger_zone": {
+            "title": "Danger Zone",
+            "sub_title": "Irreversible actions for your folder",
+            "warning": "Delete folder",
+            "warning_explain": "Once you delete your folder, there is no going back. All your data will be permanently removed"
         }
     },
     "question_sets_search": {
@@ -801,6 +860,12 @@
     "detail_test_template": {
         "buttons": {
             "add_to_folder": "Add to folder"
+        },
+        "modal": {
+            "delete_title": "Are you sure to delete this test template?",
+            "delete_content": "This action is irreversible, every related data will be erased forever. Careful!",
+            "add_to_folder_title": "Add test template to folder",
+            "add_to_folder_content": "Add test template '{name}' into folder '{folder_name}'"
         }
     },
     "ERROR_CODE": {
@@ -877,6 +942,9 @@
         "join_class_successfully": "Joined class successfully!",
         "join_class_failed": "Joined class failed!",
         "created_new_invitation": "Created new invitation code!",
+
+        "change_password_successfully": "Change password successfully!",
+        "change_password_failed": "Change password failed!",
 
         "invalid_title": "Invalid title",
         "invalid_question": "Invalid question",

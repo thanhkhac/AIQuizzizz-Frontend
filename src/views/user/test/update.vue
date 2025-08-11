@@ -312,6 +312,8 @@ const onFinish = async () => {
         Modal.error({
             title: t("update_test.modal.invalid.title"),
             content: t("update_test.modal.invalid.content") + indexes.sort().join(", "),
+            okText: t("sidebar.buttons.ok"),
+            cancelText: t("sidebar.buttons.cancel"),
         });
     } else {
         showModalConfirmation();
@@ -322,6 +324,8 @@ const showModalConfirmation = () => {
     Modal.confirm({
         title: t("update_test.modal.valid.title"),
         content: t("update_test.modal.valid.content"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         centered: true,
         onOk: async () => {
             formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
@@ -466,6 +470,8 @@ onBeforeRouteLeave((to, from, next) => {
     Modal.confirm({
         title: t("create_QS.modal.leave.title"),
         content: t("create_QS.modal.leave.content"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: () => {
             // localStorage.removeItem(storage_draft_key);
             next();

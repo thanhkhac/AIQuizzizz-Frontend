@@ -505,7 +505,7 @@ onMounted(async () => {
                 <a-col class="main-title" :span="22">
                     <span> {{ attemptData?.name }}</span> <br />
                     <span>
-                        {{ attemptData?.questionCount }}
+                        {{ attemptData?.questionCount }} 
                     </span>
                 </a-col>
             </a-row>
@@ -756,21 +756,6 @@ onMounted(async () => {
 </style>
 <!-- /* for test */ -->
 <style scoped>
-.content-test {
-    display: flex;
-    flex-direction: row;
-}
-
-.title-container-header {
-    background-color: var(--content-item-background-color);
-    border-bottom: 1px solid var(--content-item-border-color);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    margin: 0;
-    padding: 10px;
-}
-
 .page-container {
     width: 100%;
     height: 100vh;
@@ -784,6 +769,14 @@ onMounted(async () => {
 .content-item {
     width: 70%;
     margin: 10px auto;
+}
+
+.content-item.question-navigators {
+    position: absolute;
+    top: 75px;
+    width: 200px;
+    height: fit-content;
+    margin: 10px 0px 0px 10px;
 }
 
 .countdown {
@@ -800,70 +793,13 @@ onMounted(async () => {
 .countdown.danger {
     color: red;
 }
-/* for test only */
+
 .answer-short-text {
     display: flex;
     flex-direction: column;
     align-items: start;
 }
-.short-text-correct-answer {
-    margin-top: 10px;
-}
-.short-text-correct-answer span {
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--correct-answer-color);
-}
 
-.content-item.question-navigators {
-    position: absolute;
-    top: 75px;
-    width: 200px;
-    height: fit-content;
-    margin: 10px 0px 0px 10px;
-}
-
-.question-navigator-container {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 10px 0px;
-}
-.question-navigation-item-outer {
-    width: calc(100% / 4 - 8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0px 0px 3px 3px;
-    padding: 3px;
-    border: 2px solid var(--form-item-border-color);
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    position: relative;
-    overflow: hidden;
-}
-
-.question-navigator-item {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 3px;
-}
-
-.question-navigation-item-outer:hover {
-    border-color: var(--main-color);
-}
-
-.current-question {
-    border-color: var(--main-color);
-    color: var(--main-color);
-}
-
-.completed-question {
-    background-color: var(--main-color);
-    color: var(--text-color);
-}
 
 .learn-question-footer {
     padding: 0px;
@@ -887,13 +823,5 @@ onMounted(async () => {
     transform: scale(1.2);
 }
 
-.question-info-index {
-    font-size: 16px;
-    font-weight: 500;
-    padding: 5px 10px;
-    background-color: var(--main-color);
-    border: 1px solid var(--main-color);
-    border-radius: 5px;
-    width: fit-content;
-}
+
 </style>

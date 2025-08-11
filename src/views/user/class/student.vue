@@ -252,10 +252,11 @@ const onCopyInvitationCode = (mode: string) => {
 /* delete class member */
 const onConfirmDeleteMember = (userId: string) => {
     Modal.confirm({
-        title: "Are you sure to remove this user from class?",
-        content: "This action is inreversible, every related data will be erased forever. Careful!",
+        title: t("class_member.modal.delete_member_title"),
+        content: t("class_member.modal.delete_member_content"),
         centered: true,
-        okText: "Confirm",
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             let result = await ApiClass.DeleteClassMember(
                 classId.value.toString(),
@@ -273,10 +274,12 @@ const onConfirmDeleteMember = (userId: string) => {
 
 const onConfirmUpdateMemberPosition = (userId: string, position: string) => {
     Modal.confirm({
-        title: "Are you sure to update this user position from class?",
-        content: "Please make sure to double check the important information!.",
+        title: t("class_member.modal.update_member_title"),
+        content: t("class_member.modal.update_member_content"),
+
         centered: true,
-        okText: "Confirm",
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             let result = await ApiClass.UpdateClassMemberPosition(
                 classId.value.toString(),
@@ -296,14 +299,11 @@ const onConfirmUpdateMemberPosition = (userId: string, position: string) => {
 /* delete class */
 const onOpenConfirmDeleteClass = () => {
     Modal.confirm({
-        title: "Are you sure to delete this class?",
-        content: h(
-            "div",
-            { style: "color: red" },
-            "This action is inreversible, every related data will be erased forever. Careful!",
-        ),
+        title: t("class_member.danger_zone.warning"),
+        content: h("div", { style: "color: red" }, t("class_member.danger_zone.warning_explain")),
         centered: true,
-        okText: "Confirm",
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             let result = await ApiClass.Delete(classId.value.toString());
             if (!result.data.success) {
@@ -601,12 +601,6 @@ onMounted(async () => {
     </a-modal>
 </template>
 <style scoped>
-.breadcrumb-container li,
-a {
-    color: var(--text-color) !important;
-    font-size: 24px !important;
-}
-
 .navigator-item {
     font-size: 14px !important;
 }

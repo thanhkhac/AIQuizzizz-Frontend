@@ -68,11 +68,11 @@ const onFinishChangePassword = () => {
 
 const showModalConfirmation = () => {
     Modal.confirm({
-        title: "Change password ?",
-        content: "After changing password you will have to login again.",
+        title: t("settings.security.modal.change_password_title"),
+        content: t("settings.security.modal.change_password_content"),
         icon: createVNode(ExclamationCircleOutlined),
-        okText: "Yes",
-        cancelText: "Cancel",
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             const result = await ApiAuthentication.ChangePassword({
                 currentPassword: changePasswordFormState.currentPassword,
@@ -80,11 +80,11 @@ const showModalConfirmation = () => {
             });
 
             if (result.data.success) {
-                message.success("Change password successfully!");
+                message.success(t("message.change_password_successfully"));
                 authStore.logOut();
                 return;
             }
-            message.success("Change password failed!");
+            message.success(t("message.change_password_failed"));
         },
     });
 };
@@ -161,17 +161,20 @@ const showModalConfirmation = () => {
         <div class="mt-4 content-item">
             <div class="content-item-title">
                 <div>
-                    <span class="text-danger">Danger Zone</span>
-                    <span>Irreversible actions for your account</span>
+                    <span class="text-danger">{{ $t("settings.security.danger_zone.title") }}</span>
+                    <span>{{ $t("settings.security.danger_zone.sub_title") }}</span>
                 </div>
             </div>
             <div class="danger-zone mt-3 p-4">
-                <div class="text-danger fs-6 fw-bold">Delete account</div>
-                <div class="text-secondary">
-                    Once you delete your account, there is no going back. All your data will be
-                    permanently removed
+                <div class="text-danger fs-6 fw-bold">
+                    {{ $t("settings.security.danger_zone.warning") }}
                 </div>
-                <a-button class="mt-3" type="primary" danger size="large">Delete account</a-button>
+                <div class="text-secondary">
+                    {{ $t("settings.security.danger_zone.warning_explain") }}
+                </div>
+                <a-button class="mt-3" type="primary" danger size="large">{{
+                    $t("settings.security.danger_zone.warning")
+                }}</a-button>
             </div>
         </div>
     </div>

@@ -190,10 +190,10 @@ const onRedirectToUpdate = (testId: string) => {
 
 const onDeleteTest = (testId: string) => {
     Modal.confirm({
-        title: "Are you sure to delete this test from class?",
-        content:
-            "This action is inreversible, every related data will be erased forever. Please double check before delete!",
-        okText: "Confirm",
+        title: t("class_exam.modal.delete_title"),
+        content: t("class_exam.modal.delete_content"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             let result = await ApiTest.Delete(testId);
             if (result.data.success) {
@@ -398,12 +398,6 @@ onMounted(async () => {
     </div>
 </template>
 <style scoped>
-.breadcrumb-container li,
-a {
-    color: var(--text-color) !important;
-    font-size: 24px !important;
-}
-
 .navigator-item {
     font-size: 14px !important;
 }

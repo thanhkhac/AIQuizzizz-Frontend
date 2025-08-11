@@ -208,7 +208,7 @@
         "list_items": {
             "quiz": {
                 "questions": "câu hỏi",
-                "learningProgress": "Tiến độ học tập"
+                "learningProgress": "Tiến độ"
             },
             "schedule": {
                 "today": "Hôm nay",
@@ -380,7 +380,17 @@
             "new_password_placeholder": "Nhập mật khẩu mới của bạn",
             "confirm_new_password_label": "Xác nhận mật khẩu mới",
             "confirm_new_password_placeholder": "Nhập lại mật khẩu mới",
-            "change_password": "Đổi mật khẩu"
+            "change_password": "Đổi mật khẩu",
+            "danger_zone": {
+                "title": "Khu vực nguy hiểm",
+                "sub_title": "Các hành động không thể hoàn tác cho tài khoản của bạn",
+                "warning": "Xóa tài khoản",
+                "warning_explain": "Khi bạn xóa tài khoản, sẽ không thể khôi phục lại. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn."
+            },
+            "modal": {
+                "change_password_title": "Đổi mật khẩu?",
+                "change_password_content": "Sau khi đổi mật khẩu, bạn sẽ phải đăng nhập lại."
+            }
         },
         "appearance": {
             "title": "Giao diện",
@@ -490,6 +500,25 @@
             "created_by": "Tạo bởi {username}",
             "reviews": "đánh giá",
             "questions": "Câu hỏi ({number})"
+        },
+        "modal": {
+            "delete_title": "Bạn có chắc chắn muốn xóa bộ câu hỏi này không?",
+            "delete_content": "Hành động này không thể hoàn tác, mọi dữ liệu liên quan sẽ bị xóa vĩnh viễn. Hãy cẩn thận!"
+        }
+    },
+    "search_QS": {
+        "title": "Tìm kiếm bộ câu hỏi",
+        "sub_title": "Khám phá bộ câu hỏi bằng cách sử dụng từ khóa, thẻ hoặc tiêu đề từ kho lưu trữ lớn.",
+        "form": {
+            "key_word": "Từ khóa",
+            "key_word_placeholder": "Nhập từ khóa",
+            "tags": "Thẻ",
+            "tag_placeholder": "Nhập tên thẻ",
+            "sort_by": "Sắp xếp theo"
+        },
+        "other": {
+            "result_title": "Kết quả({number})",
+            "rating": "Đánh giá: {average}⭐️ ({count})"
         }
     },
     "learn_QS": {
@@ -603,6 +632,10 @@
             "min": "phút",
             "completions": "lượt hoàn thành",
             "assigned": "Đã giao"
+        },
+        "modal": {
+            "delete_title": "Bạn có chắc chắn muốn xóa bài kiểm tra này khỏi lớp không?",
+            "delete_content": "Hành động này sẽ xóa bài kiểm tra khỏi lớp và tất cả các lần làm bài của học sinh sẽ bị xóa."
         }
     },
     "class_member": {
@@ -638,7 +671,11 @@
             "class_code_label": "Mã lớp",
             "invitation_link": "Liên kết mời",
             "or": "HOẶC",
-            "time_limit_label": "Thời gian giới hạn"
+            "time_limit_label": "Thời gian giới hạn",
+            "delete_member_title": "Bạn có chắc chắn muốn xóa thành viên này khỏi lớp?",
+            "delete_member_content": "Hành động này sẽ không thể hoàn tác, mọi dữ liệu liên quan sẽ bị xóa vĩnh viễn. Hãy cẩn thận!",
+            "update_member_title": "Cập nhật vai trò của thành viên trong lớp",
+            "update_member_content": "Vui lòng kiểm tra kỹ các thông tin quan trọng!"
         },
         "position": {
             "Onwer": "Chủ lớp",
@@ -668,6 +705,10 @@
             "items": "bộ câu hỏi",
             "questions": "câu hỏi",
             "created_by": "Tạo bởi"
+        },
+        "modal": {
+            "delete_title": "Bạn có chắc chắn muốn xóa bộ câu hỏi này khỏi lớp không?",
+            "delete_content": "Vui lòng kiểm tra kỹ các thông tin quan trọng."
         }
     },
     "folder_index": {
@@ -699,10 +740,28 @@
             "pages": " / trang"
         }
     },
+    "folder_detail": {
+        "title": "Chi tiết thư mục",
+        "modal": {
+            "create_title": "Cập nhật thư mục",
+            "delete_template_warning": "Bạn có chắc muốn xóa mẫu bài kiểm tra này?",
+            "delete_template_ins": "Vui lòng kiểm tra kỹ các thông tin quan trọng.",
+            "delete_folder_warning": "Bạn có chắc muốn xóa thư mục này?"
+        },
+        "buttons": {
+            "create_new_template": "Tạo mẫu bài kiểm tra mới"
+        },
+        "danger_zone": {
+            "title": "Khu vực nguy hiểm",
+            "sub_title": "Các hành động không thể hoàn tác cho thư mục của bạn",
+            "warning": "Xóa thư mục",
+            "warning_explain": "Khi bạn xóa thư mục, sẽ không thể khôi phục. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn"
+        }
+    },
     "question_sets_search": {
         "sort_category": {
-            "Newest": "Newest",
-            "Rating": "Rating"
+            "Newest": "Mới nhất",
+            "Rating": "Đánh giá"
         }
     },
     "practice_test": {
@@ -801,6 +860,12 @@
     "detail_test_template": {
         "buttons": {
             "add_to_folder": "Thêm vào thư mục"
+        },
+        "modal": {
+            "delete_title": "Bạn có chắc chắn muốn xóa mẫu bài kiểm tra này không?",
+            "delete_content": "Hành động này không thể hoàn tác, mọi dữ liệu liên quan sẽ bị xóa vĩnh viễn. Hãy cẩn thận!",
+            "add_to_folder_title": "Thêm mẫu bài kiểm tra vào thư mục",
+            "add_to_folder_content": "Thêm mẫu bài kiểm tra '{name}' vào thư mục '{folder_name}'"
         }
     },
     "ERROR_CODE": {
@@ -885,6 +950,9 @@
         "invalid_tag_content": "Nội dung thẻ không hợp lệ",
         "limit_question": "Giới hạn: {number} câu hỏi",
         "minimum_question": "Tối thiểu {number} câu hỏi",
+
+        "change_password_successfully": "Đổi mật khẩu thành công!",
+        "change_password_failed": "Đổi mật khẩu thất bại!",
 
         "invalid_time_range": "Thời gian bắt đầu và kết thúc phải cách nhau ít nhất {time_limit} phút (giới hạn thời gian)",
 

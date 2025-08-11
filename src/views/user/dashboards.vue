@@ -210,7 +210,7 @@ onMounted(async () => {
                             {{ $t("dashboards.list_items.quiz.questions") }}
                         </div>
                         <div class="quiz-item-progress">
-                            <span>{{ $t("dashboards.list_items.quiz.learningProgress") }}</span>
+                            <div>{{ $t("dashboards.list_items.quiz.learningProgress") }}</div>
                             <a-progress
                                 stroke-color="var(--main-color)"
                                 :percent="
@@ -259,7 +259,7 @@ onMounted(async () => {
                         >
                             <div class="p-quiz-item-info">
                                 <div class="p-quiz-item-title">{{ quiz.name }}</div>
-                                <div class="p-quiz-item-description">{{ quiz.description }}</div>
+                                <!-- <div class="p-quiz-item-description">{{ quiz.description }}</div> -->
                             </div>
                             <div class="p-quiz-item-rating">
                                 <div class="p-quiz-item-question-count">
@@ -317,6 +317,9 @@ onMounted(async () => {
     flex-direction: column;
     align-items: start;
     width: calc(100% / 3 - 50px);
+    max-width: calc(100% / 3 - 50px);
+    height: 200px;
+    max-height: 200px;
     cursor: pointer;
 }
 
@@ -331,7 +334,6 @@ onMounted(async () => {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    align-items: center;
     margin: 5px 0px;
 }
 
@@ -348,6 +350,11 @@ onMounted(async () => {
     width: 100%;
     font-size: 12px;
     margin-bottom: 0;
+    flex: 1;
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    justify-content: end;
 }
 
 ::v-deep(.ant-progress-text) {
@@ -472,6 +479,7 @@ onMounted(async () => {
 .popular-quiz-container {
     display: flex;
     overflow-x: scroll;
+    overflow-y: hidden;
     flex-wrap: nowrap;
     padding: 10px 0px;
     gap: 16px;
@@ -517,6 +525,10 @@ onMounted(async () => {
 .p-quiz-item-description {
     font-size: 14px;
     color: var(--text-color-grey);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 200px;
 }
 
 .p-quiz-item-rating {

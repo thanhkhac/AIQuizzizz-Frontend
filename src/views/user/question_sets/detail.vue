@@ -161,8 +161,10 @@ const getPermission = async () => {
 
 const onDelete = () => {
     Modal.confirm({
-        title: "Are you sure to delete this question set from class?",
-        content: "Please double check for important resources!",
+        title: t("detail_QS.modal.delete_title"),
+        content: t("detail_QS.modal.delete_content"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             const result = await ApiQuestionSet.Delete(quiz.value.id);
             if (!result.data.success) {

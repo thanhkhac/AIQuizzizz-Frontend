@@ -88,13 +88,13 @@
     --border-color: rgba(0, 0, 0, 0.1);
     --border-color-contrast: rgba(0, 0, 0, 0.8);
 
-    --content-item-background-color: #fff;
-    --content-item-border-color: transparent;
+    --content-item-background-color: #f8f8fa;
+    --content-item-border-color: #d4d4d8;
 
-    --content-item-children-background-color: #f0f0f0;
+    --content-item-children-background-color: #f0f0f2;
 
     --form-item-background-color: #ffffff;
-    --form-item-border-color: #cccccc;
+    --form-item-border-color: #c4c4c4;
 
     --sidebar-background-color: #fafafa;
 

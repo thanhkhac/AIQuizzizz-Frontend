@@ -118,8 +118,10 @@ const onPaginationChange = (page: number, pageSize: number) => {
 
 const onRemoveTestTemplate = (testTemplateId: string) => {
     Modal.confirm({
-        title: "Are you sure to delete this test template?",
-        content: "Please double check the important resources!",
+        title: t("folder_detail.modal.delete_template_warning"),
+        content: t("folder_detail.modal.delete_template_ins"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             const result = await ApiFolder.DeleteTestTemplate(
                 folderData.value.folderTestId,
@@ -138,14 +140,11 @@ const onRemoveTestTemplate = (testTemplateId: string) => {
 /* delete folder */
 const onOpenConfirmDelete = () => {
     Modal.confirm({
-        title: "Are you sure to delete this folder?",
-        content: h(
-            "div",
-            { style: "color: red" },
-            "This action is inreversible, every related data will be erased forever. Careful!",
-        ),
+        title: t("folder_detail.modal.delete_folder_warning"),
+        content: h("div", { style: "color: red" }, t("folder_detail.danger_zone.warning_explain")),
         centered: true,
-        okText: "Confirm",
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             let result = await ApiFolder.DeleteFolder(folderId.value.toString());
             if (!result.data.success) {
@@ -234,7 +233,9 @@ onMounted(async () => {
 <template>
     <div class="page-container">
         <div class="title-container">
-            <div class="main-title"><span>Library Folder Test Details</span> <br /></div>
+            <div class="main-title">
+                <span>{{ $t("folder_detail.title") }}</span> <br />
+            </div>
             <div class="title-button-container">
                 <a-button
                     type="primary"
@@ -247,7 +248,7 @@ onMounted(async () => {
                 </a-button>
                 <a-button type="primary" class="ms-3 main-color-btn" size="large">
                     <i class="me-2 bx bx-plus"></i>
-                    Create new test template
+                    {{ $t("folder_detail.buttons.create_new_template") }}
                 </a-button>
             </div>
         </div>
@@ -314,7 +315,7 @@ onMounted(async () => {
                         <div class="w-100 d-flex justify-content-center">
                             <a-empty>
                                 <template #description>
-                                    <span> No data matches. </span>
+                                    <span> {{ $t("class_index.other.no_data_matches") }}</span>
                                 </template>
                             </a-empty>
                         </div>
@@ -342,14 +343,16 @@ onMounted(async () => {
             <div class="mt-4 content-item">
                 <div class="content-item-title">
                     <div>
-                        <span class="text-danger">{{ $t("class_member.danger_zone.title") }}</span>
-                        <span>{{ $t("class_member.danger_zone.sub_title") }}</span>
+                        <span class="text-danger">{{ $t("folder_detail.danger_zone.title") }}</span>
+                        <span>{{ $t("folder_detail.danger_zone.sub_title") }}</span>
                     </div>
                 </div>
                 <div class="danger-zone mt-3 p-4">
-                    <div class="text-danger fs-6 fw-bold">Delete folder</div>
+                    <div class="text-danger fs-6 fw-bold">
+                        {{ $t("folder_detail.danger_zone.warning") }}
+                    </div>
                     <div class="text-secondary">
-                        {{ $t("class_member.danger_zone.warning_explain") }}
+                        {{ $t("folder_detail.danger_zone.warning_explain") }}
                     </div>
                     <a-button
                         class="mt-3"
@@ -358,7 +361,7 @@ onMounted(async () => {
                         size="large"
                         @click="onOpenConfirmDelete"
                     >
-                        Delete folder
+                        {{ $t("folder_detail.danger_zone.warning") }}
                     </a-button>
                 </div>
             </div>
@@ -380,7 +383,7 @@ onMounted(async () => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="20">
-                        <span>{{ t("folder_index.modal.create_title") }}</span>
+                        <span>{{ t("folder_detail.modal.create_title") }}</span>
                     </a-col>
                 </a-row>
             </div>
@@ -408,7 +411,7 @@ onMounted(async () => {
                 type="primary"
                 @click="onUpdateFolder"
             >
-                Update
+                {{ $t("update_QS.buttons.update") }}
             </a-button>
         </template>
     </a-modal>

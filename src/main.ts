@@ -80,6 +80,7 @@ import {
     Table,
     Rate,
     Skeleton,
+    Tree
 } from "ant-design-vue";
 
 /**
@@ -179,6 +180,7 @@ import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
     app.use(Table);
     app.use(Rate);
     app.use(Skeleton);
+    app.use(Tree);
 
     app.use(HighchartsVue);
 

@@ -282,6 +282,8 @@ const onFinish = async () => {
         Modal.error({
             title: t("create_QS.modal.invalid.title"),
             content: t("create_QS.modal.invalid.content") + indexes.sort().join(", "),
+            okText: t("sidebar.buttons.ok"),
+            cancelText: t("sidebar.buttons.cancel"),
         });
     } else {
         showModalConfirmation();
@@ -292,6 +294,8 @@ const showModalConfirmation = () => {
     Modal.confirm({
         title: t("create_QS.modal.valid.title"),
         content: t("create_QS.modal.valid.content"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         centered: true,
         onOk: async () => {
             const result = await ApiTest.Create(formState);
@@ -427,6 +431,8 @@ onBeforeRouteLeave((to, from, next) => {
     Modal.confirm({
         title: t("create_QS.modal.leave.title"),
         content: t("create_QS.modal.leave.content"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: () => {
             // localStorage.removeItem(storage_draft_key);
             next();

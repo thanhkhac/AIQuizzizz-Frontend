@@ -6,7 +6,7 @@ import QUESTION_TYPE from "@/constants/questionTypes";
 import QUESTION_DIFFICULTY from "@/constants/questiondifficulties";
 import SUPPORTED_LOCALES from "@/constants/languages";
 
-import { ref, reactive, watch, onMounted } from "vue";
+import { ref, reactive, watch, onMounted, nextTick } from "vue";
 import { Modal, message } from "ant-design-vue";
 import { InboxOutlined } from "@ant-design/icons-vue";
 
@@ -185,7 +185,7 @@ const openFileExplorer = () => {
     fileInput.value?.click();
 };
 
-const handleFileChange = (event: Event) => {
+const handleFileChange = async (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
 
@@ -193,6 +193,10 @@ const handleFileChange = (event: Event) => {
         files.value = [];
         message.success(file.name + " uploaded successfully.");
         files.value.push(file);
+        generateByAIModalState.title = file.name;
+        await nextTick();
+        openFileStructureModal();
+        target.value = "";
         return;
     }
     message.error("Upload failed");
@@ -205,7 +209,7 @@ const handleDragEnter = (event: DragEvent) => {
     }
 };
 
-const handleDrop = (event: DragEvent) => {
+const handleDrop = async (event: DragEvent) => {
     const file = event.dataTransfer?.files[0];
 
     isDragging.value = false;
@@ -215,13 +219,15 @@ const handleDrop = (event: DragEvent) => {
         message.success(file.name + " uploaded successfully.");
         files.value.push(file);
         generateByAIModalState.title = file.name;
+        await nextTick();
+        openFileStructureModal();
         return;
     }
     message.error("Upload failed");
 };
 
-const onRemoveUploadedFile = (index: number) => {
-    files.value?.splice(index, 1);
+const onRemoveUploadedFile = () => {
+    files.value = [];
 };
 
 //#endregion
@@ -253,6 +259,18 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
     const answer = $(`#question-item-answer-${index}`);
     if (answer) $(answer).slideToggle();
 };
+//#endregion
+
+//#region generate file structure
+import GenerateFileStructure from "./GenerateFileStructure.vue";
+const generateFileStructureRef = ref<InstanceType<typeof GenerateFileStructure> | null>(null);
+
+const openFileStructureModal = () => {
+    if (generateFileStructureRef.value) {
+        generateFileStructureRef.value.openModal();
+    }
+};
+
 //#endregion
 
 onMounted(() => {
@@ -327,12 +345,9 @@ onMounted(() => {
                         </div>
                     </div>
                     <div class="file-container">
-                        <div class="file-item" v-for="(file, index) in files">
+                        <div class="file-item" v-for="file in files">
                             <span>{{ file.name }}</span>
-                            <i
-                                class="bx bx-trash text-danger"
-                                @click="onRemoveUploadedFile(index)"
-                            ></i>
+                            <i class="bx bx-trash text-danger" @click="onRemoveUploadedFile()"></i>
                         </div>
                     </div>
                     <a-form layout="vertical" class="generate-ai-form">
@@ -564,6 +579,8 @@ onMounted(() => {
         </div>
         <template #footer></template>
     </a-modal>
+
+    <GenerateFileStructure :file="files[0]" ref="generateFileStructureRef" />
 </template>
 <style scoped>
 .main-color-btn.generate_ai {

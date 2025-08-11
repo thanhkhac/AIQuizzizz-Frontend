@@ -339,6 +339,8 @@ const onFinish = () => {
         Modal.error({
             title: t("create_QS.modal.invalid.title"),
             content: t("create_QS.modal.invalid.content") + indexes.sort().join(", "),
+            okText: t("sidebar.buttons.ok"),
+            cancelText: t("sidebar.buttons.cancel"),
         });
     } else {
         showModalConfirmation();
@@ -347,9 +349,11 @@ const onFinish = () => {
 
 const showModalConfirmation = () => {
     Modal.confirm({
-        title: t("create_QS.modal.valid.title"),
+        title: t("create_QS.Modal.confirmvalid.title"),
         content: t("create_QS.modal.valid.content"),
         centered: true,
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             //logic here
             let result = await ApiQuestionSet.Create(formState);
@@ -421,6 +425,8 @@ onBeforeRouteLeave((to, from, next) => {
     Modal.confirm({
         title: t("create_QS.modal.leave.title"),
         content: t("create_QS.modal.leave.content"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         onOk: () => {
             next();
         },

@@ -29,6 +29,8 @@ const onBuyPlan = (plan: Plan) => {
     Modal.confirm({
         title: "Are your sure to perform this action?",
         content: `This will cost you ${plan.price}đ for purchasing this plan`,
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         centered: true,
         onOk: async () => {
             const result = await ApiPlan.BuyPlan(plan.id);

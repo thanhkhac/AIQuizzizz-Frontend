@@ -289,12 +289,12 @@ const shareClassState = reactive({
 });
 
 //checkboxes  / checkbox-all for sharing quiz with class
-const onCheckAll = (event: any) => {
-    Object.assign(shareClassState, {
-        checkedList: event.target.checked ? user_class_sample.value?.map((x) => x.id) : [],
-        indeterminate: false,
-    });
-};
+// const onCheckAll = (event: any) => {
+//     Object.assign(shareClassState, {
+//         checkedList: event.target.checked ? user_class_sample.value?.map((x) => x.id) : [],
+//         indeterminate: false,
+//     });
+// };
 
 watch(
     () => shareClassState.checkedList,
@@ -317,7 +317,7 @@ const onShareClass = () => {
 //#region share public
 const getPublicShareUrl = () => {
     const origin = window.location.origin;
-    return origin + `/user/library/${props.id}`;
+    return origin + `/user/question-set/${props.id}`;
 };
 
 const onCopyPublicShareUrl = () => {
@@ -536,42 +536,12 @@ onMounted(() => {
                         ]"
                     >
                         <div class="list-item-section">
-                            <div class="list-item-title d-flex align-items-center">
-                                <div
-                                    :class="[
-                                        'w-25 header-item',
-                                        shareClassState.checkAll ? 'check-all' : '',
-                                    ]"
-                                >
-                                    <a-checkbox
-                                        @click="onCheckAll"
-                                        v-model:checked="shareClassState.checkAll"
-                                        :indeterminate="shareClassState.indeterminate"
-                                    >
-                                        {{
-                                            $t("share_modal.buttons.check_all", {
-                                                number: shareClassState.checkedList.length,
-                                            })
-                                        }}
-                                    </a-checkbox>
-                                </div>
-                                <span>
-                                    {{ $t("share_modal.component_title.share_with_class") }}
-                                </span>
-                            </div>
-                            <div>
-                                <a-checkbox-group
-                                    class="list-item-container"
-                                    v-model:value="shareClassState.checkedList"
-                                >
-                                    <template v-for="item in user_class_sample">
-                                        <div class="list-item">
-                                            <a-checkbox :value="item.id">
-                                                <span>{{ item.name }}</span>
-                                            </a-checkbox>
-                                        </div>
-                                    </template>
-                                </a-checkbox-group>
+                            <div class="list-item-container">
+                                <template v-for="item in user_class_sample">
+                                    <div class="list-item">
+                                        <span>{{ item.name }}</span>
+                                    </div>
+                                </template>
                             </div>
                             <div class="mt-3 d-flex justify-content-end">
                                 <a-button

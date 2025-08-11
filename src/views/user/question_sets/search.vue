@@ -173,6 +173,10 @@ function handleMouseClickOutside(event: MouseEvent) {
 
 //#endregion
 
+const onRedirectToDetail = (questionSetId: string) => {
+    router.push({ name: "User_QuestionSet_Detail", params: { id: questionSetId } });
+};
+
 onMounted(async () => {
     document.addEventListener("click", handleMouseClickOutside);
     getSessionSelectedTag();
@@ -188,28 +192,29 @@ onMounted(async () => {
                         <i class="bx bx-chevron-left navigator-back-button"></i>
                     </RouterLink>
                 </a-col>
-                <a-col class="main-title" :span="23"> <span> Library</span> <br /> </a-col>
+                <a-col class="main-title" :span="23">
+                    <span> {{ $t("detail_QS.other.library") }}</span> <br />
+                </a-col>
             </a-row>
         </div>
         <div class="content">
             <div class="content-item">
                 <div class="content-item-title">
                     <div>
-                        <span>Search Question Sets</span>
+                        <span>{{ $t("search_QS.title") }}</span>
                         <span>
-                            Discover question sets using keywords, tags, or titles from the great
-                            archive.
+                            {{ $t("search_QS.sub_title") }}
                         </span>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-between">
                     <div class="form-item">
-                        <label>Key words</label>
+                        <label>{{ $t("search_QS.form.key_word") }}</label>
                         <Input
                             @input="getData"
                             v-model="pageParams.name"
-                            :placeholder="t('class_index.other.search_class_placeholder')"
+                            :placeholder="t('search_QS.form.key_word_placeholder')"
                         >
                             <template #icon>
                                 <i class="bx bx-search"></i>
@@ -217,7 +222,7 @@ onMounted(async () => {
                         </Input>
                     </div>
                     <div class="form-item form-item-sort">
-                        <label>Sort by</label>
+                        <label>{{ $t("search_QS.form.sort_by") }}</label>
                         <a-select
                             v-model:value="pageParams.sortBy"
                             style="width: 200px"
@@ -262,7 +267,7 @@ onMounted(async () => {
                             <Input
                                 @input="getSearchTagData"
                                 v-model="searchTagPageParams.name"
-                                :placeholder="t('class_index.other.search_class_placeholder')"
+                                :placeholder="t('search_QS.form.tag_placeholder')"
                             >
                             </Input>
                             <div
@@ -296,7 +301,9 @@ onMounted(async () => {
 
                 <div class="content-item-title">
                     <div>
-                        <span>Result({{ quiz_data.length }})</span>
+                        <span>
+                            {{ $t("search_QS.other.result_title", { number: quiz_data.length }) }}
+                        </span>
                     </div>
                 </div>
                 <template v-if="loading">
@@ -313,7 +320,12 @@ onMounted(async () => {
                                     {{ item.name }}
                                 </div>
                                 <div class="quiz-item-description">
-                                    Rating: {{ item.ratingAverage }}⭐️ ({{ item.ratingCount }})
+                                    {{
+                                        $t("search_QS.other.rating", {
+                                            average: item.ratingAverage,
+                                            count: item.ratingCount,
+                                        })
+                                    }}
                                 </div>
                                 <div class="quiz-item-info quiz-info-detail">
                                     <div class="quiz-item-questions">
@@ -328,7 +340,11 @@ onMounted(async () => {
                                 </div>
                             </div>
                             <div class="exam-item-actions">
-                                <a-button type="primary" class="me-3 main-color-btn">
+                                <a-button
+                                    type="primary"
+                                    class="me-3 main-color-btn"
+                                    @click="onRedirectToDetail(item.id)"
+                                >
                                     {{ $t("class_question_set.buttons.view") }}
                                 </a-button>
                             </div>
@@ -340,7 +356,7 @@ onMounted(async () => {
                         >
                             <a-empty>
                                 <template #description>
-                                    <span> No data matches. </span>
+                                    <span> {{ $t("class_index.other.no_data_matches") }}</span>
                                 </template>
                             </a-empty>
                         </div>
@@ -496,5 +512,4 @@ onMounted(async () => {
     color: #7c3aed;
     margin-right: 12px;
 }
-
 </style>
