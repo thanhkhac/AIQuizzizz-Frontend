@@ -147,6 +147,7 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                         :label="t('create_QS.question.text')"
                         :placeholder="t('create_QS.question.text_placeholder')"
                         :html="questionData.questionHTML"
+                        :is-required="true"
                     />
                     <InputEditor
                         class="explain-section question-description-item"
@@ -156,6 +157,7 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                         :name="'explainText'"
                         :label="t('create_QS.question.explain_text')"
                         :placeholder="t('create_QS.question.explain_text_placeholder')"
+                        :is-required="false"
                     />
                 </div>
                 <div class="question-body-answer">

@@ -8,7 +8,6 @@ const maxLength = defineModel<number>("maxLength");
 const isRequired = defineModel<boolean>("isRequired");
 const readonly = defineModel<boolean>("readonly");
 
-
 const emit = defineEmits(["update:value", "change"]);
 
 const onUpdate = () => {

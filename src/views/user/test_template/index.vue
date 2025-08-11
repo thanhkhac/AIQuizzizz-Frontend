@@ -107,21 +107,12 @@ const onRefirectToCreate = () => {
 };
 
 const onRefirectToDetail = async (id: string) => {
-    await getPermission(id);
-    if (!permission.value.canEdit) {
-        message.warning("You don't have permission to perform this function!");
-        return;
-    }
+    // await getPermission(id);
+    // if (!permission.value.canView) {
+    //     message.warning("You don't have permission to perform this function!");
+    //     return;
+    // }
     router.push({ name: "User_TestTemplate_Detail", params: { id } });
-};
-
-const onRefirectToUpdate = async (id: string) => {
-    await getPermission(id);
-    if (!permission.value.canEdit) {
-        message.warning("You don't have permission to perform this function!");
-        return;
-    }
-    router.push({ name: "User_TestTemplate_Update", params: { id } });
 };
 
 // const onDelete = async (id: string) => {
@@ -181,9 +172,10 @@ const onOpenShareModal = async (template: TestTemplate) => {
 const chosenTemplate = ref<TestTemplate>({
     testTemplateId: "",
     name: "",
-    createdBy: "",
+    createBy: "",
     numberOfQuestion: 0,
-    dateCreated: 0,
+    dateCreated: "",
+    description: "",
 });
 
 //#endregion
@@ -275,7 +267,7 @@ onMounted(async () => {
                                 </div>
                                 <div class="quiz-item-created-by">
                                     {{ $t("class_question_set.other.created_by") }}
-                                    {{ template.createdBy }}
+                                    {{ template.createBy }}
                                 </div>
                             </div>
                         </div>

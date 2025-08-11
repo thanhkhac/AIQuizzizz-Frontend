@@ -15,7 +15,7 @@ const router = useRouter();
 
 const { t } = useI18n();
 
-const optionKeys = [FOLDER_SHARE_MODE.OWNER];
+const optionKeys = [FOLDER_SHARE_MODE.OWNER, FOLDER_SHARE_MODE.EDITABLE];
 
 const folder_share_mode_options = computed(() =>
     optionKeys.map((key) => ({

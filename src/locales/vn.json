@@ -295,7 +295,7 @@
 
             "multiple_choice_ins": "Chọn ít nhất một đáp án đúng",
             "matching_ins": "Mỗi lựa chọn là một cặp đúng",
-            "ordering_ins": "Giữ & kéo để sắp xếp theo thứ tự đúng",
+            "ordering_ins": "Điền vào các tùy chọn theo thứ tự đúng",
             "short_text_ins": "Đây có thể là các đáp án đúng dựa trên đầu vào người dùng",
             "short_text_valid_answer": "Đáp án hợp lệ"
         },
@@ -566,7 +566,7 @@
             "reset_learn_mode": "Đặt lại chế độ học"
         },
         "other": {
-            "progress_count": "Câu hỏi {current} trên {total}",
+            "progress_count": "Đã hoàn thành {current} trên {total}",
             "completed": "Hoàn thành",
             "total_set_progress": "Tiến trình bộ đề: ",
             "total_question": "Tổng số câu hỏi: ",

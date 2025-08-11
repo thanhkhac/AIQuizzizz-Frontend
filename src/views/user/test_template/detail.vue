@@ -21,6 +21,7 @@ import { useI18n } from "vue-i18n";
 import dayjs from "dayjs";
 
 const { t } = useI18n();
+const emit = defineEmits(["updateSidebar"]);
 
 const route = useRoute();
 const router = useRouter();
@@ -32,9 +33,10 @@ const question_set_id = ref(route.params.id);
 const quiz = ref<TestTemplate>({
     testTemplateId: "",
     name: "",
-    createdBy: "",
+    createBy: "",
     numberOfQuestion: 0,
-    dateCreated: 0,
+    dateCreated: "",
+    description: "",
 });
 
 const quiz_questions = ref<RequestQuestion[]>([]);
@@ -69,15 +71,21 @@ const getData = async () => {
 
         quiz.value = result.data.data;
         // quiz.value.createdBy = question_set_result.data.data.createdBy.fullName;
-
+        quiz.value.dateCreated = result.data.data.createAt;
         quiz_questions.value = result.data.data.questions.map((x: ResponseQuestion) =>
             TransferQuestionData.transformResponseToRequest(x),
         );
         questions.value = quiz_questions.value;
 
         await getPermission();
-    } catch (error) {
-        router.push({ name: "404" });
+    } catch (error: any) {
+        if (
+            ERROR.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE in (error.response?.data?.errors || {})
+        ) {
+            router.push({ name: "not-allowed" });
+        } else {
+            router.push({ name: "404" });
+        }
     } finally {
         loading.value = false;
     }
@@ -201,6 +209,8 @@ const onFilter = () => {
 onMounted(async () => {
     //get api quiz + check visibility to current user
     //format url
+    const sidebarActiveItem = "folder";
+    emit("updateSidebar", sidebarActiveItem);
     await getData();
 });
 </script>
@@ -222,6 +232,7 @@ onMounted(async () => {
                 <div class="content-item-title">
                     <div>
                         <span> Mẫu đề thi: {{ quiz.name }}</span>
+                        <span> {{ quiz.description }}</span>
                     </div>
                     <div
                         v-if="permission.canEdit || permission.canDelete"
@@ -249,9 +260,23 @@ onMounted(async () => {
                         </a-tooltip>
                     </div>
                 </div>
-                <div class="quiz-credit">
-                    <div class="share-btn-container">
+                <div class="action-container">
+                    <div class="credit-user">
+                        <img class="user-image" :src="user_image" alt="" />
+                        <div class="credit-user-info">
+                            <span>
+                                {{
+                                    $t("detail_QS.other.created_by", {
+                                        username: quiz.createBy || "Unknown",
+                                    })
+                                }}
+                            </span>
+                            <span>{{ dayjs(quiz.dateCreated).format("DD/MM/YYYY") }}</span>
+                        </div>
+                    </div>
+                    <div class="action-container">
                         <a-button
+                            v-if="permission.canDelete"
                             type="primary"
                             class="me-3 main-color-btn share-btn"
                             size="large"
@@ -260,9 +285,8 @@ onMounted(async () => {
                             <i class="bx bx-plus"></i>
                             {{ $t("detail_test_template.buttons.add_to_folder") }}
                         </a-button>
-                    </div>
-                    <div class="share-btn-container">
                         <a-button
+                            v-if="permission.canDelete"
                             type="primary"
                             class="main-color-btn share-btn"
                             size="large"
@@ -512,6 +536,7 @@ onMounted(async () => {
 .action-container {
     display: flex;
     justify-content: space-between;
+    margin-top: 20px;
 }
 
 .action-item {
@@ -541,7 +566,7 @@ onMounted(async () => {
 
 .content-item-title {
     display: flex;
-    align-items: center;
+    align-items: start;
 }
 
 .content-item-functions {
@@ -585,5 +610,6 @@ onMounted(async () => {
     background-color: var(--main-color);
     padding: 3px 8px;
     color: var(--text-color-contrast);
+    height: fit-content;
 }
 </style>

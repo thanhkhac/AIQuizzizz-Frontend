@@ -519,7 +519,7 @@ onMounted(async () => {
                     <DynamicScroller
                         ref="scrollerRef"
                         class="scroller"
-                        key-field="id"
+                        key-field="questionId"
                         :items="formState.createUpdateQuestions"
                         :min-item-size="650"
                         :buffer="800"

@@ -295,7 +295,7 @@
 
             "multiple_choice_ins": "Choose at least one correct option",
             "matching_ins": "Each option is a correct pair",
-            "ordering_ins": "Hold & drag these options to the correct order you want",
+            "ordering_ins": "Fill these options in the correct order",
             "short_text_ins": "These might be correct answers base on user input",
             "short_text_valid_answer": "Valid answers"
         },
@@ -566,7 +566,7 @@
             "reset_learn_mode": "Reset learn mode"
         },
         "other": {
-            "progress_count": "Question {current} of {total}",
+            "progress_count": "Completed {current} of {total}",
             "completed": "Completed",
             "total_set_progress": "Total set progress: ",
             "total_question": "Total question: ",

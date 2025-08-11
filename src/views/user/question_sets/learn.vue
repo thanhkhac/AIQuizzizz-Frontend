@@ -686,7 +686,7 @@ onMounted(async () => {
                 <div class="progress-info-number">
                     {{
                         $t("learn_QS.other.progress_count", {
-                            current: totalCompleted + 1,
+                            current: quiz.completedQuestionCount + 1,
                             total: quiz.totalQuestionCount,
                         })
                     }}
@@ -1042,9 +1042,7 @@ onMounted(async () => {
                 class="explain-modal explain-modal-up"
                 :class="{ show: explainModalOpen }"
             >
-                <div class="learn-question-explain">
-                    {{ currentQuestion.explainText }}
-                </div>
+                <div class="learn-question-explain" v-html="currentQuestion.explainText"></div>
                 <a-button
                     :class="['main-color-btn close-modal-btn']"
                     type="primary"
@@ -1054,7 +1052,10 @@ onMounted(async () => {
                     <i class="bx bx-chevrons-down"></i>
                 </a-button>
                 <a-button
-                    :class="['main-color-btn']"
+                    :class="[
+                        'main-color-btn',
+                        currentSession.length <= 0 ? 'main-color-btn-disabled' : '',
+                    ]"
                     type="primary"
                     size="large"
                     @click="onNextQuestion"

@@ -124,7 +124,7 @@ const onRemoveTestTemplate = (testTemplateId: string) => {
         cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             const result = await ApiFolder.DeleteTestTemplate(
-                folderData.value.folderTestId,
+                folderId.value.toString(),
                 testTemplateId,
             );
             if (!result.data.success) {
@@ -222,6 +222,17 @@ const onOpenShareModal = (template: TestTemplate) => {
 
 //#endregion
 
+const onRedirectToCreate = () => {
+    router.push({ name: "User_TestTemplate_Create" });
+};
+
+const onRedirectToDetail = (testTemplateId: string) => {
+    router.push({
+        name: "User_TestTemplate_Detail",
+        params: { id: testTemplateId },
+    });
+};
+
 onMounted(async () => {
     const sidebarActiveItem = "folder";
     emit("updateSidebar", sidebarActiveItem);
@@ -246,7 +257,12 @@ onMounted(async () => {
                     <i class="me-2 bx bx-share-alt"></i>
                     {{ $t("detail_QS.buttons.share_quiz") }}
                 </a-button>
-                <a-button type="primary" class="ms-3 main-color-btn" size="large">
+                <a-button
+                    type="primary"
+                    class="ms-3 main-color-btn"
+                    size="large"
+                    @click="onRedirectToCreate"
+                >
                     <i class="me-2 bx bx-plus"></i>
                     {{ $t("folder_detail.buttons.create_new_template") }}
                 </a-button>
@@ -296,12 +312,16 @@ onMounted(async () => {
                                     </div>
                                     <div class="quiz-item-created-by">
                                         {{ $t("class_question_set.other.created_by") }}
-                                        {{ template.createdBy }}
+                                        {{ template.createBy }}
                                     </div>
                                 </div>
                             </div>
                             <div class="exam-item-actions">
-                                <a-button type="primary" class="me-3 main-color-btn">
+                                <a-button
+                                    type="primary"
+                                    class="me-3 main-color-btn"
+                                    @click="onRedirectToDetail(template.testTemplateId)"
+                                >
                                     {{ $t("class_question_set.buttons.view") }}
                                 </a-button>
                                 <i
@@ -426,6 +446,21 @@ onMounted(async () => {
     />
 </template>
 <style scoped>
+.quiz-item-icon {
+    display: flex;
+    width: 35px;
+    height: 35px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    aspect-ratio: 1/1;
+    font-size: 16px;
+    border-radius: 50%;
+    background: #221a32;
+    color: #7c3aed;
+    margin-right: 12px;
+}
+
 .danger-zone {
     background-color: #ef44441a;
     border-radius: 8px;

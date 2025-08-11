@@ -200,8 +200,8 @@ const onSearchUser = async () => {
 const updateSharedUsers = async ({
     sharingModels = [] as any[],
     deleteUserIds = [] as string[],
-    successMsg = "Updated successfully",
-    errorMsg = "Update failed!",
+    successMsg = t("message.updated_successfully"),
+    errorMsg = t("message.updated_failed"),
 }) => {
     sharingFormState.value = {
         id: props.id,
@@ -246,8 +246,8 @@ const onShareWithResultUser = async (user: SearchUserWithEmail) => {
                 shareMode: PERMISSION.VIEW_ONLY,
             },
         ],
-        successMsg: "Added successfully",
-        errorMsg: "Add failed!",
+        successMsg: t("message.added_successfully"),
+        errorMsg: t("message.added_failed"),
     });
 };
 
@@ -260,8 +260,8 @@ const onChangePeoplePermission = async (userId: string, permission: string) => {
                 shareMode: permission,
             },
         ],
-        successMsg: "Updated successfully",
-        errorMsg: "Update failed!",
+        successMsg: t("message.updated_successfully"),
+        errorMsg: t("message.updated_failed"),
     });
 };
 
@@ -271,8 +271,8 @@ const onConfirmRemovePeopleAccess = async (id: string) => {
     await updateSharedUsers({
         sharingModels: [],
         deleteUserIds: deleteUserIds.value,
-        successMsg: "Removed successfully",
-        errorMsg: "Remove failed!",
+        successMsg: t("message.removed_successfully"),
+        errorMsg: t("message.removed_failed"),
     });
 };
 
@@ -324,10 +324,10 @@ const onCopyPublicShareUrl = () => {
     navigator.clipboard
         .writeText(getPublicShareUrl())
         .then(() => {
-            message.success("Copied");
+            message.success(t("message.copied"));
         })
         .catch(() => {
-            message.error("Empty");
+            message.error(t("message.copied_failed"));
         });
 };
 //#endregion
@@ -336,8 +336,8 @@ const onCopyPublicShareUrl = () => {
 const onChangeVisibility = async () => {
     await updateSharedUsers({
         sharingModels: [],
-        successMsg: "Updated successfully",
-        errorMsg: "Update failed!",
+        successMsg: t("message.updated_successfully"),
+        errorMsg: t("message.updated_failed"),
     });
 };
 
@@ -389,6 +389,7 @@ onMounted(() => {
                     <a-col :span="24">
                         <a-form-item :label="$t('share_modal.component_title.visibility')">
                             <a-select
+                                :disabled="!isUserOwner"
                                 @change="onChangeVisibility"
                                 class="me-3"
                                 v-model:value="selected_visibility_option"

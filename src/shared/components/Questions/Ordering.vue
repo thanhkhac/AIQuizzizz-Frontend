@@ -55,7 +55,7 @@ const addOption = () => {
     props.question.orderingItems.push({
         id: Date.now().toString(),
         text: "",
-        correctOrder: props.question.orderingItems.length + 1,
+        correctOrder: props.question.orderingItems.length,
     });
 };
 
@@ -146,6 +146,7 @@ const { validateInfos } = Form.useForm(props.question, {
                         :label="t('create_QS.question.text')"
                         :placeholder="t('create_QS.question.text_placeholder')"
                         :html="questionData.questionHTML"
+                        :is-required="true"
                     />
                 </div>
                 <div class="question-body-answer">
@@ -158,6 +159,7 @@ const { validateInfos } = Form.useForm(props.question, {
                         :name="'explainText'"
                         :label="t('create_QS.question.explain_text')"
                         :placeholder="t('create_QS.question.explain_text_placeholder')"
+                        :is-required="false"
                     />
                     <div class="option-section">
                         <div class="option-title">
@@ -168,15 +170,17 @@ const { validateInfos } = Form.useForm(props.question, {
                         </div>
 
                         <div :class="['option-list-container']">
-                            <VueDraggable v-model="questionData.orderingItems">
+                            <VueDraggable :disabled="true" v-model="questionData.orderingItems">
                                 <div
                                     class="option-item"
-                                    v-for="(option, index) in questionData.orderingItems"
+                                    v-for="(option, index) in questionData.orderingItems.sort(
+                                        (a, b) => a.correctOrder - b.correctOrder,
+                                    )"
                                     :key="option.id"
                                 >
                                     <div class="option-item-order">
                                         <i class="bx bx-hash"></i>
-                                        {{ option.correctOrder + 1 }}
+                                        {{ index + 1 }}
                                     </div>
                                     <div class="option-item-input">
                                         <TextArea

@@ -1,7 +1,8 @@
 export interface TestTemplate {
     testTemplateId: string;
     name: string;
-    createdBy: string;
+    createBy: string;
     numberOfQuestion: number;
-    dateCreated: number;
+    dateCreated: string;
+    description: string | null;
 }

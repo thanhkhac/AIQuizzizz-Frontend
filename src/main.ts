@@ -8,11 +8,6 @@ import App from "./App.vue";
 import router from "./router/router-index";
 
 /**
- * vue-i18n - multi-languages
- * **/
-import { createI18n } from "vue-i18n";
-
-/**
  * highchart
  * **/
 import HighchartsVue from "highcharts-vue";
@@ -80,7 +75,7 @@ import {
     Table,
     Rate,
     Skeleton,
-    Tree
+    Tree,
 } from "ant-design-vue";
 
 /**
@@ -93,23 +88,17 @@ pinia.use(createPersistedState());
  * vue-i18n - multiple languges
  * **/
 import i18n from "@/services/i18n";
-// const i18n = createI18n({
-//     legacy: false,
-//     locale: "en",
-//     fallbackLocale: "en",
-//     messages: {},
-// });
 
 async function loadLocale(locale: string): Promise<void> {
-    var messages;
+    let messages;
     try {
         messages = (await import(`./locales/${locale}.json`)).default;
     } catch (error) {
+        console.error(`Failed to load locale '${locale}':`, error);
         messages = (await import(`./locales/en.json`)).default;
     }
 
     i18n.global.setLocaleMessage(locale, messages);
-    // i18n.global.locale.value = locale;
     (i18n.global.locale as any).value = locale;
 }
 
@@ -123,12 +112,8 @@ const colors = ["purple", "blue", "green", "red", "amber", "pink"];
 const storedThemeClass = localStorage.getItem("theme") || "theme-dark";
 const isDarkSystem = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-const themeClass =
-    storedThemeClass === "theme-system"
-        ? isDarkSystem
-            ? "theme-dark"
-            : "theme-light"
-        : storedThemeClass;
+const systemThemeClass = isDarkSystem ? "theme-dark" : "theme-light";
+const themeClass = storedThemeClass === "theme-system" ? systemThemeClass : storedThemeClass;
 document.documentElement.classList.add(themeClass);
 
 const storedColorClass = localStorage.getItem("accent_color") || "purple";

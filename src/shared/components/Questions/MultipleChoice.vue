@@ -158,6 +158,7 @@ const onCheckHaveAnswer = () => {
                         :label="t('create_QS.question.text')"
                         :placeholder="t('create_QS.question.text_placeholder')"
                         :html="questionData.questionHTML"
+                        :is-required="true"
                     />
                 </div>
                 <div class="question-body-answer">
@@ -170,6 +171,7 @@ const onCheckHaveAnswer = () => {
                         :name="'explainText'"
                         :label="t('create_QS.question.explain_text')"
                         :placeholder="t('create_QS.question.explain_text_placeholder')"
+                        :is-required="false"
                     />
                     <div class="option-section">
                         <div class="option-title">{{ $t("create_QS.question.answer_option") }}</div>

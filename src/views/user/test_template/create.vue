@@ -491,7 +491,7 @@ const handleScroll = () => {
 };
 
 onMounted(() => {
-    formState.questions.push(...(question_data_raw as RequestQuestion[]));
+    formState.questions.push(createQuestionTemplate());
     // intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
     window.addEventListener("beforeunload", handleBeforeUnload);
 });

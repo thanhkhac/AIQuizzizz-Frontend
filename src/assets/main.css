@@ -2275,4 +2275,8 @@ ant-select-tree */
     background-color: var(--main-color);
 }
 
+.ant-tooltip.ant-tooltip-red .ant-tooltip-arrow::before {
+    background-color: red;
+}
+
 /* ========================================User folder and siblings====================================================== */

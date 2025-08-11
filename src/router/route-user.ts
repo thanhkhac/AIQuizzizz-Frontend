@@ -191,6 +191,15 @@ const userRoutes = [
             title: "attempt-test",
         },
     },
+    {
+        name: "User_Test_Review",
+        // path: "/user/test/:id/review",
+        path: "/user/test/review",
+        component: () => import("@/views/user/test/review.vue"),
+        meta: {
+            title: "review-test",
+        },
+    },
 ];
 
 export default userRoutes;

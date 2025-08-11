@@ -87,7 +87,10 @@ const getData = async () => {
         questions.value = quiz_questions.value;
 
         await getPermission();
-    } catch (error) {
+    } catch (error: any) {
+        if (ERROR.QUESTION_SET_NOT_FOUND in (error.response?.data?.errors || {})) {
+            router.push({ name: "404" });
+        }
     } finally {
         loading.value = false;
     }
@@ -111,6 +114,7 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 import ShareModal from "@/shared/modals/ShareModal.vue";
 import type { ResponseQuestion } from "@/models/response/question";
 import VISIBILITY from "@/constants/visibility";
+import ERROR from "@/constants/errors";
 const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
 
 const onOpenShareModal = () => {

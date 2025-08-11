@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 
 import { Editor, EditorContent } from "@tiptap/vue-3";
 import { StarterKit } from "@tiptap/starter-kit";
@@ -11,6 +11,7 @@ const placeholder = defineModel("placeholder", { default: "" });
 const label = defineModel("label", { default: "" });
 const name = defineModel("name", { default: "" });
 const html = defineModel("html");
+const isRequired = defineModel("isRequired", { default: false });
 
 const editor = ref(null);
 
@@ -31,6 +32,10 @@ onMounted(() => {
             emit("change", editor.getHTML());
         },
     });
+    if (isRequired.value && editor.value?.isEmpty) {
+        const proseMirrorEl = editor.value?.view?.dom;
+        proseMirrorEl.classList.add("invalid");
+    }
 });
 
 onBeforeUnmount(() => {
@@ -39,9 +44,20 @@ onBeforeUnmount(() => {
     }
 });
 
-watch(modelValue, (newValue) => {
+const editorContainer = (ref < HTMLElement) | (null > null);
+
+watch(modelValue, async (newValue) => {
     if (editor.value && newValue !== editor.value.getHTML()) {
         editor.value.commands.setContent(newValue, false);
+    }
+    await nextTick();
+
+    const proseMirrorEl = editor.value?.view?.dom;
+    if (!proseMirrorEl) return;
+
+    if (isRequired.value) {
+        const isEmpty = newValue.replace(/<\/?p>/g, "").trim() === "";
+        proseMirrorEl.classList.toggle("invalid", isEmpty);
     }
 });
 </script>
@@ -125,7 +141,7 @@ watch(modelValue, (newValue) => {
                 <i class="bx bx-code-alt"></i>
             </button>
         </div>
-        <editor-content :editor="editor" :placeholder="placeholder" />
+        <editor-content ref="editorContainer" :editor="editor" :placeholder="placeholder" />
     </a-form-item>
 </template>
 
@@ -176,7 +192,7 @@ watch(modelValue, (newValue) => {
 }
 
 .ProseMirror {
-    background-color:  var(--content-item-children-background-color);
+    background-color: var(--content-item-children-background-color);
     border: 1px solid var(--form-item-border-color);
     padding: 10px;
     height: 100%;
@@ -215,5 +231,8 @@ pre {
     color: var(--text-color) !important; /* or any custom color */
     font-weight: 500;
     font-size: 14px;
+}
+.ProseMirror.invalid {
+    border-color: red !important;
 }
 </style>
