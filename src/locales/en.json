@@ -981,7 +981,43 @@
                 "User": "User"
             }
         },
-        "manage_subscription": {},
+        "manage_subscription": {
+            "title": "Manage Subscriptions",
+            "create_new_sub": "Create New Subscription",
+            "stat_card": {
+                "total_subs": "Total Subscripbers",
+                "monthly_rev": "Monthly Revenue",
+                "new_subs": "New Subscribers",
+                "unsubs": "Unsubscribers"
+            },
+            "plan_comparison": "Plan Comparison",
+            "plan_comparison_content": "Compare available subscription plans",
+            "modal": {
+                "title_create": "Create New Subscription",
+                "title_update": "Edit Subscription"
+            },
+            "plan_unit": {
+                "Day": "Day",
+                "Month": "Month",
+                "Year": "Year"
+            },
+            "plan_feature": {
+                "canLearn": "Learning",
+                "canOpenTest": "Access tests",
+                "canCopyOrImportQuestionSet": "Copy or import question sets"
+            },
+            "create_plan": {
+                "name": "Subscriptions Name",
+                "price": "Price",
+                "duration": "Duration",
+                "unit": "Unit",
+                "feature": "Feature"
+            },
+            "btn": {
+                "create": "Create",
+                "save": "Save"
+            }
+        },
         "manage_class": {}
     }
 }

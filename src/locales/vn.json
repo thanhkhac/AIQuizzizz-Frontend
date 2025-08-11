@@ -981,7 +981,42 @@
                 "User": "Người dùng"
             }
         },
-        "manage_subscription": {},
+        "manage_subscription": {
+            "title": "Quản lý gói đăng ký",
+            "create_new_sub": "Tạo gói đăng ký mới",
+            "stat_card": {
+                "total_subs": "Tổng số người đăng ký",
+                "monthly_rev": "Doanh thu hàng tháng",
+                "new_subs": "Người đăng ký mới",
+                "unsubs": "Hủy đăng ký"
+            },
+            "plan_comparison": "Bảng so sánh gói",
+            "plan_comparison_content": "So sánh các gói đăng ký hiện có",
+            "modal": {
+                "title": "Tạo gói đăng ký mới"
+            },
+            "plan_unit": {
+                "day": "Ngày",
+                "month": "Tháng",
+                "year": "Năm"
+            },
+            "plan_feature": {
+                "canLearn": "Học bài",
+                "canOpenTest": "Mở đề thi",
+                "canCopyOrImportQuestionSet": "Sao chép/Import bộ câu hỏi"
+            },
+            "create_plan": {
+                "name": "Tên gói đăng ký",
+                "price": "Giá",
+                "duration": "Thời hạn",
+                "unit": "Đơn vị",
+                "feature": "Tính năng"
+            },
+            "btn": {
+                "create": "Tạo",
+                "save": "Lưu"
+            }
+        },
         "manage_class": {}
     }
 }
