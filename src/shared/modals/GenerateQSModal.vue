@@ -14,86 +14,86 @@ import TextArea from "../components/Common/TextArea.vue";
 
 import { useI18n } from "vue-i18n";
 
-const question_data_raw = [
-    {
-        id: "q1",
-        type: "MultipleChoice",
-        questionText: "What is the capital of France ?",
-        questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
-        explainText: "Paris is the capital city of France.",
-        score: 1,
-        multipleChoices: [
-            { id: "1", text: "Paris", isAnswer: true },
-            { id: "2", text: "London", isAnswer: false },
-            { id: "3", text: "Berlin", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q2",
-        type: "Matching",
-        questionText: "Match the countries to their capitals.",
-        questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
-        explainText: "Each country must be paired with its capital.",
-        score: 2,
-        multipleChoices: [],
-        matchingPairs: [
-            { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
-            { id: "2", leftItem: "Italy", rightItem: "Rome" },
-            { id: "3", leftItem: "Vietnam", rightItem: "Hanoi" },
-        ],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q3",
-        type: "Ordering",
-        questionText: "Arrange the steps of the water cycle in the correct order.",
-        questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
-        explainText:
-            "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
-        score: 2,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [
-            { id: "1", text: "Evaporation", correctOrder: 1 },
-            { id: "2", text: "Condensation", correctOrder: 2 },
-            { id: "3", text: "Precipitation", correctOrder: 3 },
-            { id: "4", text: "Collection", correctOrder: 4 },
-        ],
-        shortAnswer: "",
-    },
-    {
-        id: "q4",
-        type: "ShortText",
-        questionText: "What is the chemical symbol for water?",
-        questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
-        explainText: "H2O is the formula for water.",
-        score: 1,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "H2O",
-    },
-    {
-        id: "q5",
-        type: "MultipleChoice",
-        questionText: "Which planet is known as the Red Planet?",
-        questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
-        explainText: "Mars is often called the Red Planet due to its reddish appearance.",
-        score: 1,
-        multipleChoices: [
-            { id: "1", text: "Mars", isAnswer: true },
-            { id: "2", text: "Venus", isAnswer: false },
-            { id: "3", text: "Jupiter", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-];
+// const question_data_raw = [
+//     {
+//         id: "q1",
+//         type: "MultipleChoice",
+//         questionText: "What is the capital of France ?",
+//         questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
+//         explainText: "Paris is the capital city of France.",
+//         score: 1,
+//         multipleChoices: [
+//             { id: "1", text: "Paris", isAnswer: true },
+//             { id: "2", text: "London", isAnswer: false },
+//             { id: "3", text: "Berlin", isAnswer: false },
+//         ],
+//         matchingPairs: [],
+//         orderingItems: [],
+//         shortAnswer: "",
+//     },
+//     {
+//         id: "q2",
+//         type: "Matching",
+//         questionText: "Match the countries to their capitals.",
+//         questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
+//         explainText: "Each country must be paired with its capital.",
+//         score: 2,
+//         multipleChoices: [],
+//         matchingPairs: [
+//             { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
+//             { id: "2", leftItem: "Italy", rightItem: "Rome" },
+//             { id: "3", leftItem: "Vietnam", rightItem: "Hanoi" },
+//         ],
+//         orderingItems: [],
+//         shortAnswer: "",
+//     },
+//     {
+//         id: "q3",
+//         type: "Ordering",
+//         questionText: "Arrange the steps of the water cycle in the correct order.",
+//         questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
+//         explainText:
+//             "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
+//         score: 2,
+//         multipleChoices: [],
+//         matchingPairs: [],
+//         orderingItems: [
+//             { id: "1", text: "Evaporation", correctOrder: 1 },
+//             { id: "2", text: "Condensation", correctOrder: 2 },
+//             { id: "3", text: "Precipitation", correctOrder: 3 },
+//             { id: "4", text: "Collection", correctOrder: 4 },
+//         ],
+//         shortAnswer: "",
+//     },
+//     {
+//         id: "q4",
+//         type: "ShortText",
+//         questionText: "What is the chemical symbol for water?",
+//         questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
+//         explainText: "H2O is the formula for water.",
+//         score: 1,
+//         multipleChoices: [],
+//         matchingPairs: [],
+//         orderingItems: [],
+//         shortAnswer: "H2O",
+//     },
+//     {
+//         id: "q5",
+//         type: "MultipleChoice",
+//         questionText: "Which planet is known as the Red Planet?",
+//         questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
+//         explainText: "Mars is often called the Red Planet due to its reddish appearance.",
+//         score: 1,
+//         multipleChoices: [
+//             { id: "1", text: "Mars", isAnswer: true },
+//             { id: "2", text: "Venus", isAnswer: false },
+//             { id: "3", text: "Jupiter", isAnswer: false },
+//         ],
+//         matchingPairs: [],
+//         orderingItems: [],
+//         shortAnswer: "",
+//     },
+// ];
 
 const { t } = useI18n();
 
@@ -221,7 +221,6 @@ const onGenerateQuestions = async () => {
             generateByAIModalState.documentStructureJson === null ||
             generateByAIModalState.selectedPartJson === null
         ) {
-
             Modal.error({
                 title: "Error",
                 content: "Please choose at least one section in your document to proceed.",
@@ -366,7 +365,7 @@ watch(
     (val) => {
         generateModalState.indeterminate =
             !!val.length && val.length < generatedQuestions.value.map((x) => x.id).length; //change to uploadedList when it done
-        generateModalState.checkAll = val.length === question_data_raw.length;
+        generateModalState.checkAll = val.length === generatedQuestions.value.length;
     },
 );
 

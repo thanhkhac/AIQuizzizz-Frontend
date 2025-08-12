@@ -355,12 +355,12 @@ const showModalConfirmation = () => {
                 createUpdateQuestions: formState.createUpdateQuestions.map((x) => ({
                     ...x,
                     questionId: x.id.startsWith("new_") ? null : x.id,
-                    id: x.id.startsWith("new_") ? null : x.id,
                 })),
             });
 
             if (result.data.success) {
                 message.success(t("message.updated_successfully"));
+                isDataValid.value = false;
                 router.push({
                     name: "User_QuestionSet_Detail",
                     params: { id: result.data.data },

@@ -280,6 +280,7 @@ const showModalConfirmation = () => {
             let result = await ApiQuestionSet.Create(formState);
             if (result.data.success) {
                 message.success(t("message.created_successfully"));
+                // isDataValid.value = false;
                 router.push({
                     name: "User_QuestionSet_Detail",
                     params: { id: result.data.data },
@@ -347,6 +348,11 @@ const onModalImport = (selected: RequestQuestion[]) => {
 // };
 
 onBeforeRouteLeave((to, from, next) => {
+    // if (!isDataValid.value) {
+    //     next();
+    //     return;
+    // }
+
     Modal.confirm({
         title: t("create_QS.modal.leave.title"),
         content: t("create_QS.modal.leave.content"),

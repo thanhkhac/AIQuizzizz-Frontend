@@ -331,13 +331,20 @@ const showModalConfirmation = () => {
             formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
                 x.id.startsWith("new_") ? { ...x, id: "" } : x,
             ); //remove new question id
-            console.log(formState);
 
-            // const result = await ApiTest.Update(formState);
-            // if (result.data.success) {
-            //     isDataValid.value = false; //disable safe guard
-            //     message.success("Updated successfully!");
-            // }
+            //const result = await ApiTest.Update(formState);
+            let result = await ApiTest.Update({
+                ...formState,
+                createUpdateQuestions: formState.createUpdateQuestions.map((x) => ({
+                    ...x,
+                    questionId: x.id.startsWith("new_") ? null : x.id,
+                })),
+            });
+
+            if (result.data.success) {
+                isDataValid.value = false; //disable safe guard
+                message.success("Updated successfully!");
+            }
         },
     });
 };

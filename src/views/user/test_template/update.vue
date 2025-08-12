@@ -334,6 +334,7 @@ const showModalConfirmation = () => {
 
             if (result.data.success) {
                 message.success(t("message.updated_successfully"));
+                isDataValid.value = false;
                 router.push({
                     name: "User_TestTemplate_Detail",
                     params: { id: result.data.data },
