@@ -6,9 +6,9 @@ import QUESTION_TYPE from "@/constants/questionTypes";
 import QUESTION_DIFFICULTY from "@/constants/questiondifficulties";
 import SUPPORTED_LOCALES from "@/constants/languages";
 
-import { ref, reactive, watch, onMounted, nextTick } from "vue";
+import { ref, reactive, watch, onMounted, nextTick, h } from "vue";
 import { Modal, message } from "ant-design-vue";
-import { InboxOutlined } from "@ant-design/icons-vue";
+import { InboxOutlined, LoadingOutlined } from "@ant-design/icons-vue";
 
 import TextArea from "../components/Common/TextArea.vue";
 
@@ -100,6 +100,7 @@ const { t } = useI18n();
 //#region modal
 interface Props {
     title: string;
+    numberOfQuestion: number;
 }
 
 const props = defineProps<Props>();
@@ -122,12 +123,29 @@ defineExpose({
 });
 
 const handleModalImport = () => {
+    if (generateModalState.checkedList.length === 0) {
+        message.warning(
+            t("message.minimum_question", {
+                number: 5,
+            }),
+        );
+        return;
+    }
+    if (generateModalState.checkedList.length + props.numberOfQuestion > 500) {
+        message.warning(
+            t("message.limit_question", {
+                number: 500,
+            }),
+        );
+        return;
+    }
+
     Modal.confirm({
         title: "Are your sure? ",
         content: "Import: " + generateModalState.checkedList.length + "into " + props.title + " ? ",
         okText: "Confirm",
         onOk: () => {
-            const selectedQuestions = question_data_raw.filter((question) =>
+            const selectedQuestions = generatedQuestions.value.filter((question) =>
                 generateModalState.checkedList.includes(question.id),
             ) as RequestQuestion[];
 
@@ -151,13 +169,13 @@ const questionDifficultyOptions = Object.values(QUESTION_DIFFICULTY).map((diffic
 }));
 
 const questionMaximumOptions = ref<any>([]);
-for (let i = 10; i <= 100; i += 10) {
+for (let i = 10; i <= 50; i += 10) {
     questionMaximumOptions.value.push({ label: i, value: i });
 }
 //#endregion
 
 //#region form state
-const generatedQuestions = ref<RequestQuestion[]>();
+const generatedQuestions = ref<RequestQuestion[]>([]);
 
 const generateModalState = reactive({
     checkAll: false,
@@ -166,13 +184,109 @@ const generateModalState = reactive({
 });
 
 const generateByAIModalState = reactive({
-    selectedQuestionTypes: [questionTypeOptions[0]],
-    maxQuestion: questionMaximumOptions.value[0].value,
-    difficulty: questionDifficultyOptions[0].value,
+    file: null as File | null,
+    isGenerateExplain: true,
     language: SUPPORTED_LOCALES[0].code,
-    enableExplain: true,
+    questionCount: questionMaximumOptions.value[0].value,
+    questionTypes: [questionTypeOptions[0]],
+    // difficulty: questionDifficultyOptions[0].value,
+    documentStructureJson: null as string | null,
+    selectedPartJson: null as string | null,
     title: "",
 });
+
+const onDeselectQuestionType = (value: any) => {
+    if (generateByAIModalState.questionTypes.length === 0) {
+        message.warning("At least one question type must be selected.");
+
+        //keep the item
+        generateByAIModalState.questionTypes.push(value);
+    }
+};
+
+const loading = ref(false);
+const indicator = h(LoadingOutlined, {
+    style: { fontSize: "100px", color: "var(--main-color)" },
+    spin: true,
+});
+
+const onGenerateQuestions = async () => {
+    try {
+        loading.value = true;
+        if (!generateByAIModalState.title && generateByAIModalState.isGenerateExplain) {
+            message.error("Please enter a reference for the document citation.");
+            return;
+        }
+        if (
+            generateByAIModalState.documentStructureJson === null ||
+            generateByAIModalState.selectedPartJson === null
+        ) {
+
+            Modal.error({
+                title: "Error",
+                content: "Please choose at least one section in your document to proceed.",
+                centered: true,
+            });
+            openFileStructureModal();
+            return;
+        }
+
+        const object_document_structure = JSON.parse(generateByAIModalState.documentStructureJson);
+        const object_selected_part = JSON.parse(generateByAIModalState.selectedPartJson);
+
+        if (generateByAIModalState.isGenerateExplain && generateByAIModalState.title) {
+            generateByAIModalState.documentStructureJson = JSON.stringify({
+                ...object_document_structure,
+                title: generateByAIModalState.title,
+            });
+
+            generateByAIModalState.selectedPartJson = JSON.stringify({
+                ...object_selected_part,
+                title: generateByAIModalState.title,
+            });
+        }
+
+        const formData = new FormData();
+        formData.append("file", files.value[0] as File);
+        formData.append(
+            "isGenerateExplain",
+            generateByAIModalState.isGenerateExplain ? "true" : "false",
+        );
+
+        formData.append(
+            "language",
+            SUPPORTED_LOCALES.find((x) => x.code === generateByAIModalState.language)?.label ||
+                SUPPORTED_LOCALES[0].label,
+        );
+
+        formData.append("questionCount", generateByAIModalState.questionCount);
+        formData.append(
+            "questionTypes",
+            JSON.stringify(generateByAIModalState.questionTypes.map((x) => x)),
+        );
+
+        formData.append("documentStructureJson", generateByAIModalState.documentStructureJson);
+        formData.append("selectedPartJson", generateByAIModalState.selectedPartJson);
+
+        const result = await ApiAIGenerate.GenerateQuestion(formData);
+        if (!result.data.success) {
+            message.error("Generate failed!");
+            return;
+        }
+
+        generatedQuestions.value = [
+            ...(generatedQuestions.value || []),
+            ...(result.data.data.map((x: any, index: number) => ({
+                ...x,
+                id: index,
+            })) as RequestQuestion[]),
+        ];
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loading.value = false;
+    }
+};
 //#endregion
 
 //#region file
@@ -185,21 +299,34 @@ const openFileExplorer = () => {
     fileInput.value?.click();
 };
 
-const handleFileChange = async (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-
+const onFileChange = async (file: File) => {
     if (file) {
+        if (file.type !== "application/pdf") {
+            message.error("Only PDF files are supported.");
+            return;
+        }
         files.value = [];
         message.success(file.name + " uploaded successfully.");
         files.value.push(file);
-        generateByAIModalState.title = file.name;
-        await nextTick();
+
+        //get string before dot
+        const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+        generateByAIModalState.title = fileNameWithoutExt;
+
+        await nextTick(); //to bind data in modal
         openFileStructureModal();
-        target.value = "";
         return;
     }
     message.error("Upload failed");
+};
+
+const handleFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (file) {
+        onFileChange(file);
+        target.value = "";
+    }
 };
 
 const handleDragEnter = (event: DragEvent) => {
@@ -211,23 +338,16 @@ const handleDragEnter = (event: DragEvent) => {
 
 const handleDrop = async (event: DragEvent) => {
     const file = event.dataTransfer?.files[0];
-
     isDragging.value = false;
 
     if (file) {
-        files.value = [];
-        message.success(file.name + " uploaded successfully.");
-        files.value.push(file);
-        generateByAIModalState.title = file.name;
-        await nextTick();
-        openFileStructureModal();
-        return;
+        onFileChange(file);
     }
-    message.error("Upload failed");
 };
 
 const onRemoveUploadedFile = () => {
     files.value = [];
+    generateFileStructureRef.value?.clearData();
 };
 
 //#endregion
@@ -236,7 +356,7 @@ const onRemoveUploadedFile = () => {
 //checkboxes  / checkbox-all for importing question back to the page
 const onCheckAll = (event: any) => {
     Object.assign(generateModalState, {
-        checkedList: event.target.checked ? question_data_raw.map((x) => x.id) : [],
+        checkedList: event.target.checked ? generatedQuestions.value.map((x) => x.id) : [],
         indeterminate: false,
     });
 };
@@ -245,7 +365,7 @@ watch(
     () => generateModalState.checkedList,
     (val) => {
         generateModalState.indeterminate =
-            !!val.length && val.length < question_data_raw.map((x) => x.id).length; //change to uploadedList when it done
+            !!val.length && val.length < generatedQuestions.value.map((x) => x.id).length; //change to uploadedList when it done
         generateModalState.checkAll = val.length === question_data_raw.length;
     },
 );
@@ -263,6 +383,7 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 
 //#region generate file structure
 import GenerateFileStructure from "./GenerateFileStructure.vue";
+import ApiAIGenerate from "@/api/ApiAIGenerate";
 const generateFileStructureRef = ref<InstanceType<typeof GenerateFileStructure> | null>(null);
 
 const openFileStructureModal = () => {
@@ -271,11 +392,14 @@ const openFileStructureModal = () => {
     }
 };
 
+const handleImportStructure = (document_structure: string, selected_structure: string) => {
+    generateByAIModalState.documentStructureJson = document_structure;
+    generateByAIModalState.selectedPartJson = selected_structure;
+};
+
 //#endregion
 
-onMounted(() => {
-    generatedQuestions.value = question_data_raw as RequestQuestion[];
-});
+onMounted(() => {});
 </script>
 
 <template>
@@ -307,12 +431,13 @@ onMounted(() => {
                     <div class="section-title">
                         <span>Upload</span>
                     </div>
-                    <div class="section-content">
+                    <div v-if="!files.length" class="section-content mb-2">
                         <input
                             @change="handleFileChange"
                             class="d-none"
                             type="file"
                             ref="fileInput"
+                            accept=".pdf"
                         />
                         <div
                             :class="['customized-file-upload', isDragging ? 'is-dragging' : '']"
@@ -344,15 +469,19 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-                    <div class="file-container">
+                    <div v-if="files.length" class="file-container">
                         <div class="file-item" v-for="file in files">
                             <span>{{ file.name }}</span>
                             <i class="bx bx-trash text-danger" @click="onRemoveUploadedFile()"></i>
                         </div>
+                        <div class="file-structure" @click="openFileStructureModal">
+                            <i class="bx bx-file"></i>
+                            <div>Structure</div>
+                        </div>
                     </div>
                     <a-form layout="vertical" class="generate-ai-form">
                         <a-row class="d-flex justify-content-between">
-                            <a-col :span="12">
+                            <!-- <a-col :span="12">
                                 <a-form-item label="Difficulty">
                                     <a-select
                                         v-model:value="generateByAIModalState.difficulty"
@@ -361,29 +490,7 @@ onMounted(() => {
                                         :options="questionDifficultyOptions"
                                     />
                                 </a-form-item>
-                            </a-col>
-                            <a-col :span="11">
-                                <a-form-item label="Maximum question">
-                                    <a-select
-                                        v-model:value="generateByAIModalState.maxQuestion"
-                                        style="width: 100%"
-                                        :placeholder="'Maximum number of question'"
-                                        :options="questionMaximumOptions"
-                                    />
-                                </a-form-item>
-                            </a-col>
-                        </a-row>
-
-                        <a-form-item label="Question types">
-                            <a-select
-                                v-model:value="generateByAIModalState.selectedQuestionTypes"
-                                mode="multiple"
-                                style="width: 100%"
-                                :placeholder="'Select multiple'"
-                                :options="questionTypeOptions"
-                            />
-                        </a-form-item>
-                        <a-row class="d-flex justify-content-between">
+                            </a-col> -->
                             <a-col :span="12">
                                 <a-form-item label="Language">
                                     <a-select
@@ -401,27 +508,55 @@ onMounted(() => {
                                 </a-form-item>
                             </a-col>
                             <a-col :span="11">
-                                <a-form-item label="Enable explaination">
-                                    <a-switch
-                                        v-model:checked="generateByAIModalState.enableExplain"
+                                <a-form-item label="Maximum question">
+                                    <a-select
+                                        v-model:value="generateByAIModalState.questionCount"
+                                        style="width: 100%"
+                                        :placeholder="'Maximum number of question'"
+                                        :options="questionMaximumOptions"
                                     />
                                 </a-form-item>
                             </a-col>
                         </a-row>
-                        <a-form-item label="Language">
-                            <TextArea
-                                v-model:value="generateByAIModalState.title"
-                                :is-required="generateByAIModalState.enableExplain"
-                                :max-length="200"
-                                :placeholder="'Enter document title for citation'"
-                                :readonly="!generateByAIModalState.enableExplain"
+
+                        <a-form-item label="Question types">
+                            <a-select
+                                @deselect="onDeselectQuestionType"
+                                v-model:value="generateByAIModalState.questionTypes"
+                                mode="multiple"
+                                style="width: 100%"
+                                :placeholder="'Select multiple'"
+                                :options="questionTypeOptions"
                             />
                         </a-form-item>
+                        <a-row class="d-flex justify-content-between">
+                            <a-col :span="7">
+                                <a-form-item label="Enable explaination">
+                                    <a-switch
+                                        v-model:checked="generateByAIModalState.isGenerateExplain"
+                                    />
+                                </a-form-item>
+                            </a-col>
+                            <a-col v-if="generateByAIModalState.isGenerateExplain" :span="16">
+                                <a-form-item label="Reference name">
+                                    <TextArea
+                                        v-model="generateByAIModalState.title"
+                                        :is-required="generateByAIModalState.isGenerateExplain"
+                                        :max-length="200"
+                                        :placeholder="'Enter document title for citation'"
+                                        :readonly="!generateByAIModalState.isGenerateExplain"
+                                    />
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+
                         <a-form-item style="margin-top: 7px" class="generate-ai-btn-container">
                             <a-button
+                                :loading="loading"
                                 size="large"
                                 class="w-100 main-color-btn generate_ai"
                                 type="primary"
+                                @click="onGenerateQuestions"
                             >
                                 ✨ Generate
                             </a-button>
@@ -430,7 +565,10 @@ onMounted(() => {
                 </div>
                 <div class="content-item-section preview-section">
                     <div class="section-title">Preview</div>
-                    <div class="section-content">
+                    <div v-if="loading" class="loading-container">
+                        <a-spin size="large" :indicator="indicator" />
+                    </div>
+                    <div v-else class="section-content">
                         <div class="section-content-header">
                             <a-checkbox
                                 :class="[
@@ -580,7 +718,11 @@ onMounted(() => {
         <template #footer></template>
     </a-modal>
 
-    <GenerateFileStructure :file="files[0]" ref="generateFileStructureRef" />
+    <GenerateFileStructure
+        :file="files[0]"
+        ref="generateFileStructureRef"
+        @import="handleImportStructure"
+    />
 </template>
 <style scoped>
 .main-color-btn.generate_ai {
@@ -597,5 +739,38 @@ onMounted(() => {
 }
 .generate-modal-info {
     color: var(--main-color) !important;
+}
+
+.file-structure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    width: 100px;
+    padding: 10px;
+    border: 1px solid var(--main-color);
+    border-radius: 8px;
+    color: var(--text-color-contrast);
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.file-structure i {
+    font-size: 50px;
+}
+
+.file-structure:hover {
+    background-color: var(--main-color);
+    border-color: var(--main-color);
+}
+.loading-container {
+    min-height: 50vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 </style>

@@ -15,6 +15,7 @@ const { t } = useI18n();
 
 interface Props {
     title: string;
+    numberOfQuestion: number;
 }
 
 const props = defineProps<Props>();
@@ -180,7 +181,19 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 
 const handleModalImport = () => {
     if (importModalState.checkedList.length === 0) {
-        message.warning("Please choose at least 1 question to import!");
+        message.warning(
+            t("message.minimum_question", {
+                number: 5,
+            }),
+        );
+        return;
+    }
+    if (importModalState.checkedList.length + props.numberOfQuestion > 500) {
+        message.warning(
+            t("message.limit_question", {
+                number: 500,
+            }),
+        );
         return;
     }
     Modal.confirm({

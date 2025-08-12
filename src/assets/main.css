@@ -979,7 +979,9 @@ pre {
 }
 
 .file-container {
-    margin-top: 10px;
+    margin: 10px 0px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .file-item {
@@ -989,11 +991,13 @@ pre {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: fit-content;
 }
 
 .file-item i {
     cursor: pointer;
     font-size: 20px;
+    margin-left: 10px;
 }
 
 .section-content-header {
@@ -1182,6 +1186,7 @@ pre {
 
 .ant-modal-content {
     background-color: var(--form-item-background-color) !important;
+    color: var(--text-color) !important;
 }
 .ant-modal-confirm-title,
 .ant-modal-confirm-content {
@@ -2195,6 +2200,28 @@ ant-select-tree */
 .ant-select-tree-list-holder-inner {
     background-color: var(--form-item-background-color) !important;
 }
+
+.ant-tree-list-holder-inner {
+    background-color: var(--form-item-background-color) !important;
+    border-color: var(--form-item-border-color) !important;
+    color: var(--text-color-contrast) !important;
+}
+
+.ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-normal.ant-tree-node-selected {
+    background-color: var(--main-color) !important;
+    color: var(--text-color-contrast) !important;
+}
+
+.ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-open.ant-tree-node-selected {
+    background-color: var(--main-color) !important;
+    color: var(--text-color-contrast) !important;
+}
+
+.ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-close.ant-tree-node-selected {
+    background-color: var(--main-color) !important;
+    color: var(--text-color-contrast) !important;
+}
+
 /* ========================================Create-QuestionSet and siblings====================================================== */
 /****/
 /* ========================================User folder and siblings====================================================== */

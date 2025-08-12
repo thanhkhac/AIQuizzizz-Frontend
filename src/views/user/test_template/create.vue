@@ -6,7 +6,7 @@ import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
 
 import dayjs from "dayjs";
-import { onBeforeRouteLeave } from "vue-router";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 
 import type { RequestQuestion } from "@/models/request/question";
 
@@ -25,6 +25,7 @@ interface FormState {
 }
 
 const { t } = useI18n();
+const router = useRouter();
 
 //#region init data
 const formRef = ref();
@@ -407,6 +408,10 @@ const showModalConfirmation = () => {
             let result = await ApiTestTemplate.Create(formState);
             if (result.data.success) {
                 message.success(t("message.created_successfully"));
+                router.push({
+                    name: "User_TestTemplate_Detail",
+                    params: { id: result.data.data },
+                });
             }
             // localStorage.removeItem(storage_draft_key);
         },
@@ -609,8 +614,18 @@ onMounted(() => {
         </div>
     </div>
 
-    <ImportQSModal ref="importModalRef" :title="formState.name" @import="onModalImport" />
-    <GenerateQSModal ref="generateModalRef" :title="formState.name" @import="onModalImport" />
+    <ImportQSModal
+        ref="importModalRef"
+        :title="formState.name"
+        :number-of-question="formState.questions.length"
+        @import="onModalImport"
+    />
+    <GenerateQSModal
+        ref="generateModalRef"
+        :title="formState.name"
+        @import="onModalImport"
+        :number-of-question="formState.questions.length"
+    />
 </template>
 <style scoped>
 .content-item-buttons {

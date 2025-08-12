@@ -337,13 +337,34 @@ const showModalConfirmation = () => {
         cancelText: t("sidebar.buttons.cancel"),
         centered: true,
         onOk: async () => {
-            formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
-                x.id.startsWith("new_") ? { ...x, id: "" } : x,
-            );
+            // formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
+            //     x.id.startsWith("new_") ? { ...x, id: "" } : x,
+            // );
 
-            let result = await ApiQuestionSet.Update(questionSetId.value, formState);
+            // // let result = await ApiQuestionSet.Update(questionSetId.value, formState);
+            // let result = await ApiQuestionSet.Update(questionSetId.value, {
+            //     ...formState,
+            //     createUpdateQuestions: formState.createUpdateQuestions.map((x) => ({
+            //         questionId: x.id,
+            //         ...x,
+            //     })),
+            // });
+
+            let result = await ApiQuestionSet.Update(questionSetId.value, {
+                ...formState,
+                createUpdateQuestions: formState.createUpdateQuestions.map((x) => ({
+                    ...x,
+                    questionId: x.id.startsWith("new_") ? null : x.id,
+                    id: x.id.startsWith("new_") ? null : x.id,
+                })),
+            });
+
             if (result.data.success) {
-                message.success(result.data.data);
+                message.success(t("message.updated_successfully"));
+                router.push({
+                    name: "User_QuestionSet_Detail",
+                    params: { id: result.data.data },
+                });
             }
             // localStorage.removeItem(storage_draft_key);
         },
@@ -603,8 +624,18 @@ onMounted(async () => {
         </div>
     </div>
 
-    <ImportQSModal ref="importModalRef" :title="formState.name" @import="onModalImport" />
-    <GenerateQSModal ref="generateModalRef" :title="formState.name" @import="onModalImport" />
+    <ImportQSModal
+        ref="importModalRef"
+        :title="formState.name"
+        :number-of-question="formState.createUpdateQuestions.length"
+        @import="onModalImport"
+    />
+    <GenerateQSModal
+        ref="generateModalRef"
+        :title="formState.name"
+        @import="onModalImport"
+        :number-of-question="formState.createUpdateQuestions.length"
+    />
 </template>
 
 <style scoped>

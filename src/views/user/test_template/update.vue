@@ -69,10 +69,17 @@ const getTestTemplate = async () => {
             return;
         }
         testTemplate.value = result.data.data;
+
+        testTemplate.value.questions = result.data.data.questions.map((x: any) => ({
+            id: x.questionId,
+            ...x,
+        }));
+
         formState.name = testTemplate.value.name;
         formState.createUpdateQuestions = testTemplate.value.questions.map((x) =>
             TranferQuestionData.transformResponseToRequest(x),
         );
+
         formState.testTemplateId = testTemplate.value.testTemplateId;
 
         window.addEventListener("beforeunload", handleBeforeUnload);
@@ -317,9 +324,20 @@ const showModalConfirmation = () => {
                 x.id.startsWith("new_") ? { ...x, id: "" } : x,
             );
 
-            let result = await ApiTestTemplate.Update(testTemplate.value.testTemplateId, formState);
+            let result = await ApiTestTemplate.Update(testTemplate.value.testTemplateId, {
+                ...formState,
+                createUpdateQuestions: formState.createUpdateQuestions.map((x) => ({
+                    questionId: x.id,
+                    ...x,
+                })),
+            });
+
             if (result.data.success) {
-                message.success(t("message.created_successfully"));
+                message.success(t("message.updated_successfully"));
+                router.push({
+                    name: "User_TestTemplate_Detail",
+                    params: { id: result.data.data },
+                });
             }
             // localStorage.removeItem(storage_draft_key);
         },
@@ -416,6 +434,7 @@ const getPermission = async () => {
 
 // @ts-ignore
 import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
+import { template, xor } from "lodash";
 const scrollerRef = ref<any>(null);
 
 const handleScroll = () => {
@@ -519,7 +538,7 @@ onMounted(async () => {
                     <DynamicScroller
                         ref="scrollerRef"
                         class="scroller"
-                        key-field="questionId"
+                        key-field="id"
                         :items="formState.createUpdateQuestions"
                         :min-item-size="650"
                         :buffer="800"
@@ -549,8 +568,18 @@ onMounted(async () => {
         </div>
     </div>
 
-    <ImportQSModal ref="importModalRef" :title="formState.name" @import="onModalImport" />
-    <GenerateQSModal ref="generateModalRef" :title="formState.name" @import="onModalImport" />
+    <ImportQSModal
+        ref="importModalRef"
+        :title="formState.name"
+        :number-of-question="formState.createUpdateQuestions.length"
+        @import="onModalImport"
+    />
+    <GenerateQSModal
+        ref="generateModalRef"
+        :title="formState.name"
+        @import="onModalImport"
+        :number-of-question="formState.createUpdateQuestions.length"
+    />
 </template>
 <style scoped>
 .content-item-buttons {

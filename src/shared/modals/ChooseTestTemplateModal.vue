@@ -225,7 +225,7 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
                                     </div>
                                     <div class="quiz-item-created-by">
                                         {{ $t("class_question_set.other.created_by") }}
-                                        {{ template.createdBy }}
+                                        {{ template.createBy }}
                                     </div>
                                 </div>
                             </div>
