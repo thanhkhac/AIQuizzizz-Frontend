@@ -1,12 +1,24 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, reactive, watch } from "vue";
+import { ref, onMounted, computed, reactive, watch, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import type ManageSubscriptionPlanResp from "../../../../src/models/response/admin/manageSubscriptionPlanResp";
 import ApiAdmin from "../../../../src/api/ApiAdmin";
 import Input from "@/shared/components/Common/Input.vue";
-import { message, Modal, type FormInstance } from "ant-design-vue";
+import { message, Modal } from "ant-design-vue";
 import type CreateSubscription from "../../../../src/models/request/admin/createSubscription";
 import type UpdateSubscription from "../../../models/request/admin/updateSubscription";
+import Highcharts from "highcharts";
+import RevenueLineChart from "../charts/RevenueLineChart.vue";
+import SubscriberPieChart from "../charts/SubscriberPieChart.vue";
+import ClassLineChart from "../charts/ClassLineChart.vue";
+
+const { locale } = useI18n();
+function toFullLocaleTag(tag: string) {
+    if (tag === "en") return "en-US";
+    if (tag === "vi") return "vi-VN";
+    return "en-US";
+}
+const safeLocale = toFullLocaleTag(locale.value);
 
 const emit = defineEmits(["updateSidebar"]);
 
@@ -21,6 +33,40 @@ onMounted(() => {
 
     getAllPlanData();
 });
+
+const apiData: ApiYearData[] = [
+    {
+        year: 2024,
+        data: [
+            { month: 1, revenue: 50000 },
+            { month: 2, revenue: 60000 },
+            { month: 3, revenue: 75000 },
+            { month: 4, revenue: 70000 },
+            { month: 5, revenue: 80000 },
+            { month: 6, revenue: 74000 },
+            { month: 7, revenue: 70000 },
+            { month: 8, revenue: 70000 },
+            { month: 9, revenue: 59000 },
+            { month: 10, revenue: 70000 },
+            { month: 11, revenue: 90000 },
+            { month: 12, revenue: 70000 },
+        ],
+    },
+    {
+        year: 2025,
+        data: [
+            { month: 1, revenue: 0 },
+            { month: 2, revenue: 0 },
+            { month: 3, revenue: 0 },
+            { month: 4, revenue: 20000 },
+        ],
+    },
+];
+
+const subscribersData = [
+    { name: "New Subscribers", y: 63.06 },
+    { name: "Unsubscribers", y: 20.84 },
+];
 
 const plans = ref<ManageSubscriptionPlanResp[]>([]);
 
@@ -315,6 +361,15 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                         <span> 123</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- chart -->
+            <div class="chart-content">
+                <RevenueLineChart :apiData="apiData" :locale="safeLocale" title="Monthly Revenue" />
+            </div>
+            <div class="chart-content">
+                <ClassLineChart :apiData="apiData" :locale="safeLocale" title="Monthly New Class" />
+                <SubscriberPieChart :data="subscribersData" title="Subscribers" />
             </div>
 
             <!-- plan comparison -->
@@ -738,6 +793,7 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
+    margin-bottom: 20px;
 }
 
 .plan-compa-content-item {
@@ -805,5 +861,19 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
     background-color: var(--content-item-children-background-color);
     border: 1px solid var(--form-item-border-color);
     color: var(--text-color-white);
+}
+
+.chart-content {
+    width: calc(100% - 40px);
+    justify-content: space-between;
+    display: flex;
+    padding: 10px;
+    gap: 20px;
+}
+
+.chart-content > div {
+    flex: 1;
+    border: 1px solid var(--form-item-border-color);
+    border-radius: 10px;
 }
 </style>
