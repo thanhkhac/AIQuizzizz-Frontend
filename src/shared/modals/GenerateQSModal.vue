@@ -14,6 +14,8 @@ import TextArea from "../components/Common/TextArea.vue";
 
 import { useI18n } from "vue-i18n";
 
+import dayjs from "dayjs";
+
 // const question_data_raw = [
 //     {
 //         id: "q1",
@@ -275,11 +277,16 @@ const onGenerateQuestions = async () => {
 
         generatedQuestions.value = [
             ...(generatedQuestions.value || []),
-            ...(result.data.data.map((x: any, index: number) => ({
+            ...(result.data.data.map((x: any) => ({
                 ...x,
-                id: index,
+                questionId: dayjs().valueOf(),
             })) as RequestQuestion[]),
         ];
+
+        await nextTick();
+        generateModalState.checkedList = [];
+        generateModalState.indeterminate = false;
+        generateModalState.checkAll = false;
     } catch (error) {
         console.log(error);
     } finally {
@@ -383,6 +390,7 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 //#region generate file structure
 import GenerateFileStructure from "./GenerateFileStructure.vue";
 import ApiAIGenerate from "@/api/ApiAIGenerate";
+import { template } from "lodash";
 const generateFileStructureRef = ref<InstanceType<typeof GenerateFileStructure> | null>(null);
 
 const openFileStructureModal = () => {
@@ -405,82 +413,87 @@ onMounted(() => {});
     <a-modal
         centered
         width="100%"
+        :closable="false"
         wrap-class-name="full-modal"
         :open="modal_generate_ai_open"
         @cancel="closeGenerateAIModal"
     >
-        <div class="modal-container">
-            <div class="modal-title-container">
-                <a-row class="w-100 d-flex align-items-center">
-                    <a-col :span="1">
-                        <RouterLink @click="closeGenerateAIModal" :to="{ name: '' }">
-                            <i class="bx bx-chevron-left navigator-back-button"></i>
-                        </RouterLink>
-                    </a-col>
-                    <a-col class="main-title" :span="23">
-                        <span> {{ $t("create_QS.title") }}</span> <br />
-                        <span>
-                            {{ $t("create_QS.sub_title") }}
-                        </span>
-                    </a-col>
-                </a-row>
-            </div>
-            <div class="modal-content-item">
-                <div class="content-item-section upload-section">
-                    <div class="section-title">
-                        <span>Upload</span>
-                    </div>
-                    <div v-if="!files.length" class="section-content mb-2">
-                        <input
-                            @change="handleFileChange"
-                            class="d-none"
-                            type="file"
-                            ref="fileInput"
-                            accept=".pdf"
-                        />
-                        <div
-                            :class="['customized-file-upload', isDragging ? 'is-dragging' : '']"
-                            @click="openFileExplorer"
-                            @dragenter="handleDragEnter"
-                            @dragover.prevent="isDragging = true"
-                            @dragleave="isDragging = false"
-                            @drop.prevent="handleDrop"
-                        >
-                            <div class="customized-file-upload-icons">
+        <a-spin :spinning="loading" size="large" :indicator="indicator">
+            <div class="modal-container">
+                <div class="modal-title-container">
+                    <a-row class="w-100 d-flex align-items-center">
+                        <a-col :span="1">
+                            <RouterLink @click="closeGenerateAIModal" :to="{ name: '' }">
+                                <i class="bx bx-chevron-left navigator-back-button"></i>
+                            </RouterLink>
+                        </a-col>
+                        <a-col class="main-title" :span="23">
+                            <span> {{ $t("create_QS.title") }}</span> <br />
+                            <span>
+                                {{ $t("create_QS.sub_title") }}
+                            </span>
+                        </a-col>
+                    </a-row>
+                </div>
+                <div class="modal-content-item">
+                    <div class="content-item-section upload-section">
+                        <div class="section-title">
+                            <span>Upload</span>
+                        </div>
+                        <div v-if="!files.length" class="section-content mb-2">
+                            <input
+                                @change="handleFileChange"
+                                class="d-none"
+                                type="file"
+                                ref="fileInput"
+                                accept=".pdf"
+                            />
+                            <div
+                                :class="['customized-file-upload', isDragging ? 'is-dragging' : '']"
+                                @click="openFileExplorer"
+                                @dragenter="handleDragEnter"
+                                @dragover.prevent="isDragging = true"
+                                @dragleave="isDragging = false"
+                                @drop.prevent="handleDrop"
+                            >
+                                <div class="customized-file-upload-icons">
+                                    <i
+                                        :class="[
+                                            'bx',
+                                            'bx-down-arrow-alt',
+                                            'bx-fade-up',
+                                            !isDragging ? 'd-none' : '',
+                                        ]"
+                                    ></i>
+                                    <InboxOutlined :class="[isDragging ? 'd-none' : '']" />
+                                </div>
+                                <div class="customized-file-upload-ins">
+                                    <strong>Click</strong> or <strong>drag</strong> file to this
+                                    area to upload
+                                </div>
+                                <div class="customized-file-upload-hint">
+                                    Please use the template above to ensure the file is read
+                                    correctly.<br />
+                                    Support for a single upload.
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="files.length" class="file-container">
+                            <div class="file-item" v-for="file in files">
+                                <span>{{ file.name }}</span>
                                 <i
-                                    :class="[
-                                        'bx',
-                                        'bx-down-arrow-alt',
-                                        'bx-fade-up',
-                                        !isDragging ? 'd-none' : '',
-                                    ]"
+                                    class="bx bx-trash text-danger"
+                                    @click="onRemoveUploadedFile()"
                                 ></i>
-                                <InboxOutlined :class="[isDragging ? 'd-none' : '']" />
                             </div>
-                            <div class="customized-file-upload-ins">
-                                <strong>Click</strong> or <strong>drag</strong> file to this area to
-                                upload
-                            </div>
-                            <div class="customized-file-upload-hint">
-                                Please use the template above to ensure the file is read
-                                correctly.<br />
-                                Support for a single upload.
+                            <div class="file-structure" @click="openFileStructureModal">
+                                <i class="bx bx-file"></i>
+                                <div>Structure</div>
                             </div>
                         </div>
-                    </div>
-                    <div v-if="files.length" class="file-container">
-                        <div class="file-item" v-for="file in files">
-                            <span>{{ file.name }}</span>
-                            <i class="bx bx-trash text-danger" @click="onRemoveUploadedFile()"></i>
-                        </div>
-                        <div class="file-structure" @click="openFileStructureModal">
-                            <i class="bx bx-file"></i>
-                            <div>Structure</div>
-                        </div>
-                    </div>
-                    <a-form layout="vertical" class="generate-ai-form">
-                        <a-row class="d-flex justify-content-between">
-                            <!-- <a-col :span="12">
+                        <a-form layout="vertical" class="generate-ai-form">
+                            <a-row class="d-flex justify-content-between">
+                                <!-- <a-col :span="12">
                                 <a-form-item label="Difficulty">
                                     <a-select
                                         v-model:value="generateByAIModalState.difficulty"
@@ -490,230 +503,240 @@ onMounted(() => {});
                                     />
                                 </a-form-item>
                             </a-col> -->
-                            <a-col :span="12">
-                                <a-form-item label="Language">
-                                    <a-select
-                                        class="language-select"
-                                        v-model:value="generateByAIModalState.language"
-                                    >
-                                        <a-select-option
-                                            v-for="locale in SUPPORTED_LOCALES"
-                                            :key="`locale-${locale.code}`"
-                                            :value="locale.code"
+                                <a-col :span="12">
+                                    <a-form-item label="Language">
+                                        <a-select
+                                            class="language-select"
+                                            v-model:value="generateByAIModalState.language"
                                         >
-                                            {{ locale.label }}
-                                        </a-select-option>
-                                    </a-select>
-                                </a-form-item>
-                            </a-col>
-                            <a-col :span="11">
-                                <a-form-item label="Maximum question">
-                                    <a-select
-                                        v-model:value="generateByAIModalState.questionCount"
-                                        style="width: 100%"
-                                        :placeholder="'Maximum number of question'"
-                                        :options="questionMaximumOptions"
-                                    />
-                                </a-form-item>
-                            </a-col>
-                        </a-row>
+                                            <a-select-option
+                                                v-for="locale in SUPPORTED_LOCALES"
+                                                :key="`locale-${locale.code}`"
+                                                :value="locale.code"
+                                            >
+                                                {{ locale.label }}
+                                            </a-select-option>
+                                        </a-select>
+                                    </a-form-item>
+                                </a-col>
+                                <a-col :span="11">
+                                    <a-form-item label="Maximum question">
+                                        <a-select
+                                            v-model:value="generateByAIModalState.questionCount"
+                                            style="width: 100%"
+                                            :placeholder="'Maximum number of question'"
+                                            :options="questionMaximumOptions"
+                                        />
+                                    </a-form-item>
+                                </a-col>
+                            </a-row>
 
-                        <a-form-item label="Question types">
-                            <a-select
-                                @deselect="onDeselectQuestionType"
-                                v-model:value="generateByAIModalState.questionTypes"
-                                mode="multiple"
-                                style="width: 100%"
-                                :placeholder="'Select multiple'"
-                                :options="questionTypeOptions"
-                            />
-                        </a-form-item>
-                        <a-row class="d-flex justify-content-between">
-                            <a-col :span="7">
-                                <a-form-item label="Enable explaination">
-                                    <a-switch
-                                        v-model:checked="generateByAIModalState.isGenerateExplain"
-                                    />
-                                </a-form-item>
-                            </a-col>
-                            <a-col v-if="generateByAIModalState.isGenerateExplain" :span="16">
-                                <a-form-item label="Reference name">
-                                    <TextArea
-                                        v-model="generateByAIModalState.title"
-                                        :is-required="generateByAIModalState.isGenerateExplain"
-                                        :max-length="200"
-                                        :placeholder="'Enter document title for citation'"
-                                        :readonly="!generateByAIModalState.isGenerateExplain"
-                                    />
-                                </a-form-item>
-                            </a-col>
-                        </a-row>
-
-                        <a-form-item style="margin-top: 7px" class="generate-ai-btn-container">
-                            <a-button
-                                :loading="loading"
-                                size="large"
-                                class="w-100 main-color-btn generate_ai"
-                                type="primary"
-                                @click="onGenerateQuestions"
-                            >
-                                ✨ Generate
-                            </a-button>
-                        </a-form-item>
-                    </a-form>
-                </div>
-                <div class="content-item-section preview-section">
-                    <div class="section-title">Preview</div>
-                    <div v-if="loading" class="loading-container">
-                        <a-spin size="large" :indicator="indicator" />
-                    </div>
-                    <div v-else class="section-content">
-                        <div class="section-content-header">
-                            <a-checkbox
-                                :class="[
-                                    'header-item',
-                                    generateModalState.checkAll ? 'check-all' : '',
-                                ]"
-                                @click="onCheckAll"
-                                v-model:checked="generateModalState.checkAll"
-                                :indeterminate="generateModalState.indeterminate"
-                            >
-                                Check all ({{ generateModalState.checkedList.length }})
-                            </a-checkbox>
-
-                            <div class="header-item">
-                                Total:
-                                {{ generatedQuestions?.length }}
-                                questions
-                            </div>
-                        </div>
-                        <a-checkbox-group v-model:value="generateModalState.checkedList">
-                            <div class="preview-question-container">
-                                <div
-                                    class="preview-question-item"
-                                    v-for="(question, index) in generatedQuestions"
-                                >
-                                    <a-checkbox
-                                        @click="console.log(generateModalState.checkedList)"
-                                        :value="question.id"
-                                    ></a-checkbox>
-                                    <div class="question-item-content">
-                                        <div
-                                            v-if="question.questionHTML"
-                                            class="question-html"
-                                            v-html="question.questionHTML"
-                                        ></div>
-                                        <div v-else class="question-text">
-                                            {{ question.questionText }}
-                                        </div>
-                                        <div
-                                            class="question-item-answer"
-                                            :id="`question-item-answer-${index}`"
-                                        >
-                                            <template
-                                                v-if="
-                                                    question.type === QUESTION_TYPE.MULTIPLE_CHOICE
-                                                "
-                                            >
-                                                <div class="multiple-choice-answer">
-                                                    <ul>
-                                                        <li
-                                                            v-for="option in question.multipleChoices"
-                                                        >
-                                                            {{ option.text }}
-                                                            <span
-                                                                class="text-success"
-                                                                v-if="option.isAnswer"
-                                                            >
-                                                                ({{ option.isAnswer }})
-                                                            </span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </template>
-                                            <template
-                                                v-if="question.type === QUESTION_TYPE.MATCHING"
-                                            >
-                                                <div
-                                                    class="pair-answer"
-                                                    v-for="option in question.matchingPairs"
-                                                >
-                                                    <span class="pair-answer-item">
-                                                        {{ option.leftItem }}
-                                                    </span>
-                                                    <i class="bx bx-right-arrow-alt"></i>
-                                                    <span class="pair-answer-item">
-                                                        {{ option.rightItem }}
-                                                    </span>
-                                                </div>
-                                            </template>
-                                            <template
-                                                v-if="question.type === QUESTION_TYPE.ORDERING"
-                                            >
-                                                <div class="ordering-answer">
-                                                    <div class="ordering-answer-item">
-                                                        <div
-                                                            v-for="option in question.orderingItems"
-                                                        >
-                                                            {{ option.text }}
-                                                        </div>
-                                                    </div>
-                                                    <i class="bx bx-right-arrow-alt"></i>
-                                                    <div class="ordering-answer-item">
-                                                        <div
-                                                            class="ordering-answer-item"
-                                                            v-for="(
-                                                                option, index
-                                                            ) in question.orderingItems"
-                                                        >
-                                                            <span>#{{ index + 1 }}</span> -
-                                                            {{ option.text }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </template>
-                                            <template
-                                                v-if="question.type === QUESTION_TYPE.SHORT_TEXT"
-                                            >
-                                                <span>Answer:</span>
-                                                <div class="short-text-answer">
-                                                    {{ question.shortAnswer }}
-                                                </div>
-                                            </template>
-                                        </div>
-                                    </div>
-                                    <div class="question-item-toogle-btn">
-                                        <i
-                                            class="bx bx-chevron-up"
-                                            @click="
-                                                toggleDisplayAnswer(index, $event.currentTarget!)
+                            <a-form-item label="Question types">
+                                <a-select
+                                    @deselect="onDeselectQuestionType"
+                                    v-model:value="generateByAIModalState.questionTypes"
+                                    mode="multiple"
+                                    style="width: 100%"
+                                    :placeholder="'Select multiple'"
+                                    :options="questionTypeOptions"
+                                />
+                            </a-form-item>
+                            <a-row class="d-flex justify-content-between">
+                                <a-col :span="7">
+                                    <a-form-item label="Enable explaination">
+                                        <a-switch
+                                            v-model:checked="
+                                                generateByAIModalState.isGenerateExplain
                                             "
-                                        ></i>
-                                    </div>
+                                        />
+                                    </a-form-item>
+                                </a-col>
+                                <a-col v-if="generateByAIModalState.isGenerateExplain" :span="16">
+                                    <a-form-item label="Reference name">
+                                        <TextArea
+                                            v-model="generateByAIModalState.title"
+                                            :is-required="generateByAIModalState.isGenerateExplain"
+                                            :max-length="200"
+                                            :placeholder="'Enter document title for citation'"
+                                            :readonly="!generateByAIModalState.isGenerateExplain"
+                                        />
+                                    </a-form-item>
+                                </a-col>
+                            </a-row>
+
+                            <a-form-item style="margin-top: 7px" class="generate-ai-btn-container">
+                                <a-button
+                                    :loading="loading"
+                                    size="large"
+                                    class="w-100 main-color-btn generate_ai"
+                                    type="primary"
+                                    @click="onGenerateQuestions"
+                                >
+                                    ✨ Generate
+                                </a-button>
+                            </a-form-item>
+                        </a-form>
+                    </div>
+                    <div class="content-item-section preview-section">
+                        <div class="section-title">Preview</div>
+                        <div class="section-content">
+                            <div
+                                v-if="generatedQuestions.length > 0"
+                                class="section-content-header"
+                            >
+                                <a-checkbox
+                                    :class="[
+                                        'header-item',
+                                        generateModalState.checkAll ? 'check-all' : '',
+                                    ]"
+                                    @click="onCheckAll"
+                                    v-model:checked="generateModalState.checkAll"
+                                    :indeterminate="generateModalState.indeterminate"
+                                >
+                                    Check all ({{ generateModalState.checkedList.length }})
+                                </a-checkbox>
+
+                                <div class="header-item">
+                                    Total:
+                                    {{ generatedQuestions?.length }}
+                                    questions
                                 </div>
                             </div>
-                        </a-checkbox-group>
-                    </div>
-                    <div class="modal-generate-by-ai-warning">
-                        <span>
-                            <i class="bx bx-info-circle"></i>
-                            AI can make mistakes. Please check carefully the important info.
-                        </span>
-                    </div>
-                    <div class="w-100 d-flex justify-content-end">
-                        <a-button
-                            class="main-color-btn"
-                            key="submit"
-                            type="primary"
-                            size="large"
-                            @click="handleModalImport"
-                        >
-                            Import
-                        </a-button>
+                            <a-checkbox-group v-model:value="generateModalState.checkedList">
+                                <div class="preview-question-container">
+                                    <div
+                                        class="preview-question-item"
+                                        v-for="(question, index) in generatedQuestions"
+                                    >
+                                        <a-checkbox
+                                            @click="console.log(generateModalState.checkedList)"
+                                            :value="question.id"
+                                        ></a-checkbox>
+                                        <div class="question-item-content">
+                                            <div
+                                                v-if="question.questionHTML"
+                                                class="question-html"
+                                                v-html="question.questionHTML"
+                                            ></div>
+                                            <div v-else class="question-text">
+                                                {{ question.questionText }}
+                                            </div>
+                                            <div
+                                                class="question-item-answer"
+                                                :id="`question-item-answer-${index}`"
+                                            >
+                                                <template
+                                                    v-if="
+                                                        question.type ===
+                                                        QUESTION_TYPE.MULTIPLE_CHOICE
+                                                    "
+                                                >
+                                                    <div class="multiple-choice-answer">
+                                                        <ul>
+                                                            <li
+                                                                v-for="option in question.multipleChoices"
+                                                            >
+                                                                {{ option.text }}
+                                                                <span
+                                                                    class="text-success"
+                                                                    v-if="option.isAnswer"
+                                                                >
+                                                                    ({{ option.isAnswer }})
+                                                                </span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </template>
+                                                <template
+                                                    v-if="question.type === QUESTION_TYPE.MATCHING"
+                                                >
+                                                    <div
+                                                        class="pair-answer"
+                                                        v-for="option in question.matchingPairs"
+                                                    >
+                                                        <span class="pair-answer-item">
+                                                            {{ option.leftItem }}
+                                                        </span>
+                                                        <i class="bx bx-right-arrow-alt"></i>
+                                                        <span class="pair-answer-item">
+                                                            {{ option.rightItem }}
+                                                        </span>
+                                                    </div>
+                                                </template>
+                                                <template
+                                                    v-if="question.type === QUESTION_TYPE.ORDERING"
+                                                >
+                                                    <div class="ordering-answer">
+                                                        <div class="ordering-answer-item">
+                                                            <div
+                                                                v-for="option in question.orderingItems"
+                                                            >
+                                                                {{ option.text }}
+                                                            </div>
+                                                        </div>
+                                                        <i class="bx bx-right-arrow-alt"></i>
+                                                        <div class="ordering-answer-item">
+                                                            <div
+                                                                class="ordering-answer-item"
+                                                                v-for="(
+                                                                    option, index
+                                                                ) in question.orderingItems"
+                                                            >
+                                                                <span>#{{ index + 1 }}</span>
+                                                                -
+                                                                {{ option.text }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                <template
+                                                    v-if="
+                                                        question.type === QUESTION_TYPE.SHORT_TEXT
+                                                    "
+                                                >
+                                                    <span>Answer:</span>
+                                                    <div class="short-text-answer">
+                                                        {{ question.shortAnswer }}
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="question-item-toogle-btn">
+                                            <i
+                                                class="bx bx-chevron-up"
+                                                @click="
+                                                    toggleDisplayAnswer(
+                                                        index,
+                                                        $event.currentTarget!,
+                                                    )
+                                                "
+                                            ></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a-checkbox-group>
+                        </div>
+                        <div class="modal-generate-by-ai-warning">
+                            <span>
+                                <i class="bx bx-info-circle"></i>
+                                AI can make mistakes. Please check carefully the important info.
+                            </span>
+                        </div>
+                        <div class="w-100 d-flex justify-content-end">
+                            <a-button
+                                class="main-color-btn"
+                                key="submit"
+                                type="primary"
+                                size="large"
+                                @click="handleModalImport"
+                            >
+                                Import
+                            </a-button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </a-spin>
         <template #footer></template>
     </a-modal>
 
@@ -723,6 +746,22 @@ onMounted(() => {});
         @import="handleImportStructure"
     />
 </template>
+<style>
+.ant-spin-nested-loading .ant-spin {
+    max-width: 100% !important;
+}
+.ant-spin-nested-loading > div > .ant-spin {
+    max-height: 100% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ant-spin-nested-loading > div > .ant-spin .ant-spin-dot {
+    inset-inline-start: auto !important;
+}
+</style>
+
 <style scoped>
 .main-color-btn.generate_ai {
     display: block;
@@ -765,11 +804,12 @@ onMounted(() => {});
     border-color: var(--main-color);
 }
 .loading-container {
-    min-height: 50vh;
-    width: 100%;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: absolute;
 }
 </style>

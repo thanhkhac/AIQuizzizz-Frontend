@@ -92,8 +92,24 @@ const getData = async () => {
 };
 
 //update when page change (url)
-onUpdated(() => {
-    if (Object.keys(route.query).length === 0) {
+// onUpdated(() => {
+//     if (Object.keys(route.query).length === 0) {
+//         pageParams.pageNumber = route.query.pageNumber || 1;
+//         pageParams.pageSize = route.query.pageSize || 10;
+//         pageParams.name = route.query.name?.toString() || "";
+//         pageParams.sortBy = route.query.sortBy || sort_options.value[0].value;
+//         pageParams.tagIds = route.query.tags
+//             ? route.query.tags.toString().split(",")
+//             : selectedTags.value.map((x) => x.id);
+//         pageParams.statusFilter = true;
+
+//         getData();
+//     }
+// });
+
+watch(
+    () => Object.keys(route.query).length,
+    () => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
         pageParams.name = route.query.name?.toString() || "";
@@ -104,8 +120,8 @@ onUpdated(() => {
         pageParams.statusFilter = true;
 
         getData();
-    }
-});
+    },
+);
 
 //change when page change (pageParams)
 const onPaginationChange = (page: any, pageSize: any) => {

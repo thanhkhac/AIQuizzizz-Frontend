@@ -51,6 +51,7 @@ const pageParams = reactive({
 
 const exam_data = ref<ClassExam[]>([]);
 const userRoleInClass = ref<string>("");
+const loading = ref<boolean>(false);
 const getPermission = async () => {
     try {
         const result = await ApiClass.GetUserPermission(classData.value.classId);
@@ -77,6 +78,7 @@ const getClassData = async () => {
 
 const getData = async () => {
     try {
+        loading.value = true;
         let result = await ApiClass.GetAllExamByLimit(
             classId.value.toString(),
             pageParams as ClassExamPageParams,
@@ -124,12 +126,27 @@ const getData = async () => {
         }
     } catch (error) {
         console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 
 //update when page change (url)
-onUpdated(() => {
-    if (Object.keys(route.query).length === 0) {
+// onUpdated(() => {
+//     if (Object.keys(route.query).length === 0) {
+//         pageParams.pageNumber = route.query.pageNumber || 1;
+//         pageParams.pageSize = route.query.pageSize || 10;
+//         pageParams.testName = route.query.testName?.toString() || "";
+//         pageParams.status = route.query.status || exam_status_options.value[0].value;
+//         pageParams.statusFilter = true;
+
+//         getData();
+//     }
+// });
+
+watch(
+    () => Object.keys(route.query).length,
+    () => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
         pageParams.testName = route.query.testName?.toString() || "";
@@ -137,8 +154,8 @@ onUpdated(() => {
         pageParams.statusFilter = true;
 
         getData();
-    }
-});
+    },
+);
 
 //change when page change (pageParams)
 const onPaginationChange = (page: any, pageSize: any) => {
@@ -288,92 +305,99 @@ onMounted(async () => {
                     </div>
                 </div>
 
-                <div v-if="exam_data.length > 0" class="exam-item-container">
-                    <div class="exam-item" v-for="exam in exam_data">
-                        <i class="bx bx-book-open exam-item-icon"></i>
-                        <div>
-                            <div class="exam-item-title">
-                                {{ exam.name }}
-                                <a-tag :color="getTagColor(exam.status)">
-                                    {{ $t(`class_exam.select_option.${exam.status}`) }}
-                                </a-tag>
-                            </div>
-                            <div class="exam-item-info exam-item-date">
-                                <div>
-                                    <i class="bx bx-calendar"></i>
-                                    {{ dayjs(exam.timeStart).format("DD/MM/YYYY HH:mm A") }}
-                                </div>
-                            </div>
-                            <div class="exam-item-info exam-info-detail">
-                                <div class="exam-item-questions">
-                                    <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                    {{ exam.numberOfQuestions }}
-                                    {{ $t("dashboards.list_items.quiz.questions") }}
-                                </div>
-                                <div class="exam-item-time">
-                                    <i class="bx bx-time-five"></i>
-                                    {{ exam.timeLimit }}
-                                    {{ $t("class_exam.other.min") }}
-                                </div>
-                                <span class="exam-item-assigned completion">
-                                    {{ exam.numberOfCompletion }}
-                                    {{ $t("class_exam.other.completions") }}
-                                </span>
-                                <span class="exam-item-assigned">
-                                    {{ $t("class_exam.other.assigned") }}
-                                    {{ getFormattedRelativeTime(exam.relativeTime) }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="exam-item-actions">
-                            <a-button
-                                v-if="exam.status === CLASS_EXAM_STATUS.ACTIVE"
-                                type="primary"
-                                class="main-color-btn"
-                                @click="onRedirectToAttempt(exam.testId)"
-                            >
-                                {{ $t("class_exam.buttons.attempt") }}
-                            </a-button>
-                            <template v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT">
-                                <a-tooltip v-if="exam.status === CLASS_EXAM_STATUS.UPCOMING">
-                                    <template #title>
-                                        {{ $t("question_sets_index.buttons.edit") }}
-                                    </template>
-                                    <i
-                                        class="bx bx-edit"
-                                        @click="onRedirectToUpdate(exam.testId)"
-                                    ></i>
-                                </a-tooltip>
-                                <a-tooltip>
-                                    <template #title>
-                                        {{ $t("class_member.buttons.history_test") }}
-                                    </template>
-                                    <i>
-                                        <FileDoneOutlined />
-                                    </i>
-                                </a-tooltip>
-
-                                <a-tooltip>
-                                    <template #title>
-                                        {{ $t("question_sets_index.buttons.delete") }}
-                                    </template>
-                                    <i
-                                        class="text-danger bx bx-trash-alt"
-                                        @click="onDeleteTest(exam.testId)"
-                                    ></i>
-                                </a-tooltip>
-                            </template>
-                        </div>
-                    </div>
-                </div>
+                <template v-if="loading">
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                </template>
                 <template v-else>
-                    <div class="w-100 d-flex justify-content-center">
-                        <a-empty>
-                            <template #description>
-                                <span> {{ $t("class_index.other.no_data_matches") }}</span>
-                            </template>
-                        </a-empty>
+                    <div v-if="exam_data.length > 0" class="exam-item-container">
+                        <div class="exam-item" v-for="exam in exam_data">
+                            <i class="bx bx-book-open exam-item-icon"></i>
+                            <div>
+                                <div class="exam-item-title">
+                                    {{ exam.name }}
+                                    <a-tag :color="getTagColor(exam.status)">
+                                        {{ $t(`class_exam.select_option.${exam.status}`) }}
+                                    </a-tag>
+                                </div>
+                                <div class="exam-item-info exam-item-date">
+                                    <div>
+                                        <i class="bx bx-calendar"></i>
+                                        {{ dayjs(exam.timeStart).format("DD/MM/YYYY HH:mm A") }}
+                                    </div>
+                                </div>
+                                <div class="exam-item-info exam-info-detail">
+                                    <div class="exam-item-questions">
+                                        <i class="bx bx-message-square-edit bx-rotate-270"></i>
+                                        {{ exam.numberOfQuestions }}
+                                        {{ $t("dashboards.list_items.quiz.questions") }}
+                                    </div>
+                                    <div class="exam-item-time">
+                                        <i class="bx bx-time-five"></i>
+                                        {{ exam.timeLimit }}
+                                        {{ $t("class_exam.other.min") }}
+                                    </div>
+                                    <span class="exam-item-assigned completion">
+                                        {{ exam.numberOfCompletion }}
+                                        {{ $t("class_exam.other.completions") }}
+                                    </span>
+                                    <span class="exam-item-assigned">
+                                        {{ $t("class_exam.other.assigned") }}
+                                        {{ getFormattedRelativeTime(exam.relativeTime) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="exam-item-actions">
+                                <a-button
+                                    v-if="exam.status === CLASS_EXAM_STATUS.ACTIVE"
+                                    type="primary"
+                                    class="main-color-btn"
+                                    @click="onRedirectToAttempt(exam.testId)"
+                                >
+                                    {{ $t("class_exam.buttons.attempt") }}
+                                </a-button>
+                                <template v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT">
+                                    <a-tooltip v-if="exam.status === CLASS_EXAM_STATUS.UPCOMING">
+                                        <template #title>
+                                            {{ $t("question_sets_index.buttons.edit") }}
+                                        </template>
+                                        <i
+                                            class="bx bx-edit"
+                                            @click="onRedirectToUpdate(exam.testId)"
+                                        ></i>
+                                    </a-tooltip>
+                                    <a-tooltip>
+                                        <template #title>
+                                            {{ $t("class_member.buttons.history_test") }}
+                                        </template>
+                                        <i>
+                                            <FileDoneOutlined />
+                                        </i>
+                                    </a-tooltip>
+
+                                    <a-tooltip>
+                                        <template #title>
+                                            {{ $t("question_sets_index.buttons.delete") }}
+                                        </template>
+                                        <i
+                                            class="text-danger bx bx-trash-alt"
+                                            @click="onDeleteTest(exam.testId)"
+                                        ></i>
+                                    </a-tooltip>
+                                </template>
+                            </div>
+                        </div>
                     </div>
+                    <template v-else>
+                        <div class="w-100 d-flex justify-content-center">
+                            <a-empty>
+                                <template #description>
+                                    <span> {{ $t("class_index.other.no_data_matches") }}</span>
+                                </template>
+                            </a-empty>
+                        </div>
+                    </template>
                 </template>
                 <div class="pagination-container">
                     <a-pagination
@@ -490,6 +514,6 @@ onMounted(async () => {
     font-size: 16px;
 }
 .exam-item-container {
-    height: 400px;
+    min-height: 450px;
 }
 </style>

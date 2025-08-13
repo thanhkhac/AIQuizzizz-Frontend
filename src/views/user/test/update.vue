@@ -64,7 +64,7 @@ interface FormState {
     gradeQuestionMethod: string;
     isShowCorrectAnswerInReview: boolean;
     isAllowReviewAfterSubmit: boolean;
-    shuffle: number;
+    numberOfShuffles: number;
     maxAttempt: number;
     passingScore: number;
     createUpdateQuestions: RequestQuestion[];
@@ -83,7 +83,7 @@ const formState = reactive<FormState>({
     gradeQuestionMethod: TEST_GRADE_QUESTION_METHOD.PARTIAL,
     isShowCorrectAnswerInReview: true,
     isAllowReviewAfterSubmit: true,
-    shuffle: 2,
+    numberOfShuffles: 2,
     maxAttempt: 2,
     passingScore: 50,
     createUpdateQuestions: [],
@@ -135,7 +135,7 @@ const getData = async () => {
         formState.isAllowReviewAfterSubmit = result.data.data.isAllowReviewAfterSubmit;
         formState.isShowCorrectAnswerInReview = result.data.data.isShowCorrectAnswerInReview;
         formState.maxAttempt = result.data.data.maxAttempt;
-        formState.shuffle = result.data.data.shuffle;
+        formState.numberOfShuffles = result.data.data.numberOfShuffles;
         formState.passingScore = result.data.data.passingScore;
         formState.timeLimit = result.data.data.timeLimit;
 
@@ -156,31 +156,23 @@ const getData = async () => {
 //#endregion
 
 //#region crud question
+import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
-    id: `new_${Date.now().toString()}`,
+    id: Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
     explainText: "",
     score: 10,
-    multipleChoices: [
-        { id: (Date.now() + 1).toString(), text: "", isAnswer: true },
-        { id: (Date.now() + 2).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 3).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 4).toString(), text: "", isAnswer: false },
-    ],
-    matchingPairs: [
-        { id: (Date.now() + 1).toString(), leftItem: "", rightItem: "" },
-        { id: (Date.now() + 2).toString(), leftItem: "", rightItem: "" },
-    ],
-    orderingItems: [
-        { id: (Date.now() + 1).toString(), text: "", correctOrder: 0 },
-        { id: (Date.now() + 2).toString(), text: "", correctOrder: 1 },
-        { id: (Date.now() + 3).toString(), text: "", correctOrder: 2 },
-        { id: (Date.now() + 4).toString(), text: "", correctOrder: 3 },
-    ],
+    multipleChoices: ChangeQuestionType.defaultMultipleChoices(),
+    matchingPairs: ChangeQuestionType.defaultMatchingPairs(),
+    orderingItems: ChangeQuestionType.defaultOrderingItems(),
     shortAnswer: "",
 });
+
+const onHandleChangeQuestionType = (question: RequestQuestion) => {
+    ChangeQuestionType.onChangeQuestionType(question);
+};
 
 const onAddQuestion = () => {
     if (formState.createUpdateQuestions.length >= 500) {
@@ -595,9 +587,12 @@ onMounted(async () => {
                                 <component
                                     :is="componentMap[item.type]"
                                     :question="item"
-                                    :index="index + 1"
+                                    :index="
+                                        formState.createUpdateQuestions.findIndex((q) => q.id === item.id) + 1
+                                    "
                                     :displayScore="false"
                                     @deleteQuestion="onRemoveQuestion(index)"
+                                    @changeQuestionType="onHandleChangeQuestionType(item)"
                                 />
                             </DynamicScrollerItem>
                         </template>

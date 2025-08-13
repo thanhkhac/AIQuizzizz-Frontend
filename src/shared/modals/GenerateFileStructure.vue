@@ -156,6 +156,7 @@ const openModal = async () => {
 
 const closeModal = () => {
     modal_open.value = false;
+    onEmitImport();
 };
 
 const modal_confirm_generate_structure_open = ref(false);
@@ -168,13 +169,8 @@ const onConfirmGenerateFileStructure = async () => {
 const emit =
     defineEmits<(e: "import", document_structure: string, selected_structure: string) => void>();
 
-const onConfirmImportStructure = () => {
-    if (selectedTree.value.length === 0) {
-        Modal.error({
-            title: "Error",
-            content: "Please choose at least one section in your document to proceed.",
-            centered: true,
-        });
+const onEmitImport = () => {
+    if (treeData.value.length === 0 || selectedTree.value.length === 0) {
         return;
     }
 
@@ -184,14 +180,25 @@ const onConfirmImportStructure = () => {
         children: treeRoot.children,
     });
 
-    const seledtedRoot = selectedTree.value?.[0];
+    const selectedRoot = selectedTree.value?.[0];
     const selected_structure = JSON.stringify({
-        title: seledtedRoot.title,
-        children: seledtedRoot.children,
+        title: selectedRoot.title,
+        children: selectedRoot.children,
     });
 
     emit("import", document_structure, selected_structure);
+};
 
+const onConfirmImportStructure = () => {
+    if (selectedTree.value.length === 0) {
+        Modal.error({
+            title: "Error",
+            content: "Please choose at least one section in your document to proceed.",
+            centered: true,
+        });
+        return;
+    }
+    onEmitImport();
     closeModal();
 };
 

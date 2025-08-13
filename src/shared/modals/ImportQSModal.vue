@@ -23,10 +23,10 @@ const props = defineProps<Props>();
 const emit = defineEmits<(e: "import", selected: RequestQuestion[]) => void>();
 
 const modal_import_open = ref(false);
-const question_data = ref<RequestQuestion[]>();
+const question_data = ref<RequestQuestion[]>([]);
 
-const uploadedQuestions = ref<RequestQuestion[]>();
-const uploadedInvalidQuestions = ref<RequestQuestion[]>();
+const uploadedQuestions = ref<RequestQuestion[]>([]);
+const uploadedInvalidQuestions = ref<RequestQuestion[]>([]);
 
 const importModalState = reactive({
     checkAll: false,
@@ -79,6 +79,7 @@ const handleFileChange = async (event: Event) => {
             ];
 
             uploadedInvalidQuestions.value = result.data.data.invalidQuestions;
+            importModalState.checkedList = []; //reset checked list
         }
 
         return;
@@ -148,7 +149,7 @@ const onFilter = () => {
             break;
         }
     }
-    uploadedQuestions.value = filtered_data;
+    uploadedQuestions.value = filtered_data || [];
 };
 //#endregion
 
@@ -298,20 +299,19 @@ onMounted(() => {
                     <div class="section-title">Preview</div>
 
                     <div class="section-content">
-                        <div v-if="files.length > 0" class="section-content-header">
-                            <div
+                        <div v-if="question_data.length > 0" class="section-content-header">
+                            <a-checkbox
                                 :class="[
                                     'header-item',
                                     importModalState.checkAll ? 'check-all' : '',
                                 ]"
+                                @click="onCheckAll"
+                                v-model:checked="importModalState.checkAll"
+                                :indeterminate="importModalState.indeterminate"
                             >
-                                <a-checkbox
-                                    @click="onCheckAll"
-                                    v-model:checked="importModalState.checkAll"
-                                    :indeterminate="importModalState.indeterminate"
-                                ></a-checkbox>
                                 Check all ({{ importModalState.checkedList.length }})
-                            </div>
+                            </a-checkbox>
+
                             <div class="d-flex">
                                 <a-select
                                     size="large"
@@ -443,20 +443,22 @@ onMounted(() => {
         </div>
 
         <template #footer>
-            <div class="header-item">
-                Total:
-                {{ importModalState.checkedList.length }}
-                questions
+            <div class="mt-4 d-flex align-items-center">
+                <div class="header-item">
+                    Total:
+                    {{ importModalState.checkedList.length }}
+                    questions
+                </div>
+                <a-button
+                    class="main-color-btn"
+                    size="large"
+                    key="submit"
+                    type="primary"
+                    @click="handleModalImport"
+                >
+                    Import
+                </a-button>
             </div>
-            <a-button
-                class="main-color-btn"
-                size="large"
-                key="submit"
-                type="primary"
-                @click="handleModalImport"
-            >
-                Import
-            </a-button>
         </template>
     </a-modal>
 </template>

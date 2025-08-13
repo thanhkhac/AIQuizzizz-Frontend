@@ -45,7 +45,7 @@ const possibleAnswers = ref<string[]>([]);
 
 const getPossibleAnswers = () => {
     possibleAnswers.value = [];
-    const value = props.question.shortAnswer.trim();
+    const value = props.question.shortAnswer?.trim();
     if (!value) return;
 
     possibleAnswers.value.push('"' + value.toLowerCase() + '" --');
@@ -109,7 +109,11 @@ const { validateInfos } = Form.useForm(props.question, {
                         </a-select>
                     </div>
                     <div class="question-function-select">
-                        <a-select v-model:value="questionData.type" style="width: 200px">
+                        <a-select
+                            v-model:value="questionData.type"
+                            style="width: 200px"
+                            @change="$emit('changeQuestionType')"
+                        >
                             <a-select-option v-for="option in options" :value="option.value">
                                 {{ option.label }}
                             </a-select-option>

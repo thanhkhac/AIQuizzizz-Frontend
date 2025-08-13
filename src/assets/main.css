@@ -773,7 +773,7 @@ pre {
 }
 
 .quiz-item-container {
-    height: 400px;
+    height: 450px;
     overflow-y: scroll;
 }
 .quiz-item-container::-webkit-scrollbar {
@@ -1157,11 +1157,12 @@ pre {
         display: flex;
         flex-direction: column;
         height: calc(100vh);
-        padding: 10px;
+        padding: 0px !important;
         background-color: var(--content-item-background-color);
     }
     .ant-modal-body {
         flex: 1;
+        overflow: hidden;
     }
 }
 
@@ -1214,6 +1215,10 @@ pre {
 }
 .ant-modal-close-x {
     color: var(--text-color-contrast);
+}
+
+.ant-modal .ant-modal-footer {
+    margin: 0px !important;
 }
 
 .ant-checkbox-group {
@@ -2228,7 +2233,7 @@ ant-select-tree */
 .folder-container {
     display: flex;
     flex-wrap: wrap;
-    height: 400px;
+    height: 450px;
 }
 
 .folder {

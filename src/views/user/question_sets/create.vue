@@ -25,6 +25,7 @@ interface FormState {
 
 const { t } = useI18n();
 const router = useRouter();
+const isDataValid = ref(true);
 
 const formRef = ref();
 
@@ -109,6 +110,7 @@ const removeTag = (index: number) => {
 //#endregion
 
 //#region logic edit question
+import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
@@ -116,24 +118,15 @@ const createQuestionTemplate = (): RequestQuestion => ({
     questionHTML: "",
     explainText: "",
     score: 10,
-    multipleChoices: [
-        { id: (Date.now() + 1).toString(), text: "", isAnswer: true },
-        { id: (Date.now() + 2).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 3).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 4).toString(), text: "", isAnswer: false },
-    ],
-    matchingPairs: [
-        { id: (Date.now() + 1).toString(), leftItem: "", rightItem: "" },
-        { id: (Date.now() + 2).toString(), leftItem: "", rightItem: "" },
-    ],
-    orderingItems: [
-        { id: (Date.now() + 1).toString(), text: "", correctOrder: 0 },
-        { id: (Date.now() + 2).toString(), text: "", correctOrder: 1 },
-        { id: (Date.now() + 3).toString(), text: "", correctOrder: 2 },
-        { id: (Date.now() + 4).toString(), text: "", correctOrder: 3 },
-    ],
+    multipleChoices: ChangeQuestionType.defaultMultipleChoices(),
+    matchingPairs: ChangeQuestionType.defaultMatchingPairs(),
+    orderingItems: ChangeQuestionType.defaultOrderingItems(),
     shortAnswer: "",
 });
+
+const onHandleChangeQuestionType = (question: RequestQuestion) => {
+    ChangeQuestionType.onChangeQuestionType(question);
+};
 
 const onAddQuestion = async () => {
     if (formState.questions.length >= 500) {
@@ -280,7 +273,7 @@ const showModalConfirmation = () => {
             let result = await ApiQuestionSet.Create(formState);
             if (result.data.success) {
                 message.success(t("message.created_successfully"));
-                // isDataValid.value = false;
+                isDataValid.value = false;
                 router.push({
                     name: "User_QuestionSet_Detail",
                     params: { id: result.data.data },
@@ -315,7 +308,7 @@ const openGenerateAIModal = () => {
 //use for both modal import event
 const onModalImport = (selected: RequestQuestion[]) => {
     if (selected.length === 0) return;
-    formState.questions.push(
+    formState.questions.unshift(
         ...selected.map((item, i) => ({
             ...item,
             id: `new_${formState.questions.length + i}`,
@@ -348,11 +341,10 @@ const onModalImport = (selected: RequestQuestion[]) => {
 // };
 
 onBeforeRouteLeave((to, from, next) => {
-    // if (!isDataValid.value) {
-    //     next();
-    //     return;
-    // }
-
+    if (!isDataValid.value) {
+        next();
+        return;
+    }
     Modal.confirm({
         title: t("create_QS.modal.leave.title"),
         content: t("create_QS.modal.leave.content"),
@@ -514,9 +506,13 @@ onUnmounted(() => {
                                 <component
                                     :is="componentMap[item.type]"
                                     :question="item"
-                                    :index="index + 1"
+                                    :index="
+                                        formState.questions.findIndex((q) => q.id === item.id) + 1
+                                    "
                                     :displayScore="false"
+                                    :key="item.id"
                                     @deleteQuestion="onRemoveQuestion(index)"
+                                    @changeQuestionType="onHandleChangeQuestionType(item)"
                                 />
                             </DynamicScrollerItem>
                         </template>

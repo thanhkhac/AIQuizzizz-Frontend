@@ -37,6 +37,7 @@ const classData = ref<Class>({
     name: "",
     topic: "",
 });
+const loading = ref(false);
 
 type MyColumn = TableColumnType<ClassStudent>;
 
@@ -120,6 +121,7 @@ const student_data = ref<ClassStudent[]>([]);
 
 const getData = async () => {
     try {
+        loading.value = true;
         let result = await ApiClass.GetAllStudentByLimit(
             classId.value.toString(),
             pageParams as ClassStudentPageParams,
@@ -167,11 +169,26 @@ const getData = async () => {
         }
     } catch (error) {
         console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 //update when page change (url)
-onUpdated(() => {
-    if (Object.keys(route.query).length === 0) {
+// onUpdated(() => {
+//     if (Object.keys(route.query).length === 0) {
+//         pageParams.pageNumber = route.query.pageNumber || 1;
+//         pageParams.pageSize = route.query.pageSize || 10;
+//         pageParams.keyword = route.query.keyword?.toString() || "";
+//         pageParams.fieldName = route.query.fieldName || class_position_options.value[0].value;
+//         pageParams.statusFilter = true;
+
+//         getData();
+//     }
+// });
+
+watch(
+    () => Object.keys(route.query).length,
+    () => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
         pageParams.keyword = route.query.keyword?.toString() || "";
@@ -179,8 +196,8 @@ onUpdated(() => {
         pageParams.statusFilter = true;
 
         getData();
-    }
-});
+    },
+);
 
 //change when page change (pageParams)
 const onPaginationChange = (page: any, pageSize: any) => {
@@ -211,7 +228,6 @@ const onOpenInvitationModal = async () => {
 };
 
 const getInvitationCode = async () => {
-    debugger;
     const result = await ApiClass.GetInivationCode(classId.value.toString());
     if (result.data.success) {
         invitationFormState.code = result.data.data;
@@ -400,80 +416,87 @@ onMounted(async () => {
                         </Input>
                     </div>
                 </div>
-                <a-table
-                    v-if="student_data.length > 0"
-                    :columns="columns"
-                    :data-source="student_data"
-                    row-key="studentId"
-                    :pagination="false"
-                >
-                    <template #bodyCell="{ column, record }">
-                        <template v-if="column.key === 'fullName'">
-                            <div class="student-name-container">
-                                <img class="student-image" :src="record.image" alt="" />
-                                <div class="student-name">{{ record.fullName }}</div>
-                            </div>
-                        </template>
-                        <template v-if="column.key === 'position'">
-                            {{ $t(`class_member.position.${record.position}`) }}
-                        </template>
-                        <template v-if="column.key === 'action'">
-                            <div
-                                v-if="userRoleInClass === CLASS_STUDENT_POSITION.OWNER"
-                                class="student-action"
-                            >
-                                <a-tooltip
-                                    v-if="record.position === CLASS_STUDENT_POSITION.STUDENT"
-                                >
-                                    <template #title>
-                                        {{ $t("class_member.buttons.assign_lecturer") }}
-                                    </template>
-                                    <i
-                                        style="cursor: pointer"
-                                        class="bx bxs-id-card"
-                                        @click="
-                                            onConfirmUpdateMemberPosition(
-                                                record.studentId,
-                                                CLASS_STUDENT_POSITION.TEACHER,
-                                            )
-                                        "
-                                    ></i>
-                                </a-tooltip>
-                                <a-tooltip v-else>
-                                    <template #title>
-                                        {{ $t("class_member.buttons.remove_lecturer") }}
-                                    </template>
-                                    <i
-                                        class="text-danger bx bxs-id-card"
-                                        @click="
-                                            onConfirmUpdateMemberPosition(
-                                                record.studentId,
-                                                CLASS_STUDENT_POSITION.STUDENT,
-                                            )
-                                        "
-                                    ></i>
-                                </a-tooltip>
-                                <a-tooltip>
-                                    <template #title>
-                                        {{ $t("question_sets_index.buttons.delete") }}
-                                    </template>
-                                    <i
-                                        class="text-danger bx bx-trash-alt"
-                                        @click="onConfirmDeleteMember(record.studentId)"
-                                    ></i>
-                                </a-tooltip>
-                            </div>
-                        </template>
-                    </template>
-                </a-table>
+                <template v-if="loading">
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                </template>
                 <template v-else>
-                    <div class="w-100 d-flex justify-content-center">
-                        <a-empty>
-                            <template #description>
-                                <span> {{ $t("class_index.other.no_data_matches") }}</span>
+                    <a-table
+                        v-if="student_data.length > 0"
+                        :columns="columns"
+                        :data-source="student_data"
+                        row-key="studentId"
+                        :pagination="false"
+                    >
+                        <template #bodyCell="{ column, record }">
+                            <template v-if="column.key === 'fullName'">
+                                <div class="student-name-container">
+                                    <img class="student-image" :src="record.image" alt="" />
+                                    <div class="student-name">{{ record.fullName }}</div>
+                                </div>
                             </template>
-                        </a-empty>
-                    </div>
+                            <template v-if="column.key === 'position'">
+                                {{ $t(`class_member.position.${record.position}`) }}
+                            </template>
+                            <template v-if="column.key === 'action'">
+                                <div
+                                    v-if="userRoleInClass === CLASS_STUDENT_POSITION.OWNER"
+                                    class="student-action"
+                                >
+                                    <a-tooltip
+                                        v-if="record.position === CLASS_STUDENT_POSITION.STUDENT"
+                                    >
+                                        <template #title>
+                                            {{ $t("class_member.buttons.assign_lecturer") }}
+                                        </template>
+                                        <i
+                                            style="cursor: pointer"
+                                            class="bx bxs-id-card"
+                                            @click="
+                                                onConfirmUpdateMemberPosition(
+                                                    record.studentId,
+                                                    CLASS_STUDENT_POSITION.TEACHER,
+                                                )
+                                            "
+                                        ></i>
+                                    </a-tooltip>
+                                    <a-tooltip v-else>
+                                        <template #title>
+                                            {{ $t("class_member.buttons.remove_lecturer") }}
+                                        </template>
+                                        <i
+                                            class="text-danger bx bxs-id-card"
+                                            @click="
+                                                onConfirmUpdateMemberPosition(
+                                                    record.studentId,
+                                                    CLASS_STUDENT_POSITION.STUDENT,
+                                                )
+                                            "
+                                        ></i>
+                                    </a-tooltip>
+                                    <a-tooltip>
+                                        <template #title>
+                                            {{ $t("question_sets_index.buttons.delete") }}
+                                        </template>
+                                        <i
+                                            class="text-danger bx bx-trash-alt"
+                                            @click="onConfirmDeleteMember(record.studentId)"
+                                        ></i>
+                                    </a-tooltip>
+                                </div>
+                            </template>
+                        </template>
+                    </a-table>
+                    <template v-else>
+                        <div class="w-100 d-flex justify-content-center">
+                            <a-empty>
+                                <template #description>
+                                    <span> {{ $t("class_index.other.no_data_matches") }}</span>
+                                </template>
+                            </a-empty>
+                        </div>
+                    </template>
                 </template>
                 <div class="pagination-container">
                     <a-pagination

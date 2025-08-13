@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { computed, shallowRef } from "vue";
-import { Form } from "ant-design-vue";
+import { Form, message } from "ant-design-vue";
 
 import type { RequestQuestion } from "@/models/request/question";
 import { useI18n } from "vue-i18n";
 
 import { QuestionCircleOutlined } from "@ant-design/icons-vue";
-import { message } from "ant-design-vue";
 
 import TextArea from "../Common/TextArea.vue";
 
@@ -131,7 +130,11 @@ const onCheckHaveAnswer = () => {
                         </a-select>
                     </div>
                     <div class="question-function-select">
-                        <a-select v-model:value="questionData.type" style="width: 200px">
+                        <a-select
+                            v-model:value="questionData.type"
+                            style="width: 200px"
+                            @change="$emit('changeQuestionType')"
+                        >
                             <a-select-option v-for="option in options" :value="option.value">
                                 {{ option.label }}
                             </a-select-option>

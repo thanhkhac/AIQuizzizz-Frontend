@@ -111,7 +111,7 @@ const rules = {
             trigger: "change",
         },
     ],
-    shuffle: [
+    numberOfShuffles: [
         {
             required: true,
             message: t("message.required"),
@@ -268,12 +268,12 @@ onMounted(async () => {});
                             <a-form-item
                                 :label="t('setting_test_modal.form.number_of_shuffle')"
                                 class="input-item"
-                                name="shuffle"
+                                name="numberOfShuffles"
                             >
                                 <a-input-number
                                     size="large"
                                     :addon-after="'times'"
-                                    v-model:value="formState.shuffle"
+                                    v-model:value="formState.numberOfShuffles"
                                     min="1"
                                     max="100"
                                 >

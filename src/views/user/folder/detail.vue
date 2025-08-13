@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ApiFolder from "@/api/ApiFolder";
 
-import { ref, onMounted, reactive, computed, onUpdated, h } from "vue";
+import { ref, onMounted, reactive, computed, onUpdated, h, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import Validator from "@/services/Validator";
 
@@ -97,16 +97,28 @@ const getData = async () => {
 };
 
 //update when page change (url)
-onUpdated(() => {
-    if (Object.keys(route.query).length === 0) {
+// onUpdated(() => {
+//     if (Object.keys(route.query).length === 0) {
+//         pageParams.pageNumber = route.query.pageNumber || 1;
+//         pageParams.pageSize = route.query.pageSize || 10;
+//         pageParams.testTemplateName = route.query.testTemplateName?.toString() || "";
+//         pageParams.statusFilter = true;
+
+//         getData();
+//     }
+// });
+
+watch(
+    () => Object.keys(route.query).length,
+    () => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
         pageParams.testTemplateName = route.query.testTemplateName?.toString() || "";
         pageParams.statusFilter = true;
 
         getData();
-    }
-});
+    },
+);
 
 // //change when page change (pageParams)
 const onPaginationChange = (page: number, pageSize: number) => {

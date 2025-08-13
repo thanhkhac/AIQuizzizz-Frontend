@@ -26,6 +26,7 @@ interface FormState {
 
 const { t } = useI18n();
 const router = useRouter();
+const isDataValid = ref(true);
 
 //#region init data
 const formRef = ref();
@@ -77,167 +78,10 @@ const componentMap = {
     ShortText,
 };
 
-const question_data_raw = [
-    {
-        id: "q1",
-        type: "MultipleChoice",
-        questionText: "What is the capital of France ?",
-        questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
-        explainText: "Paris is the capital city of France.",
-        score: 20,
-        multipleChoices: [
-            { id: "1", text: "Paris", isAnswer: true },
-            { id: "2", text: "London", isAnswer: false },
-            { id: "3", text: "Berlin", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q2",
-        type: "Matching",
-        questionText: "Match the countries to their capitals.",
-        questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
-        explainText: "Each country must be paired with its capital.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [
-            { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
-            { id: "2", leftItem: "Italy", rightItem: "Rome" },
-            { id: "3", leftItem: "Vietnam", rightItem: "Hanoi" },
-        ],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q3",
-        type: "Ordering",
-        questionText: "Arrange the steps of the water cycle in the correct order.",
-        questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
-        explainText:
-            "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [
-            { id: "1", text: "Evaporation", correctOrder: 0 },
-            { id: "2", text: "Condensation", correctOrder: 1 },
-            { id: "3", text: "Precipitation", correctOrder: 2 },
-            { id: "4", text: "Collection", correctOrder: 3 },
-        ],
-        shortAnswer: "",
-    },
-    {
-        id: "q4",
-        type: "ShortText",
-        questionText: "What is the chemical symbol for water?",
-        questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
-        explainText: "H2O is the formula for water.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "H2O",
-    },
-    {
-        id: "q5",
-        type: "MultipleChoice",
-        questionText: "Which planet is known as the Red Planet?",
-        questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
-        explainText: "Mars is often called the Red Planet due to its reddish appearance.",
-        score: 30,
-        multipleChoices: [
-            { id: "1", text: "Mars", isAnswer: true },
-            { id: "2", text: "Venus", isAnswer: false },
-            { id: "3", text: "Jupiter", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q6",
-        type: "MultipleChoice",
-        questionText: "Which language is primarily used for web development?",
-        questionHTML: `<p>Which <strong>language</strong> is primarily used for <em>web development</em>? <code>// programming</code></p>`,
-        explainText: "JavaScript is the most commonly used language for web development.",
-        score: 20,
-        multipleChoices: [
-            { id: "1", text: "JavaScript", isAnswer: true },
-            { id: "2", text: "Python", isAnswer: false },
-            { id: "3", text: "C++", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q7",
-        type: "Matching",
-        questionText: "Match the authors to their famous works.",
-        questionHTML: `<p>Match the <strong>authors</strong> to their <em>famous works</em>. <code>// literature</code></p>`,
-        explainText: "Each author is known for a specific famous book.",
-        score: 15,
-        multipleChoices: [],
-        matchingPairs: [
-            { id: "1", leftItem: "George Orwell", rightItem: "1984" },
-            { id: "2", leftItem: "J.K. Rowling", rightItem: "Harry Potter" },
-            { id: "3", leftItem: "Leo Tolstoy", rightItem: "War and Peace" },
-        ],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q8",
-        type: "Ordering",
-        questionText: "Arrange the historical periods in chronological order.",
-        questionHTML: `<p><strong>Arrange</strong> the <em>historical periods</em> in <u>chronological</u> order. <code>// history</code></p>`,
-        explainText: "The order is: Ancient → Medieval → Renaissance → Modern.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [
-            { id: "1", text: "Ancient", correctOrder: 0 },
-            { id: "2", text: "Medieval", correctOrder: 1 },
-            { id: "3", text: "Renaissance", correctOrder: 2 },
-            { id: "4", text: "Modern", correctOrder: 3 },
-        ],
-        shortAnswer: "",
-    },
-    {
-        id: "q9",
-        type: "ShortText",
-        questionText: "What is the square root of 144?",
-        questionHTML: `<p>What is the <strong>square root</strong> of <em>144</em>? <code>// math</code></p>`,
-        explainText: "The square root of 144 is 12.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "12",
-    },
-    {
-        id: "q10",
-        type: "MultipleChoice",
-        questionText: "Which gas do plants absorb from the atmosphere?",
-        questionHTML: `<p>Which <strong>gas</strong> do <u>plants</u> absorb from the <em>atmosphere</em>? <code>// biology</code></p>`,
-        explainText: "Plants absorb carbon dioxide (CO₂) during photosynthesis.",
-        score: 20,
-        multipleChoices: [
-            { id: "1", text: "Oxygen", isAnswer: false },
-            { id: "2", text: "Carbon Dioxide", isAnswer: true },
-            { id: "3", text: "Nitrogen", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-];
-
 //#endregion
 
 //#region logic edit question
+import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
@@ -245,24 +89,15 @@ const createQuestionTemplate = (): RequestQuestion => ({
     questionHTML: "",
     explainText: "",
     score: 10,
-    multipleChoices: [
-        { id: (Date.now() + 1).toString(), text: "", isAnswer: true },
-        { id: (Date.now() + 2).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 3).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 4).toString(), text: "", isAnswer: false },
-    ],
-    matchingPairs: [
-        { id: (Date.now() + 1).toString(), leftItem: "", rightItem: "" },
-        { id: (Date.now() + 2).toString(), leftItem: "", rightItem: "" },
-    ],
-    orderingItems: [
-        { id: (Date.now() + 1).toString(), text: "", correctOrder: 0 },
-        { id: (Date.now() + 2).toString(), text: "", correctOrder: 1 },
-        { id: (Date.now() + 3).toString(), text: "", correctOrder: 2 },
-        { id: (Date.now() + 4).toString(), text: "", correctOrder: 3 },
-    ],
+    multipleChoices: ChangeQuestionType.defaultMultipleChoices(),
+    matchingPairs: ChangeQuestionType.defaultMatchingPairs(),
+    orderingItems: ChangeQuestionType.defaultOrderingItems(),
     shortAnswer: "",
 });
+
+const onHandleChangeQuestionType = (question: RequestQuestion) => {
+    ChangeQuestionType.onChangeQuestionType(question);
+};
 
 const onAddQuestion = () => {
     if (formState.questions.length >= 500) {
@@ -327,12 +162,14 @@ const onFinish = () => {
 
         //invalid explain text
         formState.questions.filter((x) => {
-            const questionText = x.explainText
-                .replace(/^<p>/, "")
-                .replace(/<\/p>$/, "")
-                .trim();
+            const explainText = x.explainText
+                ? x.explainText
+                      .replace(/^<p>/, "")
+                      .replace(/<\/p>$/, "")
+                      .trim()
+                : "";
 
-            return questionText.length >= 500;
+            return explainText.length >= 500;
         }),
 
         //invalid multiplechoice
@@ -408,6 +245,7 @@ const showModalConfirmation = () => {
             let result = await ApiTestTemplate.Create(formState);
             if (result.data.success) {
                 message.success(t("message.created_successfully"));
+                isDataValid.value = false;
                 router.push({
                     name: "User_TestTemplate_Detail",
                     params: { id: result.data.data },
@@ -442,26 +280,33 @@ const openGenerateAIModal = () => {
 
 //use for both modal import event
 const onModalImport = (selected: RequestQuestion[]) => {
-    formState.questions.push(
+    formState.questions.unshift(
         ...selected.map((item, i) => ({
             ...item,
             id: `new_${formState.questions.length + i}`,
         })),
     );
+
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+        nextTick(() => {
+            const lastIndex = formState.questions.length;
+            requestAnimationFrame(() => {
+                scrollerRef.value?.scrollToItem(lastIndex);
+            });
+        });
+    });
+
     message.success(`${t("message.imported_question", { number: selected.length })}`);
 };
 
 //#region leave guard
-/* auto-save */
-// const storage_draft_key = `create_QS_draft_${dayjs().valueOf()}`;
-// const intervalId = ref<number>();
-
-// const saveDraft = () => {
-//     // localStorage.setItem(storage_draft_key, JSON.stringify(formState));
-//     message.info("Auto saved");
-// };
 
 onBeforeRouteLeave((to, from, next) => {
+    if (!isDataValid.value) {
+        next();
+        return;
+    }
     Modal.confirm({
         title: t("create_QS.modal.leave.title"),
         content: t("create_QS.modal.leave.content"),
@@ -598,9 +443,12 @@ onMounted(() => {
                                 <component
                                     :is="componentMap[item.type]"
                                     :question="item"
-                                    :index="index + 1"
+                                    :index="
+                                        formState.questions.findIndex((q) => q.id === item.id) + 1
+                                    "
                                     :displayScore="false"
                                     @deleteQuestion="onRemoveQuestion(index)"
+                                    @changeQuestionType="onHandleChangeQuestionType(item)"
                                 />
                             </DynamicScrollerItem>
                         </template>
