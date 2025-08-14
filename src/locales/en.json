@@ -358,7 +358,7 @@
             "security": "Security",
             "appearance": "Appearance",
             "subscription": "Subscription",
-            "billing": "BIlling"
+            "billing": "Billing"
         },
         "profile": {
             "title": "Profile Information",
@@ -433,7 +433,38 @@
         },
         "billing": {
             "title": "Billing and transaction",
-            "sub_title": "Observe your transaction history and upgrade your plan."
+            "sub_title": "Observe your transaction history and upgrade your plan.",
+            "bank": {
+                "name": "Account name",
+                "number": "Bank account number",
+                "bank_name": "Bank"
+            },
+            "qr": {
+                "title": "Create payment QR Code",
+                "amount": "Amount",
+                "denomination": "",
+                "qr_gen": "Generate QR"
+            },
+            "noti": {
+                "title": "Notice",
+                "content1": "Minimum",
+                "content2": "Enter only integer (no decimals)"
+            },
+            "modal": {
+                "title": "QR Code payment",
+                "content": "Use your banking app to scan the QR code and transfer money automatically",
+                "close_btn": "Close"
+            },
+            "err": {
+                "number_only": "Please enter only integers",
+                "greater_than_5000": "Amount must be greater than to 5000 VND"
+            },
+            "note": {
+                "title": "Important Note",
+                "content1": "Please keep the transfer content intact to avoid not receiving AIQuizizz points.",
+                "content2": "After transferring money, please wait at least 1 minute for the system to process.",
+                "contact": "Contact support"
+            }
         }
     },
     "share_modal": {

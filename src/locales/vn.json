@@ -433,7 +433,38 @@
         },
         "billing": {
             "title": "Lịch sử giao dịch",
-            "sub_title": "Kiểm tra lịch sử giao dịch và nâng cấp tài khoản của bạn"
+            "sub_title": "Kiểm tra lịch sử giao dịch và nâng cấp tài khoản của bạn",
+            "bank": {
+                "name": "Chủ tài khoản",
+                "number": "Số tài khoản",
+                "bank_name": "Ngân hàng"
+            },
+            "qr": {
+                "title": "Tạo QR Code thanh toán",
+                "amount": "Số tiền",
+                "denomination": "",
+                "qr_gen": "Tạo QR"
+            },
+            "noti": {
+                "title": "Lưu ý",
+                "content1": "Tối thiểu",
+                "content2": "Chỉ nhập số nguyên (không có phần thập phân)"
+            },
+            "modal": {
+                "title": "QR Code thanh toán",
+                "content": "Sử dụng ứng dụng ngân hàng của bạn để quét mã QR và chuyển tiền tự động",
+                "close_btn": "Đóng"
+            },
+            "err": {
+                "number_only": "Vui lòng chỉ nhập số",
+                "greater_than_5000": "Số tiền phải lớn hơn hoặc bằng 5000 VNĐ"
+            },
+            "note": {
+                "title": "Lưu ý quan trọng",
+                "content1": "Vui lòng giữ nguyên nội dung chuyển khoản để tránh không nhận được điểm AIQuizizz.",
+                "content2": "Sau khi chuyển tiền, vui lòng chờ ít nhất 1 phút để hệ thống xử lý.",
+                "contact": "Liên hệ hỗ trợ"
+            }
         }
     },
     "share_modal": {
