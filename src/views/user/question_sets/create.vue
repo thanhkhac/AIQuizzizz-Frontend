@@ -6,7 +6,7 @@ import { ref, reactive, onMounted, onUnmounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
 
-import { onBeforeRouteLeave } from "vue-router";
+import { useRouter, onBeforeRouteLeave } from "vue-router";
 
 import Input from "@/shared/components/Common/Input.vue";
 import TextArea from "@/shared/components/Common/TextArea.vue";
@@ -24,6 +24,8 @@ interface FormState {
 }
 
 const { t } = useI18n();
+const router = useRouter();
+const isDataValid = ref(true);
 
 const formRef = ref();
 
@@ -85,86 +87,6 @@ const componentMap = {
     ShortText,
 };
 
-const question_data_raw = [
-    {
-        id: "q1",
-        type: "MultipleChoice",
-        questionText: "What is the capital of France ?",
-        questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
-        explainText: "Paris is the capital city of France.",
-        score: 10,
-        multipleChoices: [
-            { id: "1", text: "Paris", isAnswer: true },
-            { id: "2", text: "London", isAnswer: false },
-            { id: "3", text: "Berlin", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q2",
-        type: "Matching",
-        questionText: "Match the countries to their capitals.",
-        questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
-        explainText: "Each country must be paired with its capital.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [
-            { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
-            { id: "2", leftItem: "Italy", rightItem: "Rome" },
-            { id: "3", leftItem: "Vietnam", rightItem: "Hanoi" },
-        ],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-    {
-        id: "q3",
-        type: "Ordering",
-        questionText: "Arrange the steps of the water cycle in the correct order.",
-        questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
-        explainText:
-            "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [
-            { id: "1", text: "Evaporation", correctOrder: 0 },
-            { id: "2", text: "Condensation", correctOrder: 1 },
-            { id: "3", text: "Precipitation", correctOrder: 2 },
-            { id: "4", text: "Collection", correctOrder: 3 },
-        ],
-        shortAnswer: "",
-    },
-    {
-        id: "q4",
-        type: "ShortText",
-        questionText: "What is the chemical symbol for water?",
-        questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
-        explainText: "H2O is the formula for water.",
-        score: 10,
-        multipleChoices: [],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "H2O",
-    },
-    {
-        id: "q5",
-        type: "MultipleChoice",
-        questionText: "Which planet is known as the Red Planet?",
-        questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
-        explainText: "Mars is often called the Red Planet due to its reddish appearance.",
-        score: 10,
-        multipleChoices: [
-            { id: "1", text: "Mars", isAnswer: true },
-            { id: "2", text: "Venus", isAnswer: false },
-            { id: "3", text: "Jupiter", isAnswer: false },
-        ],
-        matchingPairs: [],
-        orderingItems: [],
-        shortAnswer: "",
-    },
-];
 //#region  tag
 //tag
 const tagContent = ref("");
@@ -188,6 +110,7 @@ const removeTag = (index: number) => {
 //#endregion
 
 //#region logic edit question
+import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
@@ -195,24 +118,15 @@ const createQuestionTemplate = (): RequestQuestion => ({
     questionHTML: "",
     explainText: "",
     score: 10,
-    multipleChoices: [
-        { id: (Date.now() + 1).toString(), text: "", isAnswer: true },
-        { id: (Date.now() + 2).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 3).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 4).toString(), text: "", isAnswer: false },
-    ],
-    matchingPairs: [
-        { id: (Date.now() + 1).toString(), leftItem: "", rightItem: "" },
-        { id: (Date.now() + 2).toString(), leftItem: "", rightItem: "" },
-    ],
-    orderingItems: [
-        { id: (Date.now() + 1).toString(), text: "", correctOrder: 0 },
-        { id: (Date.now() + 2).toString(), text: "", correctOrder: 1 },
-        { id: (Date.now() + 3).toString(), text: "", correctOrder: 2 },
-        { id: (Date.now() + 4).toString(), text: "", correctOrder: 3 },
-    ],
+    multipleChoices: ChangeQuestionType.defaultMultipleChoices(),
+    matchingPairs: ChangeQuestionType.defaultMatchingPairs(),
+    orderingItems: ChangeQuestionType.defaultOrderingItems(),
     shortAnswer: "",
 });
+
+const onHandleChangeQuestionType = (question: RequestQuestion) => {
+    ChangeQuestionType.onChangeQuestionType(question);
+};
 
 const onAddQuestion = async () => {
     if (formState.questions.length >= 500) {
@@ -358,7 +272,12 @@ const showModalConfirmation = () => {
             //logic here
             let result = await ApiQuestionSet.Create(formState);
             if (result.data.success) {
-                message.success(result.data.data);
+                message.success(t("message.created_successfully"));
+                isDataValid.value = false;
+                router.push({
+                    name: "User_QuestionSet_Detail",
+                    params: { id: result.data.data },
+                });
             }
             // localStorage.removeItem(storage_draft_key);
         },
@@ -389,7 +308,7 @@ const openGenerateAIModal = () => {
 //use for both modal import event
 const onModalImport = (selected: RequestQuestion[]) => {
     if (selected.length === 0) return;
-    formState.questions.push(
+    formState.questions.unshift(
         ...selected.map((item, i) => ({
             ...item,
             id: `new_${formState.questions.length + i}`,
@@ -422,6 +341,10 @@ const onModalImport = (selected: RequestQuestion[]) => {
 // };
 
 onBeforeRouteLeave((to, from, next) => {
+    if (!isDataValid.value) {
+        next();
+        return;
+    }
     Modal.confirm({
         title: t("create_QS.modal.leave.title"),
         content: t("create_QS.modal.leave.content"),
@@ -452,7 +375,7 @@ const handleScroll = () => {
 };
 
 onMounted(() => {
-    formState.questions.push(...(question_data_raw as RequestQuestion[]));
+    formState.questions.push(createQuestionTemplate());
     // intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
     window.addEventListener("beforeunload", handleBeforeUnload);
 });
@@ -583,9 +506,13 @@ onUnmounted(() => {
                                 <component
                                     :is="componentMap[item.type]"
                                     :question="item"
-                                    :index="index + 1"
+                                    :index="
+                                        formState.questions.findIndex((q) => q.id === item.id) + 1
+                                    "
                                     :displayScore="false"
+                                    :key="item.id"
                                     @deleteQuestion="onRemoveQuestion(index)"
+                                    @changeQuestionType="onHandleChangeQuestionType(item)"
                                 />
                             </DynamicScrollerItem>
                         </template>
@@ -600,8 +527,18 @@ onUnmounted(() => {
         </div>
     </div>
 
-    <ImportQSModal ref="importModalRef" :title="formState.name" @import="onModalImport" />
-    <GenerateQSModal ref="generateModalRef" :title="formState.name" @import="onModalImport" />
+    <ImportQSModal
+        ref="importModalRef"
+        :title="formState.name"
+        :numberOfQuestion="formState.questions.length"
+        @import="onModalImport"
+    />
+    <GenerateQSModal
+        ref="generateModalRef"
+        :title="formState.name"
+        @import="onModalImport"
+        :numberOfQuestion="formState.questions.length"
+    />
 </template>
 
 <style scoped>

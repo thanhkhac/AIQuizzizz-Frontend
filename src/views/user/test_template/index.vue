@@ -5,7 +5,7 @@ import FOLDER_SHARE_MODE from "@/constants/folderShareMode";
 import type TestTemplatePageParams from "@/models/request/testTemplate/testTemplatePageParams";
 import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
 
-import { ref, onMounted, reactive, computed, onUpdated, nextTick } from "vue";
+import { ref, onMounted, reactive, computed, onUpdated, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useRoute, useRouter } from "vue-router";
@@ -82,8 +82,21 @@ const getData = async () => {
 };
 
 //update when page change (url)
-onUpdated(() => {
-    if (Object.keys(route.query).length === 0) {
+// onUpdated(() => {
+//     if (Object.keys(route.query).length === 0) {
+//         pageParams.pageNumber = route.query.pageNumber || 1;
+//         pageParams.pageSize = route.query.pageSize || 10;
+//         pageParams.name = route.query.name?.toString() || "";
+//         pageParams.shareMode = route.query.shareMode || share_mode_options.value[0].value;
+//         pageParams.statusFilter = true;
+
+//         getData();
+//     }
+// });
+
+watch(
+    () => Object.keys(route.query).length,
+    () => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
         pageParams.name = route.query.name?.toString() || "";
@@ -91,8 +104,8 @@ onUpdated(() => {
         pageParams.statusFilter = true;
 
         getData();
-    }
-});
+    },
+);
 
 //change when page change (pageParams)
 const onPaginationChange = (page: number, pageSize: number) => {

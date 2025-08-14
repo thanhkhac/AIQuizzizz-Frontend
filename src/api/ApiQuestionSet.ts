@@ -65,8 +65,8 @@ class ApiQuestionSet {
     GetRecentByLimit = async (pageParams: QuestionSetPublicPageParams) => {
         return await Api.get(`${END_POINTS.GET_RECENT_BY_LIMIT}`, {
             params: {
-                pageNumber: pageParams.pageNumber || 1,
-                pageSize: pageParams.pageSize || 5,
+               pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
+                pageSize: Math.max(5, Math.min(pageParams.pageSize || 5, 100)),
             },
         });
     };
@@ -74,8 +74,8 @@ class ApiQuestionSet {
     GetPublicByLimit = async (pageParams: QuestionSetPublicPageParams) => {
         return await Api.get(`${END_POINTS.GET_PUBLIC_BY_LIMIT}`, {
             params: {
-                pageNumber: pageParams.pageNumber || 1,
-                pageSize: pageParams.pageSize || 5,
+                pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
+                pageSize: Math.max(5, Math.min(pageParams.pageSize || 5, 100)),
                 name: pageParams.name?.toLowerCase() || "",
                 tagIds: pageParams.tagIds || [],
                 sortBy: pageParams.sortBy || "",
@@ -87,8 +87,8 @@ class ApiQuestionSet {
     GetAllByLimit = async (pageParams: QuestionSetPageParams) => {
         return await Api.get(`${END_POINTS.GET_ALL_BY_LIMIT}`, {
             params: {
-                pageNumber: pageParams.pageNumber || 1,
-                pageSize: pageParams.pageSize || 5,
+                pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
+                pageSize: Math.max(5, Math.min(pageParams.pageSize || 5, 100)),
                 name: pageParams.name.toLowerCase() || "",
                 filterBy: pageParams.filterBy || "",
             },

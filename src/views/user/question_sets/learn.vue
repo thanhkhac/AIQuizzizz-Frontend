@@ -235,7 +235,7 @@ const isReplying = ref(false);
 
 const commentPageParams = reactive({
     pageNumber: 1,
-    pageSize: 1,
+    pageSize: 10,
     questionId: "",
 });
 const commentLoading = ref(false);

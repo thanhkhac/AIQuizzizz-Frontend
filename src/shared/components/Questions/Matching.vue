@@ -120,7 +120,11 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                         </a-select>
                     </div>
                     <div class="question-function-select">
-                        <a-select v-model:value="questionData.type" style="width: 200px">
+                        <a-select
+                            v-model:value="questionData.type"
+                            style="width: 200px"
+                            @change="$emit('changeQuestionType')"
+                        >
                             <a-select-option v-for="option in options" :value="option.value">
                                 {{ option.label }}
                             </a-select-option>

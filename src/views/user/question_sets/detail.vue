@@ -267,7 +267,7 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <div class="quiz-credit">
+                <div v-if="permission.canDelete" class="quiz-credit">
                     <div class="share-btn-container">
                         <a-button
                             type="primary"

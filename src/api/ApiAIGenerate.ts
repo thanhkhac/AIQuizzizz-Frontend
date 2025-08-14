@@ -7,8 +7,14 @@ const END_POINTS = {
 };
 
 class ApiAIGenerate {
-    GenerateQuestion = async (data: any) => {
-        return await Api.post(`${END_POINTS.GENERATE_QUESTION}`, data);
+    GenerateQuestion = async (formData: FormData) => {
+        return await Api.post(END_POINTS.GENERATE_QUESTION, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+            maxContentLength: Infinity,
+            maxBodyLength: Infinity,
+        });
     };
 
     GenerateDocumentStructure = async (file: File) => {
@@ -23,8 +29,16 @@ class ApiAIGenerate {
         });
     };
 
-    GetCostToGenerate = async (data: any) => {
-        return await Api.post(`${END_POINTS.GET_COST_TO_GENERATE}`, data);
+    GetCostToGenerate = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        return await Api.post(END_POINTS.GET_COST_TO_GENERATE, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+            maxContentLength: Infinity,
+            maxBodyLength: Infinity,
+        });
     };
 }
 

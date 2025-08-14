@@ -6,7 +6,7 @@ import type QuestionSetPageParams from "@/models/request/question_set/questionSe
 import QUESTION_SET_SHARE_MODE from "@/constants/questionSetShareMode";
 import VISIBILITY from "@/constants/visibility";
 
-import { onMounted, ref, computed, reactive, onUpdated } from "vue";
+import { onMounted, ref, computed, reactive, onUpdated, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
 import { useI18n } from "vue-i18n";
@@ -87,8 +87,21 @@ const getData = async () => {
 };
 
 //update when page change (url)
-onUpdated(() => {
-    if (Object.keys(route.query).length === 0) {
+// onUpdated(() => {
+//     if (Object.keys(route.query).length === 0) {
+//         pageParams.pageNumber = route.query.pageNumber || 1;
+//         pageParams.pageSize = route.query.pageSize || 10;
+//         pageParams.name = route.query.name?.toString() || "";
+//         pageParams.filterBy = route.query.filterBy || share_mode_options.value[0].value;
+//         pageParams.statusFilter = true;
+
+//         getData();
+//     }
+// });
+
+watch(
+    () => Object.keys(route.query).length,
+    () => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
         pageParams.name = route.query.name?.toString() || "";
@@ -96,8 +109,8 @@ onUpdated(() => {
         pageParams.statusFilter = true;
 
         getData();
-    }
-});
+    },
+);
 
 //change when page change (pageParams)
 const onPaginationChange = (page: any, pageSize: any) => {

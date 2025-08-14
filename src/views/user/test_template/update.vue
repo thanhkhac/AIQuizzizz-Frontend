@@ -69,10 +69,17 @@ const getTestTemplate = async () => {
             return;
         }
         testTemplate.value = result.data.data;
+
+        testTemplate.value.questions = result.data.data.questions.map((x: any) => ({
+            id: x.questionId,
+            ...x,
+        }));
+
         formState.name = testTemplate.value.name;
         formState.createUpdateQuestions = testTemplate.value.questions.map((x) =>
             TranferQuestionData.transformResponseToRequest(x),
         );
+
         formState.testTemplateId = testTemplate.value.testTemplateId;
 
         window.addEventListener("beforeunload", handleBeforeUnload);
@@ -137,31 +144,23 @@ const componentMap = {
 //#endregion
 
 //#region logic edit question
+import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
-    id: `new_${Date.now().toString()}`,
+    id: Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
     explainText: "",
     score: 10,
-    multipleChoices: [
-        { id: (Date.now() + 1).toString(), text: "", isAnswer: true },
-        { id: (Date.now() + 2).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 3).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 4).toString(), text: "", isAnswer: false },
-    ],
-    matchingPairs: [
-        { id: (Date.now() + 1).toString(), leftItem: "", rightItem: "" },
-        { id: (Date.now() + 2).toString(), leftItem: "", rightItem: "" },
-    ],
-    orderingItems: [
-        { id: (Date.now() + 1).toString(), text: "", correctOrder: 0 },
-        { id: (Date.now() + 2).toString(), text: "", correctOrder: 1 },
-        { id: (Date.now() + 3).toString(), text: "", correctOrder: 2 },
-        { id: (Date.now() + 4).toString(), text: "", correctOrder: 3 },
-    ],
+    multipleChoices: ChangeQuestionType.defaultMultipleChoices(),
+    matchingPairs: ChangeQuestionType.defaultMatchingPairs(),
+    orderingItems: ChangeQuestionType.defaultOrderingItems(),
     shortAnswer: "",
 });
+
+const onHandleChangeQuestionType = (question: RequestQuestion) => {
+    ChangeQuestionType.onChangeQuestionType(question);
+};
 
 const onAddQuestion = () => {
     if (formState.createUpdateQuestions.length >= 500) {
@@ -313,13 +312,33 @@ const showModalConfirmation = () => {
         cancelText: t("sidebar.buttons.cancel"),
         centered: true,
         onOk: async () => {
-            formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
-                x.id.startsWith("new_") ? { ...x, id: "" } : x,
-            );
+            // formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
+            //     x.id.startsWith("new_") ? { ...x, id: "" } : x,
+            // );
 
-            let result = await ApiTestTemplate.Update(testTemplate.value.testTemplateId, formState);
+            // let result = await ApiTestTemplate.Update(testTemplate.value.testTemplateId, {
+            //     ...formState,
+            //     createUpdateQuestions: formState.createUpdateQuestions.map((x) => ({
+            //         questionId: x.id,
+            //         ...x,
+            //     })),
+            // });
+
+            let result = await ApiTestTemplate.Update(testTemplate.value.testTemplateId, {
+                ...formState,
+                createUpdateQuestions: formState.createUpdateQuestions.map((x) => ({
+                    questionId: x.id.startsWith("new_") ? null : x.id,
+                    ...x,
+                })),
+            });
+
             if (result.data.success) {
-                message.success(t("message.created_successfully"));
+                message.success(t("message.updated_successfully"));
+                isDataValid.value = false;
+                router.push({
+                    name: "User_TestTemplate_Detail",
+                    params: { id: result.data.data },
+                });
             }
             // localStorage.removeItem(storage_draft_key);
         },
@@ -416,6 +435,7 @@ const getPermission = async () => {
 
 // @ts-ignore
 import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
+import { template, xor } from "lodash";
 const scrollerRef = ref<any>(null);
 
 const handleScroll = () => {
@@ -519,7 +539,7 @@ onMounted(async () => {
                     <DynamicScroller
                         ref="scrollerRef"
                         class="scroller"
-                        key-field="questionId"
+                        key-field="id"
                         :items="formState.createUpdateQuestions"
                         :min-item-size="650"
                         :buffer="800"
@@ -533,9 +553,14 @@ onMounted(async () => {
                                 <component
                                     :is="componentMap[item.type]"
                                     :question="item"
-                                    :index="index + 1"
+                                    :index="
+                                        formState.createUpdateQuestions.findIndex(
+                                            (q) => q.id === item.id,
+                                        ) + 1
+                                    "
                                     :displayScore="false"
                                     @deleteQuestion="onRemoveQuestion(index)"
+                                    @changeQuestionType="onHandleChangeQuestionType(item)"
                                 />
                             </DynamicScrollerItem>
                         </template>
@@ -549,8 +574,18 @@ onMounted(async () => {
         </div>
     </div>
 
-    <ImportQSModal ref="importModalRef" :title="formState.name" @import="onModalImport" />
-    <GenerateQSModal ref="generateModalRef" :title="formState.name" @import="onModalImport" />
+    <ImportQSModal
+        ref="importModalRef"
+        :title="formState.name"
+        :number-of-question="formState.createUpdateQuestions.length"
+        @import="onModalImport"
+    />
+    <GenerateQSModal
+        ref="generateModalRef"
+        :title="formState.name"
+        @import="onModalImport"
+        :number-of-question="formState.createUpdateQuestions.length"
+    />
 </template>
 <style scoped>
 .content-item-buttons {

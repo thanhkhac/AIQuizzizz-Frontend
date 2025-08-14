@@ -13,11 +13,96 @@ const name = defineModel("name", { default: "" });
 const html = defineModel("html");
 const isRequired = defineModel("isRequired", { default: false });
 
+const autoEscapeHtml = defineModel("autoEscapeHtml", { default: true });
+
 const editor = ref(null);
 
 const emit = defineEmits(["update:modelValue", "change"]);
 
+function escapeHtmlTags(text) {
+    if (!text || typeof text !== "string") {
+        return text;
+    }
+
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;");
+}
+
+function containsHtmlTags(text) {
+    if (!text || typeof text !== "string") {
+        return false;
+    }
+
+    const htmlTagRegex = /<\/?[a-zA-Z][^>]*>/g;
+    return htmlTagRegex.test(text);
+}
+
+function prepareTipTapContent(content) {
+    if (!content || !autoEscapeHtml.value) {
+        return content;
+    }
+
+    // if content containe HTML tag escape
+    if (containsUnmatchedTags(content) || containsCodeLikeTags(content)) {
+        return escapeHtmlTags(content);
+    }
+
+    return content;
+}
+
+function containsUnmatchedTags(text) {
+    const openTagRegex = /<([a-zA-Z][a-zA-Z0-9]*)[^>]*>/g;
+    const closeTagRegex = /<\/([a-zA-Z][a-zA-Z0-9]*)[^>]*>/g;
+
+    const openTags = [];
+    const closeTags = [];
+
+    let match;
+    while ((match = openTagRegex.exec(text)) !== null) {
+        openTags.push(match[1].toLowerCase());
+    }
+
+    while ((match = closeTagRegex.exec(text)) !== null) {
+        closeTags.push(match[1].toLowerCase());
+    }
+
+    // more open than close -> unmatch
+    return openTags.length > closeTags.length;
+}
+
+function containsCodeLikeTags(text) {
+    // to check if text contain similar patterns
+    const codeLikePatterns = [
+        /what does.*<[^>]+>/i,
+        /explain.*<[^>]+>/i,
+        /<[^>]+>\s*means/i,
+        /<[^>]+>\s*tag/i,
+    ];
+
+    return codeLikePatterns.some((pattern) => pattern.test(text));
+}
+
+function escapeContent(content) {
+    return escapeHtmlTags(content);
+}
+
+// set content with optional escaping
+function setEditorContent(content, shouldEscape = null) {
+    if (!editor.value) return;
+
+    const escape = shouldEscape !== null ? shouldEscape : autoEscapeHtml.value;
+    const processedContent = escape ? prepareTipTapContent(content) : content;
+
+    editor.value.commands.setContent(processedContent, false);
+}
+
 onMounted(() => {
+    const initialContent = html.value || modelValue.value;
+
     editor.value = new Editor({
         extensions: [
             StarterKit,
@@ -26,15 +111,17 @@ onMounted(() => {
                 placeholder: placeholder.value,
             }),
         ],
-        content: html.value ? html.value : modelValue.value,
+        content: prepareTipTapContent(initialContent),
         onUpdate: ({ editor }) => {
-            modelValue.value = editor.getHTML();
-            emit("change", editor.getHTML());
+            const newContent = editor.getHTML();
+            modelValue.value = newContent;
+            emit("change", newContent);
         },
     });
+
     if (isRequired.value && editor.value?.isEmpty) {
         const proseMirrorEl = editor.value?.view?.dom;
-        proseMirrorEl.classList.add("invalid");
+        proseMirrorEl?.classList.add("invalid");
     }
 });
 
@@ -44,11 +131,11 @@ onBeforeUnmount(() => {
     }
 });
 
-const editorContainer = (ref < HTMLElement) | (null > null);
+const editorContainer = ref(null);
 
 watch(modelValue, async (newValue) => {
     if (editor.value && newValue !== editor.value.getHTML()) {
-        editor.value.commands.setContent(newValue, false);
+        setEditorContent(newValue);
     }
     await nextTick();
 
@@ -56,9 +143,16 @@ watch(modelValue, async (newValue) => {
     if (!proseMirrorEl) return;
 
     if (isRequired.value) {
-        const isEmpty = newValue.replace(/<\/?p>/g, "").trim() === "";
+        const isEmpty = newValue?.replace(/<\/?p>/g, "").trim() === "";
         proseMirrorEl.classList.toggle("invalid", isEmpty);
     }
+});
+
+defineExpose({
+    editor,
+    escapeContent,
+    setEditorContent,
+    prepareTipTapContent,
 });
 </script>
 <template>

@@ -5,7 +5,7 @@ import type ClassQuestionSetPageParams from "@/models/request/class/classQSPageP
 import type { Class } from "@/models/response/class/class";
 import type { ClassQuestionSet } from "@/models/response/class/classQuestionSet";
 
-import { ref, onMounted, reactive, onUpdated } from "vue";
+import { ref, onMounted, reactive, onUpdated, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { message, Modal } from "ant-design-vue";
@@ -46,6 +46,7 @@ const pageParams = reactive({
 
 const question_set_data = ref<ClassQuestionSet[]>([]);
 const userRoleInClass = ref<string>("");
+const loading = ref(false);
 const getPermission = async () => {
     try {
         const result = await ApiClass.GetUserPermission(classData.value.classId);
@@ -71,6 +72,7 @@ const getClassData = async () => {
 
 const getData = async () => {
     try {
+        loading.value = true;
         let result = await ApiClass.GetAllQSByLimit(
             classId.value.toString(),
             pageParams as ClassQuestionSetPageParams,
@@ -118,12 +120,27 @@ const getData = async () => {
         }
     } catch (error) {
         console.log("ERROR: GETALLEXAMBYLIMIT class qs: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 
 //update when page change (url)
-onUpdated(() => {
-    if (Object.keys(route.query).length === 0) {
+// onUpdated(() => {
+//     if (Object.keys(route.query).length === 0) {
+//         pageParams.pageNumber = route.query.pageNumber || 1;
+//         pageParams.pageSize = route.query.pageSize || 10;
+//         pageParams.name = route.query.name?.toString() || "";
+//         // pageParams.shareMode = route.query.status || share_mode_options.value[0].value;
+//         pageParams.statusFilter = true;
+
+//         getData();
+//     }
+// });
+
+watch(
+    () => Object.keys(route.query).length,
+    () => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
         pageParams.name = route.query.name?.toString() || "";
@@ -131,8 +148,8 @@ onUpdated(() => {
         pageParams.statusFilter = true;
 
         getData();
-    }
-});
+    },
+);
 
 //change when page change (pageParams)
 const onPaginationChange = (page: any, pageSize: any) => {
@@ -161,6 +178,10 @@ const onDeleteQSFromClass = (questionSetId: string) => {
             getData();
         },
     });
+};
+
+const onRedirectToDetail = (id: string) => {
+    router.push({ name: "User_Class_Quiz_Detail", params: { id } });
 };
 
 onMounted(async () => {
@@ -236,54 +257,67 @@ onMounted(async () => {
                     </div>
                 </div>
 
-                <div v-if="question_set_data.length > 0" class="quiz-item-container">
-                    <div class="quiz-item" v-for="exam in question_set_data">
-                        <i class="bx bx-book-open quiz-item-icon"></i>
-                        <div>
-                            <div class="quiz-item-title">
-                                {{ exam.name }}
-                            </div>
-                            <div class="quiz-item-description">
-                                {{ exam.description }}
-                            </div>
-                            <div class="quiz-item-info quiz-info-detail">
-                                <div class="quiz-item-questions">
-                                    <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                    {{ exam.totalQuestionCount }}
-                                    {{ $t("dashboards.list_items.quiz.questions") }}
-                                </div>
-                                <div class="quiz-item-created-by">
-                                    {{ $t("class_question_set.other.created_by") }}
-                                    {{ exam.createBy }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="exam-item-actions">
-                            <a-button type="primary" class="me-3 main-color-btn">
-                                {{ $t("class_question_set.buttons.view") }}
-                            </a-button>
-
-                            <a-tooltip v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT">
-                                <template #title>
-                                    {{ $t("question_sets_index.buttons.delete") }}
-                                </template>
-                                <i
-                                    style="cursor: pointer"
-                                    class="text-danger bx bx-trash-alt"
-                                    @click="onDeleteQSFromClass(exam.id)"
-                                ></i>
-                            </a-tooltip>
-                        </div>
-                    </div>
-                </div>
+                <template v-if="loading">
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                </template>
                 <template v-else>
-                    <div class="w-100 d-flex justify-content-center">
-                        <a-empty>
-                            <template #description>
-                                <span> {{ $t("class_index.other.no_data_matches") }}</span>
-                            </template>
-                        </a-empty>
+                    <div v-if="question_set_data.length > 0" class="quiz-item-container">
+                        <div class="quiz-item" v-for="exam in question_set_data">
+                            <i class="bx bx-book-open quiz-item-icon"></i>
+                            <div>
+                                <div class="quiz-item-title">
+                                    {{ exam.name }}
+                                </div>
+                                <div class="quiz-item-description">
+                                    {{ exam.description }}
+                                </div>
+                                <div class="quiz-item-info quiz-info-detail">
+                                    <div class="quiz-item-questions">
+                                        <i class="bx bx-message-square-edit bx-rotate-270"></i>
+                                        {{ exam.totalQuestionCount }}
+                                        {{ $t("dashboards.list_items.quiz.questions") }}
+                                    </div>
+                                    <div class="quiz-item-created-by">
+                                        {{ $t("class_question_set.other.created_by") }}
+                                        {{ exam.createBy }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="exam-item-actions">
+                                <a-button
+                                    type="primary"
+                                    class="me-3 main-color-btn"
+                                    @click="onRedirectToDetail(exam.id)"
+                                >
+                                    {{ $t("class_question_set.buttons.view") }}
+                                </a-button>
+
+                                <a-tooltip
+                                    v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT"
+                                >
+                                    <template #title>
+                                        {{ $t("question_sets_index.buttons.delete") }}
+                                    </template>
+                                    <i
+                                        style="cursor: pointer"
+                                        class="text-danger bx bx-trash-alt"
+                                        @click="onDeleteQSFromClass(exam.id)"
+                                    ></i>
+                                </a-tooltip>
+                            </div>
+                        </div>
                     </div>
+                    <template v-else>
+                        <div class="w-100 d-flex justify-content-center">
+                            <a-empty>
+                                <template #description>
+                                    <span> {{ $t("class_index.other.no_data_matches") }}</span>
+                                </template>
+                            </a-empty>
+                        </div>
+                    </template>
                 </template>
                 <div class="pagination-container">
                     <a-pagination

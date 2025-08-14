@@ -33,8 +33,8 @@ class ApiUser {
     async GetAllByLimit(pageParams: ClassPageParams) {
         return await Api.get(`${END_POINTS.GET_ALL_BY_LIMIT}`, {
             params: {
-                pageNumber: pageParams.pageNumber || 1,
-                pageSize: pageParams.pageSize || 10,
+                pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
+                pageSize: Math.max(5, Math.min(pageParams.pageSize || 5, 100)),
                 name: pageParams.name || "",
                 shareMode: pageParams.shareMode || "",
             },
@@ -50,8 +50,8 @@ class ApiUser {
         const url = END_POINTS.GET_ALL_EXAM_BY_LIMIT.replace("{ClassId}", classId);
         return await Api.get(url, {
             params: {
-                pageNumber: pageParams.pageNumber || 1,
-                pageSize: pageParams.pageSize || 10,
+                pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
+                pageSize: Math.max(5, Math.min(pageParams.pageSize || 5, 100)),
                 testName: pageParams.testName || "",
                 status: pageParams.status || "",
             },
@@ -62,8 +62,8 @@ class ApiUser {
         const url = END_POINTS.GET_ALL_QS_BY_LIMIT.replace("{ClassId}", classId);
         return await Api.get(url, {
             params: {
-                pageNumber: pageParams.pageNumber || 1,
-                pageSize: pageParams.pageSize || 10,
+                pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
+                pageSize: Math.max(5, Math.min(pageParams.pageSize || 5, 100)),
                 name: pageParams.name || "",
             },
         });
@@ -73,8 +73,8 @@ class ApiUser {
         const url = END_POINTS.GET_ALL_STUDENT_BY_LIMIT.replace("{ClassId}", classId);
         return await Api.get(url, {
             params: {
-                pageNumber: pageParams.pageNumber || 1,
-                pageSize: pageParams.pageSize || 10,
+                pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
+                pageSize: Math.max(10, Math.min(pageParams.pageSize || 10, 100)),
                 keyword: pageParams.keyword || "",
                 fieldName: pageParams.fieldName || "",
             },

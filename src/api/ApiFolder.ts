@@ -19,8 +19,8 @@ class ApiFolder {
     GetAllByLimit = async (pageParams: FolderPageParams) => {
         return await Api.get(`${END_POINTS.GET_ALL_BY_LIMIT}`, {
             params: {
-                pageNumber: pageParams.pageNumber || 1,
-                pageSize: pageParams.pageSize || 10,
+                pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
+                pageSize: Math.max(10, Math.min(pageParams.pageSize || 10, 100)),
                 folderName: pageParams.folderName || "",
                 shareMode: pageParams.shareMode || "",
             },
@@ -43,8 +43,8 @@ class ApiFolder {
         const url = END_POINTS.GET_ALL_TEST_TEMPLATE_BY_LIMIT.replace("{FolderId}", folderId);
         return await Api.get(url, {
             params: {
-                pageNumber: pageParams.pageNumber || 1,
-                pageSize: pageParams.pageSize || 10,
+                pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
+                pageSize: Math.max(5, Math.min(pageParams.pageSize || 5, 100)),
                 testTemplateName: pageParams.testTemplateName || "",
             },
         });

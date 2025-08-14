@@ -23,13 +23,13 @@ class ApiComment {
     };
 
     Create = async (formState: any) => {
-        const url = END_POINTS.GET_ALL_BY_QUESTION_ID.replace("{questionId}", formState.questionId);
-        return await Api.post(url, null, { params: { content: formState.content } });
+        const url = END_POINTS.CREATE.replace("{questionId}", formState.questionId);
+        return await Api.post(url, formState);
     };
 
     Reply = async (formState: any) => {
         const url = END_POINTS.REPLY.replace("{commentId}", formState.commentId);
-        return await Api.post(url, null, { params: { content: formState.content } });
+        return await Api.post(url, formState);
     };
 
     Delete = async (commentId: string) => {

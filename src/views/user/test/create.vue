@@ -64,10 +64,10 @@ interface FormState {
     gradeQuestionMethod: string;
     isShowCorrectAnswerInReview: boolean;
     isAllowReviewAfterSubmit: boolean;
-    shuffle: number;
+    numberOfShuffles: number;
     maxAttempt: number;
     passingScore: number;
-    questions: RequestQuestion[]; // Define this interface below
+    questions: RequestQuestion[];
 }
 
 const formRef = ref();
@@ -81,7 +81,7 @@ const formState = reactive<FormState>({
     gradeQuestionMethod: TEST_GRADE_QUESTION_METHOD.PARTIAL,
     isShowCorrectAnswerInReview: true,
     isAllowReviewAfterSubmit: true,
-    shuffle: 2,
+    numberOfShuffles: 2,
     maxAttempt: 2,
     passingScore: 50,
     questions: [],
@@ -134,6 +134,7 @@ const rules = {
 //#endregion
 
 //#region crud question
+import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
     id: Date.now().toString(),
     type: "MultipleChoice",
@@ -141,24 +142,15 @@ const createQuestionTemplate = (): RequestQuestion => ({
     questionHTML: "",
     explainText: "",
     score: 10,
-    multipleChoices: [
-        { id: (Date.now() + 1).toString(), text: "", isAnswer: true },
-        { id: (Date.now() + 2).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 3).toString(), text: "", isAnswer: false },
-        { id: (Date.now() + 4).toString(), text: "", isAnswer: false },
-    ],
-    matchingPairs: [
-        { id: (Date.now() + 1).toString(), leftItem: "", rightItem: "" },
-        { id: (Date.now() + 2).toString(), leftItem: "", rightItem: "" },
-    ],
-    orderingItems: [
-        { id: (Date.now() + 1).toString(), text: "", correctOrder: 0 },
-        { id: (Date.now() + 2).toString(), text: "", correctOrder: 1 },
-        { id: (Date.now() + 3).toString(), text: "", correctOrder: 2 },
-        { id: (Date.now() + 4).toString(), text: "", correctOrder: 3 },
-    ],
+    multipleChoices: ChangeQuestionType.defaultMultipleChoices(),
+    matchingPairs: ChangeQuestionType.defaultMatchingPairs(),
+    orderingItems: ChangeQuestionType.defaultOrderingItems(),
     shortAnswer: "",
 });
+
+const onHandleChangeQuestionType = (question: RequestQuestion) => {
+    ChangeQuestionType.onChangeQuestionType(question);
+};
 
 const onAddQuestion = () => {
     if (formState.questions.length >= 100) {
@@ -539,9 +531,12 @@ onMounted(() => {
                                 <component
                                     :is="componentMap[item.type]"
                                     :question="item"
-                                    :index="index + 1"
+                                    :index="
+                                        formState.questions.findIndex((q) => q.id === item.id) + 1
+                                    "
                                     :displayScore="false"
                                     @deleteQuestion="onRemoveQuestion(index)"
+                                    @changeQuestionType="onHandleChangeQuestionType(item)"
                                 />
                             </DynamicScrollerItem>
                         </template>
