@@ -12,6 +12,7 @@ const END_POINTS = {
     GET_ALL_RESULT_BY_LIMIT: "Test/{testId}/Class/Result",
     GET_USER_EXAM_HISTORY: "Test/{testId}/History",
     GET_ATTEMPT_REVIEW: "Test/{attemptId}/Review",
+    GET_TEST_SCHEDULE: "Test/Schedule",
 };
 
 class ApiTest {
@@ -70,6 +71,15 @@ class ApiTest {
     GetAttemptReview = async (attemptId: string) => {
         const url = END_POINTS.GET_ATTEMPT_REVIEW.replace("{attemptId}", attemptId);
         return await Api.get(url);
+    };
+
+    GetTestSchedule = async (month: number, year: number) => {
+        return await Api.get(`${END_POINTS.GET_TEST_SCHEDULE}`, {
+            params: {
+                month: month,
+                year: year,
+            },
+        });
     };
 }
 

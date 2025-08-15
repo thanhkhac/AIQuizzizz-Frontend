@@ -171,6 +171,7 @@ const onJoinClass = async () => {
             message.error(t("message.join_class_failed"));
             return;
         }
+        modal_join_class_open.value = false;
         message.success(t("message.join_class_successfully"));
         await getData();
     } catch (error) {

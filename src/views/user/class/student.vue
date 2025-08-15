@@ -221,10 +221,7 @@ const invitationFormState = reactive({
     code: "",
     expiredTime: code_limit_time.value[0].value,
 });
-const inivitationLink = ref(
-    window.location.origin + `/user/class/invitation/${invitationFormState.code}`,
-);
-const allowCopy = ref(true);
+const inivitationLink = ref("");
 const isInvitaionLoading = ref(false);
 const onOpenInvitationModal = async () => {
     //call api get current code
@@ -234,7 +231,7 @@ const onOpenInvitationModal = async () => {
 
 const getInvitationCode = async () => {
     const result = await ApiClass.GetInivationCode(classId.value.toString());
-    if (result.data.success) {
+    if (result.data.data) {
         invitationFormState.code = result.data.data;
         inivitationLink.value =
             window.location.origin + `/user/class/invitation/${invitationFormState.code}`;
@@ -252,7 +249,7 @@ const onResetInvitation = async () => {
 };
 
 const onCopyInvitationCode = (mode: string) => {
-    if (!allowCopy.value) return;
+    if (!invitationFormState.code) return;
     let content = invitationFormState.code;
 
     if (mode === "link") {
@@ -374,6 +371,7 @@ onMounted(async () => {
                         <span>{{ $t("class_member.sub_title") }}</span>
                     </div>
                     <a-button
+                        v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT"
                         class="main-color-btn"
                         type="primary"
                         size="large"

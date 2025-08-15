@@ -1,28 +1,91 @@
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
-import dayjs, { Dayjs } from "dayjs";
-const chosenDate = ref<Dayjs>();
+import ApiTest from "@/api/ApiTest";
 
-const getListData = (value: Dayjs) => {
-    let result = "";
-    switch (value.date()) {
-        case 8:
-            result = "3 tests";
-            break;
-        case 10:
-            result = "3 tests";
-            break;
-        case 15:
-            result = "3 tests";
-        default:
+import { ref, onMounted, computed } from "vue";
+import dayjs, { Dayjs } from "dayjs";
+
+import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+
+const route = useRoute();
+const router = useRouter();
+const { t } = useI18n();
+
+//#region interface
+interface TestSchedule {
+    testId: string;
+    testName: string;
+    classId: string;
+    className: string;
+}
+
+interface ScheduleData {
+    date: string;
+    testSchedules: TestSchedule[];
+}
+
+//#endregion
+
+const data = ref<ScheduleData[]>([]);
+
+const chosenDate = ref<Dayjs>(dayjs());
+const watchChosenDate = ref<Dayjs>(dayjs());
+
+const chosenDateTestSchedules = computed(() => {
+    return chosenDate.value
+        ? data.value.find((x) => dayjs(chosenDate.value).isSame(dayjs(x.date), "day"))
+              ?.testSchedules || []
+        : [];
+});
+
+const loading = ref(false);
+const getData = async () => {
+    try {
+        loading.value = true;
+        const result = await ApiTest.GetTestSchedule(
+            chosenDate.value.month() + 1,
+            chosenDate.value.year(),
+        );
+        if (result.data.success) {
+            data.value = result.data.data;
+            watchChosenDate.value = chosenDate.value;
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loading.value = false;
     }
-    return result;
+};
+
+//change to another month or year
+const GetCalendarData = async () => {
+    if (
+        !dayjs(chosenDate.value).isSame(dayjs(watchChosenDate.value), "month") ||
+        !dayjs(chosenDate.value).isSame(dayjs(watchChosenDate.value), "year")
+    ) {
+        await getData();
+    }
+};
+
+const getListData = (date: string) => {
+    const numberOfTest = data.value.find((x) => dayjs(date).isSame(dayjs(x.date), "day"))
+        ?.testSchedules.length;
+
+    if (!numberOfTest) return null;
+
+    return `${numberOfTest} tests`;
+};
+
+const onRedirectToClass = (classId: string) => {
+    router.push({ name: "User_Class_Exam", params: { id: classId } });
 };
 
 const emit = defineEmits(["updateSidebar"]);
 onMounted(async () => {
     const sidebarActiveItem = "schedule";
     emit("updateSidebar", sidebarActiveItem);
+
+    await getData();
 });
 </script>
 <template>
@@ -35,7 +98,7 @@ onMounted(async () => {
         <div class="content d-flex flex-row justify-content-between">
             <div class="col-md-9 content-item">
                 <div class="schedule-container">
-                    <a-calendar v-model:value="chosenDate">
+                    <a-calendar v-model:value="chosenDate" @change="GetCalendarData">
                         <template #dateCellRender="{ current }">
                             <a-badge
                                 v-if="getListData(current)"
@@ -50,7 +113,38 @@ onMounted(async () => {
             <div class="col-md-3 content-item">
                 <div class="schedule-detail-title">
                     <div>Date: {{ dayjs(chosenDate).format("DD/MM/YYYY") }}</div>
-                    <div class="schedule-detail-sub-title">Exam schedule</div>
+                    <div class="schedule-detail-sub-title">
+                        Exam schedule ({{ chosenDateTestSchedules.length }})
+                    </div>
+                </div>
+                <div class="schedule-item-container">
+                    <template v-if="chosenDateTestSchedules.length > 0">
+                        <div
+                            v-for="(schedule, index) in chosenDateTestSchedules"
+                            :key="schedule.testId"
+                            class="schedule-item"
+                        >
+                            <div>{{ index + 1 }}.</div>
+                            <div class="schedule-item-info">
+                                <div
+                                    class="schedule-item-info-test"
+                                    @click="onRedirectToClass(schedule.classId)"
+                                >
+                                    {{ schedule.testName }}
+                                </div>
+                                <div class="schedule-item-info-class">{{ schedule.className }}</div>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <div class="w-100 h-100 d-flex justify-content-center align-items-center">
+                            <a-empty>
+                                <template #description>
+                                    <span> {{ $t("class_index.other.no_data_matches") }}</span>
+                                </template>
+                            </a-empty>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
@@ -95,6 +189,7 @@ onMounted(async () => {
 ::v-deep(.ant-picker-calendar-date-today.ant-picker-cell-selected) {
     background: #111a2c !important;
     border-color: var(--main-color) !important;
+    color: var(--text-color-contrast) !important;
 }
 
 ::v-deep(.ant-picker-calendar.ant-picker-calendar-full .ant-picker-calendar-date-today) {
@@ -136,6 +231,7 @@ onMounted(async () => {
     background: var(--form-item-background-color);
     border-color: var(--form-item-border-color);
     color: var(--text-color);
+    display: none;
 }
 
 ::v-deep(.ant-radio-button-wrapper-checked) {
@@ -145,5 +241,45 @@ onMounted(async () => {
 
 ::v-deep(.ant-badge-status-text) {
     color: var(--text-color) !important;
+}
+
+.schedule-item-container {
+    height: 500px;
+    max-height: 700px;
+    overflow-y: auto;
+    padding: 0px 5px;
+    margin-top: 10px;
+}
+
+.schedule-item {
+    display: flex;
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--content-item-border-color);
+    border-radius: 5px;
+}
+
+.schedule-item:hover {
+    background: var(--form-item-background-color);
+}
+
+.schedule-item-info {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+.schedule-item-info-test {
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.schedule-item-info-test:hover {
+    color: var(--main-color);
+}
+
+.schedule-item-info-class {
+    font-size: 14px;
+    color: var(--text-color-grey);
 }
 </style>

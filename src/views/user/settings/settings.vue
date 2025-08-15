@@ -13,13 +13,13 @@ const { t } = useI18n();
 
 type TabKey = "Profile" | "Security" | "Appearance" | "Subscription" | "Billing";
 
-const tabs: { key: TabKey; tab: string }[] = [
+const tabs = ref<{ key: TabKey; tab: string }[]>([
     { key: "Profile", tab: t("settings.tabs.profile") },
     { key: "Security", tab: t("settings.tabs.security") },
     { key: "Appearance", tab: t("settings.tabs.appearance") },
     { key: "Subscription", tab: t("settings.tabs.subscription") },
     { key: "Billing", tab: t("settings.tabs.billing") },
-];
+]);
 
 //record = dictionary
 const tab_component: Record<TabKey, Component> = {
@@ -30,7 +30,7 @@ const tab_component: Record<TabKey, Component> = {
     Billing,
 };
 
-const activeKey = ref(tabs[0].key);
+const activeKey = ref(tabs.value[0].key);
 const emit = defineEmits(["updateSidebar"]);
 
 onMounted(() => {

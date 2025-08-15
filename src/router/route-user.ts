@@ -63,7 +63,7 @@ const userRoutes = [
             },
             {
                 name: "User_Test_Review",
-                path: "/user/attempt/:id/review",
+                path: "attempt/:id/review",
                 component: () => import("@/views/user/test/review.vue"),
                 meta: {
                     title: "review-test",

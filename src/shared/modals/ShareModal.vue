@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ApiUser from "@/api/ApiUser";
 import ApiQuestionSet from "@/api/ApiQuestionSet";
+import ApiClass from "@/api/ApiClass";
 import ApiTestTemplate from "@/api/ApiTestTemplate";
 import ApiFolder from "@/api/ApiFolder";
 
@@ -44,6 +45,12 @@ interface SharingFormState {
     }[];
     deleteUserIds: string[];
 }
+
+interface SharedClass {
+    classId: string;
+    className: string;
+    isAdded: boolean;
+}
 //#endregion
 
 //#region props
@@ -62,9 +69,13 @@ const props = defineProps<Props>();
 const visibility = ref(false);
 
 const openModal = async () => {
-    await getSharedUser();
-    selected_visibility_option.value = props.visibility || visibility_options.value[0].value;
     visibility.value = true;
+    if (props.mode === "quiz" && props.visibility === VISIBILITY.IN_CLASS) {
+        await getSharedClasses();
+        return;
+    }
+
+    await getSharedUser();
 };
 
 const closeModal = () => {
@@ -282,34 +293,34 @@ const isSharedUserContain = (id: string) => {
 //#endregion
 
 //#region share in class
-const shareClassState = reactive({
-    checkAll: false,
-    indeterminate: false,
-    checkedList: [] as string[],
-});
+const sharedClass = ref<SharedClass[]>([]);
+const getSharedClasses = async () => {
+    const result = await ApiQuestionSet.GetSharedClasses(props.id);
+    if (result.data.success) {
+        sharedClass.value = result.data.data;
+    }
+};
 
-//checkboxes  / checkbox-all for sharing quiz with class
-// const onCheckAll = (event: any) => {
-//     Object.assign(shareClassState, {
-//         checkedList: event.target.checked ? user_class_sample.value?.map((x) => x.id) : [],
-//         indeterminate: false,
-//     });
-// };
+const onAddToClass = async (classId: string) => {
+    const result = await ApiClass.AddQuestionSet(classId, props.id);
+    if (result.data.success) {
+        const classItem = sharedClass.value.find((x) => x.classId === classId);
+        if (classItem) {
+            classItem.isAdded = true;
+        }
+        message.success(t("message.added_successfully"));
+    }
+};
 
-watch(
-    () => shareClassState.checkedList,
-    (val) => {
-        shareClassState.indeterminate =
-            !!val.length && val.length < user_class_sample.value!.map((x) => x.id).length; //change to queried when it done
-        shareClassState.checkAll = val.length === user_class_sample.value?.length;
-    },
-);
-
-const onShareClass = () => {
-    //call api create class-qs
-    //message result
-    //close pop-up
-    closeModal();
+const onRemoveFromClass = async (classId: string) => {
+    const result = await ApiClass.DeleteQuestionSetFromClass(classId, props.id);
+    if (result.data.success) {
+        const classItem = sharedClass.value.find((x) => x.classId === classId);
+        if (classItem) {
+            classItem.isAdded = false;
+        }
+        message.success(t("message.removed_successfully"));
+    }
 };
 
 //#endregion
@@ -434,10 +445,10 @@ onMounted(() => {
                             class="form-item search-user"
                             ref="searchUserResultRef"
                         >
-                            <label
-                                >{{ $t("share_modal.component_title.share_with_email") }} -
-                                <span>enter full email to search user</span></label
-                            >
+                            <label>
+                                {{ $t("share_modal.component_title.share_with_email") }} -
+                                <span>enter full email to search user</span>
+                            </label>
                             <Input
                                 @change="onSearchUser"
                                 v-model:value="searchUserEmailValue"
@@ -538,21 +549,34 @@ onMounted(() => {
                     >
                         <div class="list-item-section">
                             <div class="list-item-container">
-                                <template v-for="item in user_class_sample">
+                                <template v-for="item in sharedClass">
                                     <div class="list-item">
-                                        <span>{{ item.name }}</span>
+                                        <span class="d-flex align-items-center">
+                                            {{ item.className }}
+                                            <i
+                                                v-if="item.isAdded"
+                                                class="fs-4 bx bx-check result-correct"
+                                            ></i>
+                                        </span>
+
+                                        <div class="people-access-permission">
+                                            <i
+                                                v-if="item.isAdded"
+                                                class="text-danger bx bx-trash-alt"
+                                                @click="onRemoveFromClass(item.classId)"
+                                            ></i>
+                                            <a-button
+                                                v-else
+                                                type="ghost"
+                                                size="small"
+                                                class="main-color-btn"
+                                                @click="onAddToClass(item.classId)"
+                                            >
+                                                <i class="bx bx-plus"></i>
+                                            </a-button>
+                                        </div>
                                     </div>
                                 </template>
-                            </div>
-                            <div class="mt-3 d-flex justify-content-end">
-                                <a-button
-                                    type="primary"
-                                    class="main-color-btn"
-                                    size="large"
-                                    @click="onShareClass"
-                                >
-                                    {{ $t("share_modal.buttons.done") }}
-                                </a-button>
                             </div>
                         </div>
                     </a-col>
@@ -686,6 +710,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     flex-direction: row;
+    justify-content: space-between;
 }
 
 .list-item span {

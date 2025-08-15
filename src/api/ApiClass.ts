@@ -19,6 +19,7 @@ const END_POINTS = {
     DELETE_CLASS_QUESTION_SET: "Class/{ClassId}/QuestionSets/{QuestionSetId}",
     GET_INVITATION_CODE: "Class/{ClassId}/Invitation-Code",
     GET_USER_PERMISSION: "Class/{ClassId}/Permissions",
+    ADD_QUESTION_SET: "Class/{ClassId}/QuestionSets/{QuestionSetId}",
 };
 
 class ApiUser {
@@ -125,6 +126,14 @@ class ApiUser {
     async GetUserPermission(classId: string) {
         const url = END_POINTS.GET_USER_PERMISSION.replace("{ClassId}", classId);
         return await Api.get(url);
+    }
+
+    async AddQuestionSet(classId: string, questionSetId: string) {
+        const url = END_POINTS.ADD_QUESTION_SET.replace("{ClassId}", classId).replace(
+            "{QuestionSetId}",
+            questionSetId,
+        );
+        return await Api.post(url);
     }
 }
 

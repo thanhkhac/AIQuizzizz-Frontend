@@ -22,6 +22,7 @@ const END_POINTS = {
     UPDATE_SHARING: "QuestionSet/{questionSetId}/Sharing",
     GET_RATING: "QuestionSet/{questionSetId}/Rating",
     UPDATE_RATING: "QuestionSet/{questionSetId}/Rating",
+    GET_SHARED_CLASSES: "QuestionSet/{questionSetId}/Classes",
 };
 
 class ApiQuestionSet {
@@ -134,6 +135,11 @@ class ApiQuestionSet {
     UpdateRating = async (questionSetId: string, formState: any) => {
         const url = END_POINTS.UPDATE_RATING.replace("{questionSetId}", questionSetId);
         return await Api.post(url, formState);
+    };
+
+    GetSharedClasses = async (questionSetId: string) => {
+        const url = END_POINTS.GET_SHARED_CLASSES.replace("{questionSetId}", questionSetId);
+        return await Api.get(url);
     };
 }
 
