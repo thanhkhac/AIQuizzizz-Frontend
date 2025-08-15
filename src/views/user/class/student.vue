@@ -13,6 +13,7 @@ import CLASS_STUDENT_POSITION from "@/constants/classStudentPosition";
 
 import { useRoute, useRouter } from "vue-router";
 import type ClassStudentPageParams from "@/models/request/class/classStudentPageParams";
+import Validator from "@/services/Validator";
 
 const route = useRoute();
 const router = useRouter();
@@ -82,6 +83,10 @@ const code_limit_time = computed(() =>
 
 const getClassData = async () => {
     try {
+        if (!Validator.isValidGuid(classId.value.toString())) {
+            router.push({ name: "404" });
+            return;
+        }
         if (!classId.value) router.push({ name: "404" });
 
         let result = await ApiClass.GetById(classId.value.toString());

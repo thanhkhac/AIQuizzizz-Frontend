@@ -601,15 +601,4 @@ onMounted(async () => {
 ::v-deep(.ant-rate-star-second) {
     color: var(--border-color);
 }
-
-.question-index {
-    font-weight: 500;
-    margin-right: 10px;
-    border: 1px solid var(--form-item-border-color);
-    border-radius: 5px;
-    background-color: var(--main-color);
-    padding: 3px 8px;
-    color: var(--text-color-contrast);
-    height: fit-content;
-}
 </style>

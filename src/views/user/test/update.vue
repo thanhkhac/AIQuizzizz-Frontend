@@ -118,7 +118,7 @@ const getData = async () => {
             return;
         }
 
-        const result = await ApiTest.GetById(formState.testId);
+        const result = await ApiTest.GetById(formState.testId, true);
         if (!result.data.success) {
             isDataValid.value = false;
             router.push({ name: "404" });
@@ -588,9 +588,11 @@ onMounted(async () => {
                                     :is="componentMap[item.type]"
                                     :question="item"
                                     :index="
-                                        formState.createUpdateQuestions.findIndex((q) => q.id === item.id) + 1
+                                        formState.createUpdateQuestions.findIndex(
+                                            (q) => q.id === item.id,
+                                        ) + 1
                                     "
-                                    :displayScore="false"
+                                    :displayScore="true"
                                     @deleteQuestion="onRemoveQuestion(index)"
                                     @changeQuestionType="onHandleChangeQuestionType(item)"
                                 />

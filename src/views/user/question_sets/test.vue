@@ -1038,7 +1038,7 @@ onMounted(async () => {
                             </div>
                             <div
                                 class="result-button"
-                                v-if="getInCorrectPercentage() <= 30"
+                                v-if="getInCorrectPercentage() >= 100"
                                 @click="onRedirectToLearn"
                             >
                                 <i class="bx bx-analyse"></i>
@@ -1053,7 +1053,7 @@ onMounted(async () => {
                             </div>
                             <div
                                 class="result-button"
-                                v-if="getInCorrectPercentage() > 30"
+                                v-if="getInCorrectPercentage() < 100"
                                 @click="onRetest"
                             >
                                 <i class="bx bx-reset"></i>

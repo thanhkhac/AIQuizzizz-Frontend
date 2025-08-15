@@ -101,9 +101,7 @@ class ApiUser {
             userId,
         );
 
-        return await Api.patch(url, null, {
-            params: { position },
-        });
+        return await Api.patch(url, { classId, userId, position });
     }
 
     async DeleteQuestionSetFromClass(classId: string, questionSetId: string) {

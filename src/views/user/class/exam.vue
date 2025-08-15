@@ -17,6 +17,7 @@ import { useRoute, useRouter } from "vue-router";
 import Input from "@/shared/components/Common/Input.vue";
 import { FileDoneOutlined } from "@ant-design/icons-vue";
 import { Modal, message } from "ant-design-vue";
+import Validator from "@/services/Validator";
 
 const route = useRoute();
 const router = useRouter();
@@ -65,6 +66,10 @@ const getPermission = async () => {
 
 const getClassData = async () => {
     try {
+        if (!Validator.isValidGuid(classId.value.toString())) {
+            router.push({ name: "404" });
+            return;
+        }
         if (!classId.value) router.push({ name: "404" });
 
         let result = await ApiClass.GetById(classId.value.toString());
@@ -225,6 +230,13 @@ const onRedirectToAttempt = (testId: string) => {
     router.push({ name: "User_Test_Attempt", params: { id: testId } });
 };
 
+const onRedirectToResult = (testId: string) => {
+    router.push({
+        name: "User_Class_Exam_Result",
+        params: { classId: classId.value, testId: testId },
+    });
+};
+
 onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
@@ -371,7 +383,7 @@ onMounted(async () => {
                                         <template #title>
                                             {{ $t("class_member.buttons.history_test") }}
                                         </template>
-                                        <i>
+                                        <i @click="onRedirectToResult(exam.testId)">
                                             <FileDoneOutlined />
                                         </i>
                                     </a-tooltip>

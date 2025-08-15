@@ -20,6 +20,8 @@ const END_POINTS = {
     TEST_QUESTION: "QuestionSet/{questionSetId}/Test",
     GET_SHARING: "QuestionSet/{questionSetId}/Sharing",
     UPDATE_SHARING: "QuestionSet/{questionSetId}/Sharing",
+    GET_RATING: "QuestionSet/{questionSetId}/Rating",
+    UPDATE_RATING: "QuestionSet/{questionSetId}/Rating",
 };
 
 class ApiQuestionSet {
@@ -65,7 +67,7 @@ class ApiQuestionSet {
     GetRecentByLimit = async (pageParams: QuestionSetPublicPageParams) => {
         return await Api.get(`${END_POINTS.GET_RECENT_BY_LIMIT}`, {
             params: {
-               pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
+                pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
                 pageSize: Math.max(5, Math.min(pageParams.pageSize || 5, 100)),
             },
         });
@@ -122,6 +124,16 @@ class ApiQuestionSet {
     UpdateSharedUser = async (formState: any) => {
         const url = END_POINTS.UPDATE_SHARING.replace("{questionSetId}", formState.id);
         return await Api.patch(url, formState);
+    };
+
+    GetRating = async (questionSetId: string) => {
+        const url = END_POINTS.GET_RATING.replace("{questionSetId}", questionSetId);
+        return await Api.get(url);
+    };
+
+    UpdateRating = async (questionSetId: string, formState: any) => {
+        const url = END_POINTS.UPDATE_RATING.replace("{questionSetId}", questionSetId);
+        return await Api.post(url, formState);
     };
 }
 

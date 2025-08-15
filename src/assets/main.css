@@ -759,12 +759,12 @@ pre {
     margin-right: 36px;
 }
 
-.content-item-functions {
+/* .content-item-functions {
     margin: 10px 0px;
     display: flex;
-    align-items: end;
+    align-items: center;
     justify-content: end;
-}
+} */
 
 .filter-container {
     display: flex;
@@ -1036,6 +1036,7 @@ pre {
 .preview-question-item {
     padding: 10px;
     margin: 10px 0px;
+    background-color: var(--background-color);
     border: 1px solid var(--form-item-border-color);
     border-radius: 5px;
     display: flex;
@@ -1066,8 +1067,9 @@ pre {
     cursor: pointer;
 }
 
-.multiple-choice-answer ul {
-    margin: 0;
+.multiple-choice-answer ul,
+ol {
+    margin: 0 !important;
 }
 
 .pair-answer {
@@ -1080,8 +1082,8 @@ pre {
 }
 
 .pair-answer-item {
-    min-width: 100px;
-    max-width: 400px;
+    width: 200px;
+    max-width: 500px;
     padding: 5px 10px;
     border: 1px solid var(--form-item-border-color);
     border-radius: 3px;
@@ -1106,6 +1108,8 @@ pre {
 }
 
 .short-text-answer {
+    width: 200px;
+    min-width: 200px;
     margin-top: 10px;
     max-width: 600px;
     padding: 5px 10px;
@@ -1157,7 +1161,7 @@ pre {
         display: flex;
         flex-direction: column;
         height: calc(100vh);
-        padding: 0px !important;
+        padding: 10px !important;
         background-color: var(--content-item-background-color);
     }
     .ant-modal-body {
@@ -1178,6 +1182,12 @@ pre {
     }
     .ant-modal-body {
         flex: 1;
+    }
+}
+
+.medium-modal.large {
+    .ant-modal {
+        max-width: 70%;
     }
 }
 
@@ -1438,7 +1448,7 @@ pre {
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    color: var(--text-color) !important;
+    color: var(--main-color) !important;
     background: transparent !important;
 }
 
@@ -2312,3 +2322,31 @@ ant-select-tree */
 }
 
 /* ========================================User folder and siblings====================================================== */
+/****/
+/* ========================================QuestionSet detail and siblings====================================================== */
+.question-index {
+    font-weight: 500;
+    margin-right: 10px;
+    border: 1px solid var(--form-item-border-color);
+    border-radius: 5px;
+    background-color: var(--main-color);
+    color: var(--text-color-contrast);
+    padding: 3px 8px;
+
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+}
+
+/**
+* custom a-tag
+**/
+
+.ant-tag {
+    margin-inline-end: 0px !important;
+}
+
+/* ========================================QuestionSet detail and siblings====================================================== */

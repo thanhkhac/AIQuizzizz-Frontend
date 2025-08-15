@@ -534,7 +534,7 @@ onMounted(() => {
                                     :index="
                                         formState.questions.findIndex((q) => q.id === item.id) + 1
                                     "
-                                    :displayScore="false"
+                                    :displayScore="true"
                                     @deleteQuestion="onRemoveQuestion(index)"
                                     @changeQuestionType="onHandleChangeQuestionType(item)"
                                 />

@@ -148,6 +148,26 @@ const onRedirectToEdit = () => {
 const modal_rate_open = ref(false);
 const rateValue = ref(0);
 
+const getRating = async () => {
+    const result = await ApiQuestionSet.GetRating(quiz.value.id);
+    if (result.data.success) {
+        rateValue.value = result.data.data.rating;
+    }
+};
+
+const updateRating = async () => {
+    const result = await ApiQuestionSet.UpdateRating(quiz.value.id, {
+        questionSetId: quiz.value.id,
+        rating: rateValue.value,
+    });
+    if (result.data.success) {
+        message.success(t("message.updated_successfully"));
+        modal_rate_open.value = false;
+    } else {
+        message.error(t("message.updated_failed"));
+    }
+};
+
 //#endregion
 
 //#region permission
@@ -204,6 +224,7 @@ onMounted(async () => {
     //get api quiz + check visibility to current user
     //format url
     await getData();
+    getRating();
 });
 </script>
 <template>
@@ -473,7 +494,7 @@ onMounted(async () => {
             <a-rate v-model:value="rateValue" style="font-size: 40px" />
         </div>
         <template #footer>
-            <a-button type="primary" class="main-color-btn">Send</a-button>
+            <a-button type="primary" class="main-color-btn" @click="updateRating">Send</a-button>
         </template>
     </a-modal>
 </template>
@@ -644,15 +665,5 @@ onMounted(async () => {
 
 ::v-deep(.ant-rate-star-second) {
     color: var(--border-color);
-}
-.question-index {
-    font-weight: 500;
-    margin-right: 10px;
-    border: 1px solid var(--form-item-border-color);
-    border-radius: 5px;
-    background-color: var(--main-color);
-    padding: 3px 8px;
-    color: var(--text-color-contrast);
-    height: fit-content;
 }
 </style>

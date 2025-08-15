@@ -54,6 +54,22 @@ const userRoutes = [
                 },
             },
             {
+                name: "User_Class_Exam_Result",
+                path: "class/:classId/exam/:testId/result",
+                component: () => import("@/views/user/class/exam-result.vue"),
+                meta: {
+                    title: "exam-result",
+                },
+            },
+            {
+                name: "User_Test_Review",
+                path: "/user/attempt/:id/review",
+                component: () => import("@/views/user/test/review.vue"),
+                meta: {
+                    title: "review-test",
+                },
+            },
+            {
                 name: "User_Class_Quiz",
                 path: "class/:id/quiz",
                 component: () => import("@/views/user/class/quiz.vue"),
@@ -70,14 +86,6 @@ const userRoutes = [
                 },
             },
             {
-                name: "User_TestTemplate",
-                path: "test-template",
-                component: () => import("@/views/user/test_template/index.vue"),
-                meta: {
-                    title: "test-template",
-                },
-            },
-            {
                 name: "User_Folder_Detail",
                 path: "folder/:id",
                 component: () => import("@/views/user/folder/detail.vue"),
@@ -86,11 +94,11 @@ const userRoutes = [
                 },
             },
             {
-                name: "User_Schedule",
-                path: "schedule",
-                component: () => import("@/views/user/schedule.vue"),
+                name: "User_TestTemplate",
+                path: "test-template",
+                component: () => import("@/views/user/test_template/index.vue"),
                 meta: {
-                    title: "schedule",
+                    title: "test-template",
                 },
             },
             {
@@ -99,6 +107,14 @@ const userRoutes = [
                 component: () => import("@/views/user/test_template/detail.vue"),
                 meta: {
                     title: "detail",
+                },
+            },
+            {
+                name: "User_Schedule",
+                path: "schedule",
+                component: () => import("@/views/user/schedule.vue"),
+                meta: {
+                    title: "schedule",
                 },
             },
         ],
@@ -183,21 +199,13 @@ const userRoutes = [
             title: "attempt-test",
         },
     },
+
     {
         name: "User_Class_Invitation_Callback",
         path: "/user/class/invitation/:code",
         component: () => import("@/views/user/class/invitation-callback.vue"),
         meta: {
             title: "attempt-test",
-        },
-    },
-    {
-        name: "User_Test_Review",
-        // path: "/user/test/:id/review",
-        path: "/user/test/review",
-        component: () => import("@/views/user/test/review.vue"),
-        meta: {
-            title: "review-test",
         },
     },
 ];

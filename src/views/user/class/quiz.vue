@@ -4,6 +4,7 @@ import ApiClass from "@/api/ApiClass";
 import type ClassQuestionSetPageParams from "@/models/request/class/classQSPageParams";
 import type { Class } from "@/models/response/class/class";
 import type { ClassQuestionSet } from "@/models/response/class/classQuestionSet";
+import CLASS_STUDENT_POSITION from "@/constants/classStudentPosition";
 
 import { ref, onMounted, reactive, onUpdated, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -11,7 +12,7 @@ import { useRoute, useRouter } from "vue-router";
 import { message, Modal } from "ant-design-vue";
 import Input from "@/shared/components/Common/Input.vue";
 import { useI18n } from "vue-i18n";
-import CLASS_STUDENT_POSITION from "@/constants/classStudentPosition";
+import Validator from "@/services/Validator";
 
 const route = useRoute();
 const router = useRouter();
@@ -59,6 +60,10 @@ const getPermission = async () => {
 };
 const getClassData = async () => {
     try {
+        if (!Validator.isValidGuid(classId.value.toString())) {
+            router.push({ name: "404" });
+            return;
+        }
         if (!classId.value) router.push({ name: "404" });
 
         let result = await ApiClass.GetById(classId.value.toString());

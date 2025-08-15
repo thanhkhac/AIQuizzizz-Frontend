@@ -98,12 +98,16 @@
 
     --sidebar-background-color: #fafafa;
 
-    --text-color: #333;
+    --text-color: #3f3f3f;
     --text-color-sub-white: #333;
     --text-color-contrast: #fff;
 
     --background-sub-color1: #fff;
     --background-sub-color2: #fff;
+
+    --correct-answer-color: #00b300;
+    --incorrect-answer-color: #ff0033;
+    --skipped-answer-color: #ff6600;
 }
 
 .purple {
