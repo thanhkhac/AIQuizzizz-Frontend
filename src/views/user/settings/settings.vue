@@ -53,7 +53,12 @@ onMounted(() => {
                 </a-col>
             </a-row>
         </div>
-        <a-tabs class="tab-container" v-model:activeKey="activeKey" type="card">
+        <a-tabs
+            class="tab-container"
+            v-model:activeKey="activeKey"
+            type="card"
+            :destroyInactiveTabPane="true"
+        >
             <a-tab-pane v-for="tab in tabs" :key="tab.key" :tab="tab.tab">
                 <component :is="tab_component[tab.key]"></component>
             </a-tab-pane>
