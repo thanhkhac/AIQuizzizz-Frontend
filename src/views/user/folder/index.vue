@@ -38,8 +38,10 @@ const pageParams = reactive({
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
+const loading = ref(false);
 const getData = async () => {
     try {
+        loading.value = true;
         let result = await ApiFolder.GetAllByLimit(pageParams as FolderPageParams);
         if (result.data.success) {
             let resultData = result.data.data;
@@ -78,6 +80,8 @@ const getData = async () => {
         }
     } catch (error) {
         console.log("ERROR: GETALLBYLIMIT folder: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 
@@ -226,7 +230,7 @@ onMounted(async () => {
                             <Input
                                 @input="getData"
                                 v-model="pageParams.folderName"
-                                :placeholder="t('class_index.other.search_class_placeholder')"
+                                :placeholder="t('question_sets_index.search_placeholder')"
                             >
                                 <template #icon>
                                     <i class="bx bx-search"></i>
@@ -235,7 +239,11 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <div class="folder-container">
+                <div v-if="loading" class="folder-container">
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                </div>
+                <div v-else class="folder-container">
                     <template v-if="folder_data.length > 0">
                         <div
                             class="folder"
@@ -270,7 +278,6 @@ onMounted(async () => {
                                 `${range[0]}-${range[1]} of ${total} ${t('folder_index.other.items')}`
                         "
                         show-size-changer
-                        show-quick-jumper
                         class="crud-layout-pagination"
                         :locale="{
                             items_per_page: t('folder_index.other.pages'),

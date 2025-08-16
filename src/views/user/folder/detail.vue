@@ -304,9 +304,9 @@ onMounted(async () => {
                     </div>
                 </div>
                 <template v-if="loading">
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
                 </template>
                 <template v-else>
                     <div v-if="test_template_data.length > 0" class="quiz-item-container">

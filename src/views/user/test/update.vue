@@ -158,7 +158,7 @@ const getData = async () => {
 //#region crud question
 import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
-    id: Date.now().toString(),
+    id: "new_" + Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
@@ -320,21 +320,22 @@ const showModalConfirmation = () => {
         cancelText: t("sidebar.buttons.cancel"),
         centered: true,
         onOk: async () => {
-            formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
-                x.id.startsWith("new_") ? { ...x, id: "" } : x,
-            ); //remove new question id
+            // formState.createUpdateQuestions = formState.createUpdateQuestions.map((x) =>
+            //     x.id.startsWith("new_") ? { ...x, id: "" } : x,
+            // ); //remove new question id
 
             //const result = await ApiTest.Update(formState);
             let result = await ApiTest.Update({
                 ...formState,
                 createUpdateQuestions: formState.createUpdateQuestions.map((x) => ({
-                    ...x,
                     questionId: x.id.startsWith("new_") ? null : x.id,
+                    ...x,
                 })),
             });
 
             if (result.data.success) {
                 isDataValid.value = false; //disable safe guard
+                router.push({ name: "User_Class_Exam", params: { id: formState.classId } });
                 message.success("Updated successfully!");
             }
         },

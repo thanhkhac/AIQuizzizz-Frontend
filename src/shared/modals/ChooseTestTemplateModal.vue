@@ -6,7 +6,7 @@ import type TestTemplatePageParams from "@/models/request/testTemplate/testTempl
 import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
 import type { Folder } from "@/models/response/folder/folder";
 
-import { ref, onMounted, reactive, computed, onUpdated } from "vue";
+import { ref, reactive, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -37,9 +37,10 @@ const pageParams = reactive({
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
-
+const loading = ref(false);
 const getData = async () => {
     try {
+        loading.value = true;
         let result = await ApiTestTemplate.GetAllByLimit(pageParams as TestTemplatePageParams);
         if (result.data.success) {
             let resultData = result.data.data;
@@ -47,52 +48,41 @@ const getData = async () => {
             pageParams.pageNumber = resultData.pageNumber;
             pageParams.pageSize = resultData.pageSize;
             pageParams.totalCount = resultData.totalCount;
-
-            // if (pageParams.statusFilter) {
-            //     //check if filter is active
-            //     if (pageParams.pageNumber > resultData.totalPages && pageParams.totalCount > 0) {
-            //         pageParams.pageNumber = 1;
-
-            //         router.push({
-            //             name: "User_TestTemplate",
-            //             query: {
-            //                 pageNumber: 1,
-            //                 pageSize: pageParams.pageSize,
-            //                 name: pageParams.name,
-            //                 shareMode: pageParams.shareMode,
-            //             },
-            //         });
-            //     } else {
-            //         router.push({
-            //             name: "User_TestTemplate",
-            //             query: {
-            //                 pageNumber: pageParams.pageNumber,
-            //                 pageSize: pageParams.pageSize,
-            //                 name: pageParams.name,
-            //                 shareMode: pageParams.shareMode,
-            //             },
-            //         });
-            //     }
-            //     pageParams.statusFilter = !pageParams.statusFilter; //toggle filter status
-            // }
         }
     } catch (error) {
         console.log("ERROR: GETALLBYLIMIT testtemplate: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 
 //update when page change (url)
-onUpdated(() => {
-    if (Object.keys(route.query).length === 0) {
-        pageParams.pageNumber = route.query.pageNumber || 1;
-        pageParams.pageSize = route.query.pageSize || 10;
-        pageParams.name = route.query.name?.toString() || "";
-        pageParams.shareMode = route.query.shareMode || share_mode_options.value[0].value;
-        pageParams.statusFilter = true;
+// onUpdated(() => {
+//     if (Object.keys(route.query).length === 0) {
+//         pageParams.pageNumber = route.query.pageNumber || 1;
+//         pageParams.pageSize = route.query.pageSize || 10;
+//         pageParams.name = route.query.name?.toString() || "";
+//         pageParams.shareMode = route.query.shareMode || share_mode_options.value[0].value;
+//         pageParams.statusFilter = true;
 
-        getData();
-    }
-});
+//         getData();
+//     }
+// });
+
+watch(
+    () => Object.keys(route.query).length,
+    () => {
+        if (Object.keys(route.query).length === 0) {
+            pageParams.pageNumber = route.query.pageNumber || 1;
+            pageParams.pageSize = route.query.pageSize || 10;
+            pageParams.name = route.query.name?.toString() || "";
+            pageParams.shareMode = route.query.shareMode || share_mode_options.value[0].value;
+            pageParams.statusFilter = true;
+
+            getData();
+        }
+    },
+);
 
 //change when page change (pageParams)
 const onPaginationChange = (page: number, pageSize: number) => {
@@ -106,8 +96,9 @@ const onPaginationChange = (page: number, pageSize: number) => {
 //#region modal
 const modal_open = ref(false);
 
-const openModal = () => {
+const openModal = async () => {
     modal_open.value = true;
+    await getData();
 };
 
 const closeModal = () => {
@@ -150,7 +141,7 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span>Choose from folder test</span>
+                        <span>{{ $t("create_test_modals.select_template") }}</span>
                     </a-col>
                 </a-row>
             </div>
@@ -210,45 +201,52 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
                             </div>
                         </div>
                     </div>
-                    <div v-if="test_template_data.length > 0" class="quiz-item-container">
-                        <div class="quiz-item" v-for="template in test_template_data">
-                            <i class="bx bx-book-open quiz-item-icon"></i>
-                            <div>
-                                <div class="quiz-item-title">
-                                    {{ template.name }}
-                                </div>
-                                <div class="quiz-item-info quiz-info-detail">
-                                    <div class="quiz-item-questions">
-                                        <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                        {{ template.numberOfQuestion }}
-                                        {{ $t("dashboards.list_items.quiz.questions") }}
-                                    </div>
-                                    <div class="quiz-item-created-by">
-                                        {{ $t("class_question_set.other.created_by") }}
-                                        {{ template.createBy }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="exam-item-actions">
-                                <a-button
-                                    type="primary"
-                                    class="me-3 main-color-btn"
-                                    @click="handleOpenTestTemplate(template.testTemplateId)"
-                                >
-                                    {{ $t("class_question_set.buttons.view") }}
-                                </a-button>
-                            </div>
-                        </div>
+                    <div v-if="loading" class="quiz-item-container">
+                        <a-skeleton active :loading="loading"></a-skeleton>
+                        <a-skeleton active :loading="loading"></a-skeleton>
                     </div>
-                    <template v-else>
-                        <div class="w-100 d-flex justify-content-center">
-                            <a-empty>
-                                <template #description>
-                                    <span> No data matches. </span>
-                                </template>
-                            </a-empty>
-                        </div>
-                    </template>
+                    <div v-else class="quiz-item-container">
+                        <template v-if="test_template_data.length > 0">
+                            <div class="quiz-item" v-for="template in test_template_data">
+                                <i class="bx bx-book-open quiz-item-icon"></i>
+                                <div>
+                                    <div class="quiz-item-title">
+                                        {{ template.name }}
+                                    </div>
+                                    <div class="quiz-item-info quiz-info-detail">
+                                        <div class="quiz-item-questions">
+                                            <i class="bx bx-message-square-edit bx-rotate-270"></i>
+                                            {{ template.numberOfQuestion }}
+                                            {{ $t("dashboards.list_items.quiz.questions") }}
+                                        </div>
+                                        <div class="quiz-item-created-by">
+                                            {{ $t("class_question_set.other.created_by") }}
+                                            {{ template.createBy }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="exam-item-actions">
+                                    <a-button
+                                        type="primary"
+                                        class="me-3 main-color-btn"
+                                        @click="handleOpenTestTemplate(template.testTemplateId)"
+                                    >
+                                        {{ $t("class_question_set.buttons.view") }}
+                                    </a-button>
+                                </div>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <div class="w-100 d-flex justify-content-center">
+                                <a-empty>
+                                    <template #description>
+                                        <span> No data matches. </span>
+                                    </template>
+                                </a-empty>
+                            </div>
+                        </template>
+                    </div>
+
                     <div class="pagination-container">
                         <a-pagination
                             @change="onPaginationChange"

@@ -26,10 +26,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const test_template_data = ref<TestTemplateWithQuestion>();
-const question_data = ref<ResponseQuestion[]>();
-
+const question_data = ref<ResponseQuestion[]>([]);
+const loading = ref(false);
 const getData = async () => {
     try {
+        loading.value = true;
         if (!props.testTemplateId) return;
         let result = await ApiTestTemplate.GetById(props.testTemplateId || "");
         if (result.data.success) {
@@ -39,6 +40,8 @@ const getData = async () => {
         }
     } catch (error) {
         console.log("ERROR: GETBYID testtemplate: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 
@@ -128,7 +131,6 @@ const openModal = async () => {
 };
 
 const closeModal = () => {
-    debugger;
     modal_open.value = false;
     if (props.folder !== null) {
         emit("backToFolderTestTemplateModal", props.folder);
@@ -177,18 +179,15 @@ const handleModalImport = () => {
                             <i class="bx bx-chevron-left navigator-back-button"></i>
                         </RouterLink>
                     </a-col>
-                    <a-col class="main-title" :span="23">
-                        <span> {{ $t("create_QS.title") }}</span> <br />
-                        <span>
-                            {{ $t("create_QS.sub_title") }}
-                        </span>
+                    <a-col class="main-title" :span="22">
+                        <span>{{ $t("create_test_modals.choose_question") }}</span>
                     </a-col>
                 </a-row>
             </div>
             <div class="modal-content-item">
                 <div class="content-item-section preview-section">
                     <div class="section-content">
-                        <div class="section-content-header">
+                        <div class="section-content-header" v-if="question_data.length > 0">
                             <a-checkbox
                                 :class="[
                                     'header-item',
@@ -198,19 +197,23 @@ const handleModalImport = () => {
                                 v-model:checked="importModalState.checkAll"
                                 :indeterminate="importModalState.indeterminate"
                             >
-                                Check all
+                                {{
+                                    $t("share_modal.buttons.check_all", {
+                                        number: importModalState.checkedList.length,
+                                    })
+                                }}
                             </a-checkbox>
-                            <div class="header-item">
+                            <!-- <div class="header-item">
                                 Selected:
                                 {{ importModalState.checkedList.length }}
-                            </div>
+                            </div> -->
                             <div class="d-flex flex-fill align-items-center justify-content-end">
                                 <a-select
                                     size="large"
                                     class="me-3"
                                     mode="multiple"
                                     v-model:value="selectedQuestionTypes"
-                                    placeholder="Filter question types"
+                                    :placeholder="t('generate_qs_modal.form.question_types')"
                                     style="width: fit-content; min-width: 300px"
                                     @change="onFilter"
                                 >
@@ -225,9 +228,7 @@ const handleModalImport = () => {
                                     <Input
                                         @input="onFilter"
                                         v-model="searchValue"
-                                        :placeholder="
-                                            t('class_index.other.search_class_placeholder')
-                                        "
+                                        :placeholder="t('question_sets_index.search_placeholder')"
                                     >
                                         <template #icon>
                                             <i class="bx bx-search"></i>
@@ -236,124 +237,154 @@ const handleModalImport = () => {
                                 </div>
                             </div>
                         </div>
-                        <a-checkbox-group v-model:value="importModalState.checkedList">
-                            <div class="preview-question-container">
-                                <div
-                                    class="preview-question-item"
-                                    v-for="(question, index) in question_data"
-                                >
-                                    <a-checkbox :value="question"></a-checkbox>
 
-                                    <div class="question-item-content">
-                                        <div
-                                            v-if="question.textFormat === QUESTION_FORMAT.HTML"
-                                            class="question-html"
-                                            v-html="question.questionText"
-                                        ></div>
-                                        <div v-else class="question-text">
-                                            {{ question.questionText }}
-                                        </div>
-                                        <div
-                                            class="question-item-answer"
-                                            :id="`question-item-answer-${index}`"
-                                        >
-                                            <template
-                                                v-if="
-                                                    question.type === QUESTION_TYPE.MULTIPLE_CHOICE
-                                                "
+                        <a-checkbox-group v-model:value="importModalState.checkedList">
+                            <div v-if="loading" class="preview-question-container">
+                                <a-skeleton active :loading="loading"></a-skeleton>
+                                <a-skeleton active :loading="loading"></a-skeleton>
+                                <a-skeleton active :loading="loading"></a-skeleton>
+                            </div>
+                            <div v-else class="preview-question-container">
+                                <template v-if="question_data.length > 0">
+                                    <div
+                                        class="preview-question-item"
+                                        v-for="(question, index) in question_data"
+                                    >
+                                        <a-checkbox :value="question"></a-checkbox>
+
+                                        <div class="question-item-content">
+                                            <div
+                                                v-if="question.textFormat === QUESTION_FORMAT.HTML"
+                                                class="question-html"
+                                                v-html="question.questionText"
+                                            ></div>
+                                            <div v-else class="question-text">
+                                                {{ question.questionText }}
+                                            </div>
+                                            <div
+                                                class="question-item-answer"
+                                                :id="`question-item-answer-${index}`"
                                             >
-                                                <div class="multiple-choice-answer">
-                                                    <ul>
-                                                        <li
-                                                            v-for="option in question.questionData
-                                                                .multipleChoice"
-                                                        >
-                                                            {{ option.text }}
-                                                            <span
-                                                                class="text-success"
-                                                                v-if="option.isAnswer"
-                                                            >
-                                                                ({{ option.isAnswer }})
-                                                            </span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </template>
-                                            <template
-                                                v-if="question.type === QUESTION_TYPE.MATCHING"
-                                            >
-                                                <div
-                                                    class="pair-answer"
-                                                    v-for="option in question.questionData.matching
-                                                        ?.matches"
+                                                <template
+                                                    v-if="
+                                                        question.type ===
+                                                        QUESTION_TYPE.MULTIPLE_CHOICE
+                                                    "
                                                 >
-                                                    <span class="pair-answer-item">
-                                                        {{
-                                                            question.questionData.matching?.leftItems.find(
-                                                                (x) => x.id === option.leftId,
-                                                            )?.text
-                                                        }}
-                                                    </span>
-                                                    <i class="bx bx-right-arrow-alt"></i>
-                                                    <span class="pair-answer-item">
-                                                        {{
-                                                            question.questionData.matching?.rightItems.find(
-                                                                (x) => x.id === option.rightId,
-                                                            )?.text
-                                                        }}
-                                                    </span>
-                                                </div>
-                                            </template>
-                                            <template
-                                                v-if="question.type === QUESTION_TYPE.ORDERING"
-                                            >
-                                                <div class="ordering-answer">
-                                                    <div class="ordering-answer-item">
-                                                        <div
-                                                            v-for="option in question.questionData
-                                                                .ordering"
-                                                        >
-                                                            {{ option.text }}
+                                                    <div class="multiple-choice-answer">
+                                                        <ul>
+                                                            <li
+                                                                v-for="option in question
+                                                                    .questionData.multipleChoice"
+                                                            >
+                                                                {{ option.text }}
+                                                                <span
+                                                                    class="text-success"
+                                                                    v-if="option.isAnswer"
+                                                                >
+                                                                    ({{ option.isAnswer }})
+                                                                </span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </template>
+                                                <template
+                                                    v-if="question.type === QUESTION_TYPE.MATCHING"
+                                                >
+                                                    <div
+                                                        class="pair-answer"
+                                                        v-for="option in question.questionData
+                                                            .matching?.matches"
+                                                    >
+                                                        <span class="pair-answer-item">
+                                                            {{
+                                                                question.questionData.matching?.leftItems.find(
+                                                                    (x) => x.id === option.leftId,
+                                                                )?.text
+                                                            }}
+                                                        </span>
+                                                        <i class="bx bx-right-arrow-alt"></i>
+                                                        <span class="pair-answer-item">
+                                                            {{
+                                                                question.questionData.matching?.rightItems.find(
+                                                                    (x) => x.id === option.rightId,
+                                                                )?.text
+                                                            }}
+                                                        </span>
+                                                    </div>
+                                                </template>
+                                                <template
+                                                    v-if="question.type === QUESTION_TYPE.ORDERING"
+                                                >
+                                                    <div class="ordering-answer">
+                                                        <div class="ordering-answer-item">
+                                                            <div
+                                                                v-for="option in question
+                                                                    .questionData.ordering"
+                                                            >
+                                                                {{ option.text }}
+                                                            </div>
+                                                        </div>
+                                                        <i class="bx bx-right-arrow-alt"></i>
+                                                        <div class="ordering-answer-item">
+                                                            <div
+                                                                class="ordering-answer-item"
+                                                                v-for="(
+                                                                    option, index
+                                                                ) in question.questionData.ordering?.sort(
+                                                                    (asc, desc) =>
+                                                                        asc.correctOrder -
+                                                                        desc.correctOrder,
+                                                                )"
+                                                            >
+                                                                <span
+                                                                    >#{{
+                                                                        option.correctOrder
+                                                                    }}</span
+                                                                >
+                                                                -
+                                                                {{ option.text }}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <i class="bx bx-right-arrow-alt"></i>
-                                                    <div class="ordering-answer-item">
-                                                        <div
-                                                            class="ordering-answer-item"
-                                                            v-for="(
-                                                                option, index
-                                                            ) in question.questionData.ordering?.sort(
-                                                                (asc, desc) =>
-                                                                    asc.correctOrder -
-                                                                    desc.correctOrder,
-                                                            )"
-                                                        >
-                                                            <span>#{{ option.correctOrder }}</span>
-                                                            -
-                                                            {{ option.text }}
-                                                        </div>
+                                                </template>
+                                                <template
+                                                    v-if="
+                                                        question.type === QUESTION_TYPE.SHORT_TEXT
+                                                    "
+                                                >
+                                                    <div class="short-text-answer">
+                                                        {{ question.questionData.shortText }}
                                                     </div>
-                                                </div>
-                                            </template>
-                                            <template
-                                                v-if="question.type === QUESTION_TYPE.SHORT_TEXT"
-                                            >
-                                                <span>Answer:</span>
-                                                <div class="short-text-answer">
-                                                    {{ question.questionData.shortText }}
-                                                </div>
-                                            </template>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="question-item-toogle-btn">
+                                            <i
+                                                class="bx bx-chevron-up"
+                                                @click="
+                                                    toggleDisplayAnswer(
+                                                        index,
+                                                        $event.currentTarget!,
+                                                    )
+                                                "
+                                            ></i>
                                         </div>
                                     </div>
-                                    <div class="question-item-toogle-btn">
-                                        <i
-                                            class="bx bx-chevron-up"
-                                            @click="
-                                                toggleDisplayAnswer(index, $event.currentTarget!)
-                                            "
-                                        ></i>
+                                </template>
+                                <template v-else>
+                                    <div class="w-100 d-flex justify-content-center">
+                                        <a-empty>
+                                            <template #description>
+                                                <span>
+                                                    {{
+                                                        $t("class_index.other.no_data_matches")
+                                                    }}</span
+                                                >
+                                            </template>
+                                        </a-empty>
                                     </div>
-                                </div>
+                                </template>
                             </div>
                         </a-checkbox-group>
                     </div>
@@ -368,15 +399,12 @@ const handleModalImport = () => {
                 type="primary"
                 @click="handleModalImport"
             >
-                Import
+                {{ $t("import_qs_modal.buttons.import") }}
             </a-button>
         </template>
     </a-modal>
 </template>
 <style scoped>
-.header-item {
-}
-
 /* unique no remove */
 ::v-deep(.ant-select-selection-item) {
     background-color: var(--form-item-border-color) !important;

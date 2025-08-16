@@ -318,9 +318,9 @@ onMounted(async () => {
                 </div>
 
                 <template v-if="loading">
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
                 </template>
                 <template v-else>
                     <div v-if="exam_data.length > 0" class="exam-item-container">

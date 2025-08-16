@@ -4,12 +4,32 @@ import ApiTest from "@/api/ApiTest";
 import { ref, onMounted, computed } from "vue";
 import dayjs, { Dayjs } from "dayjs";
 
+import "dayjs/locale/vi";
+import "dayjs/locale/en";
+
+import viVN from "ant-design-vue/es/locale/vi_VN";
+import enUS from "ant-design-vue/es/locale/en_US";
+
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
+
+//#region locale
+const locale = ref(viVN);
+const changeLocale = () => {
+    const lang = localStorage.getItem("locale") || "en";
+    if (lang === "en") {
+        locale.value = enUS;
+        dayjs.locale("en");
+    } else {
+        locale.value = viVN;
+        dayjs.locale("vi");
+    }
+};
+//#endregion
 
 //#region interface
 interface TestSchedule {
@@ -84,6 +104,7 @@ const emit = defineEmits(["updateSidebar"]);
 onMounted(async () => {
     const sidebarActiveItem = "schedule";
     emit("updateSidebar", sidebarActiveItem);
+    changeLocale();
 
     await getData();
 });
@@ -92,29 +113,40 @@ onMounted(async () => {
     <div class="page-container">
         <div class="title-container">
             <a-row class="w-100">
-                <a-col class="main-title" :span="20"> <span>Exam schedule</span> <br /> </a-col>
+                <a-col class="main-title" :span="20">
+                    <span>{{ $t("schedule.title") }}</span> <br />
+                </a-col>
             </a-row>
         </div>
         <div class="content d-flex flex-row justify-content-between">
             <div class="col-md-9 content-item">
                 <div class="schedule-container">
-                    <a-calendar v-model:value="chosenDate" @change="GetCalendarData">
-                        <template #dateCellRender="{ current }">
-                            <a-badge
-                                v-if="getListData(current)"
-                                :status="'success'"
-                                :text="getListData(current)"
-                            />
-                        </template>
-                        <template #monthCellRender="{ current }"></template>
-                    </a-calendar>
+                    <a-config-provider :locale="locale">
+                        <a-calendar v-model:value="chosenDate" @change="GetCalendarData">
+                            <template #dateCellRender="{ current }">
+                                <a-badge
+                                    v-if="getListData(current)"
+                                    :status="'success'"
+                                    :text="getListData(current)"
+                                />
+                            </template>
+                            <template #monthCellRender="{ current }"></template>
+                        </a-calendar>
+                    </a-config-provider>
                 </div>
             </div>
             <div class="col-md-3 content-item">
                 <div class="schedule-detail-title">
-                    <div>Date: {{ dayjs(chosenDate).format("DD/MM/YYYY") }}</div>
+                    <div>
+                        {{
+                            $t("schedule.current_date", {
+                                date: dayjs(chosenDate).format("DD/MM/YYYY"),
+                            })
+                        }}
+                    </div>
                     <div class="schedule-detail-sub-title">
-                        Exam schedule ({{ chosenDateTestSchedules.length }})
+                        {{ $t("schedule.count_exam") }}
+                        <span class="exam_count">{{ chosenDateTestSchedules.length }}</span>
                     </div>
                 </div>
                 <div class="schedule-item-container">
@@ -281,5 +313,8 @@ onMounted(async () => {
 .schedule-item-info-class {
     font-size: 14px;
     color: var(--text-color-grey);
+}
+.exam_count {
+    color: var(--main-color);
 }
 </style>

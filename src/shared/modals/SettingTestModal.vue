@@ -257,6 +257,7 @@ onMounted(async () => {});
                                     v-model:value="formState.maxAttempt"
                                     min="1"
                                     max="100"
+                                    :precision="0"
                                 >
                                     <template #prefix>
                                         <i class="bx bx-repost"></i>
@@ -276,6 +277,7 @@ onMounted(async () => {});
                                     v-model:value="formState.numberOfShuffles"
                                     min="1"
                                     max="100"
+                                    :precision="0"
                                 >
                                     <template #prefix>
                                         <i class="bx bx-shuffle"></i>
@@ -296,7 +298,8 @@ onMounted(async () => {});
                                     :addon-after="'minutes'"
                                     v-model:value="formState.timeLimit"
                                     min="1"
-                                    max="1500"
+                                    max="120"
+                                    :precision="0"
                                 >
                                     <template #prefix>
                                         <i class="bx bx-time-five"></i> </template></a-input-number
@@ -314,6 +317,7 @@ onMounted(async () => {});
                                     v-model:value="formState.passingScore"
                                     min="1"
                                     max="100"
+                                    :precision="0"
                                 >
                                     <template #prefix>
                                         <i class="bx bx-check-circle"></i>

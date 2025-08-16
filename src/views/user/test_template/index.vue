@@ -252,7 +252,7 @@ onMounted(async () => {
                             <Input
                                 @input="getData"
                                 v-model="pageParams.name"
-                                :placeholder="t('class_index.other.search_class_placeholder')"
+                                :placeholder="t('question_sets_index.search_placeholder')"
                             >
                                 <template #icon>
                                     <i class="bx bx-search"></i>
@@ -318,10 +318,9 @@ onMounted(async () => {
                         :pageSize="pageParams.pageSize"
                         :show-total="
                             (total: any, range: any) =>
-                                `${range[0]}-${range[1]} of ${total} ${t('folder_index.other.items')}`
+                                `${range[0]}-${range[1]} of ${total} ${t('test_template_index.other.items')}`
                         "
                         show-size-changer
-                        show-quick-jumper
                         class="crud-layout-pagination"
                         :locale="{
                             items_per_page: t('folder_index.other.pages'),

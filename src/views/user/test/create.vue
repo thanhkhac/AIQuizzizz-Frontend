@@ -317,14 +317,17 @@ const openFolderModal = () => {
     folderModalRef.value?.openModal();
 };
 
-const onSwitchToTestTemplate = () => {
+const onSwitchToTestTemplate = async () => {
     chosenFolder.value = null;
     folderModalRef.value?.closeModal();
     openTestTemplateModal();
 };
 
-const onOpenFolder = (folder: Folder) => {
+const onOpenFolder = async (folder: Folder) => {
     chosenFolder.value = folder;
+
+    await nextTick();
+
     folderModalRef.value?.closeModal();
     openFolderTestTemplateModal();
 };

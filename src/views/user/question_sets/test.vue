@@ -1461,6 +1461,7 @@ onMounted(async () => {
                         v-model:value="settingFormState.numberOfQuestion"
                         :min="5"
                         :max="quiz.totalQuestionCount"
+                        :precision="0"
                     />
                 </div>
             </a-form-item>

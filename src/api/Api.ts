@@ -4,8 +4,6 @@ import { useAuthStore } from "@/stores/AuthStore";
 import { notification } from "ant-design-vue";
 import { translate } from "@/services/i18n";
 import ERROR from "@/constants/errors";
-// const baseURL = import.meta.env.VITE_API_URL_LOCAL;
-// const baseURL = import.meta.env.VITE_API_URL_PRODUCT;
 const baseURL = "https://thanhkhac.id.vn/api";
 
 const instance = axios.create({
@@ -18,6 +16,7 @@ const instance = axios.create({
     responseType: "json",
 });
 
+let isRefreshing = false; //flag for global checking
 instance.interceptors.response.use(
     //if request success run this
     (res) => {
@@ -42,9 +41,9 @@ instance.interceptors.response.use(
 
             //display all error except refresh token
             if (
-                !errorKeys.includes(ERROR.COMMON_UNAUTHORIZED) 
-              //  && !errorKeys.includes(ERROR.ACCOUNT_INVALID_CREDENTIALS
-              //   )
+                !errorKeys.includes(ERROR.COMMON_UNAUTHORIZED)
+                //  && !errorKeys.includes(ERROR.ACCOUNT_INVALID_CREDENTIALS
+                //   )
             ) {
                 notification["error"]({
                     message: "ERROR",
@@ -59,16 +58,18 @@ instance.interceptors.response.use(
             if (
                 error.response &&
                 Object.keys(error.response.data?.errors).includes("COMMON_UNAUTHORIZED") &&
-                !originalConfig._retry
+                !originalConfig._retry &&
+                !isRefreshing
             ) {
                 originalConfig._retry = true; //marked as renewed to avoid loop
+                isRefreshing = true;
                 try {
                     let renew_token_result = await ApiAuthentication.RenewToken();
                     if (!renew_token_result.data.success) {
-                        notification["error"]({
-                            message: "ERROR",
-                            description: "LOG OUT",
-                        });
+                        // notification["error"]({
+                        //     message: "ERROR",
+                        //     description: "LOG OUT",
+                        // });
                         useAuthStore().logOut();
                         return;
                     }
@@ -76,6 +77,8 @@ instance.interceptors.response.use(
                     return instance(originalConfig); //axios execute original request
                 } catch (_error) {
                     return Promise.reject(_error);
+                } finally {
+                    isRefreshing = false;
                 }
             } else {
                 const status = error.response.status;
@@ -91,7 +94,7 @@ instance.interceptors.response.use(
                         window.location.assign("/404");
                         console.log("ERROR: Status code 500");
                         notification["error"]({
-                            message: "ERROR",
+                            message: "SERVERERROR",
                             description: translate(`ERROR_CODE.${errorKeys[0]}`),
                         });
                         break;

@@ -4,14 +4,13 @@ import FOLDER_SHARE_MODE from "@/constants/folderShareMode";
 import type FolderPageParams from "@/models/request/folder/folderPageParams";
 import type { Folder } from "@/models/response/folder/folder";
 
-import { ref, onMounted, reactive, computed, onUpdated } from "vue";
+import { ref, reactive, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 
 import Input from "@/shared/components/Common/Input.vue";
 
 const route = useRoute();
-const router = useRouter();
 
 const { t } = useI18n();
 
@@ -34,8 +33,10 @@ const pageParams = reactive({
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
+const loading = ref(false);
 const getData = async () => {
     try {
+        loading.value = true;
         let result = await ApiFolder.GetAllByLimit(pageParams as FolderPageParams);
         if (result.data.success) {
             let resultData = result.data.data;
@@ -43,52 +44,36 @@ const getData = async () => {
             pageParams.pageNumber = resultData.pageNumber;
             pageParams.pageSize = resultData.pageSize;
             pageParams.totalCount = resultData.totalCount;
-
-            // if (pageParams.statusFilter) {
-            //     //check if filter is active
-            //     if (pageParams.pageNumber > resultData.totalPages && pageParams.totalCount > 0) {
-            //         pageParams.pageNumber = 1;
-
-            //         router.push({
-            //             name: "User_Folder",
-            //             query: {
-            //                 pageNumber: 1,
-            //                 pageSize: pageParams.pageSize,
-            //                 folderName: pageParams.folderName,
-            //                 shareMode: pageParams.shareMode,
-            //             },
-            //         });
-            //     } else {
-            //         router.push({
-            //             name: "User_Folder",
-            //             query: {
-            //                 pageNumber: pageParams.pageNumber,
-            //                 pageSize: pageParams.pageSize,
-            //                 folderName: pageParams.folderName,
-            //                 shareMode: pageParams.shareMode,
-            //             },
-            //         });
-            //     }
-            //     pageParams.statusFilter = !pageParams.statusFilter; //toggle filter status
-            // }
         }
     } catch (error) {
         console.log("ERROR: GETALLBYLIMIT folder: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 
 //update when page change (url)
-onUpdated(() => {
-    if (Object.keys(route.query).length === 0) {
-        pageParams.pageNumber = route.query.pageNumber || 1;
-        pageParams.pageSize = route.query.pageSize || 10;
-        pageParams.folderName = route.query.folderName?.toString() || "";
-        pageParams.shareMode = route.query.shareMode || folder_share_mode_options.value[0].value;
-        pageParams.statusFilter = true;
+// onUpdated(() => {
+//     if (Object.keys(route.query).length === 0) {
+//         getData();
+//     }
+// });
 
-        getData();
-    }
-});
+watch(
+    () => Object.keys(route.query).length,
+    () => {
+        if (Object.keys(route.query).length === 0) {
+            pageParams.pageNumber = route.query.pageNumber || 1;
+            pageParams.pageSize = route.query.pageSize || 10;
+            pageParams.folderName = route.query.folderName?.toString() || "";
+            pageParams.shareMode =
+                route.query.shareMode || folder_share_mode_options.value[0].value;
+            pageParams.statusFilter = true;
+
+            getData();
+        }
+    },
+);
 
 //change when page change (pageParams)
 const onPaginationChange = (page: number, pageSize: number) => {
@@ -103,8 +88,9 @@ const onPaginationChange = (page: number, pageSize: number) => {
 //#region modal
 const modal_open = ref(false);
 
-const openModal = () => {
+const openModal = async () => {
     modal_open.value = true;
+    await getData();
 };
 
 const closeModal = () => {
@@ -148,7 +134,7 @@ const handleOpenFolder = (folder: Folder) => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span>Choose from folder test</span>
+                        <span>{{ $t("create_test_modals.select_folder") }}</span>
                     </a-col>
                 </a-row>
             </div>
@@ -207,7 +193,11 @@ const handleOpenFolder = (folder: Folder) => {
                             </div>
                         </div>
                     </div>
-                    <div class="folder-container">
+                    <div v-if="loading" class="folder-container">
+                        <a-skeleton active :loading="loading"></a-skeleton>
+                        <a-skeleton active :loading="loading"></a-skeleton>
+                    </div>
+                    <div v-else class="folder-container">
                         <template v-if="folder_data.length > 0">
                             <div
                                 class="folder"
@@ -222,10 +212,10 @@ const handleOpenFolder = (folder: Folder) => {
                             </div>
                         </template>
                         <template v-else>
-                            <div class="w-100 m-2 d-flex justify-content-center">
+                            <div class="w-100 d-flex justify-content-center">
                                 <a-empty>
                                     <template #description>
-                                        <span> {{ $t("folder_index.other.no_data_matches") }}</span>
+                                        <span> {{ $t("class_index.other.no_data_matches") }}</span>
                                     </template>
                                 </a-empty>
                             </div>
