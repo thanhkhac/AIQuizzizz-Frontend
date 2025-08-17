@@ -733,15 +733,10 @@ onMounted(async () => {
                     <template v-else>
                         <div class="section question-section">
                             <div
-                                :class="[
-                                    'learn-question',
-                                    currentQuestion.textFormat === QUESTION_FORMAT.HTML
-                                        ? ''
-                                        : 'd-none',
-                                ]"
+                                :class="['learn-question']"
                                 v-html="currentQuestion.questionText"
                             ></div>
-                            <div
+                            <!-- <div
                                 :class="[
                                     'learn-question',
                                     currentQuestion.textFormat === QUESTION_FORMAT.HTML
@@ -750,7 +745,7 @@ onMounted(async () => {
                                 ]"
                             >
                                 {{ currentQuestion.questionText }}
-                            </div>
+                            </div> -->
                             <div class="section answer-section">
                                 <div v-if="isCurrentSessionReLearn" class="relearn-ins">
                                     {{ $t("learn_QS.instructions.re_learn_ins") }}

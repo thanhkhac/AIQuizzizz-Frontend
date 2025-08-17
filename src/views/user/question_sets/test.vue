@@ -1102,20 +1102,17 @@ onMounted(async () => {
                             {{ $t("create_QS.question.question") }} {{ currentQuestionIndex + 1 }}
                         </div>
                         <div
-                            :class="[
-                                'learn-question',
-                                currentQuestion.textFormat === QUESTION_FORMAT.HTML ? '' : 'd-none',
-                            ]"
+                            :class="['learn-question']"
                             v-html="currentQuestion.questionText"
                         ></div>
-                        <div
+                        <!-- <div
                             :class="[
                                 'learn-question',
                                 currentQuestion.textFormat === QUESTION_FORMAT.HTML ? 'd-none' : '',
                             ]"
                         >
                             {{ currentQuestion.questionText }}
-                        </div>
+                        </div> -->
                         <div class="section answer-section">
                             <div class="d-flex align-items-center">
                                 <div class="answer-section-ins">

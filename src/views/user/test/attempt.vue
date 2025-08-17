@@ -564,14 +564,10 @@ onMounted(async () => {
                     <div class="question-info-index">
                         {{ $t("create_QS.question.question") }} {{ currentQuestionIndex + 1 }}
                     </div>
-                    <div
-                        v-if="currentQuestion.textFormat === QUESTION_FORMAT.HTML"
-                        :class="['learn-question']"
-                        v-html="currentQuestion.questionText"
-                    ></div>
-                    <div v-else :class="['learn-question']">
+                    <div :class="['learn-question']" v-html="currentQuestion.questionText"></div>
+                    <!-- <div v-else :class="['learn-question']">
                         {{ currentQuestion.questionText }}
-                    </div>
+                    </div> -->
                     <div class="section answer-section">
                         <div class="d-flex align-items-center">
                             <div class="answer-section-ins">
