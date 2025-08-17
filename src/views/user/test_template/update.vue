@@ -146,7 +146,7 @@ const componentMap = {
 //#region logic edit question
 import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
-    id: Date.now().toString(),
+    id: "new_" + Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
