@@ -163,7 +163,7 @@ const componentMap = {
 //#region logic edit question
 import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
-    id: Date.now().toString(),
+    id: "new_" + Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
@@ -600,7 +600,9 @@ onMounted(async () => {
                                     :is="componentMap[item.type]"
                                     :question="item"
                                     :index="
-                                        formState.createUpdateQuestions.findIndex((q) => q.id === item.id) + 1
+                                        formState.createUpdateQuestions.findIndex(
+                                            (q) => q.id === item.id,
+                                        ) + 1
                                     "
                                     :displayScore="false"
                                     @deleteQuestion="onRemoveQuestion(index)"
