@@ -345,8 +345,8 @@ const showModalConfirmation = () => {
             let result = await ApiQuestionSet.Update(questionSetId.value, {
                 ...formState,
                 createUpdateQuestions: formState.createUpdateQuestions.map((x) => ({
-                    ...x,
                     questionId: x.id.startsWith("new_") ? null : x.id,
+                    ...x,
                 })),
             });
 
