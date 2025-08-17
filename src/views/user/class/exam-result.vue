@@ -9,7 +9,7 @@ import TEST_STATUS from "@/constants/testStatus";
 import TEST_GRADE_ATTEMPT_METHOD from "@/constants/testGradeAttempMethod";
 import TEST_GRADE_QUESTION_METHOD from "@/constants/testGradeQuestionMethod";
 
-import { message, Modal, type TableColumnType } from "ant-design-vue";
+import { type TableColumnType } from "ant-design-vue";
 import { ref, onMounted, watch, reactive, computed, nextTick } from "vue";
 
 import Input from "@/shared/components/Common/Input.vue";
@@ -100,7 +100,7 @@ const columns: MyColumn[] = [
 const optionKeys = Object.values(TEST_STATUS);
 const test_status_options = computed(() =>
     optionKeys.map((key) => ({
-        label: key,
+        label: t(`exam_result.test_status.${key}`),
         value: key !== TEST_STATUS.ALL ? key : "",
     })),
 );
@@ -299,21 +299,21 @@ onMounted(async () => {
             <div class="content-item">
                 <div class="content-item-title">
                     <div>
-                        <span>Test name: {{ testData.name }}</span>
-                        <span>Class: {{ classData.name }}</span>
+                        <span>{{ $t("exam_result.test_name", { name: testData.name }) }}</span>
+                        <span>{{ $t("class_index.title") }}: {{ classData.name }}</span>
                     </div>
                 </div>
                 <div class="test-info-container">
                     <a-row class="mb-2 d-flex align-items-center justify-content-between">
                         <a-col :span="11" class="test-info-item">
                             <div class="d-flex justify-content-between">
-                                <span> StartTime:</span>
+                                <span>{{ $t("exam_result.start_time") }}</span>
                                 <span>
                                     {{ dayjs(testData.startTime).format("DD/MM/YYYY HH:mm A") }}
                                 </span>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <span> EndTime:</span>
+                                <span>{{ $t("exam_result.end_time") }}</span>
                                 <span>
                                     {{ dayjs(testData.endTime).format("DD/MM/YYYY HH:mm A") }}
                                 </span>
@@ -321,32 +321,53 @@ onMounted(async () => {
                         </a-col>
                         <a-col :span="11" class="test-info-item">
                             <div class="d-flex justify-content-between">
-                                <span> Time limit: </span>
-                                <span> {{ testData.timeLimit }} minutes</span>
+                                <span>{{ $t("exam_result.time_limit") }}</span>
+                                <span>
+                                    {{ testData.timeLimit }}
+                                    {{
+                                        testData.timeLimit > 1
+                                            ? $t("practice_test.other.minute_plural")
+                                            : $t("practice_test.other.minute")
+                                    }}
+                                </span>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <span> Questions:</span>
-                                <span> {{ testData.questionCount }} questions</span>
+                                <span>{{ $t("exam_result.question_count") }}</span>
+                                <span>
+                                    {{ testData.questionCount }}
+                                    {{
+                                        testData.questionCount > 1
+                                            ? $t("exam_result.other.question_plural")
+                                            : $t("exam_result.other.question")
+                                    }}
+                                </span>
                             </div>
                         </a-col>
                     </a-row>
                     <a-row class="mb-2 d-flex align-items-center justify-content-between">
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
-                            <span> Grade attempt method:</span>
-                            <span> {{ testData.gradeAttemptMethod }}</span>
+                            <span>{{ $t("exam_result.grade_attempt_method") }}</span>
+                            <span> {{ $t(`testData.gradeAttemptMethod`) }}</span>
                         </a-col>
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
-                            <span>Max attempt:</span>
-                            <span> {{ testData.maxAttempt }} times</span></a-col
-                        >
+                            <span>{{ $t("exam_result.max_attempt") }}</span>
+                            <span>
+                                {{ testData.maxAttempt }}
+                                {{
+                                    testData.questionCount > 1
+                                        ? $t("exam_result.other.time_plural")
+                                        : $t("exam_result.other.time")
+                                }}
+                            </span>
+                        </a-col>
                     </a-row>
                     <a-row class="mb-2 d-flex align-items-center justify-content-between">
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
-                            <span>Grade question method:</span>
+                            <span>{{ $t("exam_result.grade_question_method") }}</span>
                             <span>{{ testData.gradeQuestionMethod }}</span>
                         </a-col>
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
-                            <span> Passing Score: </span>
+                            <span>{{ $t("exam_result.passing_score") }}</span>
                             <span>
                                 {{ testData.totalScore * (testData.passingScore / 100) }}
                                 ({{ testData.passingScore }}%)
@@ -355,11 +376,11 @@ onMounted(async () => {
                     </a-row>
                     <a-row class="mb-2 d-flex align-items-center justify-content-between">
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
-                            <span> Show correct answer in review:</span>
+                            <span>{{ $t("exam_result.show_correct_answer") }}</span>
                             <span> {{ testData.isShowCorrectAnswerInReview ? "Yes" : "No" }}</span>
                         </a-col>
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
-                            <span>Allow student to review after submit:</span>
+                            <span>{{ $t("exam_result.allow_review") }}</span>
                             <span>{{ testData.isAllowReviewAfterSubmit ? "Yes" : "No" }}</span>
                         </a-col>
                     </a-row>

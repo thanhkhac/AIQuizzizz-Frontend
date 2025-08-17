@@ -8,6 +8,7 @@ import type { UserAnswerData } from "@/models/response/test/userAnswer";
 import type UserAnswerSubmit from "@/models/response/test/userAnswer";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import QUESTION_FORMAT from "@/constants/questionTextFormat";
+import ERROR from "@/constants/errors";
 
 import TransferUserAnswerData from "@/services/TransferUserAnswerData";
 
@@ -115,11 +116,9 @@ const getAttemptData = async () => {
 
         currentQuestion.value = quiz.value[0] as ResponseQuestion;
     } catch (error: any) {
-        console.log(error);
-        if (!error.response.data.success) {
-            isDataValid.value = false;
-            router.push({ name: "404" });
-            return;
+        const errorKeys = Object.keys(error.response.data.errors);
+        if (errorKeys.includes(ERROR.MAX_ATTEMPT_IN_THIS_TEST)) {
+            router.back();
         }
     } finally {
         loading.value = false;
@@ -505,7 +504,7 @@ onMounted(async () => {
                 <a-col class="main-title" :span="22">
                     <span> {{ attemptData?.name }}</span> <br />
                     <span>
-                        {{ attemptData?.questionCount }} 
+                        {{ attemptData?.questionCount }}
                     </span>
                 </a-col>
             </a-row>
@@ -800,7 +799,6 @@ onMounted(async () => {
     align-items: start;
 }
 
-
 .learn-question-footer {
     padding: 0px;
 }
@@ -822,6 +820,4 @@ onMounted(async () => {
 .flag-button:hover {
     transform: scale(1.2);
 }
-
-
 </style>

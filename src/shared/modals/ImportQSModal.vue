@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ApiTestTemplate from "@/api/ApiTestTemplate";
+import ApiQuestionSet from "@/api/ApiQuestionSet";
 
 import { ref, reactive, watch, onMounted, computed } from "vue";
 import { Modal, message } from "ant-design-vue";
@@ -10,6 +11,7 @@ import { useI18n } from "vue-i18n";
 import type { RequestQuestion } from "@/models/request/question";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import UPLOADED_QUESTION_STATUS from "@/constants/uploadedQuestionStatus";
+import { get } from "jquery";
 
 const { t } = useI18n();
 
@@ -28,13 +30,31 @@ const question_data = ref<RequestQuestion[]>([]);
 const uploadedQuestions = ref<RequestQuestion[]>([]);
 const uploadedInvalidQuestions = ref<RequestQuestion[]>([]);
 
+//#region download link
+const download_link = ref("");
+
+const getLink = async () => {
+    if (download_link.value) return;
+    try {
+        const result = await ApiQuestionSet.DownloadFileImport();
+        if (result.data.success) {
+            download_link.value = result.data.data;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+//#endregion
+
 const importModalState = reactive({
     checkAll: false,
     indeterminate: false,
     checkedList: [] as RequestQuestion[],
 });
 
-const openImportModal = () => {
+const openImportModal = async () => {
+    await getLink();
     importModalState.checkedList = []; //reset checked list
     modal_import_open.value = true;
 };
@@ -48,6 +68,7 @@ defineExpose({
     openImportModal,
 });
 
+//#region file
 //file-upload customized events
 const files = ref<File[]>([]);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -127,6 +148,7 @@ const onRemoveUploadedFile = (index: number) => {
     uploadedInvalidQuestions.value = [];
     uploadedQuestions.value = [];
 };
+//#endregion
 
 //#region filter select
 
@@ -227,9 +249,11 @@ const handleModalImport = () => {
     });
 };
 
-onMounted(() => {
-    // uploadedQuestions.value = question_data_raw as RequestQuestion[]; //sample
-});
+const onDownloadTemplate = async () => {
+    window.open(download_link.value, "_blank");
+};
+
+onMounted(() => {});
 </script>
 
 <template>
@@ -260,9 +284,9 @@ onMounted(() => {
                 <div class="content-item-section upload-section">
                     <div class="section-title">
                         <span>{{ $t("import_qs_modal.upload_section") }}</span>
-                        <a-button class="main-color-btn" type="primary">{{
-                            $t("import_qs_modal.buttons.download")
-                        }}</a-button>
+                        <a-button class="main-color-btn" type="primary" @click="onDownloadTemplate">
+                            {{ $t("import_qs_modal.buttons.download") }}
+                        </a-button>
                     </div>
                     <div class="section-content">
                         <input

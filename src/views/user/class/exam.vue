@@ -293,6 +293,7 @@ onMounted(async () => {
                         </div>
                     </div>
                     <a-select
+                        class="me-3"
                         v-model:value="pageParams.status"
                         style="width: 200px"
                         @change="getData"
@@ -466,8 +467,8 @@ onMounted(async () => {
     aspect-ratio: 1/1;
     font-size: 16px;
     border-radius: 50%;
-    background: #221a32;
-    color: #7c3aed;
+    background: var(--main-color-theme);
+    color: var(--main-color);
     margin-right: 12px;
 }
 

@@ -981,6 +981,30 @@
         "select_template": "Select template",
         "choose_question": "Choose question"
     },
+    "exam_result": {
+        "test_name": "Test name : {name}",
+        "start_time": "Start time:",
+        "end_time": "End time:",
+        "time_limit": "Time limit:",
+        "question_count": "Question: ",
+        "grade_attempt_method": "Grade attempt method: ",
+        "grade_question_method": "Grade question method: ",
+        "max_attempt": "Max attempt: ",
+        "passing_score": "Passing score: ",
+        "show_correct_answer": "Show correct answer in review:",
+        "allow_review": "Allow student to review after submit:",
+        "test_status": {
+            "All": "All",
+            "Failed": "Failed",
+            "Passed": "Passed"
+        },
+        "other": {
+            "question_plural": "questions",
+            "question": "question",
+            "time_plural": "times",
+            "time": "time"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Forbidden",
         "COMMON_SERVER_INTERNAL_ERROR": "Internal server error",
@@ -1028,6 +1052,7 @@
         "INSUFFICIENT_BALANCE": "Insufficient balance!",
 
         "TEST_IS_OVERDUE": "Test overdue!",
+        "MAX_ATTEMPT_IN_THIS_TEST": "Maximum attempt reached in this test.",
 
         "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER": "Test template already exists in this folder."
     },

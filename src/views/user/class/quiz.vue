@@ -371,8 +371,8 @@ onMounted(async () => {
     aspect-ratio: 1/1;
     font-size: 16px;
     border-radius: 50%;
-    background: #221a32;
-    color: #7c3aed;
+    background: var(--main-color-theme);
+    color: var(--main-color);
     margin-right: 12px;
 }
 </style>

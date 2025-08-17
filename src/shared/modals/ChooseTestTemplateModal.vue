@@ -258,7 +258,6 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
                                     `${range[0]}-${range[1]} of ${total} ${t('folder_index.other.items')}`
                             "
                             show-size-changer
-                            show-quick-jumper
                             class="crud-layout-pagination"
                             :locale="{
                                 items_per_page: t('folder_index.other.pages'),
@@ -271,3 +270,19 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
         <template #footer></template>
     </a-modal>
 </template>
+<style scoped>
+.quiz-item-icon {
+    display: flex;
+    width: 35px;
+    height: 35px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    aspect-ratio: 1/1;
+    font-size: 16px;
+    border-radius: 50%;
+    background: var(--main-color-theme);
+    color: var(--main-color);
+    margin-right: 12px;
+}
+</style>

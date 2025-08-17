@@ -516,7 +516,7 @@ onMounted(async () => {
                                 <i class="bx bx-upload"></i>
                             </RouterLink>
                             <div class="import-button" @click="onFinish">
-                                {{ $t("create_QS.buttons.create") }}
+                                {{ $t("update_QS.buttons.update") }}
                             </div>
                             <div class="import-button">
                                 {{

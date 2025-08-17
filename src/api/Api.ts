@@ -31,13 +31,18 @@ instance.interceptors.response.use(
                 message: "Network Error",
                 description: "No internet connection. Please check your network.",
             });
-            window.location.assign("/404");
+            // window.location.assign("/404");
             return;
         }
 
         //avoid loop using additional _retry
         if (error.response && originalConfig.url !== "/Authentication/Login") {
             const errorKeys = Object.keys(error.response.data?.errors);
+
+            //push to not-allow if
+            if (errorKeys.includes(ERROR.COMMON_FORBIDDEN)) {
+                window.location.assign("/not-allowed");
+            }
 
             //display all error except refresh token
             if (
@@ -57,7 +62,7 @@ instance.interceptors.response.use(
             // if ((error.response.status === 401 && !originalConfig._retry)) {
             if (
                 error.response &&
-                Object.keys(error.response.data?.errors).includes("COMMON_UNAUTHORIZED") &&
+                Object.keys(error.response.data?.errors).includes(ERROR.COMMON_UNAUTHORIZED) &&
                 !originalConfig._retry &&
                 !isRefreshing
             ) {
@@ -91,10 +96,9 @@ instance.interceptors.response.use(
                     }
                     case 500: {
                         //to do
-                        window.location.assign("/404");
                         console.log("ERROR: Status code 500");
                         notification["error"]({
-                            message: "SERVERERROR",
+                            message: "SERVER ERROR",
                             description: translate(`ERROR_CODE.${errorKeys[0]}`),
                         });
                         break;

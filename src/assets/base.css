@@ -91,7 +91,7 @@
     --content-item-background-color: #f8f8fa;
     --content-item-border-color: #d4d4d8;
 
-    --content-item-children-background-color: #f0f0f2;
+    --content-item-children-background-color: #f0f0f0;
 
     --form-item-background-color: #ffffff;
     --form-item-border-color: #c4c4c4;
@@ -113,31 +113,37 @@
 .purple {
     --main-color: #7c3aed;
     --main-sub-color: #9823f5;
+    --main-color-theme: #ede9fe;
 }
 
 .blue {
     --main-color: #3b82f6;
     --main-sub-color: #60a5fa;
+    --main-color-theme: #dbeafe;
 }
 
 .green {
     --main-color: #22c55e;
     --main-sub-color: #4ade80;
+    --main-color-theme: #dcfce7;
 }
 
 .red {
     --main-color: #ef4444;
     --main-sub-color: #f87171;
+    --main-color-theme: #fee2e2;
 }
 
 .amber {
     --main-color: #f59e0b;
     --main-sub-color: #fbbf24;
+    --main-color-theme: #fef3c7;
 }
 
 .pink {
     --main-color: #ec4899;
     --main-sub-color: #f472b6;
+    --main-color-theme: #fce7f3;
 }
 
 /* color palette from <https://github.com/vuejs/theme> */

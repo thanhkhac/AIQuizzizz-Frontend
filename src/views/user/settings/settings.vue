@@ -14,11 +14,11 @@ const { t } = useI18n();
 type TabKey = "Profile" | "Security" | "Appearance" | "Subscription" | "Billing";
 
 const tabs = ref<{ key: TabKey; tab: string }[]>([
-    { key: "Profile", tab: t("settings.tabs.profile") },
-    { key: "Security", tab: t("settings.tabs.security") },
-    { key: "Appearance", tab: t("settings.tabs.appearance") },
-    { key: "Subscription", tab: t("settings.tabs.subscription") },
-    { key: "Billing", tab: t("settings.tabs.billing") },
+    { key: "Profile", tab: "profile" },
+    { key: "Security", tab: "security" },
+    { key: "Appearance", tab: "appearance" },
+    { key: "Subscription", tab: "subscription" },
+    { key: "Billing", tab: "billing" },
 ]);
 
 //record = dictionary
@@ -59,7 +59,7 @@ onMounted(() => {
             type="card"
             :destroyInactiveTabPane="true"
         >
-            <a-tab-pane v-for="tab in tabs" :key="tab.key" :tab="tab.tab">
+            <a-tab-pane v-for="tab in tabs" :key="tab.key" :tab="t(`settings.tabs.${tab.tab}`)">
                 <component :is="tab_component[tab.key]"></component>
             </a-tab-pane>
         </a-tabs>

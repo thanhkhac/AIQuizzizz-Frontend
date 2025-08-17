@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import user_image from "@/assets/user.png";
+
 import ApiClass from "@/api/ApiClass";
 
 import { ref, onMounted, reactive, computed, onUpdated, h, watch } from "vue";
@@ -396,6 +398,7 @@ onMounted(async () => {
                         </div>
                     </div>
                     <a-select
+                        class="me-3"
                         v-model:value="pageParams.fieldName"
                         style="width: 200px"
                         @change="getData"
@@ -425,72 +428,84 @@ onMounted(async () => {
                     <a-skeleton active :loading="loading"></a-skeleton>
                 </template>
                 <template v-else>
-                    <a-table
+                    <a-config-provider
                         v-if="student_data.length > 0"
-                        :columns="columns"
-                        :data-source="student_data"
-                        row-key="studentId"
-                        :pagination="false"
+                        :locale="{
+                            Table: {
+                                cancelSort: '',
+                                triggerAsc: '',
+                                triggerDesc: '',
+                            },
+                        }"
                     >
-                        <template #bodyCell="{ column, record }">
-                            <template v-if="column.key === 'fullName'">
-                                <div class="student-name-container">
-                                    <img class="student-image" :src="record.image" alt="" />
-                                    <div class="student-name">{{ record.fullName }}</div>
-                                </div>
-                            </template>
-                            <template v-if="column.key === 'position'">
-                                {{ $t(`class_member.position.${record.position}`) }}
-                            </template>
-                            <template v-if="column.key === 'action'">
-                                <div
-                                    v-if="userRoleInClass === CLASS_STUDENT_POSITION.OWNER"
-                                    class="student-action"
-                                >
-                                    <a-tooltip
-                                        v-if="record.position === CLASS_STUDENT_POSITION.STUDENT"
+                        <a-table
+                            :columns="columns"
+                            :data-source="student_data"
+                            row-key="studentId"
+                            :pagination="false"
+                        >
+                            <template #bodyCell="{ column, record }">
+                                <template v-if="column.key === 'fullName'">
+                                    <div class="student-name-container">
+                                        <img class="user-image" :src="user_image" alt="" />
+                                        <div class="student-name">{{ record.fullName }}</div>
+                                    </div>
+                                </template>
+                                <template v-if="column.key === 'position'">
+                                    {{ $t(`class_member.position.${record.position}`) }}
+                                </template>
+                                <template v-if="column.key === 'action'">
+                                    <div
+                                        v-if="userRoleInClass === CLASS_STUDENT_POSITION.OWNER"
+                                        class="student-action"
                                     >
-                                        <template #title>
-                                            {{ $t("class_member.buttons.assign_lecturer") }}
-                                        </template>
-                                        <i
-                                            style="cursor: pointer"
-                                            class="bx bxs-id-card"
-                                            @click="
-                                                onConfirmUpdateMemberPosition(
-                                                    record.studentId,
-                                                    CLASS_STUDENT_POSITION.TEACHER,
-                                                )
+                                        <a-tooltip
+                                            v-if="
+                                                record.position === CLASS_STUDENT_POSITION.STUDENT
                                             "
-                                        ></i>
-                                    </a-tooltip>
-                                    <a-tooltip v-else>
-                                        <template #title>
-                                            {{ $t("class_member.buttons.remove_lecturer") }}
-                                        </template>
-                                        <i
-                                            class="text-danger bx bxs-id-card"
-                                            @click="
-                                                onConfirmUpdateMemberPosition(
-                                                    record.studentId,
-                                                    CLASS_STUDENT_POSITION.STUDENT,
-                                                )
-                                            "
-                                        ></i>
-                                    </a-tooltip>
-                                    <a-tooltip>
-                                        <template #title>
-                                            {{ $t("question_sets_index.buttons.delete") }}
-                                        </template>
-                                        <i
-                                            class="text-danger bx bx-trash-alt"
-                                            @click="onConfirmDeleteMember(record.studentId)"
-                                        ></i>
-                                    </a-tooltip>
-                                </div>
+                                        >
+                                            <template #title>
+                                                {{ $t("class_member.buttons.assign_lecturer") }}
+                                            </template>
+                                            <i
+                                                style="cursor: pointer"
+                                                class="bx bxs-id-card"
+                                                @click="
+                                                    onConfirmUpdateMemberPosition(
+                                                        record.studentId,
+                                                        CLASS_STUDENT_POSITION.TEACHER,
+                                                    )
+                                                "
+                                            ></i>
+                                        </a-tooltip>
+                                        <a-tooltip v-else>
+                                            <template #title>
+                                                {{ $t("class_member.buttons.remove_lecturer") }}
+                                            </template>
+                                            <i
+                                                class="text-danger bx bxs-id-card"
+                                                @click="
+                                                    onConfirmUpdateMemberPosition(
+                                                        record.studentId,
+                                                        CLASS_STUDENT_POSITION.STUDENT,
+                                                    )
+                                                "
+                                            ></i>
+                                        </a-tooltip>
+                                        <a-tooltip>
+                                            <template #title>
+                                                {{ $t("question_sets_index.buttons.delete") }}
+                                            </template>
+                                            <i
+                                                class="text-danger bx bx-trash-alt"
+                                                @click="onConfirmDeleteMember(record.studentId)"
+                                            ></i>
+                                        </a-tooltip>
+                                    </div>
+                                </template>
                             </template>
-                        </template>
-                    </a-table>
+                        </a-table>
+                    </a-config-provider>
                     <template v-else>
                         <div class="w-100 d-flex justify-content-center">
                             <a-empty>
@@ -693,5 +708,15 @@ onMounted(async () => {
     font-size: 20px;
     margin: 0px 10px;
     cursor: pointer;
+}
+
+.user-image {
+    width: 40px;
+    height: 40px;
+    background-color: var(--background-color-contrast);
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: contain;
+    padding: 3px;
 }
 </style>

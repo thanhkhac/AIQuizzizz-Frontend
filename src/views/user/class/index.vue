@@ -330,7 +330,6 @@ onMounted(async () => {
                                 `${range[0]}-${range[1]} of ${total} ${t('class_index.other.items')}`
                         "
                         show-size-changer
-                        show-quick-jumper
                         class="crud-layout-pagination"
                         :locale="{
                             items_per_page: t('class_index.other.pages'),

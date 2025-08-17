@@ -194,8 +194,8 @@ onMounted(async () => {
                     </RouterLink>
                 </div>
                 <template v-if="loading">
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
                 </template>
                 <div e-else class="quiz-container">
                     <div
@@ -250,8 +250,8 @@ onMounted(async () => {
                 </div>
                 <div class="popular-quiz-container">
                     <template v-if="loading">
-                        <a-skeleton :loading="loading"></a-skeleton>
-                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton active :loading="loading"></a-skeleton>
+                        <a-skeleton active :loading="loading"></a-skeleton>
                     </template>
                     <template v-else>
                         <div
@@ -386,8 +386,8 @@ onMounted(async () => {
     aspect-ratio: 1/1;
     font-size: 25px !important;
     border-radius: 50%;
-    background: #261544;
-    color: #5c00ff;
+    background: var(--main-color-theme);
+    color: var(--main-color);
 }
 
 .add-button-context {

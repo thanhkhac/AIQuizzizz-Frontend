@@ -64,16 +64,16 @@ const checkInvalid = () => {
     border-radius: 5px;
     overflow: hidden;
     margin-bottom: 0px;
-    color: var(--text-color-white);
+    color: var(--text-color);
     width: 100%;
 }
 
 .input {
     height: 35px;
     padding: 5px 10px;
-    background-color: var(--content-item-children-background-color);
+    background-color: var(--form-item-background-color);
     border: 1px solid var(--form-item-border-color);
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 .input.is-invalid {
@@ -97,7 +97,7 @@ const checkInvalid = () => {
 
 ::v-deep(.input input) {
     color: var(--text-color);
-    background-color: var(--content-item-children-background-color);
+    background-color: var(--form-item-background-color);
 }
 
 ::v-deep(.ant-form-item-label > label) {

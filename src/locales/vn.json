@@ -981,6 +981,30 @@
         "select_template": "Chọn mẫu",
         "choose_question": "Chọn câu hỏi"
     },
+    "exam_result": {
+        "test_name": "Tên bài kiểm tra: {name}",
+        "start_time": "Thời gian bắt đầu:",
+        "end_time": "Thời gian kết thúc:",
+        "time_limit": "Thời gian giới hạn:",
+        "question_count": "Câu hỏi: ",
+        "grade_attempt_method": "Phương pháp chấm điểm: ",
+        "grade_question_method": "Phương pháp chấm điểm câu hỏi: ",
+        "max_attempt": "Số lần thử tối đa: ",
+        "passing_score": "Điểm đạt: ",
+        "show_correct_answer": "Hiển thị câu trả lời đúng trong phần đánh giá:",
+        "allow_review": "Cho phép học sinh xem lại sau khi nộp:",
+        "test_status": {
+            "All": "Tất cả",
+            "Failed": "Không đạt",
+            "Passed": "Đạt"
+        },
+        "other": {
+            "question_plural": "câu hỏi",
+            "question": "câu hỏi",
+            "time_plural": "lần",
+            "time": "lần"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Không có quyền truy cập",
         "COMMON_SERVER_INTERNAL_ERROR": "Lỗi máy chủ nội bộ",
@@ -1028,6 +1052,7 @@
         "INSUFFICIENT_BALANCE": "Số dư không đủ!",
 
         "TEST_IS_OVERDUE": "Thời gian làm bài đã kết thúc!",
+        "MAX_ATTEMPT_IN_THIS_TEST": "Đã đạt tối đa số lần thử trong bài kiểm tra này.",
 
         "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER": "Mẫu bài kiểm tra đã tồn tại trong thư mục!"
     },

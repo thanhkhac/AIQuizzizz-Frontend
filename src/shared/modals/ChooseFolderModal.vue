@@ -232,7 +232,6 @@ const handleOpenFolder = (folder: Folder) => {
                                     `${range[0]}-${range[1]} of ${total} ${t('folder_index.other.items')}`
                             "
                             show-size-changer
-                            show-quick-jumper
                             class="crud-layout-pagination"
                             :locale="{
                                 items_per_page: t('folder_index.other.pages'),

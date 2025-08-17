@@ -876,6 +876,7 @@ pre {
 }
 .navigator-back-button:hover {
     background-color: var(--main-color);
+    color: var(--text-color-contrast);
 }
 
 .modal-title-container {
@@ -1166,7 +1167,7 @@ ol {
     }
     .ant-modal-body {
         flex: 1;
-        overflow: hidden;
+        overflow-y: scroll;
     }
 }
 
@@ -1194,6 +1195,16 @@ ol {
 /**
 * custom a-modal
 **/
+
+.ant-modal-body::-webkit-scrollbar {
+    width: 10px;
+}
+
+.ant-modal-body::-webkit-scrollbar-thumb {
+    width: 8px;
+    background-color: var(--main-color);
+    border-radius: 10px;
+}
 
 .ant-modal-content {
     background-color: var(--form-item-background-color) !important;
@@ -2140,11 +2151,11 @@ Custom a-switch
 * custom a-skeleton
 **/
 .ant-skeleton-title {
-    background-color: #313131 !important;
+    background-color: var(--form-item-border-color) !important;
 }
 
 .ant-skeleton-paragraph li {
-    background-color: #313131 !important;
+    background-color: var(--form-item-border-color) !important;
 }
 
 /**
@@ -2347,6 +2358,15 @@ ant-select-tree */
 
 .ant-tag {
     margin-inline-end: 0px !important;
+}
+
+/**
+* custom a-result
+**/
+
+.ant-result-title,
+.ant-result-subtitle {
+    color: var(--text-color) !important;
 }
 
 /* ========================================QuestionSet detail and siblings====================================================== */

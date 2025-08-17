@@ -364,7 +364,6 @@ onMounted(async () => {
                                 `${range[0]}-${range[1]} of ${total} ${t('folder_index.other.items')}`
                         "
                         show-size-changer
-                        show-quick-jumper
                         class="crud-layout-pagination"
                         :locale="{
                             items_per_page: t('folder_index.other.pages'),
@@ -468,8 +467,8 @@ onMounted(async () => {
     aspect-ratio: 1/1;
     font-size: 16px;
     border-radius: 50%;
-    background: #221a32;
-    color: #7c3aed;
+    background: var(--main-color-theme);
+    color: var(--main-color);
     margin-right: 12px;
 }
 
