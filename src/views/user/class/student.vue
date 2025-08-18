@@ -535,7 +535,7 @@ onMounted(async () => {
                     ></a-pagination>
                 </div>
             </div>
-            <div class="mt-4 content-item">
+            <div class="mt-4 content-item" v-if="userRoleInClass === CLASS_STUDENT_POSITION.OWNER">
                 <div class="content-item-title">
                     <div>
                         <span class="text-danger">{{ $t("class_member.danger_zone.title") }}</span>

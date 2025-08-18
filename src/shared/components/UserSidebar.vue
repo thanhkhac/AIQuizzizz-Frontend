@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import user_image from "@/assets/user.png";
 
-import { ref, onBeforeMount } from "vue";
+import { ref, onBeforeMount, computed, nextTick, onMounted } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
 import { Modal } from "ant-design-vue";
 import { useI18n } from "vue-i18n";
@@ -13,16 +13,20 @@ interface type_user {
     image: string;
     fullName: string;
     dob: string;
+    roles: string[];
 }
 
-const user = ref<type_user>({
-    id: "",
-    email: "",
-    gender: true,
-    image: "",
-    fullName: "",
-    dob: "",
-});
+// const user = ref<type_user>({
+//     id: "",
+//     email: "",
+//     gender: true,
+//     image: "",
+//     fullName: "",
+//     dob: "",
+//     roles: [],
+// });
+
+const user = computed(() => authStore.getUserInfo());
 
 const { t } = useI18n();
 
@@ -35,10 +39,10 @@ const toggleSidebar = () => {
 };
 
 const authStore = useAuthStore();
-
-onBeforeMount(async () => {
-    user.value = await authStore.getUserInfo();
+const isAdmin = computed(() => {
+    return user.value?.roles?.includes("Administrator") ?? false;
 });
+onMounted(async () => {});
 
 const onSignOut = () => {
     Modal.confirm({
@@ -124,10 +128,15 @@ const onSignOut = () => {
                         </span>
                     </RouterLink>
                 </li>
-                <li
-                    :class="['sidebar-listItem sign-out', { active: activeItem === 'specialty' }]"
-                    @click="onSignOut"
-                >
+                <li v-if="isAdmin" :class="['sidebar-listItem']">
+                    <RouterLink :to="{ name: 'Admin_Manager_Account' }">
+                        <i class="bx bx-cog"></i>
+                        <span class="sidebar-listItemText">
+                            {{ $t("admin.manage_acc.title") }}
+                        </span>
+                    </RouterLink>
+                </li>
+                <li :class="['sidebar-listItem sign-out']" @click="onSignOut">
                     <RouterLink :to="{}">
                         <i class="bx bx-download bx-rotate-270"></i>
                         <span class="sidebar-listItemText">
@@ -137,7 +146,7 @@ const onSignOut = () => {
                 </li>
             </ul>
             <div class="sidebar-profileSection">
-                <img :src="user_image" />
+                <img :src="user_image" alt="" />
                 <div>
                     <span>{{ user.fullName }}</span>
                     <span class="sign-out-btn" @click="onSignOut">

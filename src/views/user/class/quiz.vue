@@ -186,7 +186,7 @@ const onDeleteQSFromClass = (questionSetId: string) => {
 };
 
 const onRedirectToDetail = (id: string) => {
-    router.push({ name: "User_Class_Quiz_Detail", params: { id } });
+    router.push({ name: "User_QuestionSet_Detail", params: { id } });
 };
 
 onMounted(async () => {

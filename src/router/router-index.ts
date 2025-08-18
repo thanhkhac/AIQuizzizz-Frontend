@@ -115,7 +115,7 @@ router.beforeEach(async (to, from, next) => {
     ) {
         // if (useAuthStore().user_info.claims.includes("Admin_Dashboard_View")) {
         if (useAuthStore().getUserInfo().roles.includes("Administrator")) {
-            next({ name: "Admin_Dashboards_View" });
+            next({ name: "Admin_Manager_Account" });
         } else {
             next({ name: "/" });
         }

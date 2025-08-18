@@ -198,7 +198,19 @@ const onCreateClass = async () => {
     isCreateLoading.value = true;
     try {
         await createClassFormRef.value.validate(); //this will throw err to catch
-        let result = await ApiClass.Create(createClassFormState);
+        let result;
+
+        if (createClassFormState.topic) {
+            result = await ApiClass.Create({
+                name: createClassFormState.name,
+                topic: createClassFormState.topic,
+            });
+        }
+
+        result = await ApiClass.Create({
+            name: createClassFormState.name,
+        });
+
         if (!result.data.success) {
             message.error("Create class failed");
             return;
