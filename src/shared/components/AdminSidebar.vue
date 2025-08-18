@@ -78,12 +78,12 @@ const onSignOut = () => {
                 </a-divider>
                 <a-divider class="divider" style="margin-top: 0px; background-color: #fff" />
 
-                <li :class="['sidebar-listItem', { active: activeItem === 'specialty' }]">
+                <!-- <li :class="['sidebar-listItem', { active: activeItem === 'specialty' }]">
                     <RouterLink :to="{}">
                         <i class="bx bx-cog"></i>
                         <span class="sidebar-listItemText">Settings</span>
                     </RouterLink>
-                </li>
+                </li> -->
                 <li :class="['sidebar-listItem', { active: activeItem === 'account' }]">
                     <RouterLink :to="{ name: 'Admin_Manager_Account' }">
                         <i class="bx bx-cog"></i>
@@ -96,12 +96,12 @@ const onSignOut = () => {
                         <span class="sidebar-listItemText">Manager Subscription</span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', { active: activeItem === 'class' }]">
+                <!-- <li :class="['sidebar-listItem', { active: activeItem === 'class' }]">
                     <RouterLink :to="{ name: 'Admin_Manager_Class' }">
                         <i class="bx bx-cog"></i>
                         <span class="sidebar-listItemText">Manager Class</span>
                     </RouterLink>
-                </li>
+                </li> -->
                 <li
                     :class="['sidebar-listItem sign-out', { active: activeItem === 'specialty' }]"
                     @click="onSignOut"

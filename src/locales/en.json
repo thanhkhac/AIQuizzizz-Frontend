@@ -1019,7 +1019,7 @@
                 "total_subs": "Total Subscripbers",
                 "monthly_rev": "Monthly Revenue",
                 "new_subs": "New Subscribers",
-                "unsubs": "Unsubscribers"
+                "class": "Total Class"
             },
             "plan_comparison": "Plan Comparison",
             "plan_comparison_content": "Compare available subscription plans",

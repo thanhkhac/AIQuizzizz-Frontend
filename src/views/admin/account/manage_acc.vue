@@ -101,7 +101,7 @@ const columns = [
         width: 100,
         align: "center",
     },
-    { title: "Ban", key: "ban", width: 120, align: "center" },
+    { title: "", key: "ban", width: 120, align: "center" },
 ];
 
 onMounted(() => {
@@ -273,32 +273,38 @@ const getUsersData = async () => {
                         <template v-if="column.key === 'ban'">
                             <div class="action-cell">
                                 <!-- icon assign moderator -->
-                                <i
-                                    v-if="record.role === 'Moderator'"
-                                    class="bx bx-id-card"
-                                    title="Demote moderator to User"
-                                    style="color: #ff002e; font-size: 25px"
-                                    @click="onDemoteToUser(record)"
-                                ></i>
+                                <a-tooltip>
+                                    <template #title> Demote moderator to User </template>
+                                    <i
+                                        v-if="record.role === 'Moderator'"
+                                        class="bx bx-id-card"
+                                        style="color: #ff002e; font-size: 25px"
+                                        @click="onDemoteToUser(record)"
+                                    ></i>
+                                </a-tooltip>
 
                                 <!-- icon assign user -->
-                                <i
-                                    v-if="record.role === 'User'"
-                                    class="bx bx-id-card"
-                                    title="Promote user to Moderator"
-                                    style="color: #fff; font-size: 25px"
-                                    @click="onPromoteToModerator(record)"
-                                ></i>
+                                <a-tooltip>
+                                    <template #title> Promote user to Moderator </template>
+                                    <i
+                                        v-if="record.role === 'User'"
+                                        class="bx bx-id-card"
+                                        style="color: #fff; font-size: 25px"
+                                        @click="onPromoteToModerator(record)"
+                                    ></i>
+                                </a-tooltip>
 
                                 <!-- button ban.active user -->
-                                <a-switch
-                                    v-if="record.role !== 'Administrator'"
-                                    v-model:checked="record.isBanned"
-                                    title="Ban/Active"
-                                    :checked-children="''"
-                                    :un-checked-children="''"
-                                    @change="onToggle(record)"
-                                />
+                                <a-tooltip>
+                                    <template #title> Ban/Active </template>
+                                    <a-switch
+                                        v-if="record.role !== 'Administrator'"
+                                        v-model:checked="record.isBanned"
+                                        :checked-children="''"
+                                        :un-checked-children="''"
+                                        @change="onToggle(record)"
+                                    />
+                                </a-tooltip>
                             </div>
                         </template>
                     </template>

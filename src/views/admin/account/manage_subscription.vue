@@ -11,6 +11,7 @@ import Highcharts from "highcharts";
 import RevenueLineChart from "../charts/RevenueLineChart.vue";
 import SubscriberPieChart from "../charts/SubscriberPieChart.vue";
 import ClassLineChart from "../charts/ClassLineChart.vue";
+import type PlatformOverViewResp from "../../../models/response/admin/platformOverViewResp";
 
 const { locale } = useI18n();
 function toFullLocaleTag(tag: string) {
@@ -30,45 +31,22 @@ const modal_update_subscription_open = ref(false);
 onMounted(() => {
     const sidebarActiveItem = "subscription";
     emit("updateSidebar", sidebarActiveItem);
-
+    getPlatformOverviewData();
     getAllPlanData();
 });
 
-const apiData: ApiYearData[] = [
-    {
-        year: 2024,
-        data: [
-            { month: 1, revenue: 50000 },
-            { month: 2, revenue: 60000 },
-            { month: 3, revenue: 75000 },
-            { month: 4, revenue: 70000 },
-            { month: 5, revenue: 80000 },
-            { month: 6, revenue: 74000 },
-            { month: 7, revenue: 70000 },
-            { month: 8, revenue: 70000 },
-            { month: 9, revenue: 59000 },
-            { month: 10, revenue: 70000 },
-            { month: 11, revenue: 90000 },
-            { month: 12, revenue: 70000 },
-        ],
-    },
-    {
-        year: 2025,
-        data: [
-            { month: 1, revenue: 0 },
-            { month: 2, revenue: 0 },
-            { month: 3, revenue: 0 },
-            { month: 4, revenue: 20000 },
-        ],
-    },
-];
+const apiData: ApiYearData[] = [];
 
-const subscribersData = [
-    { name: "New Subscribers", y: 63.06 },
-    { name: "Unsubscribers", y: 20.84 },
-];
-
+const platform_ov = ref<PlatformOverViewResp>();
 const plans = ref<ManageSubscriptionPlanResp[]>([]);
+
+const subscribersData = computed(() => [
+    { name: "New Subscribers", y: platform_ov.value?.usersHavePlan ?? 0 },
+    {
+        name: "Unsubscribers",
+        y: (platform_ov.value?.users ?? 0) - (platform_ov.value?.usersHavePlan ?? 0),
+    },
+]);
 
 const createPlanFormRef = ref();
 const updatePlanFormRef = ref();
@@ -226,6 +204,19 @@ const getPlanData = async (planId: string) => {
         console.log(err);
     }
 };
+const formatCurrency = (num?: number) => {
+    return Number(num).toLocaleString("en-US");
+};
+
+//platform overview
+const getPlatformOverviewData = async () => {
+    try {
+        let result = await ApiAdmin.PlatformOverview();
+        platform_ov.value = result.data.data;
+    } catch (err) {
+        console.log(err);
+    }
+};
 
 // get all plan data
 const getAllPlanData = async () => {
@@ -340,35 +331,46 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                 <div class="stat-card">
                     <div class="stat-title">
                         <span> {{ t(`admin.manage_subscription.stat_card.total_subs`) }} </span>
-                        <span> 123</span>
+                        <span> {{ platform_ov?.users }}</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-title">
                         <span> {{ t(`admin.manage_subscription.stat_card.monthly_rev`) }} </span>
-                        <span> 123$</span>
+                        <span> {{ formatCurrency(platform_ov?.revenue) }} VND</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-title">
                         <span> {{ t(`admin.manage_subscription.stat_card.new_subs`) }} </span>
-                        <span> 123</span>
+                        <span> {{ platform_ov?.usersHavePlan }}</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-title">
-                        <span> {{ t(`admin.manage_subscription.stat_card.unsubs`) }} </span>
-                        <span> 123</span>
+                        <span> {{ t(`admin.manage_subscription.stat_card.class`) }} </span>
+                        <span> {{ platform_ov?.classes }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- chart -->
             <div class="chart-content">
-                <RevenueLineChart :apiData="apiData" :locale="safeLocale" title="Monthly Revenue" />
+                <RevenueLineChart
+                    :years="[2024, 2025]"
+                    :apiData="apiData"
+                    :locale="safeLocale"
+                    title="Monthly Revenue"
+                    @year-change="(y) => console.log('Parent year:', y)"
+                />
             </div>
             <div class="chart-content">
-                <ClassLineChart :apiData="apiData" :locale="safeLocale" title="Monthly New Class" />
+                <ClassLineChart
+                    :years="[2024, 2025]"
+                    :apiData="apiData"
+                    :locale="safeLocale"
+                    title="Monthly New Class"
+                />
                 <SubscriberPieChart :data="subscribersData" title="Subscribers" />
             </div>
 
@@ -407,7 +409,7 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                             </div>
                             <h5 class="mb-2">{{ plan.name }}</h5>
                             <div class="display-6 fw-bold mb-3">
-                                {{ plan.price }}<span class="vnd-icon">₫</span>
+                                {{ formatCurrency(plan.price) }}<span class="vnd-icon">VND</span>
                                 <span class="fs-6 fw-normal">
                                     / {{ plan.duration }} {{ plan.unit }}</span
                                 >
