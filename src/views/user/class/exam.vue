@@ -8,7 +8,7 @@ import type ClassExamPageParams from "@/models/request/class/classExamPageParams
 import type { Class } from "@/models/response/class/class";
 import type { ClassExam } from "@/models/response/class/classExam";
 
-import { ref, onMounted, reactive, computed, onUpdated, watch } from "vue";
+import { ref, onMounted, reactive, computed, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import dayjs from "dayjs";
 
@@ -237,6 +237,53 @@ const onRedirectToResult = (testId: string) => {
     });
 };
 
+//#region user history modal
+type TestResult = {
+    studentId: string;
+    studentName: string;
+    studentEmail: string;
+    score: number;
+    status: string;
+};
+const chosenUser = ref<TestResult>({
+    studentId: "",
+    studentName: "",
+    studentEmail: "",
+    score: 0,
+    status: "",
+});
+
+const chosenExam = ref<ClassExam>(
+    exam_data.value[0] || {
+        testId: "",
+        name: "",
+        timeStart: "",
+        timeLimit: 0,
+        numberOfQuestions: 0,
+        status: CLASS_EXAM_STATUS.ACTIVE,
+        relativeTime: 0,
+    },
+);
+
+import UserTestAttempts from "@/shared/modals/UserTestAttempts.vue";
+const userHistoryModalRef = ref<InstanceType<typeof UserTestAttempts> | null>(null);
+
+// const openUserHistoryModal = async (user: TestResult) => {
+//     chosenUser.value = user;
+//     await nextTick();
+
+//     userHistoryModalRef.value?.openModal();
+// };
+
+const onOpenHistoryModal = async (exam: ClassExam) => {
+    chosenExam.value = exam;
+    await nextTick();
+
+    userHistoryModalRef.value?.openModal();
+};
+
+//#endregion
+
 onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
@@ -370,6 +417,7 @@ onMounted(async () => {
                                 >
                                     {{ $t("class_exam.buttons.attempt") }}
                                 </a-button>
+
                                 <template v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT">
                                     <a-tooltip v-if="exam.status === CLASS_EXAM_STATUS.UPCOMING">
                                         <template #title>
@@ -388,7 +436,6 @@ onMounted(async () => {
                                             <FileDoneOutlined />
                                         </i>
                                     </a-tooltip>
-
                                     <a-tooltip>
                                         <template #title>
                                             {{ $t("question_sets_index.buttons.delete") }}
@@ -397,6 +444,16 @@ onMounted(async () => {
                                             class="text-danger bx bx-trash-alt"
                                             @click="onDeleteTest(exam.testId)"
                                         ></i>
+                                    </a-tooltip>
+                                </template>
+                                <template v-else>
+                                    <a-tooltip>
+                                        <template #title>
+                                            {{ $t("class_member.buttons.history_test") }}
+                                        </template>
+                                        <i @click="onOpenHistoryModal(exam)">
+                                            <FileDoneOutlined />
+                                        </i>
                                     </a-tooltip>
                                 </template>
                             </div>
@@ -433,6 +490,15 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+
+    <UserTestAttempts
+        ref="userHistoryModalRef"
+        :test-id="chosenExam.testId.toString()"
+        :user-id="null"
+        :test-name="chosenExam.name"
+        :passing-score="0"
+        :student-name="null"
+    />
 </template>
 <style scoped>
 .navigator-item {

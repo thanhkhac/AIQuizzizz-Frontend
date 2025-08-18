@@ -57,7 +57,7 @@
             "required": "This field is required",
             "out_of_range": "Limit: {max_length} characters",
             "email": "This field requires correct email format",
-            "password": "Password must be at least 8 characters(1 upper, 1 lower, 1 number, 1 special character).",
+            "password": "Password must be at least 6 characters(1 upper, 1 lower, 1 number, 1 special character).",
             "confirm_password": "Confirm password must match with password"
         }
     },
@@ -939,7 +939,7 @@
     "generate_qs_modal": {
         "title": "Generate Questions With AI",
         "sub_title": "Use AI to analyze your document and generate questions.",
-        "invalid_struture_modal": {
+        "invalid_structure_modal": {
             "title": "Error",
             "content": "Please choose at least one section in your document to proceed."
         },
@@ -1101,7 +1101,7 @@
         "maximum_options": "Each question must have at most 10 options",
         "maximum_tag": "Limit {tag} tags",
 
-        "invalid_time_range": "Start time and end time must be at least {time_limit} minutes (time limit) apart",
+        "invalid_time_range": "Start time and end time must be at least {time_limit} minutes (time limit) apart and start time must be after current time.",
 
         "imported_question": "Imported {number} questions.",
 

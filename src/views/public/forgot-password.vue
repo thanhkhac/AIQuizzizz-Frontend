@@ -52,7 +52,7 @@ const onFinish = () => {
                 showNotification("success", "Forgot-password result", "Success");
                 setTimeout(() => {
                     router.push({ name: "reset-password" });
-                }, 3000);
+                }, 1000);
                 return;
             }
             showNotification("error", "Register result", "ERROR");

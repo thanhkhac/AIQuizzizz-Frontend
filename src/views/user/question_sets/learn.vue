@@ -298,6 +298,7 @@ const onDeleteComment = async (commentId: string) => {
         return;
     }
     message.error(t("message.deleted_failed"));
+    onCancelReplying();
 };
 
 const onTriggerReply = (comment: Comment) => {
@@ -1130,10 +1131,10 @@ onMounted(async () => {
                                                     v-if="comment.createBy.userId === user_info.id"
                                                     class="comment-actions"
                                                 >
-                                                    <i
+                                                    <!-- <i
                                                         class="me-3 bx bx-edit"
                                                         @click="onEditComment(comment.id)"
-                                                    ></i>
+                                                    ></i> -->
                                                     <a-popconfirm
                                                         class="pop-confirm-delete"
                                                         :title="$t('create_QS.quiz.confirm')"
@@ -1195,14 +1196,14 @@ onMounted(async () => {
                                                                     "
                                                                     class="comment-actions"
                                                                 >
-                                                                    <i
+                                                                    <!-- <i
                                                                         class="me-3 bx bx-edit"
                                                                         @click="
                                                                             onEditComment(
                                                                                 childComment.id,
                                                                             )
                                                                         "
-                                                                    ></i>
+                                                                    ></i> -->
                                                                     <a-popconfirm
                                                                         class="pop-confirm-delete"
                                                                         :title="

@@ -54,7 +54,7 @@ defineExpose({
 //#region formstate range
 const formRef = ref(props.formRef);
 type RangeValue = [Dayjs, Dayjs];
-const range = ref<RangeValue>([dayjs(), dayjs().add(1, "day")]);
+const range = ref<RangeValue>([dayjs().add(30, "minute"), dayjs().add(1, "day")]);
 const onRangeChange = (dates: RangeValue) => {
     if (dates) {
         props.formState.startTime = dates[0].toISOString();
@@ -77,6 +77,13 @@ const rules = {
                         t("message.invalid_time_range", { time_limit: props.formState.timeLimit }),
                     );
                 }
+
+                if (range.value[0].isBefore(dayjs())) {
+                    return Promise.reject(
+                        t("message.invalid_time_range", { time_limit: props.formState.timeLimit }),
+                    );
+                }
+
                 return Promise.resolve();
             },
             trigger: "change",

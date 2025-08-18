@@ -1101,7 +1101,7 @@
         "maximum_options": "Mỗi câu hỏi có tối đa 10 lựa chọn",
         "maximum_tag": "Giới hạn {tag} thẻ",
 
-        "invalid_time_range": "Thời gian bắt đầu và kết thúc phải cách nhau ít nhất {time_limit} phút (giới hạn thời gian)",
+        "invalid_time_range": "Thời gian bắt đầu và kết thúc phải cách nhau ít nhất {time_limit} phút (giới hạn thời gian) và thời gian bắt đầu phải sau thời gian hiện tại.",
 
         "imported_question": "Đã nhập {number} câu hỏi.",
 
