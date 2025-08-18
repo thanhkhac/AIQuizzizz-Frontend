@@ -785,7 +785,8 @@
             "delete_folder_warning": "Are you sure to delete this folder?"
         },
         "buttons": {
-            "create_new_template": "Create new test template"
+            "create_new_template": "Create new test template",
+            "share_folder": "Share folder"
         },
         "danger_zone": {
             "title": "Danger Zone",

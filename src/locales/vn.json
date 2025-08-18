@@ -197,7 +197,7 @@
         },
         "sections": {
             "quiz": {
-                "title": "Bài kiểm tra gần đây",
+                "title": "Bộ câu hỏi gần đây",
                 "sub_title": "Hoạt động gần đây của bạn"
             },
             "schedule": {
@@ -251,17 +251,17 @@
         }
     },
     "create_QS": {
-        "title": "Tạo bài kiểm tra mới",
+        "title": "Tạo bộ câu hỏi mới",
         "sub_title": "Thêm câu hỏi, đặt đáp án và cấu hình",
 
         "quiz": {
-            "title": "Tiêu đề bài kiểm tra",
+            "title": "Tiêu đề bộ câu hỏi",
             "description": "Mô tả",
-            "question_question_title": "Câu hỏi trong bài kiểm tra",
-            "question_question_sub_title": "Tạo và quản lý các câu hỏi cho bài kiểm tra",
+            "question_question_title": "Câu hỏi trong bộ câu hỏi",
+            "question_question_sub_title": "Tạo và quản lý các câu hỏi cho bộ câu hỏi",
             "tag": "#Thẻ",
-            "question_detail_title": "Chi tiết bài kiểm tra",
-            "question_detail_sub_title": "Thông tin cơ bản về bài kiểm tra của bạn",
+            "question_detail_title": "Chi tiết bộ câu hỏi",
+            "question_detail_sub_title": "Thông tin cơ bản về bộ câu hỏi của bạn",
             "total": "Tổng cộng: {number}",
             "confirm": "Bạn có chắc chắn không?"
         },
@@ -303,7 +303,7 @@
             "required": "Trường này là bắt buộc",
             "out_of_range": "Giới hạn {max_length} ký tự",
             "have_no_answer": "Câu hỏi {index} phải có ít nhất một đáp án đúng",
-            "minimum_question": "Mỗi bài kiểm tra phải có ít nhất 1 câu hỏi",
+            "minimum_question": "Mỗi bộ câu hỏi phải có ít nhất 1 câu hỏi",
             "minimum_options": "Mỗi câu hỏi phải có ít nhất 2 lựa chọn",
             "maximum_options": "Mỗi câu hỏi có tối đa 10 lựa chọn",
             "maximum_tag": "Tối đa {tag} thẻ"
@@ -720,8 +720,8 @@
         }
     },
     "class_question_set": {
-        "title": "Bài kiểm tra",
-        "sub_title": "Sắp xếp bài kiểm tra thành tài liệu học tập trong lớp.",
+        "title": "Bộ câu hỏi",
+        "sub_title": "Sắp xếp bộ câu hỏi thành tài liệu học tập trong lớp.",
         "select_option": {
             "All": "Tất cả",
             "Owner": "Chủ sở hữu",
@@ -785,7 +785,8 @@
             "delete_folder_warning": "Bạn có chắc muốn xóa thư mục này?"
         },
         "buttons": {
-            "create_new_template": "Tạo mẫu bài kiểm tra mới"
+            "create_new_template": "Tạo mẫu bài kiểm tra mới",
+            "share_folder": "Chia sẻ thư mục"
         },
         "danger_zone": {
             "title": "Khu vực nguy hiểm",

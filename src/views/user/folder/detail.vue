@@ -267,7 +267,7 @@ onMounted(async () => {
                     @click="onOpenShareModal"
                 >
                     <i class="me-2 bx bx-share-alt"></i>
-                    {{ $t("detail_QS.buttons.share_quiz") }}
+                    {{ $t("folder_detail.buttons.share_folder") }}
                 </a-button>
                 <a-button
                     type="primary"

@@ -479,7 +479,7 @@ onMounted(async () => {
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="23">
-                    <span> {{ $t("create_QS.title") }}</span> <br />
+                    <span> {{ $t("update_QS.title", { name: formState.name }) }}</span> <br />
                     <span>
                         {{ $t("create_QS.sub_title") }}
                     </span>

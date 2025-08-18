@@ -188,7 +188,7 @@ const onDelete = () => {
                 return;
             }
             message.success(t("message.deleted_successfully"));
-            router.push("User_Library");
+            router.push({ name: "User_TestTemplate" });
         },
     });
 };
