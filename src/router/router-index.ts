@@ -130,7 +130,7 @@ router.beforeEach(async (to, from, next) => {
         Admin_Dashboards_View: "Admin_Dashboards_View",
         Admin_Manager_Account: "Admin_Manager_Account",
         Admin_Manager_Class: "Admin_Manager_Class",
-        Admin_Manager_Subscription: "Admin_Manager_Subscription"
+        Admin_Manager_Subscription: "Admin_Manager_Subscription",
     };
 
     //type for ts only

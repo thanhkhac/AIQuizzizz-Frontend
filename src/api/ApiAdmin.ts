@@ -2,6 +2,7 @@ import Api from "@/api/Api";
 import type AssignUserRole from "@/models/request/admin/assignRole";
 import type CreateSubscription from "@/models/request/admin/createSubscription";
 import type ManageAccountsParams from "@/models/request/admin/manageAccountsParams";
+import type SystemSettings from "@/models/request/admin/systemSetting";
 import type UpdateSubscription from "@/models/request/admin/updateSubscription";
 
 interface isBannedAccount {
@@ -25,6 +26,9 @@ const END_POINTS = {
     PLATFORM_OVERVIEW: "/Plan/PlatformOverview",
     REVENUE: "/Plan/Revenue",
     NEW_CLASS: "/Plan/NumberOfNewClass",
+
+    // system settings
+    SYSTEM_SETTINGS: "/SystemSetting",
 };
 
 class ApiAdmin {
@@ -79,6 +83,14 @@ class ApiAdmin {
     };
     MonthlyNewClass = async (year: number) => {
         return await Api.get(END_POINTS.NEW_CLASS, { params: { year } });
+    };
+
+    // system settings
+    SystemSettings = async () => {
+        return await Api.get(END_POINTS.SYSTEM_SETTINGS);
+    };
+    SystemSettingsUpdate = async (payload: SystemSettings) => {
+        return await Api.post(END_POINTS.SYSTEM_SETTINGS, payload);
     };
 }
 
