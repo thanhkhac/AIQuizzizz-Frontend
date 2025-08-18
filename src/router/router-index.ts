@@ -129,6 +129,8 @@ router.beforeEach(async (to, from, next) => {
         Admin_User_Update: "Admin_User_Update",
         Admin_Dashboards_View: "Admin_Dashboards_View",
         Admin_Manager_Account: "Admin_Manager_Account",
+        Admin_Manager_Class: "Admin_Manager_Class",
+        Admin_Manager_Subscription: "Admin_Manager_Subscription"
     };
 
     //type for ts only
@@ -137,7 +139,9 @@ router.beforeEach(async (to, from, next) => {
         | "Admin_User_Create"
         | "Admin_User_Update"
         | "Admin_Dashboards_View"
-        | "Admin_Manager_Account";
+        | "Admin_Manager_Account"
+        | "Admin_Manager_Class"
+        | "Admin_Manager_Subscription";
 
     //function to check to.name is one of admin routes
     const isAdminRouteName = (name: any): name is AdminRouteName => {

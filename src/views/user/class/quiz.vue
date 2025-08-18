@@ -263,9 +263,9 @@ onMounted(async () => {
                 </div>
 
                 <template v-if="loading">
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
                 </template>
                 <template v-else>
                     <div v-if="question_set_data.length > 0" class="quiz-item-container">
@@ -371,8 +371,8 @@ onMounted(async () => {
     aspect-ratio: 1/1;
     font-size: 16px;
     border-radius: 50%;
-    background: #221a32;
-    color: #7c3aed;
+    background: var(--main-color-theme);
+    color: var(--main-color);
     margin-right: 12px;
 }
 </style>

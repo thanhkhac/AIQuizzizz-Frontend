@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ApiQuestionSet from "@/api/ApiQuestionSet";
 import type { RequestQuestion } from "@/models/request/question";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
@@ -15,87 +14,6 @@ import TextArea from "../components/Common/TextArea.vue";
 import { useI18n } from "vue-i18n";
 
 import dayjs from "dayjs";
-
-// const question_data_raw = [
-//     {
-//         id: "q1",
-//         type: "MultipleChoice",
-//         questionText: "What is the capital of France ?",
-//         questionHTML: `<p><strong>What</strong> is <br/> the <em>capital</em> of <u>France</u>? <code>// geography</code></p>`,
-//         explainText: "Paris is the capital city of France.",
-//         score: 1,
-//         multipleChoices: [
-//             { id: "1", text: "Paris", isAnswer: true },
-//             { id: "2", text: "London", isAnswer: false },
-//             { id: "3", text: "Berlin", isAnswer: false },
-//         ],
-//         matchingPairs: [],
-//         orderingItems: [],
-//         shortAnswer: "",
-//     },
-//     {
-//         id: "q2",
-//         type: "Matching",
-//         questionText: "Match the countries to their capitals.",
-//         questionHTML: `<p><u>Match</u> the <strong>countries</strong> to their <em>capitals</em>. <code>// matching task</code></p>`,
-//         explainText: "Each country must be paired with its capital.",
-//         score: 2,
-//         multipleChoices: [],
-//         matchingPairs: [
-//             { id: "1", leftItem: "Japan", rightItem: "Tokyo" },
-//             { id: "2", leftItem: "Italy", rightItem: "Rome" },
-//             { id: "3", leftItem: "Vietnam", rightItem: "Hanoi" },
-//         ],
-//         orderingItems: [],
-//         shortAnswer: "",
-//     },
-//     {
-//         id: "q3",
-//         type: "Ordering",
-//         questionText: "Arrange the steps of the water cycle in the correct order.",
-//         questionHTML: `<p><strong>Arrange</strong> the steps of the <u>water cycle</u> in the <em>correct order</em>. <code>// science</code></p>`,
-//         explainText:
-//             "The correct order is: Evaporation → Condensation → Precipitation → Collection.",
-//         score: 2,
-//         multipleChoices: [],
-//         matchingPairs: [],
-//         orderingItems: [
-//             { id: "1", text: "Evaporation", correctOrder: 1 },
-//             { id: "2", text: "Condensation", correctOrder: 2 },
-//             { id: "3", text: "Precipitation", correctOrder: 3 },
-//             { id: "4", text: "Collection", correctOrder: 4 },
-//         ],
-//         shortAnswer: "",
-//     },
-//     {
-//         id: "q4",
-//         type: "ShortText",
-//         questionText: "What is the chemical symbol for water?",
-//         questionHTML: `<p><em>What</em> is the chemical <strong>symbol</strong> for <u>water</u>? <code>H2O</code></p>`,
-//         explainText: "H2O is the formula for water.",
-//         score: 1,
-//         multipleChoices: [],
-//         matchingPairs: [],
-//         orderingItems: [],
-//         shortAnswer: "H2O",
-//     },
-//     {
-//         id: "q5",
-//         type: "MultipleChoice",
-//         questionText: "Which planet is known as the Red Planet?",
-//         questionHTML: `<p>Which <strong>planet</strong> is known as the <em>Red Planet</em>? <u>Mars</u> <pre><code>// astronomy</code></pre></p>`,
-//         explainText: "Mars is often called the Red Planet due to its reddish appearance.",
-//         score: 1,
-//         multipleChoices: [
-//             { id: "1", text: "Mars", isAnswer: true },
-//             { id: "2", text: "Venus", isAnswer: false },
-//             { id: "3", text: "Jupiter", isAnswer: false },
-//         ],
-//         matchingPairs: [],
-//         orderingItems: [],
-//         shortAnswer: "",
-//     },
-// ];
 
 const { t } = useI18n();
 
@@ -143,9 +61,12 @@ const handleModalImport = () => {
     }
 
     Modal.confirm({
-        title: "Are your sure? ",
-        content: "Import: " + generateModalState.checkedList.length + "into " + props.title + " ? ",
-        okText: "Confirm",
+        title: t("import_qs_modal.confirm_modal.title"),
+        content: t("import_qs_modal.confirm_modal.content", {
+            number: generateModalState.checkedList.length,
+        }),
+        okText: t("create_QS.buttons.ok"),
+        cancelText: t("create_QS.buttons.cancel"),
         onOk: () => {
             const selectedQuestions = generatedQuestions.value.filter((question) =>
                 generateModalState.checkedList.includes(question.id),
@@ -199,7 +120,7 @@ const generateByAIModalState = reactive({
 
 const onDeselectQuestionType = (value: any) => {
     if (generateByAIModalState.questionTypes.length === 0) {
-        message.warning("At least one question type must be selected.");
+        message.warning(t("message.minimun_question_type"));
 
         //keep the item
         generateByAIModalState.questionTypes.push(value);
@@ -216,7 +137,7 @@ const onGenerateQuestions = async () => {
     try {
         loading.value = true;
         if (!generateByAIModalState.title && generateByAIModalState.isGenerateExplain) {
-            message.error("Please enter a reference for the document citation.");
+            message.error(t("message.invalid_reference"));
             return;
         }
         if (
@@ -224,8 +145,8 @@ const onGenerateQuestions = async () => {
             generateByAIModalState.selectedPartJson === null
         ) {
             Modal.error({
-                title: "Error",
-                content: "Please choose at least one section in your document to proceed.",
+                title: t("generate_qs_modal.invalid_structure_modal.title"),
+                content: t("generate_qs_modal.invalid_structure_modal.content"),
                 centered: true,
             });
             openFileStructureModal();
@@ -308,11 +229,11 @@ const openFileExplorer = () => {
 const onFileChange = async (file: File) => {
     if (file) {
         if (file.type !== "application/pdf") {
-            message.error("Only PDF files are supported.");
+            message.error(t("message.file_support_only", { fileTypes: "PDF" }));
             return;
         }
         files.value = [];
-        message.success(file.name + " uploaded successfully.");
+        message.success(t("message.uploaded_successfully", { name: file.name }));
         files.value.push(file);
 
         //get string before dot
@@ -323,7 +244,7 @@ const onFileChange = async (file: File) => {
         openFileStructureModal();
         return;
     }
-    message.error("Upload failed");
+    message.error(t("message.uploaded_failed"));
 };
 
 const handleFileChange = (event: Event) => {
@@ -390,7 +311,6 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 //#region generate file structure
 import GenerateFileStructure from "./GenerateFileStructure.vue";
 import ApiAIGenerate from "@/api/ApiAIGenerate";
-import { template } from "lodash";
 const generateFileStructureRef = ref<InstanceType<typeof GenerateFileStructure> | null>(null);
 
 const openFileStructureModal = () => {
@@ -428,9 +348,9 @@ onMounted(() => {});
                             </RouterLink>
                         </a-col>
                         <a-col class="main-title" :span="23">
-                            <span> {{ $t("create_QS.title") }}</span> <br />
+                            <span> {{ $t("generate_qs_modal.title") }}</span> <br />
                             <span>
-                                {{ $t("create_QS.sub_title") }}
+                                {{ $t("generate_qs_modal.sub_title") }}
                             </span>
                         </a-col>
                     </a-row>
@@ -438,7 +358,7 @@ onMounted(() => {});
                 <div class="modal-content-item">
                     <div class="content-item-section upload-section">
                         <div class="section-title">
-                            <span>Upload</span>
+                            <span>{{ $t("import_qs_modal.upload_section") }}</span>
                         </div>
                         <div v-if="!files.length" class="section-content mb-2">
                             <input
@@ -468,13 +388,12 @@ onMounted(() => {});
                                     <InboxOutlined :class="[isDragging ? 'd-none' : '']" />
                                 </div>
                                 <div class="customized-file-upload-ins">
-                                    <strong>Click</strong> or <strong>drag</strong> file to this
-                                    area to upload
+                                    {{ $t("import_qs_modal.upload_area.title") }}
                                 </div>
                                 <div class="customized-file-upload-hint">
-                                    Please use the template above to ensure the file is read
-                                    correctly.<br />
-                                    Support for a single upload.
+                                    {{ $t("import_qs_modal.upload_area.content") }}
+                                    <br />
+                                    {{ $t("import_qs_modal.upload_area.sub_content") }}
                                 </div>
                             </div>
                         </div>
@@ -488,23 +407,13 @@ onMounted(() => {});
                             </div>
                             <div class="file-structure" @click="openFileStructureModal">
                                 <i class="bx bx-file"></i>
-                                <div>Structure</div>
+                                <div>{{ $t("generate_qs_modal.form.structure") }}</div>
                             </div>
                         </div>
                         <a-form layout="vertical" class="generate-ai-form">
                             <a-row class="d-flex justify-content-between">
-                                <!-- <a-col :span="12">
-                                <a-form-item label="Difficulty">
-                                    <a-select
-                                        v-model:value="generateByAIModalState.difficulty"
-                                        style="width: 100%"
-                                        :placeholder="'Difficulty of questions'"
-                                        :options="questionDifficultyOptions"
-                                    />
-                                </a-form-item>
-                            </a-col> -->
                                 <a-col :span="12">
-                                    <a-form-item label="Language">
+                                    <a-form-item l :label="t('generate_qs_modal.form.language')">
                                         <a-select
                                             class="language-select"
                                             v-model:value="generateByAIModalState.language"
@@ -520,7 +429,9 @@ onMounted(() => {});
                                     </a-form-item>
                                 </a-col>
                                 <a-col :span="11">
-                                    <a-form-item label="Maximum question">
+                                    <a-form-item
+                                        :label="t('generate_qs_modal.form.maximum_question')"
+                                    >
                                         <a-select
                                             v-model:value="generateByAIModalState.questionCount"
                                             style="width: 100%"
@@ -531,7 +442,7 @@ onMounted(() => {});
                                 </a-col>
                             </a-row>
 
-                            <a-form-item label="Question types">
+                            <a-form-item :label="t('generate_qs_modal.form.question_types')">
                                 <a-select
                                     @deselect="onDeselectQuestionType"
                                     v-model:value="generateByAIModalState.questionTypes"
@@ -543,7 +454,9 @@ onMounted(() => {});
                             </a-form-item>
                             <a-row class="d-flex justify-content-between">
                                 <a-col :span="7">
-                                    <a-form-item label="Enable explaination">
+                                    <a-form-item
+                                        :label="t('generate_qs_modal.form.enable_explaination')"
+                                    >
                                         <a-switch
                                             v-model:checked="
                                                 generateByAIModalState.isGenerateExplain
@@ -552,12 +465,18 @@ onMounted(() => {});
                                     </a-form-item>
                                 </a-col>
                                 <a-col v-if="generateByAIModalState.isGenerateExplain" :span="16">
-                                    <a-form-item label="Reference name">
+                                    <a-form-item
+                                        :label="t('generate_qs_modal.form.reference_name')"
+                                    >
                                         <TextArea
                                             v-model="generateByAIModalState.title"
                                             :is-required="generateByAIModalState.isGenerateExplain"
                                             :max-length="200"
-                                            :placeholder="'Enter document title for citation'"
+                                            :placeholder="
+                                                t(
+                                                    'generate_qs_modal.form.reference_name_placeholder',
+                                                )
+                                            "
                                             :readonly="!generateByAIModalState.isGenerateExplain"
                                         />
                                     </a-form-item>
@@ -572,13 +491,13 @@ onMounted(() => {});
                                     type="primary"
                                     @click="onGenerateQuestions"
                                 >
-                                    ✨ Generate
+                                    {{ $t("generate_qs_modal.buttons.generate") }}
                                 </a-button>
                             </a-form-item>
                         </a-form>
                     </div>
                     <div class="content-item-section preview-section">
-                        <div class="section-title">Preview</div>
+                        <div class="section-title">{{ $t("import_qs_modal.preview_section") }}</div>
                         <div class="section-content">
                             <div
                                 v-if="generatedQuestions.length > 0"
@@ -593,13 +512,19 @@ onMounted(() => {});
                                     v-model:checked="generateModalState.checkAll"
                                     :indeterminate="generateModalState.indeterminate"
                                 >
-                                    Check all ({{ generateModalState.checkedList.length }})
+                                    {{
+                                        $t("share_modal.buttons.check_all", {
+                                            number: generateModalState.checkedList.length,
+                                        })
+                                    }}
                                 </a-checkbox>
 
                                 <div class="header-item">
-                                    Total:
-                                    {{ generatedQuestions?.length }}
-                                    questions
+                                    {{
+                                        $t("import_qs_modal.other.total_question", {
+                                            number: generateModalState.checkedList.length,
+                                        })
+                                    }}
                                 </div>
                             </div>
                             <a-checkbox-group v-model:value="generateModalState.checkedList">
@@ -719,7 +644,7 @@ onMounted(() => {});
                         <div class="modal-generate-by-ai-warning">
                             <span>
                                 <i class="bx bx-info-circle"></i>
-                                AI can make mistakes. Please check carefully the important info.
+                                {{ $t("generate_qs_modal.other.ai_warning") }}
                             </span>
                         </div>
                         <div class="w-100 d-flex justify-content-end">
@@ -730,7 +655,7 @@ onMounted(() => {});
                                 size="large"
                                 @click="handleModalImport"
                             >
-                                Import
+                                {{ $t("import_qs_modal.buttons.import") }}
                             </a-button>
                         </div>
                     </div>

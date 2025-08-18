@@ -60,13 +60,18 @@ class ApiTest {
         });
     };
 
-    GetUserExamHistory = async (testId: string, userId: string = "") => {
+    GetUserExamHistory = async (testId: string, userId: string | null) => {
         const url = END_POINTS.GET_USER_EXAM_HISTORY.replace("{testId}", testId);
-        return await Api.get(url, {
-            params: {
-                userId,
-            },
-        });
+
+        if (userId) {
+            return await Api.get(url, {
+                params: {
+                    userId,
+                },
+            });
+        }
+
+        return await Api.get(url);
     };
     GetAttemptReview = async (attemptId: string) => {
         const url = END_POINTS.GET_ATTEMPT_REVIEW.replace("{attemptId}", attemptId);

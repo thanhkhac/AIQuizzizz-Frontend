@@ -45,9 +45,10 @@ interface ClassData {
     owner: string;
 }
 const class_data = ref<ClassData[]>([]);
-
+const loading = ref(false);
 const getData = async () => {
     try {
+        loading.value = true;
         let result = await ApiClass.GetAllByLimit(pageParams as ClassPageParams);
         if (result.data.success) {
             let resultData = result.data.data;
@@ -86,6 +87,8 @@ const getData = async () => {
         }
     } catch (error) {
         console.log("ERROR: GETALLBYLIMIT class: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 
@@ -286,7 +289,12 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <div class="class-container">
+                <template v-if="loading" class="class-container">
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                </template>
+                <div v-else class="class-container">
                     <template v-if="class_data.length > 0">
                         <div
                             class="class-item"
@@ -322,7 +330,6 @@ onMounted(async () => {
                                 `${range[0]}-${range[1]} of ${total} ${t('class_index.other.items')}`
                         "
                         show-size-changer
-                        show-quick-jumper
                         class="crud-layout-pagination"
                         :locale="{
                             items_per_page: t('class_index.other.pages'),

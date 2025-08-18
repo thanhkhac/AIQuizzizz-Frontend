@@ -3,12 +3,11 @@ import ApiQuestionSet from "@/api/ApiQuestionSet";
 import type QuestionSetPublicPageParams from "@/models/request/question_set/publicPageParams";
 import QUESTION_SET_SORT_CATEGORY from "@/constants/questionSetSortCate";
 import type QuestionSet from "@/models/response/question_set/questionSet";
-import type QuestionSetPageParams from "@/models/request/question_set/questionSetPageParams";
 
 import { ref, onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/AuthStore";
 
-import dayjs from "dayjs";
 import Input from "@/shared/components/Common/Input.vue";
 import { useI18n } from "vue-i18n";
 
@@ -16,6 +15,9 @@ const emit = defineEmits(["updateSidebar"]);
 
 const { t } = useI18n();
 const router = useRouter();
+const authStore = useAuthStore();
+
+const user = authStore.getUserInfo();
 
 //#region calculate UI
 const getPercentageComplete = (total: number, completed: number) => {
@@ -144,7 +146,7 @@ onMounted(async () => {
             <a-row class="w-100">
                 <a-col class="main-title" :span="20">
                     <span>{{ $t("dashboards.title") }}</span> <br />
-                    <span>{{ $t("dashboards.sub_title", { username: "NguyenTanDuc" }) }}</span>
+                    <span>{{ $t("dashboards.sub_title", { username: user.fullName }) }}</span>
                 </a-col>
             </a-row>
         </div>
@@ -153,7 +155,7 @@ onMounted(async () => {
                 <Input
                     @input="getSearchData"
                     v-model="searchPageParams.name"
-                    :placeholder="t('class_index.other.search_class_placeholder')"
+                    :placeholder="t('class_question_set.other.search_placeholder')"
                 >
                     <template #icon>
                         <i class="bx bx-search"></i>
@@ -192,8 +194,8 @@ onMounted(async () => {
                     </RouterLink>
                 </div>
                 <template v-if="loading">
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
                 </template>
                 <div e-else class="quiz-container">
                     <div
@@ -248,8 +250,8 @@ onMounted(async () => {
                 </div>
                 <div class="popular-quiz-container">
                     <template v-if="loading">
-                        <a-skeleton :loading="loading"></a-skeleton>
-                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton active :loading="loading"></a-skeleton>
+                        <a-skeleton active :loading="loading"></a-skeleton>
                     </template>
                     <template v-else>
                         <div
@@ -384,8 +386,8 @@ onMounted(async () => {
     aspect-ratio: 1/1;
     font-size: 25px !important;
     border-radius: 50%;
-    background: #261544;
-    color: #5c00ff;
+    background: var(--main-color-theme);
+    color: var(--main-color);
 }
 
 .add-button-context {

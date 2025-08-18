@@ -17,10 +17,10 @@ const { t } = useI18n();
 //#region interface
 type Props = {
     testId: string;
-    userId: string;
+    userId: string | null;
     testName: string;
-    studentName: string;
-    passingScore: number;
+    studentName: string | null;
+    passingScore: number | null;
 };
 
 const props = defineProps<Props>();
@@ -105,12 +105,12 @@ const columns: MyColumn[] = [
         key: "score",
         sorter: (a: any, b: any) => a.score - b.score,
     },
-    {
-        title: "Passing score",
-        dataIndex: "passingScore",
-        key: "passingScore",
-        sorter: (a: any, b: any) => a.score - b.score,
-    },
+    // {
+    //     title: "Passing score",
+    //     dataIndex: "passingScore",
+    //     key: "passingScore",
+    //     sorter: (a: any, b: any) => a.score - b.score,
+    // },
     {
         title: "Result",
         dataIndex: "status",
@@ -195,9 +195,9 @@ const onRedirectToReview = (attemptId: string) => {
                                         {{ dayjs(record.timeSubmit).format("DD/MM/YYYY HH:mm:ss") }}
                                     </div>
                                 </template>
-                                <template v-if="column.key === 'passingScore'">
+                                <!-- <template v-if="column.key === 'passingScore' && passingScore">
                                     <div class="text-nowrap">{{ passingScore }}%</div>
-                                </template>
+                                </template> -->
                                 <template v-if="column.key === 'status'">
                                     <a-tag :color="getTagColor(record.status)">
                                         {{ record.status }}

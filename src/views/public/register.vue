@@ -42,7 +42,7 @@ const rules = {
             trigger: "change",
         },
         {
-            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
+            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/,
             message: t("auth.validation.password"),
             trigger: "change",
         },

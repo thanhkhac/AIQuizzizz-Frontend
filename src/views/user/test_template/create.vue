@@ -83,7 +83,7 @@ const componentMap = {
 //#region logic edit question
 import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
-    id: Date.now().toString(),
+    id: "new_" + Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
@@ -242,6 +242,10 @@ const showModalConfirmation = () => {
         onOk: async () => {
             //logic here
             //remove draft
+            formState.questions = formState.questions.map((x) =>
+                x.id.startsWith("new_") ? { ...x, questionId: null } : x,
+            );
+
             let result = await ApiTestTemplate.Create(formState);
             if (result.data.success) {
                 message.success(t("message.created_successfully"));

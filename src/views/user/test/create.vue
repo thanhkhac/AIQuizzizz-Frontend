@@ -136,7 +136,7 @@ const rules = {
 //#region crud question
 import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
-    id: Date.now().toString(),
+    id: "new_" + Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
@@ -317,14 +317,17 @@ const openFolderModal = () => {
     folderModalRef.value?.openModal();
 };
 
-const onSwitchToTestTemplate = () => {
+const onSwitchToTestTemplate = async () => {
     chosenFolder.value = null;
     folderModalRef.value?.closeModal();
     openTestTemplateModal();
 };
 
-const onOpenFolder = (folder: Folder) => {
+const onOpenFolder = async (folder: Folder) => {
     chosenFolder.value = folder;
+
+    await nextTick();
+
     folderModalRef.value?.closeModal();
     openFolderTestTemplateModal();
 };

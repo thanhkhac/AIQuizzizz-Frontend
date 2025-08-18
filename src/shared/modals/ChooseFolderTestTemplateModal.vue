@@ -4,7 +4,7 @@ import type FolderTestTemplatePageParams from "@/models/request/folder/testTempl
 import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
 import type { Folder } from "@/models/response/folder/folder";
 
-import { ref, reactive, onUpdated } from "vue";
+import { ref, reactive, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
@@ -49,20 +49,24 @@ const getData = async () => {
         }
     } catch (error) {
         console.log("ERROR: GETALLBYLIMIT testtemplate: " + error);
+    } finally {
+        loading.value = false;
     }
 };
 
-//update when page change (url)
-onUpdated(() => {
-    if (Object.keys(route.query).length === 0) {
-        pageParams.pageNumber = route.query.pageNumber || 1;
-        pageParams.pageSize = route.query.pageSize || 10;
-        pageParams.testTemplateName = route.query.testTemplateName?.toString() || "";
-        pageParams.statusFilter = true;
+watch(
+    () => Object.keys(route.query).length,
+    () => {
+        if (Object.keys(route.query).length === 0) {
+            pageParams.pageNumber = route.query.pageNumber || 1;
+            pageParams.pageSize = route.query.pageSize || 10;
+            pageParams.testTemplateName = route.query.testTemplateName?.toString() || "";
+            pageParams.statusFilter = true;
 
-        getData();
-    }
-});
+            getData();
+        }
+    },
+);
 
 //change when page change (pageParams)
 const onPaginationChange = (page: number, pageSize: number) => {
@@ -81,8 +85,9 @@ const emit = defineEmits<{
 
 const modal_open = ref(false);
 
-const openModal = () => {
+const openModal = async () => {
     modal_open.value = true;
+    await getData();
 };
 
 const closeModal = () => {
@@ -119,7 +124,7 @@ defineExpose({
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span>Choose from folder test</span>
+                        <span>{{ $t("create_test_modals.select_template") }}</span>
                     </a-col>
                 </a-row>
             </div>
@@ -128,7 +133,10 @@ defineExpose({
                 <div class="content-item">
                     <div class="title-container">
                         <div class="main-title">
-                            <span>Folder test: {{ folder?.name }}</span> <br />
+                            <span>
+                                {{ $t("create_test_modals.folder", { name: folder?.name }) }}
+                            </span>
+                            <br />
                             <span>
                                 {{ $t("folder_index.sub_title") }}
                             </span>
@@ -149,49 +157,56 @@ defineExpose({
                             </div>
                         </div>
                     </div>
-                    <div v-if="test_template_data.length > 0" class="quiz-item-container">
-                        <div
-                            class="quiz-item"
-                            v-for="template in test_template_data"
-                            @click="handleOpenTestTemplate(template.testTemplateId)"
-                        >
-                            <i class="bx bx-book-open quiz-item-icon"></i>
-                            <div>
-                                <div class="quiz-item-title">
-                                    {{ template.name }}
-                                </div>
-                                <div class="quiz-item-info quiz-info-detail">
-                                    <div class="quiz-item-questions">
-                                        <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                        {{ template.numberOfQuestion }}
-                                        {{ $t("dashboards.list_items.quiz.questions") }}
-                                    </div>
-                                    <div class="quiz-item-created-by">
-                                        {{ $t("class_question_set.other.created_by") }}
-                                        {{ template.createdBy }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="exam-item-actions">
-                                <a-button
-                                    type="primary"
-                                    class="me-3 main-color-btn"
-                                    @click="handleOpenTestTemplate(template.testTemplateId)"
-                                >
-                                    {{ $t("class_question_set.buttons.view") }}
-                                </a-button>
-                            </div>
-                        </div>
+                    <div v-if="loading" class="quiz-item-container">
+                        <a-skeleton active :loading="loading"></a-skeleton>
+                        <a-skeleton active :loading="loading"></a-skeleton>
                     </div>
-                    <template v-else>
-                        <div class="w-100 d-flex justify-content-center">
-                            <a-empty>
-                                <template #description>
-                                    <span> No data matches. </span>
-                                </template>
-                            </a-empty>
-                        </div>
-                    </template>
+                    <div v-else class="quiz-item-container">
+                        <template v-if="test_template_data.length > 0">
+                            <div
+                                class="quiz-item"
+                                v-for="template in test_template_data"
+                                @click="handleOpenTestTemplate(template.testTemplateId)"
+                            >
+                                <i class="bx bx-book-open quiz-item-icon"></i>
+                                <div>
+                                    <div class="quiz-item-title">
+                                        {{ template.name }}
+                                    </div>
+                                    <div class="quiz-item-info quiz-info-detail">
+                                        <div class="quiz-item-questions">
+                                            <i class="bx bx-message-square-edit bx-rotate-270"></i>
+                                            {{ template.numberOfQuestion }}
+                                            {{ $t("dashboards.list_items.quiz.questions") }}
+                                        </div>
+                                        <div class="quiz-item-created-by">
+                                            {{ $t("class_question_set.other.created_by") }}
+                                            {{ template.createBy }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="exam-item-actions">
+                                    <a-button
+                                        type="primary"
+                                        class="me-3 main-color-btn"
+                                        @click="handleOpenTestTemplate(template.testTemplateId)"
+                                    >
+                                        {{ $t("class_question_set.buttons.view") }}
+                                    </a-button>
+                                </div>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <div class="w-100 d-flex justify-content-center">
+                                <a-empty>
+                                    <template #description>
+                                        <span> {{ $t("class_index.other.no_data_matches") }}</span>
+                                    </template>
+                                </a-empty>
+                            </div>
+                        </template>
+                    </div>
+
                     <div class="pagination-container">
                         <a-pagination
                             @change="onPaginationChange"
@@ -203,7 +218,6 @@ defineExpose({
                                     `${range[0]}-${range[1]} of ${total} ${t('folder_index.other.items')}`
                             "
                             show-size-changer
-                            show-quick-jumper
                             class="crud-layout-pagination"
                             :locale="{
                                 items_per_page: t('folder_index.other.pages'),
@@ -216,3 +230,19 @@ defineExpose({
         <template #footer></template>
     </a-modal>
 </template>
+<style scoped>
+.quiz-item-icon {
+    display: flex;
+    width: 35px;
+    height: 35px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    aspect-ratio: 1/1;
+    font-size: 16px;
+    border-radius: 50%;
+    background: var(--main-color-theme);
+    color: var(--main-color);
+    margin-right: 12px;
+}
+</style>

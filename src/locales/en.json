@@ -57,7 +57,7 @@
             "required": "This field is required",
             "out_of_range": "Limit: {max_length} characters",
             "email": "This field requires correct email format",
-            "password": "Password must be at least 8 characters(1 upper, 1 lower, 1 number, 1 special character).",
+            "password": "Password must be at least 6 characters(1 upper, 1 lower, 1 number, 1 special character).",
             "confirm_password": "Confirm password must match with password"
         }
     },
@@ -771,6 +771,11 @@
             "pages": " / pages"
         }
     },
+    "test_template_index": {
+        "other": {
+            "items": "templates"
+        }
+    },
     "folder_detail": {
         "title": "Folder Detail",
         "modal": {
@@ -899,6 +904,107 @@
             "add_to_folder_content": "Add test template '{name}' into folder '{folder_name}'"
         }
     },
+    "schedule": {
+        "title": "Exam Schedule",
+        "current_date": "Date: {date}",
+        "count_exam": "Exam schedule: "
+    },
+    "import_qs_modal": {
+        "title": "Import Questions",
+        "sub_title": "Import questions from template file",
+        "upload_section": "Upload File",
+        "buttons": {
+            "download": "Download template",
+            "import": "Import"
+        },
+        "upload_area": {
+            "title": "Click or drag file to this area to upload",
+            "content": "Please use the template above to ensure the file is read correctly.",
+            "sub_content": "Support for a single upload."
+        },
+        "preview_section": "Preview",
+        "other": {
+            "total_question": "Total questions: {number} "
+        },
+        "uploaded_question_status": {
+            "all": "All",
+            "valid": "Valid",
+            "invalid": "Invalid"
+        },
+        "confirm_modal": {
+            "title": "Confirm Import",
+            "content": "Are you sure you want to import {number} questions?"
+        }
+    },
+    "generate_qs_modal": {
+        "title": "Generate Questions With AI",
+        "sub_title": "Use AI to analyze your document and generate questions.",
+        "invalid_structure_modal": {
+            "title": "Error",
+            "content": "Please choose at least one section in your document to proceed."
+        },
+        "form": {
+            "structure": "Structure",
+            "language": "Language",
+            "maximum_question": "Maximum questions",
+            "question_types": "Question types",
+            "enable_explaination": "Enable explaination",
+            "reference_name": "Reference name",
+            "reference_name_placeholder": "Enter document title for citation"
+        },
+        "buttons": {
+            "generate": "✨ Generate"
+        },
+        "other": {
+            "ai_warning": "AI can make mistakes. Please check carefully the important info."
+        }
+    },
+    "generate_file_structure": {
+        "title": "File Structure",
+        "sub_title": "Analyze the generated file structure",
+        "buttons": {
+            "generate_structure": "Generate Structure",
+            "confirm": "Confirm"
+        },
+        "other": {
+            "calculating": "Calculating cost to generate file..."
+        },
+        "confirm_modal": {
+            "title": " Are you sure you want to generate the file structure?",
+            "content": "  You will need at least ",
+            "content_tail": "points to process this file."
+        }
+    },
+    "create_test_modals": {
+        "select_folder": "Select folder",
+        "folder": "Folder: {name}",
+        "select_template": "Select template",
+        "choose_question": "Choose question"
+    },
+    "exam_result": {
+        "test_name": "Test name : {name}",
+        "start_time": "Start time:",
+        "end_time": "End time:",
+        "time_limit": "Time limit:",
+        "question_count": "Question: ",
+        "grade_attempt_method": "Grade attempt method: ",
+        "grade_question_method": "Grade question method: ",
+        "max_attempt": "Max attempt: ",
+        "passing_score": "Passing score: ",
+        "show_correct_answer": "Show correct answer in review:",
+        "allow_review": "Allow student to review after submit:",
+        "test_status": {
+            "All": "All",
+            "Failed": "Failed",
+            "Passed": "Passed"
+        },
+        "other": {
+            "question_plural": "questions",
+            "question": "question",
+            "time_plural": "times",
+            "time": "time"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Forbidden",
         "COMMON_SERVER_INTERNAL_ERROR": "Internal server error",
@@ -946,6 +1052,7 @@
         "INSUFFICIENT_BALANCE": "Insufficient balance!",
 
         "TEST_IS_OVERDUE": "Test overdue!",
+        "MAX_ATTEMPT_IN_THIS_TEST": "Maximum attempt reached in this test.",
 
         "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER": "Test template already exists in this folder."
     },
@@ -967,6 +1074,8 @@
         "submited_successfully": "Submit successfully!",
         "submited_failed": "Submit failed",
         "auto_save_successfully": "Auto save successfully!",
+        "uploaded_successfully": "{name} uploaded successfully!",
+        "uploaded_failed": "Upload failed",
         "auto_save_failed": "Auto save failed",
         "time_up": "Time's up",
 
@@ -992,9 +1101,13 @@
         "maximum_options": "Each question must have at most 10 options",
         "maximum_tag": "Limit {tag} tags",
 
-        "invalid_time_range": "Start time and end time must be at least {time_limit} minutes (time limit) apart",
+        "invalid_time_range": "Start time and end time must be at least {time_limit} minutes (time limit) apart and start time must be after current time.",
 
-        "imported_question": "Imported {number} questions."
+        "imported_question": "Imported {number} questions.",
+
+        "invalid_reference": "Please enter a reference for the document citation.",
+        "file_support_only": "Only {fileTypes} files are supported.",
+        "minimun_question_type": "At least one question type must be selected."
     },
     "admin": {
         "manage_acc": {

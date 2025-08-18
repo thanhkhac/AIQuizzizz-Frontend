@@ -23,6 +23,7 @@ const END_POINTS = {
     GET_RATING: "QuestionSet/{questionSetId}/Rating",
     UPDATE_RATING: "QuestionSet/{questionSetId}/Rating",
     GET_SHARED_CLASSES: "QuestionSet/{questionSetId}/Classes",
+    DOWNLOAD_FILE_IMPORT: "QuestionSet/DownloadFileImport",
 };
 
 class ApiQuestionSet {
@@ -140,6 +141,10 @@ class ApiQuestionSet {
     GetSharedClasses = async (questionSetId: string) => {
         const url = END_POINTS.GET_SHARED_CLASSES.replace("{questionSetId}", questionSetId);
         return await Api.get(url);
+    };
+
+    DownloadFileImport = async () => {
+        return await Api.get(`${END_POINTS.DOWNLOAD_FILE_IMPORT}`);
     };
 }
 

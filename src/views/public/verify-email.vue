@@ -99,7 +99,7 @@ const onFinish = () => {
             //wait 3sec before go to login
             setTimeout(() => {
                 router.push({ name: "login" });
-            }, 3000);
+            }, 1000);
         } catch (error) {
             console.log(error);
         } finally {
@@ -211,3 +211,11 @@ const onFinish = () => {
         <template #footer></template>
     </a-modal>
 </template>
+<style scoped>
+::v-deep(.ant-input-group-addon) {
+    background-color: #fff !important;
+}
+label {
+    color: var(--text-color);
+}
+</style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ApiTestTemplate from "@/api/ApiTestTemplate";
+import ApiQuestionSet from "@/api/ApiQuestionSet";
 
 import { ref, reactive, watch, onMounted, computed } from "vue";
 import { Modal, message } from "ant-design-vue";
@@ -9,7 +10,8 @@ import { useI18n } from "vue-i18n";
 
 import type { RequestQuestion } from "@/models/request/question";
 import QUESTION_TYPE from "@/constants/questionTypes";
-import { formItemProps } from "ant-design-vue/es/form";
+import UPLOADED_QUESTION_STATUS from "@/constants/uploadedQuestionStatus";
+import { get } from "jquery";
 
 const { t } = useI18n();
 
@@ -28,13 +30,31 @@ const question_data = ref<RequestQuestion[]>([]);
 const uploadedQuestions = ref<RequestQuestion[]>([]);
 const uploadedInvalidQuestions = ref<RequestQuestion[]>([]);
 
+//#region download link
+const download_link = ref("");
+
+const getLink = async () => {
+    if (download_link.value) return;
+    try {
+        const result = await ApiQuestionSet.DownloadFileImport();
+        if (result.data.success) {
+            download_link.value = result.data.data;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+//#endregion
+
 const importModalState = reactive({
     checkAll: false,
     indeterminate: false,
     checkedList: [] as RequestQuestion[],
 });
 
-const openImportModal = () => {
+const openImportModal = async () => {
+    await getLink();
     importModalState.checkedList = []; //reset checked list
     modal_import_open.value = true;
 };
@@ -48,6 +68,7 @@ defineExpose({
     openImportModal,
 });
 
+//#region file
 //file-upload customized events
 const files = ref<File[]>([]);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -57,13 +78,18 @@ const openFileExplorer = () => {
     fileInput.value?.click();
 };
 
-const handleFileChange = async (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-
+const onFileChange = async (file: File) => {
     if (file) {
+        if (
+            file.type !== "application/vnd.ms-excel" &&
+            file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ) {
+            message.error(t("message.file_support_only", { fileTypes: "XLS, XLSX" }));
+            return;
+        }
+
         files.value = [];
-        message.success(file.name + " uploaded successfully.");
+        message.success(t("message.uploaded_successfully", { name: file.name }));
         files.value.push(file);
 
         const result = await ApiTestTemplate.ImportFile(files.value[0]);
@@ -84,7 +110,17 @@ const handleFileChange = async (event: Event) => {
 
         return;
     }
-    message.error("Upload failed");
+    message.error(t("message.uploaded_failed"));
+};
+
+const handleFileChange = async (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+
+    if (file) {
+        onFileChange(file);
+        target.value = "";
+    }
 };
 
 const handleDragEnter = (event: DragEvent) => {
@@ -100,12 +136,8 @@ const handleDrop = (event: DragEvent) => {
     isDragging.value = false;
 
     if (file) {
-        files.value = [];
-        message.success(file.name + " uploaded successfully.");
-        files.value.push(file);
-        return;
+        onFileChange(file);
     }
-    message.error("Upload failed");
 };
 
 const onRemoveUploadedFile = (index: number) => {
@@ -116,13 +148,14 @@ const onRemoveUploadedFile = (index: number) => {
     uploadedInvalidQuestions.value = [];
     uploadedQuestions.value = [];
 };
+//#endregion
 
 //#region filter select
 
-const optionKeys = ["all", "valid", "invalid"];
+const optionKeys = Object.values(UPLOADED_QUESTION_STATUS);
 const select_options = computed(() =>
     optionKeys.map((key) => ({
-        label: key,
+        label: t(`import_qs_modal.uploaded_question_status.${key}`),
         value: key,
     })),
 );
@@ -133,13 +166,13 @@ const onFilter = () => {
 
     let filtered_data = question_data.value;
     switch (selected_option.value) {
-        case "valid": {
+        case UPLOADED_QUESTION_STATUS.VALID: {
             filtered_data = question_data.value?.filter(
                 (x) => !uploadedInvalidQuestions.value?.includes(x),
             );
             break;
         }
-        case "invalid": {
+        case UPLOADED_QUESTION_STATUS.IN_VALID: {
             filtered_data = question_data.value?.filter((x) =>
                 uploadedInvalidQuestions.value?.includes(x),
             );
@@ -198,9 +231,12 @@ const handleModalImport = () => {
         return;
     }
     Modal.confirm({
-        title: "Are your sure? ",
-        content: "Import: " + importModalState.checkedList.length + " into " + props.title + " ? ",
-        okText: "Confirm",
+        title: t("import_qs_modal.confirm_modal.title"),
+        content: t("import_qs_modal.confirm_modal.content", {
+            number: importModalState.checkedList.length,
+        }),
+        okText: t("create_QS.buttons.ok"),
+        cancelText: t("create_QS.buttons.cancel"),
         onOk: () => {
             const selectedQuestions = uploadedQuestions.value?.filter((question) =>
                 importModalState.checkedList.includes(question),
@@ -213,9 +249,11 @@ const handleModalImport = () => {
     });
 };
 
-onMounted(() => {
-    // uploadedQuestions.value = question_data_raw as RequestQuestion[]; //sample
-});
+const onDownloadTemplate = async () => {
+    window.open(download_link.value, "_blank");
+};
+
+onMounted(() => {});
 </script>
 
 <template>
@@ -235,9 +273,9 @@ onMounted(() => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span> {{ $t("create_QS.title") }}</span> <br />
+                        <span> {{ $t("import_qs_modal.title") }}</span> <br />
                         <span>
-                            {{ $t("create_QS.sub_title") }}
+                            {{ $t("import_qs_modal.sub_title") }}
                         </span>
                     </a-col>
                 </a-row>
@@ -245,8 +283,10 @@ onMounted(() => {
             <div class="modal-content-item">
                 <div class="content-item-section upload-section">
                     <div class="section-title">
-                        <span>Upload</span>
-                        <a-button class="main-color-btn" type="primary">Download template</a-button>
+                        <span>{{ $t("import_qs_modal.upload_section") }}</span>
+                        <a-button class="main-color-btn" type="primary" @click="onDownloadTemplate">
+                            {{ $t("import_qs_modal.buttons.download") }}
+                        </a-button>
                     </div>
                     <div class="section-content">
                         <input
@@ -254,6 +294,7 @@ onMounted(() => {
                             class="d-none"
                             type="file"
                             ref="fileInput"
+                            accept=".xls,.xlsx"
                         />
                         <div
                             :class="['customized-file-upload', isDragging ? 'is-dragging' : '']"
@@ -275,13 +316,12 @@ onMounted(() => {
                                 <InboxOutlined :class="[isDragging ? 'd-none' : '']" />
                             </div>
                             <div class="customized-file-upload-ins">
-                                <strong>Click</strong> or <strong>drag</strong> file to this area to
-                                upload
+                                {{ $t("import_qs_modal.upload_area.title") }}
                             </div>
                             <div class="customized-file-upload-hint">
-                                Please use the template above to ensure the file is read
-                                correctly.<br />
-                                Support for a single upload.
+                                {{ $t("import_qs_modal.upload_area.content") }}
+                                <br />
+                                {{ $t("import_qs_modal.upload_area.sub_content") }}
                             </div>
                         </div>
                     </div>
@@ -296,8 +336,7 @@ onMounted(() => {
                     </div>
                 </div>
                 <div class="content-item-section preview-section">
-                    <div class="section-title">Preview</div>
-
+                    <div class="section-title">{{ $t("import_qs_modal.preview_section") }}</div>
                     <div class="section-content">
                         <div v-if="question_data.length > 0" class="section-content-header">
                             <a-checkbox
@@ -309,7 +348,11 @@ onMounted(() => {
                                 v-model:checked="importModalState.checkAll"
                                 :indeterminate="importModalState.indeterminate"
                             >
-                                Check all ({{ importModalState.checkedList.length }})
+                                {{
+                                    $t("share_modal.buttons.check_all", {
+                                        number: importModalState.checkedList.length,
+                                    })
+                                }}
                             </a-checkbox>
 
                             <div class="d-flex">
@@ -419,7 +462,6 @@ onMounted(() => {
                                             <template
                                                 v-if="question.type === QUESTION_TYPE.SHORT_TEXT"
                                             >
-                                                <span>Answer:</span>
                                                 <div class="short-text-answer">
                                                     {{ question.shortAnswer }}
                                                 </div>
@@ -445,9 +487,11 @@ onMounted(() => {
         <template #footer>
             <div class="mt-4 d-flex align-items-center">
                 <div class="header-item">
-                    Total:
-                    {{ importModalState.checkedList.length }}
-                    questions
+                    {{
+                        $t("import_qs_modal.other.total_question", {
+                            number: importModalState.checkedList.length,
+                        })
+                    }}
                 </div>
                 <a-button
                     class="main-color-btn"
@@ -456,7 +500,7 @@ onMounted(() => {
                     type="primary"
                     @click="handleModalImport"
                 >
-                    Import
+                    {{ $t("import_qs_modal.buttons.import") }}
                 </a-button>
             </div>
         </template>

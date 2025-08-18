@@ -634,7 +634,7 @@
         },
         "other": {
             "search_class_placeholder": "Tìm lớp học theo tên...",
-            "no_data_matches": "Không có dữ liệu phù hợp.",
+            "no_data_matches": "Không có dữ liệu.",
             "items": "lớp",
             "pages": " / trang"
         },
@@ -732,7 +732,7 @@
             "view": "Xem"
         },
         "other": {
-            "search_placeholder": "Tìm kiếm bài kiểm tra...",
+            "search_placeholder": "Tìm kiếm bộ câu hỏi...",
             "items": "bộ câu hỏi",
             "questions": "câu hỏi",
             "created_by": "Tạo bởi"
@@ -766,9 +766,14 @@
         },
         "other": {
             "search_class_placeholder": "Tìm thư mục theo tên...",
-            "no_data_matches": "Không có dữ liệu phù hợp.",
+            "no_data_matches": "Không có dữ liệu.",
             "items": "thư mục",
             "pages": " / trang"
+        }
+    },
+    "test_template_index": {
+        "other": {
+            "items": "mẫu"
         }
     },
     "folder_detail": {
@@ -899,6 +904,107 @@
             "add_to_folder_content": "Thêm mẫu bài kiểm tra '{name}' vào thư mục '{folder_name}'"
         }
     },
+    "schedule": {
+        "title": "Lịch kiểm tra",
+        "current_date": "Ngày: {date}",
+        "count_exam": "Số lượng bài kiểm tra: "
+    },
+    "import_qs_modal": {
+        "title": "Nhập câu hỏi",
+        "sub_title": "Nhập câu hỏi từ tệp mẫu",
+        "upload_section": "Tải lên tệp",
+        "buttons": {
+            "download": "Tải xuống mẫu",
+            "import": "Nhập"
+        },
+        "upload_area": {
+            "title": "Nhấn hoặc kéo tệp vào khu vực này để tải lên",
+            "content": "Vui lòng sử dụng mẫu ở trên để đảm bảo tệp được đọc chính xác.",
+            "sub_content": "Hỗ trợ tải lên một tệp duy nhất."
+        },
+        "preview_section": "Xem trước",
+        "other": {
+            "total_question": "Tổng số câu hỏi: {number}"
+        },
+        "uploaded_question_status": {
+            "all": "Tất cả",
+            "valid": "Hợp lệ",
+            "invalid": "Không hợp lệ"
+        },
+        "confirm_modal": {
+            "title": "Xác nhận nhập thêm câu hỏi",
+            "content": "Bạn có chắc chắn muốn nhập {number} câu hỏi không?"
+        }
+    },
+    "generate_qs_modal": {
+        "title": "Tạo câu hỏi",
+        "sub_title": "Sử dụng AI để phân tích tài liệu và tạo câu hỏi cho bạn",
+        "invalid_structure_modal": {
+            "title": "Lỗi",
+            "content": "Vui lòng chọn ít nhất một phần trong tài liệu của bạn để tiếp tục."
+        },
+        "form": {
+            "structure": "Cấu trúc",
+            "language": "Ngôn ngữ",
+            "maximum_question": "Số lượng câu hỏi tối đa",
+            "question_types": "Loại câu hỏi",
+            "enable_explaination": "Bật giải thích",
+            "reference_name": "Tên tài liệu tham khảo",
+            "reference_name_placeholder": "Nhập tiêu đề tài liệu để trích dẫn"
+        },
+        "buttons": {
+            "generate": "✨ Tạo với AI"
+        },
+        "other": {
+            "ai_warning": "AI có thể mắc lỗi. Vui lòng kiểm tra kỹ thông tin quan trọng."
+        }
+    },
+    "generate_file_structure": {
+        "title": "Cấu trúc tệp",
+        "sub_title": "Nghiên cứu cấu trúc tệp đã tạo",
+        "buttons": {
+            "generate_structure": "Tạo cấu trúc",
+            "confirm": "Xác nhận"
+        },
+        "other": {
+            "calculating": "Đang tính toán chi phí để tạo tệp..."
+        },
+        "confirm_modal": {
+            "title": "Bạn có chắc chắn muốn tạo cấu trúc tệp không?",
+            "content": "Bạn sẽ cần ít nhất ",
+            "content_tail": "điểm AIQ để xử lý tệp này."
+        }
+    },
+    "create_test_modals": {
+        "select_folder": "Chọn thư mục",
+        "folder": "Folder: {name}",
+        "select_template": "Chọn mẫu",
+        "choose_question": "Chọn câu hỏi"
+    },
+    "exam_result": {
+        "test_name": "Tên bài kiểm tra: {name}",
+        "start_time": "Thời gian bắt đầu:",
+        "end_time": "Thời gian kết thúc:",
+        "time_limit": "Thời gian giới hạn:",
+        "question_count": "Câu hỏi: ",
+        "grade_attempt_method": "Phương pháp chấm điểm: ",
+        "grade_question_method": "Phương pháp chấm điểm câu hỏi: ",
+        "max_attempt": "Số lần thử tối đa: ",
+        "passing_score": "Điểm đạt: ",
+        "show_correct_answer": "Hiển thị câu trả lời đúng trong phần đánh giá:",
+        "allow_review": "Cho phép học sinh xem lại sau khi nộp:",
+        "test_status": {
+            "All": "Tất cả",
+            "Failed": "Không đạt",
+            "Passed": "Đạt"
+        },
+        "other": {
+            "question_plural": "câu hỏi",
+            "question": "câu hỏi",
+            "time_plural": "lần",
+            "time": "lần"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Không có quyền truy cập",
         "COMMON_SERVER_INTERNAL_ERROR": "Lỗi máy chủ nội bộ",
@@ -946,6 +1052,7 @@
         "INSUFFICIENT_BALANCE": "Số dư không đủ!",
 
         "TEST_IS_OVERDUE": "Thời gian làm bài đã kết thúc!",
+        "MAX_ATTEMPT_IN_THIS_TEST": "Đã đạt tối đa số lần thử trong bài kiểm tra này.",
 
         "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER": "Mẫu bài kiểm tra đã tồn tại trong thư mục!"
     },
@@ -967,12 +1074,17 @@
         "submited_successfully": "Gửi bài làm thành công!",
         "submited_failed": "Gửi bài làm thất bại",
         "auto_save_successfully": "Lưu tự động thành công!",
+        "uploaded_successfully": "{name} tải lên thành công!",
+        "uploaded_failed": "Tải lên thất bại",
         "auto_save_failed": "Lưu tự động thất bại",
         "time_up": "Đã hết thời gian làm bài",
 
         "join_class_successfully": "Tham gia lớp học thành công!",
         "join_class_failed": "Tham gia lớp học thất bại!",
         "created_new_invitation": "Đã tạo mã mời mới!",
+
+        "change_password_successfully": "Đổi mật khẩu thành công!",
+        "change_password_failed": "Đổi mật khẩu thất bại!",
 
         "invalid_title": "Tiêu đề không hợp lệ",
         "invalid_question": "Câu hỏi không hợp lệ",
@@ -982,11 +1094,6 @@
         "limit_question": "Giới hạn: {number} câu hỏi",
         "minimum_question": "Tối thiểu {number} câu hỏi",
 
-        "change_password_successfully": "Đổi mật khẩu thành công!",
-        "change_password_failed": "Đổi mật khẩu thất bại!",
-
-        "invalid_time_range": "Thời gian bắt đầu và kết thúc phải cách nhau ít nhất {time_limit} phút (giới hạn thời gian)",
-
         "required": "Trường này là bắt buộc",
         "out_of_range": "Giới hạn {max_length} ký tự",
         "have_no_answer": "Câu hỏi {index} phải có ít nhất một đáp án đúng",
@@ -994,7 +1101,13 @@
         "maximum_options": "Mỗi câu hỏi có tối đa 10 lựa chọn",
         "maximum_tag": "Giới hạn {tag} thẻ",
 
-        "imported_question": "Đã nhập {number} câu hỏi."
+        "invalid_time_range": "Thời gian bắt đầu và kết thúc phải cách nhau ít nhất {time_limit} phút (giới hạn thời gian) và thời gian bắt đầu phải sau thời gian hiện tại.",
+
+        "imported_question": "Đã nhập {number} câu hỏi.",
+
+        "invalid_reference": "Vui lòng nhập tham chiếu cho phần giải thích, trích dẫn tài liệu.",
+        "file_support_only": "Chỉ hỗ trợ các tệp {fileTypes}.",
+        "minimun_question_type": "Phải chọn ít nhất một loại câu hỏi."
     },
     "admin": {
         "manage_acc": {

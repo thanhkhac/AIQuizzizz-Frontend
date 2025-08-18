@@ -22,7 +22,6 @@ class ChangeQuestionType {
     ];
 
     onChangeQuestionType = (question: RequestQuestion) => {
-        debugger;
         switch (question.type) {
             case QUESTION_TYPE.MULTIPLE_CHOICE:
                 if (!question.multipleChoices || question.multipleChoices?.length === 0)

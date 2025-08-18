@@ -230,9 +230,9 @@ defineExpose({ openModal, closeModal, clearData });
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span> {{ $t("create_QS.title") }}</span> <br />
+                        <span> {{ $t("generate_file_structure.title") }}</span> <br />
                         <span>
-                            {{ $t("create_QS.sub_title") }}
+                            {{ $t("generate_file_structure.sub_title") }}
                         </span>
                     </a-col>
                 </a-row>
@@ -240,7 +240,7 @@ defineExpose({ openModal, closeModal, clearData });
             <div class="modal-content-item" ref="modalContentRef">
                 <div v-if="loading" class="loading-container">
                     <a-spin size="large" :indicator="indicator" />
-                    <div v-if="!cost">Calculating cost to generate file</div>
+                    <div v-if="!cost">{{ $t("generate_file_structure.other.calculating") }}</div>
                 </div>
 
                 <div v-else class="content-wrapper">
@@ -263,7 +263,7 @@ defineExpose({ openModal, closeModal, clearData });
                             class="main-color-btn"
                             @click="modal_confirm_generate_structure_open = true"
                         >
-                            Generate File Structure
+                            {{ $t("generate_file_structure.buttons.generate_structure") }}
                         </a-button>
                     </div>
                 </div>
@@ -271,7 +271,7 @@ defineExpose({ openModal, closeModal, clearData });
         </div>
         <template #footer>
             <a-button class="main-color-btn" type="primary" @click="onConfirmImportStructure">
-                Confirm
+                {{ $t("generate_file_structure.buttons.confirm") }}
             </a-button>
         </template>
     </a-modal>
@@ -285,13 +285,13 @@ defineExpose({ openModal, closeModal, clearData });
             <div class="d-flex align-items-center">
                 <ExclamationCircleFilled class="fs-4 me-3 text-warning" />
                 <div class="fs-6 fw-bold">
-                    Are you sure you want to generate the file structure?
+                    {{ $t("generate_file_structure.confirm_modal.title") }}
                 </div>
             </div>
             <div class="fs-6 ms-5 mt-3">
-                You will need at least
-                <span class="text-danger">{{ cost?.miniumPointToGenerate }}</span> point to process
-                this file.
+                {{ $t("generate_file_structure.confirm_modal.content") }}
+                <span class="fw-bold text-danger">{{ cost?.miniumPointToGenerate }}</span>
+                {{ $t("generate_file_structure.confirm_modal.content_tail") }}
             </div>
         </div>
         <template #footer>
@@ -300,15 +300,16 @@ defineExpose({ openModal, closeModal, clearData });
                 type="ghost"
                 @click="modal_confirm_generate_structure_open = false"
             >
-                Cancel
+                {{ $t("sidebar.buttons.cancel") }}
             </a-button>
             <a-button
                 :loading="loading"
                 class="main-color-btn"
                 type="primary"
                 @click="onConfirmGenerateFileStructure"
-                >Confirm</a-button
             >
+                {{ $t("generate_file_structure.buttons.confirm") }}
+            </a-button>
         </template>
     </a-modal>
 </template>

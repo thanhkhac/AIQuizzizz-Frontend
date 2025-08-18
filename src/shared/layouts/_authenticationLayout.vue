@@ -146,7 +146,7 @@ import home_vector from "@/assets/home_vector.png";
 }
 
 .authentication-item-form label {
-    color: #101010;
+    color: var(--text-color);
     font-size: 16px;
     font-style: normal;
     font-weight: 500;

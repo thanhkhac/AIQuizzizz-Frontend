@@ -146,7 +146,7 @@ const componentMap = {
 //#region logic edit question
 import ChangeQuestionType from "@/services/ChangeQuestionType";
 const createQuestionTemplate = (): RequestQuestion => ({
-    id: Date.now().toString(),
+    id: "new_" + Date.now().toString(),
     type: "MultipleChoice",
     questionText: "",
     questionHTML: "",
@@ -516,7 +516,7 @@ onMounted(async () => {
                                 <i class="bx bx-upload"></i>
                             </RouterLink>
                             <div class="import-button" @click="onFinish">
-                                {{ $t("create_QS.buttons.create") }}
+                                {{ $t("update_QS.buttons.update") }}
                             </div>
                             <div class="import-button">
                                 {{
