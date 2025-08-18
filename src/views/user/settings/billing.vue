@@ -83,6 +83,10 @@ const formatDate = (isoString: string) => {
     return `${day}/${month}/${year}`;
 };
 
+const formatCurrency = (num?: number) => {
+    return Number(num).toLocaleString("en-US") + " VND";
+};
+
 const columns = [
     {
         title: "No",
@@ -111,6 +115,7 @@ const columns = [
         key: "price",
         width: 200,
         align: "center",
+        customRender: ({ text }: { text: number }) => formatCurrency(text),
     },
     {
         title: "Status",

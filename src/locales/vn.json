@@ -1111,55 +1111,55 @@
     },
     "admin": {
         "manage_acc": {
-            "title": "Quản lý tài khoản",
-            "search_placeholder": "Tìm kiếm ...",
+            "title": "Manage Accounts",
+            "search_placeholder": "Search email ...",
             "acc_status": {
-                "all": "Tất cả",
-                "ban": "Bị cấm",
-                "active": "Hoạt động"
+                "all": "All",
+                "ban": "Ban",
+                "active": "Active"
             },
             "acc_role": {
-                "all": "Tất cả",
-                "Administrator": "Quản trị viên",
-                "Moderator": "Điều hành viên",
-                "User": "Người dùng"
+                "all": "All",
+                "Administrator": "Administrator",
+                "Moderator": "Moderator",
+                "User": "User"
             }
         },
         "manage_subscription": {
-            "title": "Quản lý gói đăng ký",
-            "create_new_sub": "Tạo gói đăng ký mới",
+            "title": "Manage Subscriptions",
+            "create_new_sub": "Create New Subscription",
             "stat_card": {
-                "total_subs": "Tổng số người đăng ký",
-                "monthly_rev": "Doanh thu hàng tháng",
-                "new_subs": "Người đăng ký mới",
-                "unsubs": "Hủy đăng ký"
+                "total_subs": "Total Subscripbers",
+                "monthly_rev": "Monthly Revenue",
+                "new_subs": "New Subscribers",
+                "class": "Total Class"
             },
-            "plan_comparison": "Bảng so sánh gói",
-            "plan_comparison_content": "So sánh các gói đăng ký hiện có",
+            "plan_comparison": "Plan Comparison",
+            "plan_comparison_content": "Compare available subscription plans",
             "modal": {
-                "title": "Tạo gói đăng ký mới",
-                "title_update": "Chỉnh sửa gói đăng ký"
+                "title_create": "Create New Subscription",
+                "title_update": "Edit Subscription"
             },
             "plan_unit": {
-                "day": "Ngày",
-                "month": "Tháng",
-                "year": "Năm"
+                "Day": "Day",
+                "Month": "Month",
+                "Year": "Year"
             },
             "plan_feature": {
-                "canLearn": "Học bài",
-                "canOpenTest": "Mở đề thi",
-                "canCopyOrImportQuestionSet": "Sao chép/Import bộ câu hỏi"
+                "canLearn": "Learning",
+                "canOpenTest": "Access tests",
+                "canCopyOrImportQuestionSet": "Copy or import question sets"
             },
             "create_plan": {
-                "name": "Tên gói đăng ký",
-                "price": "Giá",
-                "duration": "Thời hạn",
-                "unit": "Đơn vị",
-                "feature": "Tính năng"
+                "name": "Subscriptions Name",
+                "price": "Price",
+                "duration": "Duration",
+                "unit": "Unit",
+                "feature": "Feature"
             },
             "btn": {
-                "create": "Tạo",
-                "save": "Lưu"
+                "create": "Create",
+                "save": "Save"
             }
         },
         "manage_class": {}

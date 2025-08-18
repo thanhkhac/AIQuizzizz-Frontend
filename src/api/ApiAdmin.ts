@@ -20,6 +20,11 @@ const END_POINTS = {
     CREATE_PLAN: "/Plan",
     UPDATE_PLAN: "/Plan",
     GET_ALL_PLAN: "/Plan",
+
+    // statistic
+    PLATFORM_OVERVIEW: "/Plan/PlatformOverview",
+    REVENUE: "/Plan/Revenue",
+    NEW_CLASS: "/Plan/NumberOfNewClass",
 };
 
 class ApiAdmin {
@@ -62,6 +67,18 @@ class ApiAdmin {
 
     GetAllPlan = async (IsActive?: boolean) => {
         return await Api.get(`${END_POINTS.GET_ALL_PLAN}`);
+    };
+
+    // statistic
+    PlatformOverview = async () => {
+        return await Api.get(END_POINTS.PLATFORM_OVERVIEW);
+    };
+
+    MonthlyRevenue = async (year: number) => {
+        return await Api.get(END_POINTS.REVENUE, { params: { year } });
+    };
+    MonthlyNewClass = async (year: number) => {
+        return await Api.get(END_POINTS.NEW_CLASS, { params: { year } });
     };
 }
 
