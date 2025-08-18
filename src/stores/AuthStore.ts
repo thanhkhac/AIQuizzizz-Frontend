@@ -21,7 +21,7 @@ export const useAuthStore = defineStore("authStore", {
                 localStorageService.SetUserInfo(user_result.data.data);
 
                 if (this.user_info.roles.includes("Administrator")) {
-                    this.router.push(this.returnURL || "/admin/dashboards"); //returnURL or home page
+                    this.router.push(this.returnURL || "/admin"); //returnURL or home page
                 } else {
                     this.router.push(this.returnURL || "/user/dashboards"); //returnURL or home page
                 }

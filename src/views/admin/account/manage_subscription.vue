@@ -396,16 +396,22 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                                 :class="{ invisible: plan.price === 0 }"
                                 class="plan-comparison-card-action"
                             >
-                                <i
-                                    class="bx bx-edit"
-                                    style="font-size: 20px"
-                                    @click="onEditPlan(plan)"
-                                ></i>
-                                <i
-                                    class="bx bx-trash"
-                                    style="color: #ff002e; font-size: 20px"
-                                    @click="onDeletePlan(plan)"
-                                ></i>
+                                <a-tooltip>
+                                    <template #title> Edit Plan </template>
+                                    <i
+                                        class="bx bx-edit"
+                                        style="font-size: 20px"
+                                        @click="onEditPlan(plan)"
+                                    ></i>
+                                </a-tooltip>
+                                <a-tooltip>
+                                    <template #title> Delete Plan </template>
+                                    <i
+                                        class="bx bx-trash"
+                                        style="color: #ff002e; font-size: 20px"
+                                        @click="onDeletePlan(plan)"
+                                    ></i>
+                                </a-tooltip>
                             </div>
                             <h5 class="mb-2">{{ plan.name }}</h5>
                             <div class="display-6 fw-bold mb-3">
@@ -421,12 +427,15 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                                 :class="{ invisible: plan.price === 0 }"
                                 class="d-flex justify-content-end mt-auto pt-1"
                             >
-                                <a-switch
-                                    v-model:checked="plan.isActive"
-                                    :checked-children="''"
-                                    :un-checked-children="''"
-                                    @change="onTogglePlan(plan)"
-                                />
+                                <a-tooltip>
+                                    <template #title> Active/Inactive </template>
+                                    <a-switch
+                                        v-model:checked="plan.isActive"
+                                        :checked-children="''"
+                                        :un-checked-children="''"
+                                        @change="onTogglePlan(plan)"
+                                    />
+                                </a-tooltip>
                             </div>
                         </div>
                     </div>
