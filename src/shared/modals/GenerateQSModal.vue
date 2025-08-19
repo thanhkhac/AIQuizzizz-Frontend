@@ -46,7 +46,7 @@ const handleModalImport = () => {
     if (generateModalState.checkedList.length === 0) {
         message.warning(
             t("message.minimum_question", {
-                number: 5,
+                number: 1,
             }),
         );
         return;
@@ -283,7 +283,7 @@ const onRemoveUploadedFile = () => {
 //checkboxes  / checkbox-all for importing question back to the page
 const onCheckAll = (event: any) => {
     Object.assign(generateModalState, {
-        checkedList: event.target.checked ? generatedQuestions.value.map((x) => x.id) : [],
+        checkedList: event.target.checked ? generatedQuestions.value : [],
         indeterminate: false,
     });
 };
@@ -292,7 +292,7 @@ watch(
     () => generateModalState.checkedList,
     (val) => {
         generateModalState.indeterminate =
-            !!val.length && val.length < generatedQuestions.value.map((x) => x.id).length; //change to uploadedList when it done
+            !!val.length && val.length < generatedQuestions.value.length; //change to uploadedList when it done
         generateModalState.checkAll = val.length === generatedQuestions.value.length;
     },
 );
@@ -533,10 +533,7 @@ onMounted(() => {});
                                         class="preview-question-item"
                                         v-for="(question, index) in generatedQuestions"
                                     >
-                                        <a-checkbox
-                                            @click="console.log(generateModalState.checkedList)"
-                                            :value="question.id"
-                                        ></a-checkbox>
+                                        <a-checkbox :value="question"></a-checkbox>
                                         <div class="question-item-content">
                                             <div
                                                 v-if="question.questionHTML"

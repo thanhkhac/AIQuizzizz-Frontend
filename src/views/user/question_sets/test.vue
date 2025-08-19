@@ -107,7 +107,7 @@ const closeSettingModal = () => {
 
 const settingFormRef = ref();
 const settingFormState = reactive({
-    numberOfQuestion: 5,
+    numberOfQuestion: 1,
     questionTypes: [
         QUESTION_TYPE.MULTIPLE_CHOICE,
         QUESTION_TYPE.MATCHING,
@@ -1523,7 +1523,7 @@ onMounted(async () => {
                         size="large"
                         id="inputNumber"
                         v-model:value="settingFormState.numberOfQuestion"
-                        :min="5"
+                        :min="1"
                         :max="quiz.totalQuestionCount"
                         :precision="0"
                     />

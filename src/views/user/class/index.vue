@@ -205,11 +205,11 @@ const onCreateClass = async () => {
                 name: createClassFormState.name,
                 topic: createClassFormState.topic,
             });
+        } else {
+            result = await ApiClass.Create({
+                name: createClassFormState.name,
+            });
         }
-
-        result = await ApiClass.Create({
-            name: createClassFormState.name,
-        });
 
         if (!result.data.success) {
             message.error("Create class failed");

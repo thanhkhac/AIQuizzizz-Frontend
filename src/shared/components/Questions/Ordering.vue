@@ -54,7 +54,7 @@ const addOption = () => {
     props.question.orderingItems.push({
         id: Date.now().toString(),
         text: "",
-        correctOrder: props.question.orderingItems.length + 1,
+        correctOrder: props.question.orderingItems.length,
     });
 };
 

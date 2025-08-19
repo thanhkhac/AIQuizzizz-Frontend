@@ -217,7 +217,7 @@ const handleModalImport = () => {
     if (importModalState.checkedList.length === 0) {
         message.warning(
             t("message.minimum_question", {
-                number: 5,
+                number: 1,
             }),
         );
         return;

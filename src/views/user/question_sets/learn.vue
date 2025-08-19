@@ -76,6 +76,7 @@ const getQuizData = async () => {
         currentSession.value = [...quiz.value.questions];
         currentQuestion.value = currentSession.value[0];
         currentSession.value.shift();
+        console.log(currentQuestion.value);
     } catch (error: any) {
         const errorKeys = Object.keys(error.response.data.errors);
         if (errorKeys.includes(ERROR.PLAN_REQUIRE_PLAN)) {
@@ -537,32 +538,66 @@ const closeFinalModal = () => {
     finalModalOpen.value = false;
 };
 
+// const triggerFinalModal = async () => {
+//     debugger;
+//     if (currentSession.value.length > 0) return;
+
+//     //has incorrect and hasn't re-learned
+//     if (incorrect.value.size > 0 && !isCurrentSessionReLearn.value) {
+//         //append 1st incorrect question - re-try incorrect
+//         isCurrentSessionReLearn.value = true;
+//         currentSession.value = Array.from(incorrect.value);
+//     } else if (
+//         (incorrect.value.size === 0 && !isCurrentSessionReLearn.value) ||
+//         (incorrect.value.size > 0 && isCurrentSessionReLearn.value)
+//     ) {
+//         //has no incorrect OR re-learned but didnot correct all
+
+//         // re-tried - send 2nd incorrect to backend
+//         // trigger open final modal
+//         if (incorrect.value.size > 0) {
+//             const learnHistory = quiz.value.questions
+//                 .filter((x) => {
+//                     return incorrect.value.has(x);
+//                 })
+//                 .map((x) => {
+//                     return {
+//                         questionId: x.id,
+//                         isCorrect: completed.value.some((c) => c.id === x.id),
+//                     };
+//                 });
+//             await ApiQuestionSet.LearnHistory(questionSetId.value.toString(), learnHistory);
+//         }
+
+//         openFinalModal();
+//         return;
+//     }
+// };
+
 const triggerFinalModal = async () => {
     if (currentSession.value.length > 0) return;
 
-    //has incorrect and hasn't re-learned
-    if (incorrect.value.size > 0 && !isCurrentSessionReLearn.value) {
-        //append 1st incorrect question - re-try incorrect
+    const hasIncorrect = incorrect.value.size > 0;
+
+    if (hasIncorrect && !isCurrentSessionReLearn.value) {
         isCurrentSessionReLearn.value = true;
         currentSession.value = Array.from(incorrect.value);
-    } else if (
-        (incorrect.value.size === 0 && !isCurrentSessionReLearn.value) ||
-        (incorrect.value.size > 0 && isCurrentSessionReLearn.value)
-    ) {
-        //has no incorrect OR re-learned but didnot correct all
-
-        // re-tried - send 2nd incorrect to backend
-        // trigger open final modal
-        const learnHistory = quiz.value.questions.map((x) => {
-            return {
-                questionId: x.id,
-                isCorrect: completed.value.some((c) => c.id === x.id),
-            };
-        });
-
-        await ApiQuestionSet.LearnHistory(questionSetId.value.toString(), learnHistory);
-        openFinalModal();
         return;
+    }
+
+    if (!hasIncorrect || isCurrentSessionReLearn.value) {
+        if (hasIncorrect) {
+            const learnHistory = quiz.value.questions
+                .filter((x) => incorrect.value.has(x))
+                .map((x) => ({
+                    questionId: x.id,
+                    isCorrect: completed.value.some((c) => c.id === x.id),
+                }));
+
+            await ApiQuestionSet.LearnHistory(questionSetId.value.toString(), learnHistory);
+        }
+
+        openFinalModal();
     }
 };
 
@@ -620,6 +655,8 @@ const onResetLearnHistory = async () => {
         message.success(t("learn_QS.msg.learn_mode_reset"));
         completeModalOpen.value = false;
         await getQuizData();
+        resetUserAnswer();
+        syncMatchingHeights();
     }
 };
 
@@ -669,6 +706,14 @@ const onRedirectToSubcription = () => {
     router.push({ name: "User_Settings" });
 };
 
+const onRedirectToTest = () => {
+    router.push({ name: "User_QuestionSet_Test", params: { id: questionSetId.value } });
+};
+
+const onRedirectToLibrary = () => {
+    router.push({ name: "User_Library" });
+};
+
 onMounted(async () => {
     await getQuizData();
 
@@ -681,63 +726,62 @@ onMounted(async () => {
 </script>
 
 <template>
-    <template v-if="isAllowed">
-        <div class="page-container">
-            <div class="title-container">
-                <a-row class="w-100 d-flex align-items-center">
-                    <a-col :span="1">
-                        <RouterLink :to="{ name: 'User_Library' }">
-                            <i class="bx bx-chevron-left navigator-back-button"></i>
-                        </RouterLink>
-                    </a-col>
-                    <a-col class="main-title" :span="23">
-                        <span>{{ quiz.title }}</span> <br />
-                        <span>{{ quiz.description }}</span>
-                    </a-col>
-                </a-row>
-            </div>
+    <div class="page-container">
+        <div class="title-container">
+            <a-row class="w-100 d-flex align-items-center">
+                <a-col :span="1">
+                    <RouterLink :to="{ name: 'User_Library' }">
+                        <i class="bx bx-chevron-left navigator-back-button"></i>
+                    </RouterLink>
+                </a-col>
+                <a-col class="main-title" :span="23">
+                    <span>{{ quiz.title }}</span> <br />
+                    <span>{{ quiz.description }}</span>
+                </a-col>
+            </a-row>
+        </div>
 
-            <template v-if="loading">
-                <a-skeleton activeactive:loading="loading"></a-skeleton>
-            </template>
-            <div v-else class="progress-bar-container">
-                <div class="progress-info">
-                    <div class="progress-info-number">
-                        {{
-                            $t("learn_QS.other.progress_count", {
-                                current: quiz.completedQuestionCount + 1,
-                                total: quiz.totalQuestionCount,
-                            })
-                        }}
-                    </div>
-                    <div class="progress-info-percentage">
-                        <span>{{ completionPercentage }}</span>
-                        %
-                        {{ $t("learn_QS.other.completed") }}
-                    </div>
+        <template v-if="loading">
+            <a-skeleton activeactive:loading="loading"></a-skeleton>
+        </template>
+        <div v-else class="progress-bar-container">
+            <div class="progress-info">
+                <div class="progress-info-number">
+                    {{
+                        $t("learn_QS.other.progress_count", {
+                            current: quiz.completedQuestionCount,
+                            total: quiz.totalQuestionCount,
+                        })
+                    }}
                 </div>
-                <a-progress
-                    :show-info="false"
-                    stroke-color="#7C3AED"
-                    status="active"
-                    :percent="completionPercentage"
-                />
+                <div class="progress-info-percentage">
+                    <span>{{ completionPercentage }}</span>
+                    %
+                    {{ $t("learn_QS.other.completed") }}
+                </div>
             </div>
+            <a-progress
+                :show-info="false"
+                stroke-color="#7C3AED"
+                status="active"
+                :percent="completionPercentage"
+            />
+        </div>
 
-            <div class="content">
-                <div class="content-item">
-                    <template v-if="loading">
-                        <a-skeleton active :loading="loading"></a-skeleton>
-                        <a-skeleton active :loading="loading"></a-skeleton>
-                        <a-skeleton active :loading="loading"></a-skeleton>
-                    </template>
-                    <template v-else>
-                        <div class="section question-section">
-                            <div
-                                :class="['learn-question']"
-                                v-html="currentQuestion.questionText"
-                            ></div>
-                            <!-- <div
+        <div class="content">
+            <div class="content-item">
+                <template v-if="loading">
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton active :loading="loading"></a-skeleton>
+                </template>
+                <template v-else>
+                    <div class="section question-section">
+                        <div
+                            :class="['learn-question']"
+                            v-html="currentQuestion.questionText"
+                        ></div>
+                        <!-- <div
                                 :class="[
                                     'learn-question',
                                     currentQuestion.textFormat === QUESTION_FORMAT.HTML
@@ -747,456 +791,438 @@ onMounted(async () => {
                             >
                                 {{ currentQuestion.questionText }}
                             </div> -->
-                            <div class="section answer-section">
-                                <div v-if="isCurrentSessionReLearn" class="relearn-ins">
-                                    {{ $t("learn_QS.instructions.re_learn_ins") }}
+                        <div class="section answer-section">
+                            <div v-if="isCurrentSessionReLearn" class="relearn-ins">
+                                {{ $t("learn_QS.instructions.re_learn_ins") }}
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="answer-section-ins">
+                                    {{ currentQuestionInstruction }}
                                 </div>
-                                <div class="d-flex align-items-center">
-                                    <div class="answer-section-ins">
-                                        {{ currentQuestionInstruction }}
-                                    </div>
-                                    <div
-                                        :class="[
-                                            'ms-3 learn-question-result',
-                                            !currentQuestionIsSubmitted ? 'd-none' : '',
-                                            currentQuestionIsSubmitted
-                                                ? currentQuestionResult.result
-                                                    ? 'result-correct'
-                                                    : 'result-incorrect'
-                                                : '',
-                                            currentQuestionIsSkipped ? 'result-skipped' : '',
-                                        ]"
-                                    >
-                                        {{ currentQuestionResult.resultText }}
-                                    </div>
-                                </div>
-                                <template
-                                    v-if="currentQuestion.type === QUESTION_TYPE.MULTIPLE_CHOICE"
+                                <div
+                                    :class="[
+                                        'ms-3 learn-question-result',
+                                        !currentQuestionIsSubmitted ? 'd-none' : '',
+                                        currentQuestionIsSubmitted
+                                            ? currentQuestionResult.result
+                                                ? 'result-correct'
+                                                : 'result-incorrect'
+                                            : '',
+                                        currentQuestionIsSkipped ? 'result-skipped' : '',
+                                    ]"
                                 >
-                                    <a-checkbox-group
-                                        v-model:value="userAnswerMultipleChoice"
-                                        :class="[
-                                            'answer-option-container multiplechoice',
-                                            isOptionExceed ? 'column' : '',
-                                        ]"
+                                    {{ currentQuestionResult.resultText }}
+                                </div>
+                            </div>
+                            <template v-if="currentQuestion.type === QUESTION_TYPE.MULTIPLE_CHOICE">
+                                <a-checkbox-group
+                                    v-model:value="userAnswerMultipleChoice"
+                                    :class="[
+                                        'answer-option-container multiplechoice',
+                                        isOptionExceed ? 'column' : '',
+                                    ]"
+                                >
+                                    <template
+                                        v-for="option in currentQuestion.questionData
+                                            .multipleChoice"
                                     >
-                                        <template
-                                            v-for="option in currentQuestion.questionData
-                                                .multipleChoice"
+                                        <a-checkbox
+                                            v-model:value="option.id"
+                                            :disabled="currentQuestionIsSubmitted"
+                                            :class="[
+                                                'answer-option answer-option-multiplechoice',
+                                                currentQuestionIsSubmitted &&
+                                                checkMultipleChoiceAnswerCorrect(option) &&
+                                                option.isAnswer
+                                                    ? 'answer-correct'
+                                                    : '',
+                                                currentQuestionIsSubmitted &&
+                                                !checkMultipleChoiceAnswerCorrect(option) &&
+                                                !option.isAnswer
+                                                    ? 'answer-incorrect'
+                                                    : '',
+                                            ]"
                                         >
-                                            <a-checkbox
-                                                v-model:value="option.id"
-                                                :disabled="currentQuestionIsSubmitted"
-                                                :class="[
-                                                    'answer-option answer-option-multiplechoice',
+                                            <div class="answer-option-content">
+                                                {{ option.text }}
+                                            </div>
+
+                                            <i
+                                                v-if="
                                                     currentQuestionIsSubmitted &&
                                                     checkMultipleChoiceAnswerCorrect(option) &&
                                                     option.isAnswer
-                                                        ? 'answer-correct'
-                                                        : '',
+                                                "
+                                                class="bx bx-check answer-icon"
+                                            ></i>
+                                            <i
+                                                v-if="
                                                     currentQuestionIsSubmitted &&
                                                     !checkMultipleChoiceAnswerCorrect(option) &&
                                                     !option.isAnswer
-                                                        ? 'answer-incorrect'
-                                                        : '',
-                                                ]"
-                                            >
-                                                <div class="answer-option-content">
-                                                    {{ option.text }}
-                                                </div>
+                                                "
+                                                class="bx bx-x answer-icon"
+                                            ></i>
+                                        </a-checkbox>
+                                    </template>
+                                </a-checkbox-group>
+                            </template>
 
-                                                <i
-                                                    v-if="
-                                                        currentQuestionIsSubmitted &&
-                                                        checkMultipleChoiceAnswerCorrect(option) &&
-                                                        option.isAnswer
-                                                    "
-                                                    class="bx bx-check answer-icon"
-                                                ></i>
-                                                <i
-                                                    v-if="
-                                                        currentQuestionIsSubmitted &&
-                                                        !checkMultipleChoiceAnswerCorrect(option) &&
-                                                        !option.isAnswer
-                                                    "
-                                                    class="bx bx-x answer-icon"
-                                                ></i>
-                                            </a-checkbox>
-                                        </template>
-                                    </a-checkbox-group>
-                                </template>
-
-                                <template v-if="currentQuestion.type === QUESTION_TYPE.MATCHING">
-                                    <div class="answer-option-container matching">
-                                        <div class="matching-option-container left">
-                                            <VueDraggable
-                                                :disabled="currentQuestionIsSubmitted"
-                                                v-model="userAnswerMatchingLeft"
-                                                :options="dragOptions"
-                                                @end="syncMatchingHeights"
-                                            >
-                                                <template
-                                                    v-for="(
-                                                        option, index
-                                                    ) in userAnswerMatchingLeft"
-                                                >
-                                                    <div class="d-flex align-items-center">
-                                                        <div
-                                                            :class="[
-                                                                'answer-option answer-option-matching',
-                                                                currentQuestionIsSubmitted
-                                                                    ? checkMatchingAnswerCorrect(
-                                                                          option.id,
-                                                                      )
-                                                                        ? 'answer-correct'
-                                                                        : 'answer-incorrect'
-                                                                    : '',
-                                                            ]"
-                                                        >
-                                                            <div class="answer-option-order">
-                                                                <HolderOutlined />
-                                                            </div>
-                                                            <div class="answer-option-content">
-                                                                {{ option.text }}
-                                                            </div>
-                                                        </div>
-                                                        <i
-                                                            :class="[
-                                                                'bx bxs-label matching-icon',
-                                                                currentQuestionIsSubmitted
-                                                                    ? checkMatchingAnswerCorrect(
-                                                                          option.id,
-                                                                      )
-                                                                        ? 'answer-correct-icon'
-                                                                        : 'answer-incorrect-icon'
-                                                                    : '',
-                                                            ]"
-                                                        ></i>
-                                                    </div>
-                                                </template>
-                                            </VueDraggable>
-                                        </div>
-                                        <div class="matching-option-container right">
-                                            <VueDraggable
-                                                :disabled="currentQuestionIsSubmitted"
-                                                v-model="userAnswerMatchingRight"
-                                                :options="dragOptions"
-                                                @end="syncMatchingHeights"
-                                            >
-                                                <template
-                                                    v-for="(
-                                                        option, index
-                                                    ) in userAnswerMatchingRight"
-                                                >
-                                                    <div class="d-flex align-items-center">
-                                                        <i
-                                                            :class="[
-                                                                'bx bxs-label matching-icon',
-                                                                currentQuestionIsSubmitted
-                                                                    ? checkMatchingAnswerCorrect(
-                                                                          option.id,
-                                                                      )
-                                                                        ? 'answer-correct-icon'
-                                                                        : 'answer-incorrect-icon'
-                                                                    : '',
-                                                            ]"
-                                                        ></i>
-                                                        <div
-                                                            :class="[
-                                                                'answer-option answer-option-matching',
-                                                                currentQuestionIsSubmitted
-                                                                    ? checkMatchingAnswerCorrect(
-                                                                          option.id,
-                                                                      )
-                                                                        ? 'answer-correct'
-                                                                        : 'answer-incorrect'
-                                                                    : '',
-                                                            ]"
-                                                        >
-                                                            <div class="answer-option-content">
-                                                                {{ option.text }}
-                                                            </div>
-                                                            <div class="answer-option-order">
-                                                                <HolderOutlined />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                            </VueDraggable>
-                                        </div>
-                                    </div>
-                                </template>
-
-                                <template v-if="currentQuestion.type === QUESTION_TYPE.ORDERING">
-                                    <div class="answer-option-container ordering">
+                            <template v-if="currentQuestion.type === QUESTION_TYPE.MATCHING">
+                                <div class="answer-option-container matching">
+                                    <div class="matching-option-container left">
                                         <VueDraggable
                                             :disabled="currentQuestionIsSubmitted"
-                                            v-model="userAnswerOrdering"
+                                            v-model="userAnswerMatchingLeft"
                                             :options="dragOptions"
+                                            @end="syncMatchingHeights"
                                         >
-                                            <template v-for="(option, index) in userAnswerOrdering">
-                                                <div
-                                                    :class="[
-                                                        'answer-option answer-option-ordering',
-                                                        currentQuestionIsSubmitted
-                                                            ? index === option.correctOrder
-                                                                ? 'answer-correct'
-                                                                : 'answer-incorrect'
-                                                            : '',
-                                                    ]"
-                                                >
-                                                    <div class="answer-option-order">
-                                                        <HolderOutlined />
-                                                        {{ index + 1 }}
-                                                    </div>
-                                                    <div class="answer-option-content">
-                                                        {{ option.text }}
-                                                    </div>
+                                            <template
+                                                v-for="(option, index) in userAnswerMatchingLeft"
+                                            >
+                                                <div class="d-flex align-items-center">
                                                     <div
                                                         :class="[
-                                                            'answer-option-order answer-icon',
-                                                            !currentQuestionIsSubmitted
-                                                                ? 'd-none'
+                                                            'answer-option answer-option-matching',
+                                                            currentQuestionIsSubmitted
+                                                                ? checkMatchingAnswerCorrect(
+                                                                      option.id,
+                                                                  )
+                                                                    ? 'answer-correct'
+                                                                    : 'answer-incorrect'
                                                                 : '',
                                                         ]"
                                                     >
-                                                        <i class="bx bx-hash answer-icon"></i>
-                                                        {{ option.correctOrder }}
+                                                        <div class="answer-option-order">
+                                                            <HolderOutlined />
+                                                        </div>
+                                                        <div class="answer-option-content">
+                                                            {{ option.text }}
+                                                        </div>
+                                                    </div>
+                                                    <i
+                                                        :class="[
+                                                            'bx bxs-label matching-icon',
+                                                            currentQuestionIsSubmitted
+                                                                ? checkMatchingAnswerCorrect(
+                                                                      option.id,
+                                                                  )
+                                                                    ? 'answer-correct-icon'
+                                                                    : 'answer-incorrect-icon'
+                                                                : '',
+                                                        ]"
+                                                    ></i>
+                                                </div>
+                                            </template>
+                                        </VueDraggable>
+                                    </div>
+                                    <div class="matching-option-container right">
+                                        <VueDraggable
+                                            :disabled="currentQuestionIsSubmitted"
+                                            v-model="userAnswerMatchingRight"
+                                            :options="dragOptions"
+                                            @end="syncMatchingHeights"
+                                        >
+                                            <template
+                                                v-for="(option, index) in userAnswerMatchingRight"
+                                            >
+                                                <div class="d-flex align-items-center">
+                                                    <i
+                                                        :class="[
+                                                            'bx bxs-label matching-icon',
+                                                            currentQuestionIsSubmitted
+                                                                ? checkMatchingAnswerCorrect(
+                                                                      option.id,
+                                                                  )
+                                                                    ? 'answer-correct-icon'
+                                                                    : 'answer-incorrect-icon'
+                                                                : '',
+                                                        ]"
+                                                    ></i>
+                                                    <div
+                                                        :class="[
+                                                            'answer-option answer-option-matching',
+                                                            currentQuestionIsSubmitted
+                                                                ? checkMatchingAnswerCorrect(
+                                                                      option.id,
+                                                                  )
+                                                                    ? 'answer-correct'
+                                                                    : 'answer-incorrect'
+                                                                : '',
+                                                        ]"
+                                                    >
+                                                        <div class="answer-option-content">
+                                                            {{ option.text }}
+                                                        </div>
+                                                        <div class="answer-option-order">
+                                                            <HolderOutlined />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </template>
                                         </VueDraggable>
                                     </div>
-                                </template>
+                                </div>
+                            </template>
 
-                                <template v-if="currentQuestion.type === QUESTION_TYPE.SHORT_TEXT">
-                                    <div class="answer-option-container">
-                                        <div
-                                            layout="vertical"
-                                            :class="[
-                                                'answer-short-text',
-                                                currentQuestionIsSubmitted
-                                                    ? checkShortText()
-                                                        ? 'answer-correct'
-                                                        : 'answer-incorrect'
-                                                    : '',
-                                            ]"
-                                        >
-                                            <div class="w-100 d-flex align-items-center">
-                                                <TextArea
-                                                    :readonly="currentQuestionIsSubmitted"
-                                                    :placeholder="'Enter your answer...'"
-                                                    v-model="userAnswerShortText"
-                                                />
-                                                <i
-                                                    v-if="
-                                                        currentQuestionIsSubmitted &&
-                                                        checkShortText()
-                                                    "
-                                                    class="bx bx-check answer-icon"
-                                                ></i>
-                                                <i
-                                                    v-if="
-                                                        currentQuestionIsSubmitted &&
-                                                        !checkShortText()
-                                                    "
-                                                    class="bx bx-x answer-icon"
-                                                ></i>
-                                            </div>
+                            <template v-if="currentQuestion.type === QUESTION_TYPE.ORDERING">
+                                <div class="answer-option-container ordering">
+                                    <VueDraggable
+                                        :disabled="currentQuestionIsSubmitted"
+                                        v-model="userAnswerOrdering"
+                                        :options="dragOptions"
+                                    >
+                                        <template v-for="(option, index) in userAnswerOrdering">
                                             <div
+                                                :class="[
+                                                    'answer-option answer-option-ordering',
+                                                    currentQuestionIsSubmitted
+                                                        ? index === option.correctOrder
+                                                            ? 'answer-correct'
+                                                            : 'answer-incorrect'
+                                                        : '',
+                                                ]"
+                                            >
+                                                <div class="answer-option-order">
+                                                    <HolderOutlined />
+                                                    {{ index + 1 }}
+                                                </div>
+                                                <div class="answer-option-content">
+                                                    {{ option.text }}
+                                                </div>
+                                                <div
+                                                    :class="[
+                                                        'answer-option-order answer-icon',
+                                                        !currentQuestionIsSubmitted ? 'd-none' : '',
+                                                    ]"
+                                                >
+                                                    <i class="bx bx-hash answer-icon"></i>
+                                                    {{ option.correctOrder }}
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </VueDraggable>
+                                </div>
+                            </template>
+
+                            <template v-if="currentQuestion.type === QUESTION_TYPE.SHORT_TEXT">
+                                <div class="answer-option-container">
+                                    <div
+                                        layout="vertical"
+                                        :class="[
+                                            'answer-short-text',
+                                            currentQuestionIsSubmitted
+                                                ? checkShortText()
+                                                    ? 'answer-correct'
+                                                    : 'answer-incorrect'
+                                                : '',
+                                        ]"
+                                    >
+                                        <div class="w-100 d-flex align-items-center">
+                                            <TextArea
+                                                :readonly="currentQuestionIsSubmitted"
+                                                :placeholder="'Enter your answer...'"
+                                                v-model="userAnswerShortText"
+                                            />
+                                            <i
+                                                v-if="
+                                                    currentQuestionIsSubmitted && checkShortText()
+                                                "
+                                                class="bx bx-check answer-icon"
+                                            ></i>
+                                            <i
                                                 v-if="
                                                     currentQuestionIsSubmitted && !checkShortText()
                                                 "
-                                                class="short-text-correct-answer"
-                                            >
-                                                {{ $t("learn_QS.instructions.short_text_answer") }}
-                                                <span>
-                                                    {{ currentQuestion.questionData.shortText }}
-                                                </span>
-                                            </div>
+                                                class="bx bx-x answer-icon"
+                                            ></i>
+                                        </div>
+                                        <div
+                                            v-if="currentQuestionIsSubmitted && !checkShortText()"
+                                            class="short-text-correct-answer"
+                                        >
+                                            {{ $t("learn_QS.instructions.short_text_answer") }}
+                                            <span>
+                                                {{ currentQuestion.questionData.shortText }}
+                                            </span>
                                         </div>
                                     </div>
-                                </template>
-                            </div>
+                                </div>
+                            </template>
                         </div>
-                        <div class="learn-question-footer">
+                    </div>
+                    <div class="learn-question-footer">
+                        <div
+                            :class="[
+                                'main-color-btn-ghost',
+                                currentQuestionIsSubmitted ? 'main-color-btn-ghost-disabled' : '',
+                            ]"
+                            @click="onSkipQuestion($event)"
+                        >
+                            {{ $t("learn_QS.buttons.dont_know") }}
+                        </div>
+                        <div class="d-flex">
                             <div
                                 :class="[
-                                    'main-color-btn-ghost',
-                                    currentQuestionIsSubmitted
-                                        ? 'main-color-btn-ghost-disabled'
-                                        : '',
+                                    'main-color-btn-ghost me-3',
+                                    !currentQuestionIsSubmitted ? 'd-none' : '',
                                 ]"
-                                @click="onSkipQuestion($event)"
+                                @click="onOpenCommentModal"
                             >
-                                {{ $t("learn_QS.buttons.dont_know") }}
+                                <i class="bx bx-conversation me-2"></i>
+                                {{ $t("learn_QS.buttons.comment") }}
                             </div>
-                            <div class="d-flex">
-                                <div
-                                    :class="[
-                                        'main-color-btn-ghost me-3',
-                                        !currentQuestionIsSubmitted ? 'd-none' : '',
-                                    ]"
-                                    @click="onOpenCommentModal"
-                                >
-                                    <i class="bx bx-conversation me-2"></i>
-                                    {{ $t("learn_QS.buttons.comment") }}
-                                </div>
 
-                                <div
-                                    :class="[
-                                        'main-color-btn-ghost me-3',
-                                        !currentQuestionIsSubmitted ? 'd-none' : '',
-                                    ]"
-                                    @click="toggleExplainModal"
-                                >
-                                    <i class="bx bx-bulb me-2"></i>
-                                    {{ $t("learn_QS.buttons.explaination") }}
-                                </div>
-
-                                <a-button
-                                    :class="[
-                                        'main-color-btn',
-                                        currentQuestionIsSubmitted ? 'main-color-btn-disabled' : '',
-                                    ]"
-                                    type="primary"
-                                    size="large"
-                                    @click="onSubmitAnswer"
-                                >
-                                    {{ $t("learn_QS.buttons.submit") }}
-                                </a-button>
+                            <div
+                                :class="[
+                                    'main-color-btn-ghost me-3',
+                                    !currentQuestionIsSubmitted ? 'd-none' : '',
+                                ]"
+                                @click="toggleExplainModal"
+                            >
+                                <i class="bx bx-bulb me-2"></i>
+                                {{ $t("learn_QS.buttons.explaination") }}
                             </div>
+
+                            <a-button
+                                :class="[
+                                    'main-color-btn',
+                                    currentQuestionIsSubmitted ? 'main-color-btn-disabled' : '',
+                                ]"
+                                type="primary"
+                                size="large"
+                                @click="onSubmitAnswer"
+                            >
+                                {{ $t("learn_QS.buttons.submit") }}
+                            </a-button>
                         </div>
-                    </template>
-                </div>
-                <div
-                    ref="explainModal"
-                    class="explain-modal explain-modal-up"
-                    :class="{ show: explainModalOpen }"
+                    </div>
+                </template>
+            </div>
+            <div
+                ref="explainModal"
+                class="explain-modal explain-modal-up"
+                :class="{ show: explainModalOpen }"
+            >
+                <div class="learn-question-explain" v-html="currentQuestion.explainText"></div>
+                <a-button
+                    :class="['main-color-btn close-modal-btn']"
+                    type="primary"
+                    size="large"
+                    @click="toggleExplainModal"
                 >
-                    <div class="learn-question-explain" v-html="currentQuestion.explainText"></div>
-                    <a-button
-                        :class="['main-color-btn close-modal-btn']"
-                        type="primary"
-                        size="large"
-                        @click="toggleExplainModal"
-                    >
-                        <i class="bx bx-chevrons-down"></i>
-                    </a-button>
-                    <a-button
-                        :class="[
-                            'main-color-btn',
-                            currentSession.length <= 0 ? 'main-color-btn-disabled' : '',
-                        ]"
-                        type="primary"
-                        size="large"
-                        @click="onNextQuestion"
-                    >
-                        {{ $t("learn_QS.buttons.next_question") }}
-                        <i class="bx bx-chevron-right"></i>
-                    </a-button>
-                </div>
-                <a-drawer
-                    :width="500"
-                    title="Comment section"
-                    :placement="'right'"
-                    :open="commentModalOpen"
-                    @close="onCloseCommentModal"
+                    <i class="bx bx-chevrons-down"></i>
+                </a-button>
+                <a-button
+                    :class="[
+                        'main-color-btn',
+                        currentSession.length <= 0 ? 'main-color-btn-disabled' : '',
+                    ]"
+                    type="primary"
+                    size="large"
+                    @click="onNextQuestion"
                 >
-                    <div class="comment-section">
-                        <div class="comment-container">
-                            <template v-if="currentQuestionComments.length > 0">
-                                <div
-                                    v-for="(comment, index) in currentQuestionComments"
-                                    :class="[
-                                        'comment-item',
-                                        chosenComment?.id === comment.id
-                                            ? 'comment-item-chosen'
-                                            : '',
-                                    ]"
-                                >
-                                    <div class="comment-main-content">
-                                        <i class="bx bx-user-circle comment-user-img"></i>
-                                        <div class="w-100 d-flex flex-column">
-                                            <div class="comment-content-info">
-                                                {{ comment.createBy.fullName }}
-                                                <span>
-                                                    {{
-                                                        dayjs(comment.createdAt).format(
-                                                            "DD/MM/YYYY HH:mm",
-                                                        )
-                                                    }}
-                                                </span>
-                                                <div
-                                                    v-if="comment.createBy.userId === user_info.id"
-                                                    class="comment-actions"
-                                                >
-                                                    <!-- <i
+                    {{ $t("learn_QS.buttons.next_question") }}
+                    <i class="bx bx-chevron-right"></i>
+                </a-button>
+            </div>
+            <a-drawer
+                :width="500"
+                title="Comment section"
+                :placement="'right'"
+                :open="commentModalOpen"
+                @close="onCloseCommentModal"
+            >
+                <div class="comment-section">
+                    <div class="comment-container">
+                        <template v-if="currentQuestionComments.length > 0">
+                            <div
+                                v-for="(comment, index) in currentQuestionComments"
+                                :class="[
+                                    'comment-item',
+                                    chosenComment?.id === comment.id ? 'comment-item-chosen' : '',
+                                ]"
+                            >
+                                <div class="comment-main-content">
+                                    <i class="bx bx-user-circle comment-user-img"></i>
+                                    <div class="w-100 d-flex flex-column">
+                                        <div class="comment-content-info">
+                                            {{ comment.createBy.fullName }}
+                                            <span>
+                                                {{
+                                                    dayjs(comment.createdAt).format(
+                                                        "DD/MM/YYYY HH:mm",
+                                                    )
+                                                }}
+                                            </span>
+                                            <div
+                                                v-if="comment.createBy.userId === user_info.id"
+                                                class="comment-actions"
+                                            >
+                                                <!-- <i
                                                         class="me-3 bx bx-edit"
                                                         @click="onEditComment(comment.id)"
                                                     ></i> -->
-                                                    <a-popconfirm
-                                                        class="pop-confirm-delete"
-                                                        :title="$t('create_QS.quiz.confirm')"
-                                                        @confirm="onDeleteComment(comment.id)"
-                                                    >
-                                                        <template #default>
-                                                            <i
-                                                                class="text-danger bx bx-trash-alt"
-                                                            ></i>
-                                                        </template>
-                                                    </a-popconfirm>
-                                                </div>
+                                                <a-popconfirm
+                                                    class="pop-confirm-delete"
+                                                    :title="$t('create_QS.quiz.confirm')"
+                                                    @confirm="onDeleteComment(comment.id)"
+                                                >
+                                                    <template #default>
+                                                        <i class="text-danger bx bx-trash-alt"></i>
+                                                    </template>
+                                                </a-popconfirm>
                                             </div>
-                                            <div class="comment-content">{{ comment.content }}</div>
-                                            <div class="comment-reply">
-                                                <div
-                                                    class="comment-reply-btn"
-                                                    @click="onTriggerReply(comment)"
-                                                >
-                                                    Reply
-                                                </div>
-                                                <div
-                                                    class="comment-children-open-btn"
-                                                    @click="onToggleReplyContainer(index)"
-                                                >
-                                                    {{ repliesOpen[index] ? "Close" : "View" }}
-                                                    ({{ comment.childComments.length }}) replies
-                                                </div>
+                                        </div>
+                                        <div class="comment-content">{{ comment.content }}</div>
+                                        <div class="comment-reply">
+                                            <div
+                                                class="comment-reply-btn"
+                                                @click="onTriggerReply(comment)"
+                                            >
+                                                Reply
                                             </div>
                                             <div
-                                                :id="'reply-items-' + index"
-                                                class="child-comment-container"
-                                                style="display: none"
+                                                class="comment-children-open-btn"
+                                                @click="onToggleReplyContainer(index)"
                                             >
-                                                <div
-                                                    class="comment-item"
-                                                    v-for="(
-                                                        childComment, index
-                                                    ) in comment.childComments"
-                                                >
-                                                    <div class="comment-main-content">
-                                                        <i
-                                                            class="bx bx-user-circle comment-user-img"
-                                                        ></i>
-                                                        <div class="w-100 d-flex flex-column">
-                                                            <div class="comment-content-info">
-                                                                {{ childComment.createBy.fullName }}
-                                                                <span>
-                                                                    {{
-                                                                        dayjs(
-                                                                            childComment.createdAt,
-                                                                        ).format("DD/MM/YYYY HH:mm")
-                                                                    }}
-                                                                </span>
-                                                                <div
-                                                                    v-if="
-                                                                        childComment.createBy
-                                                                            .userId === user_info.id
-                                                                    "
-                                                                    class="comment-actions"
-                                                                >
-                                                                    <!-- <i
+                                                {{ repliesOpen[index] ? "Close" : "View" }}
+                                                ({{ comment.childComments.length }}) replies
+                                            </div>
+                                        </div>
+                                        <div
+                                            :id="'reply-items-' + index"
+                                            class="child-comment-container"
+                                            style="display: none"
+                                        >
+                                            <div
+                                                class="comment-item"
+                                                v-for="(
+                                                    childComment, index
+                                                ) in comment.childComments"
+                                            >
+                                                <div class="comment-main-content">
+                                                    <i
+                                                        class="bx bx-user-circle comment-user-img"
+                                                    ></i>
+                                                    <div class="w-100 d-flex flex-column">
+                                                        <div class="comment-content-info">
+                                                            {{ childComment.createBy.fullName }}
+                                                            <span>
+                                                                {{
+                                                                    dayjs(
+                                                                        childComment.createdAt,
+                                                                    ).format("DD/MM/YYYY HH:mm")
+                                                                }}
+                                                            </span>
+                                                            <div
+                                                                v-if="
+                                                                    childComment.createBy.userId ===
+                                                                    user_info.id
+                                                                "
+                                                                class="comment-actions"
+                                                            >
+                                                                <!-- <i
                                                                         class="me-3 bx bx-edit"
                                                                         @click="
                                                                             onEditComment(
@@ -1204,30 +1230,27 @@ onMounted(async () => {
                                                                             )
                                                                         "
                                                                     ></i> -->
-                                                                    <a-popconfirm
-                                                                        class="pop-confirm-delete"
-                                                                        :title="
-                                                                            $t(
-                                                                                'create_QS.quiz.confirm',
-                                                                            )
-                                                                        "
-                                                                        @confirm="
-                                                                            onDeleteComment(
-                                                                                childComment.id,
-                                                                            )
-                                                                        "
-                                                                    >
-                                                                        <template #default>
-                                                                            <i
-                                                                                class="text-danger bx bx-trash-alt"
-                                                                            ></i>
-                                                                        </template>
-                                                                    </a-popconfirm>
-                                                                </div>
+                                                                <a-popconfirm
+                                                                    class="pop-confirm-delete"
+                                                                    :title="
+                                                                        $t('create_QS.quiz.confirm')
+                                                                    "
+                                                                    @confirm="
+                                                                        onDeleteComment(
+                                                                            childComment.id,
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    <template #default>
+                                                                        <i
+                                                                            class="text-danger bx bx-trash-alt"
+                                                                        ></i>
+                                                                    </template>
+                                                                </a-popconfirm>
                                                             </div>
-                                                            <div class="comment-content">
-                                                                {{ childComment.content }}
-                                                            </div>
+                                                        </div>
+                                                        <div class="comment-content">
+                                                            {{ childComment.content }}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1235,281 +1258,287 @@ onMounted(async () => {
                                         </div>
                                     </div>
                                 </div>
-                                <a-skeleton
-                                    v-if="commentLoading"
-                                    :loading="commentLoading"
-                                ></a-skeleton>
-                                <a-button
-                                    v-if="commentPageParams.pageNumber < commentTotalPage"
-                                    type="primary"
-                                    class="main-color-btn"
-                                    @click="onLoadMoreComment"
-                                    :loading="commentLoading"
-                                >
-                                    Load more
-                                </a-button>
-                            </template>
-                            <div
-                                v-else
-                                class="w-100 h-100 d-flex justify-content-center align-items-center"
+                            </div>
+                            <a-skeleton
+                                v-if="commentLoading"
+                                :loading="commentLoading"
+                            ></a-skeleton>
+                            <a-button
+                                v-if="commentPageParams.pageNumber < commentTotalPage"
+                                type="primary"
+                                class="main-color-btn"
+                                @click="onLoadMoreComment"
+                                :loading="commentLoading"
                             >
-                                <a-empty>
-                                    <template #description>
-                                        <span>No one has commented yet.</span>
-                                    </template>
-                                </a-empty>
-                            </div>
+                                Load more
+                            </a-button>
+                        </template>
+                        <div
+                            v-else
+                            class="w-100 h-100 d-flex justify-content-center align-items-center"
+                        >
+                            <a-empty>
+                                <template #description>
+                                    <span>No one has commented yet.</span>
+                                </template>
+                            </a-empty>
                         </div>
-                        <a-form layout="vertical" class="comment-form">
-                            <label v-if="isReplying">
-                                Replying to @{{ chosenComment?.createBy.fullName }}
-                            </label>
-                            <label v-else>Your comment</label>
-                            <TextArea
-                                v-model:value="commentValue"
-                                :placeholder="'Enter comment'"
-                                :max-length="500"
-                            />
-                            <div class="comment-form-footer">
-                                <a-button
-                                    type="primary"
-                                    shape="round"
-                                    :class="[
-                                        'me-3 main-color-btn-ghost',
-                                        !isReplying ? 'main-color-btn-ghost-disabled' : '',
-                                    ]"
-                                    @click="onCancelReplying"
-                                >
-                                    {{ $t("learn_QS.buttons.cancel") }}
-                                </a-button>
-                                <a-button
-                                    :loading="commentLoading"
-                                    type="primary"
-                                    shape="round"
-                                    :class="[
-                                        'main-color-btn',
-                                        !commentValue ? 'main-color-btn-disabled' : '',
-                                    ]"
-                                    @click="onAddComment"
-                                >
-                                    {{ $t("learn_QS.buttons.send_comment") }}
-                                </a-button>
-                            </div>
-                        </a-form>
                     </div>
-                </a-drawer>
+                    <a-form layout="vertical" class="comment-form">
+                        <label v-if="isReplying">
+                            Replying to @{{ chosenComment?.createBy.fullName }}
+                        </label>
+                        <label v-else>Your comment</label>
+                        <TextArea
+                            v-model:value="commentValue"
+                            :placeholder="'Enter comment'"
+                            :max-length="500"
+                        />
+                        <div class="comment-form-footer">
+                            <a-button
+                                type="primary"
+                                shape="round"
+                                :class="[
+                                    'me-3 main-color-btn-ghost',
+                                    !isReplying ? 'main-color-btn-ghost-disabled' : '',
+                                ]"
+                                @click="onCancelReplying"
+                            >
+                                {{ $t("learn_QS.buttons.cancel") }}
+                            </a-button>
+                            <a-button
+                                :loading="commentLoading"
+                                type="primary"
+                                shape="round"
+                                :class="[
+                                    'main-color-btn',
+                                    !commentValue ? 'main-color-btn-disabled' : '',
+                                ]"
+                                @click="onAddComment"
+                            >
+                                {{ $t("learn_QS.buttons.send_comment") }}
+                            </a-button>
+                        </div>
+                    </a-form>
+                </div>
+            </a-drawer>
+        </div>
+    </div>
+
+    <a-drawer
+        :open="finalModalOpen"
+        placement="top"
+        :height="'100vh'"
+        :closable="false"
+        @close="closeFinalModal"
+        :body-style="{ padding: 0, height: '100%' }"
+    >
+        <template #title>
+            <div class="title-container">
+                <a-row class="w-100 d-flex align-items-center">
+                    <a-col :span="1">
+                        <RouterLink :to="{ name: 'User_Library' }">
+                            <i class="bx bx-chevron-left navigator-back-button"></i>
+                        </RouterLink>
+                    </a-col>
+                    <a-col class="main-title" :span="23">
+                        <span> {{ quiz.title }}</span> <br />
+                    </a-col>
+                </a-row>
+            </div>
+        </template>
+
+        <div class="content-item modal-final-container">
+            <div class="final-modal-quote">
+                {{ finalModalQuote }}
             </div>
         </div>
-
-        <a-drawer
-            :open="finalModalOpen"
-            placement="top"
-            :height="'100vh'"
-            :closable="false"
-            @close="closeFinalModal"
-            :body-style="{ padding: 0, height: '100%' }"
-        >
-            <template #title>
-                <div class="title-container">
-                    <a-row class="w-100 d-flex align-items-center">
-                        <a-col :span="1">
-                            <RouterLink :to="{ name: 'User_Library' }">
-                                <i class="bx bx-chevron-left navigator-back-button"></i>
-                            </RouterLink>
-                        </a-col>
-                        <a-col class="main-title" :span="23">
-                            <span> {{ quiz.title }}</span> <br />
-                        </a-col>
-                    </a-row>
-                </div>
-            </template>
-
-            <div class="content-item modal-final-container">
-                <div class="final-modal-quote">
-                    {{ finalModalQuote }}
+        <div class="progress-bar-container final">
+            <div class="progress-info">
+                <div class="progress-info-percentage">
+                    {{ $t("learn_QS.other.total_set_progress") }}
+                    <span>{{ completionPercentage }}%</span>
                 </div>
             </div>
-            <div class="progress-bar-container final">
-                <div class="progress-info">
-                    <div class="progress-info-percentage">
-                        {{ $t("learn_QS.other.total_set_progress") }}
-                        <span>{{ completionPercentage }}%</span>
-                    </div>
+            <a-progress
+                :show-info="false"
+                stroke-color="#7C3AED"
+                status="active"
+                :percent="completionPercentage"
+            />
+            <div class="progress-info">
+                <div class="progress-info-percentage">
+                    {{ $t("learn_QS.other.completed") }}:
+                    <span>{{ quiz.completedQuestionCount }}</span>
                 </div>
-                <a-progress
-                    :show-info="false"
-                    stroke-color="#7C3AED"
-                    status="active"
-                    :percent="completionPercentage"
-                />
-                <div class="progress-info">
-                    <div class="progress-info-percentage">
-                        {{ $t("learn_QS.other.completed") }}:
-                        <span>{{ quiz.completedQuestionCount }}</span>
+                <div class="progress-info-percentage">
+                    {{ $t("learn_QS.other.total_question") }}
+                    <span>{{ quiz.totalQuestionCount }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="content-item modal-final-container">
+            <a-divider style="background-color: var(--content-item-border-color)"></a-divider>
+            <div class="preview-question-title">
+                {{ $t("learn_QS.other.preview_modal_title") }}
+            </div>
+            <div class="preview-question-container">
+                <div class="preview-question-item" v-for="(question, index) in completed">
+                    <div class="question-item-content">
+                        <div
+                            v-if="question.textFormat === QUESTION_FORMAT.HTML"
+                            class="question-html"
+                            v-html="question.questionText"
+                        ></div>
+                        <div v-else class="question-text">
+                            {{ question.questionText }}
+                        </div>
+                        <div class="question-item-answer" :id="`question-item-answer-${index}`">
+                            <template v-if="question.type === QUESTION_TYPE.MULTIPLE_CHOICE">
+                                <div class="multiple-choice-answer">
+                                    <ul>
+                                        <li v-for="option in question.questionData.multipleChoice">
+                                            {{ option.text }}
+                                            <span class="text-success" v-if="option.isAnswer">
+                                                ({{ option.isAnswer }})
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </template>
+                            <template v-if="question.type === QUESTION_TYPE.MATCHING">
+                                <div
+                                    class="pair-answer"
+                                    v-for="option in question.questionData.matching?.matches"
+                                >
+                                    <span class="pair-answer-item">
+                                        {{
+                                            question.questionData.matching?.leftItems.find(
+                                                (x) => x.id === option.leftId,
+                                            )?.text
+                                        }}
+                                    </span>
+                                    <i class="bx bx-right-arrow-alt"></i>
+                                    <span class="pair-answer-item">
+                                        {{
+                                            question.questionData.matching?.rightItems.find(
+                                                (x) => x.id === option.rightId,
+                                            )?.text
+                                        }}
+                                    </span>
+                                </div>
+                            </template>
+                            <template v-if="question.type === QUESTION_TYPE.ORDERING">
+                                <div class="ordering-answer">
+                                    <div class="ordering-answer-item">
+                                        <div v-for="option in question.questionData.ordering">
+                                            {{ option.text }}
+                                        </div>
+                                    </div>
+                                    <i class="bx bx-right-arrow-alt"></i>
+                                    <div class="ordering-answer-item">
+                                        <div
+                                            class="ordering-answer-item"
+                                            v-for="(
+                                                option, index
+                                            ) in question.questionData.ordering?.sort(
+                                                (asc, desc) => asc.correctOrder - desc.correctOrder,
+                                            )"
+                                        >
+                                            <span>#{{ option.correctOrder }}</span> -
+                                            {{ option.text }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            <template v-if="question.type === QUESTION_TYPE.SHORT_TEXT">
+                                <span>Answer:</span>
+                                <div class="short-text-answer">
+                                    {{ question.questionData.shortText }}
+                                </div>
+                            </template>
+                        </div>
                     </div>
-                    <div class="progress-info-percentage">
-                        {{ $t("learn_QS.other.total_question") }}
-                        <span>{{ quiz.totalQuestionCount }}</span>
+                    <div class="question-item-toogle-btn">
+                        <i
+                            class="bx bx-chevron-up"
+                            @click="toggleDisplayAnswer(index, $event.currentTarget!)"
+                        ></i>
                     </div>
                 </div>
             </div>
-            <div class="content-item modal-final-container">
-                <a-divider style="background-color: var(--content-item-border-color)"></a-divider>
-                <div class="preview-question-title">
-                    {{ $t("learn_QS.other.preview_modal_title") }}
-                </div>
-                <div class="preview-question-container">
-                    <div class="preview-question-item" v-for="(question, index) in completed">
-                        <div class="question-item-content">
-                            <div
-                                v-if="question.textFormat === QUESTION_FORMAT.HTML"
-                                class="question-html"
-                                v-html="question.questionText"
-                            ></div>
-                            <div v-else class="question-text">
-                                {{ question.questionText }}
-                            </div>
-                            <div class="question-item-answer" :id="`question-item-answer-${index}`">
-                                <template v-if="question.type === QUESTION_TYPE.MULTIPLE_CHOICE">
-                                    <div class="multiple-choice-answer">
-                                        <ul>
-                                            <li
-                                                v-for="option in question.questionData
-                                                    .multipleChoice"
-                                            >
-                                                {{ option.text }}
-                                                <span class="text-success" v-if="option.isAnswer">
-                                                    ({{ option.isAnswer }})
-                                                </span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </template>
-                                <template v-if="question.type === QUESTION_TYPE.MATCHING">
-                                    <div
-                                        class="pair-answer"
-                                        v-for="option in question.questionData.matching?.matches"
-                                    >
-                                        <span class="pair-answer-item">
-                                            {{
-                                                question.questionData.matching?.leftItems.find(
-                                                    (x) => x.id === option.leftId,
-                                                )?.text
-                                            }}
-                                        </span>
-                                        <i class="bx bx-right-arrow-alt"></i>
-                                        <span class="pair-answer-item">
-                                            {{
-                                                question.questionData.matching?.rightItems.find(
-                                                    (x) => x.id === option.rightId,
-                                                )?.text
-                                            }}
-                                        </span>
-                                    </div>
-                                </template>
-                                <template v-if="question.type === QUESTION_TYPE.ORDERING">
-                                    <div class="ordering-answer">
-                                        <div class="ordering-answer-item">
-                                            <div v-for="option in question.questionData.ordering">
-                                                {{ option.text }}
-                                            </div>
-                                        </div>
-                                        <i class="bx bx-right-arrow-alt"></i>
-                                        <div class="ordering-answer-item">
-                                            <div
-                                                class="ordering-answer-item"
-                                                v-for="(
-                                                    option, index
-                                                ) in question.questionData.ordering?.sort(
-                                                    (asc, desc) =>
-                                                        asc.correctOrder - desc.correctOrder,
-                                                )"
-                                            >
-                                                <span>#{{ option.correctOrder }}</span> -
-                                                {{ option.text }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </template>
-                                <template v-if="question.type === QUESTION_TYPE.SHORT_TEXT">
-                                    <span>Answer:</span>
-                                    <div class="short-text-answer">
-                                        {{ question.questionData.shortText }}
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                        <div class="question-item-toogle-btn">
-                            <i
-                                class="bx bx-chevron-up"
-                                @click="toggleDisplayAnswer(index, $event.currentTarget!)"
-                            ></i>
-                        </div>
+            <div class="content-item final-modal-footer">
+                <div>{{ $t("learn_QS.other.preview_modal_continues_ins") }}</div>
+                <a-button
+                    :class="['main-color-btn']"
+                    type="primary"
+                    size="large"
+                    shape="round"
+                    @click="onContinuesLearn"
+                >
+                    {{ $t("learn_QS.buttons.continue") }}
+                </a-button>
+            </div>
+        </div>
+    </a-drawer>
+
+    <a-drawer
+        :open="completeModalOpen"
+        placement="top"
+        :height="'100vh'"
+        :closable="false"
+        @close="closeFinalModal"
+        :body-style="{ padding: 0, height: '100%' }"
+    >
+        <DotLottieVue
+            v-if="isAnimationDisplaying"
+            :autoplay="isAnimationDisplaying"
+            ref="animationRef"
+            :class="['animation-container']"
+            @complete="isAnimationDisplaying = false"
+            :src="animationPath"
+        />
+        <div class="modal-complete-container">
+            <div class="content-item modal-complete">
+                <img class="modal-complete-img" :src="trophy_png" alt="" />
+                <div class="modal-complete-content-container">
+                    <div class="modal-complete-content">
+                        {{ $t("learn_QS.other.complete_modal_congratulation") }}
+                    </div>
+                    <div class="modal-complete-content sub-content">
+                        {{ $t("learn_QS.other.complete_modal_ins") }}
                     </div>
                 </div>
-                <div class="content-item final-modal-footer">
-                    <div>{{ $t("learn_QS.other.preview_modal_continues_ins") }}</div>
+                <div class="modal-complete-buttons-container">
                     <a-button
-                        :class="['main-color-btn']"
                         type="primary"
+                        class="main-color-btn ghost-btn"
                         size="large"
-                        shape="round"
-                        @click="onContinuesLearn"
+                        @click="onRedirectToLibrary"
                     >
-                        {{ $t("learn_QS.buttons.continue") }}
+                        {{ $t("learn_QS.buttons.back_to_home") }}
+                    </a-button>
+                    <a-button
+                        type="primary"
+                        class="main-color-btn"
+                        size="large"
+                        @click="onRedirectToTest"
+                    >
+                        {{ $t("learn_QS.buttons.take_a_test") }}
+                    </a-button>
+                    <a-button
+                        type="primary"
+                        class="main-color-btn"
+                        size="large"
+                        @click="onResetLearnHistory"
+                    >
+                        {{ $t("learn_QS.buttons.reset_learn_mode") }}
                     </a-button>
                 </div>
             </div>
-        </a-drawer>
-
-        <a-drawer
-            :open="completeModalOpen"
-            placement="top"
-            :height="'100vh'"
-            :closable="false"
-            @close="closeFinalModal"
-            :body-style="{ padding: 0, height: '100%' }"
-        >
-            <DotLottieVue
-                v-if="isAnimationDisplaying"
-                :autoplay="isAnimationDisplaying"
-                ref="animationRef"
-                :class="['animation-container']"
-                @complete="isAnimationDisplaying = false"
-                :src="animationPath"
-            />
-            <div class="modal-complete-container">
-                <div class="content-item modal-complete">
-                    <img class="modal-complete-img" :src="trophy_png" alt="" />
-                    <div class="modal-complete-content-container">
-                        <div class="modal-complete-content">
-                            {{ $t("learn_QS.other.complete_modal_congratulation") }}
-                        </div>
-                        <div class="modal-complete-content sub-content">
-                            {{ $t("learn_QS.other.complete_modal_ins") }}
-                        </div>
-                    </div>
-                    <div class="modal-complete-buttons-container">
-                        <a-button type="primary" class="main-color-btn ghost-btn" size="large">
-                            {{ $t("learn_QS.buttons.back_to_home") }}
-                        </a-button>
-                        <a-button type="primary" class="main-color-btn" size="large">
-                            {{ $t("learn_QS.buttons.take_a_test") }}
-                        </a-button>
-                        <a-button
-                            type="primary"
-                            class="main-color-btn"
-                            size="large"
-                            @click="onResetLearnHistory"
-                        >
-                            {{ $t("learn_QS.buttons.reset_learn_mode") }}
-                        </a-button>
-                    </div>
-                </div>
-            </div>
-        </a-drawer>
-    </template>
-    <template v-else>
+        </div>
+    </a-drawer>
+    <!-- <template v-else>
         <div class="page-container">
             <div class="w-100 h-100 d-flex align-items-center justify-content-center">
                 <a-result
@@ -1538,7 +1567,7 @@ onMounted(async () => {
                 >
             </div>
         </div>
-    </template>
+    </template> -->
 </template>
 <style>
 .ant-drawer-content {

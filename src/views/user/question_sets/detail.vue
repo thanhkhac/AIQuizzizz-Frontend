@@ -7,7 +7,7 @@ import type QuestionSet from "@/models/response/question_set/questionSet";
 import type Tag from "@/models/response/tag/tag";
 import QUESTION_TYPE from "@/constants/questionTypes";
 
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import Input from "@/shared/components/Common/Input.vue";
@@ -163,6 +163,7 @@ const updateRating = async () => {
     if (result.data.success) {
         message.success(t("message.updated_successfully"));
         modal_rate_open.value = false;
+        await getData();
     } else {
         message.error(t("message.updated_failed"));
     }
@@ -196,7 +197,7 @@ const onDelete = () => {
                 return;
             }
             message.success(t("message.deleted_successfully"));
-            router.push("User_Library");
+            router.push({ name: "User_Library" });
         },
     });
 };
