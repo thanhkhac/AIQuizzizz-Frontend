@@ -257,7 +257,8 @@ const onFinish = async () => {
                 (x.multipleChoices.some(
                     (x) => x.text.trim().length === 0 || x.text.trim().length > 1000,
                 ) ||
-                    x.multipleChoices.filter((x) => x.isAnswer).length === 0),
+                    x.multipleChoices.filter((x) => x.isAnswer).length === 0 ||
+                    x.multipleChoices.length < 2),
         ),
 
         //invalid matching
@@ -268,17 +269,19 @@ const onFinish = async () => {
                     (x) => x.leftItem.trim().length === 0 || x.leftItem.trim().length > 1000,
                 ) ||
                     x.matchingPairs.some(
-                        (x) => x.rightItem.trim().length === 0 || x.rightItem.trim().length > 1000
-                    )),
+                        (x) => x.rightItem.trim().length === 0 || x.rightItem.trim().length > 1000,
+                    ) ||
+                    x.matchingPairs.length < 2),
         ),
 
         //invalid ordering
         formState.createUpdateQuestions.filter(
             (x) =>
                 x.type === QUESTION_TYPE.ORDERING &&
-                x.orderingItems.some(
+                (x.orderingItems.some(
                     (x) => x.text.trim().length === 0 || x.text.trim().length > 1000,
-                ),
+                ) ||
+                    x.orderingItems.length < 2),
         ),
 
         //invalid short text

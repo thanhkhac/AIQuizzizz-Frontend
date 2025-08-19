@@ -100,6 +100,14 @@ const { validateInfos } = Form.useForm(props.question, {
         },
     ],
 });
+
+const checkEnoughOption = () => {
+    const valid = props.question.orderingItems.length >= 2;
+    const yes = valid;
+    let message = yes ? "" : "This type of question need at least two options";
+
+    return { yes, message };
+};
 </script>
 <template>
     <a-form :layout="'vertical'" :rules="validateInfos" :model="props.question">
@@ -171,38 +179,52 @@ const { validateInfos } = Form.useForm(props.question, {
                                 - {{ $t("create_QS.question.ordering_ins") }}
                             </span>
                         </div>
-
-                        <div :class="['option-list-container']">
-                            <VueDraggable :disabled="true" v-model="questionData.orderingItems">
-                                <div
-                                    class="option-item"
-                                    v-for="(option, index) in questionData.orderingItems?.sort(
-                                        (a, b) => a.correctOrder - b.correctOrder,
-                                    )"
-                                    :key="option.id"
-                                >
-                                    <div class="option-item-order">
-                                        <i class="bx bx-hash"></i>
-                                        {{ index + 1 }}
+                        <a-tooltip
+                            :title="!checkEnoughOption().yes ? checkEnoughOption().message : null"
+                            :color="'red'"
+                        >
+                            <div
+                                :class="[
+                                    'option-list-container',
+                                    !checkEnoughOption().yes ? 'option-list-container-error' : '',
+                                ]"
+                            >
+                                <VueDraggable :disabled="true" v-model="questionData.orderingItems">
+                                    <div
+                                        class="option-item"
+                                        v-for="(option, index) in questionData.orderingItems?.sort(
+                                            (a, b) => a.correctOrder - b.correctOrder,
+                                        )"
+                                        :key="option.id"
+                                    >
+                                        <div class="option-item-order">
+                                            <i class="bx bx-hash"></i>
+                                            {{ index + 1 }}
+                                        </div>
+                                        <div class="option-item-input">
+                                            <TextArea
+                                                v-model="option.text"
+                                                :placeholder="
+                                                    t(
+                                                        'create_QS.question.answer_option_placeholder',
+                                                    )
+                                                "
+                                                :isRequired="true"
+                                                :maxLength="1000"
+                                            />
+                                        </div>
+                                        <i
+                                            class="bx bx-minus-circle"
+                                            @click="removeOption(index)"
+                                        ></i>
                                     </div>
-                                    <div class="option-item-input">
-                                        <TextArea
-                                            v-model="option.text"
-                                            :placeholder="
-                                                t('create_QS.question.answer_option_placeholder')
-                                            "
-                                            :isRequired="true"
-                                            :maxLength="1000"
-                                        />
-                                    </div>
-                                    <i class="bx bx-minus-circle" @click="removeOption(index)"></i>
+                                </VueDraggable>
+                                <div class="add-option" @click="addOption">
+                                    <i class="bx bx-plus"></i>
+                                    {{ $t("create_QS.buttons.add_option") }}
                                 </div>
-                            </VueDraggable>
-                            <div class="add-option" @click="addOption">
-                                <i class="bx bx-plus"></i>
-                                {{ $t("create_QS.buttons.add_option") }}
                             </div>
-                        </div>
+                        </a-tooltip>
                     </div>
                 </div>
             </div>

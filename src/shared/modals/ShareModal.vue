@@ -5,7 +5,7 @@ import ApiClass from "@/api/ApiClass";
 import ApiTestTemplate from "@/api/ApiTestTemplate";
 import ApiFolder from "@/api/ApiFolder";
 
-import { ref, computed, onMounted, watch, reactive } from "vue";
+import { ref, computed, onMounted, watch, reactive, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "../components/Common/Input.vue";
 import { useAuthStore } from "@/stores/AuthStore";
@@ -344,12 +344,15 @@ const onCopyPublicShareUrl = () => {
 //#endregion
 
 //#region change visibility
+// const emit = defineEmits<(e: "updateVisibility", visibility: string) => void>();
+
 const onChangeVisibility = async () => {
     await updateSharedUsers({
         sharingModels: [],
         successMsg: t("message.updated_successfully"),
         errorMsg: t("message.updated_failed"),
     });
+    // emit("updateVisibility", selected_visibility_option.value as string);
 };
 
 //#endregion

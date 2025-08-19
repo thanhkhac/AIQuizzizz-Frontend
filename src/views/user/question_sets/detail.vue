@@ -87,6 +87,7 @@ const getData = async () => {
         questions.value = quiz_questions.value;
 
         await getPermission();
+        await nextTick();
     } catch (error: any) {
         if (ERROR.QUESTION_SET_NOT_FOUND in (error.response?.data?.errors || {})) {
             router.push({ name: "404" });
@@ -120,6 +121,11 @@ const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
 const onOpenShareModal = () => {
     shareModalRef.value?.openModal();
 };
+
+const onUpdateVisibility = (visibility: string) => {
+    quiz.value.visibilityMode = visibility;
+};
+
 //#endregion
 
 //#region share class modal
@@ -462,6 +468,7 @@ onMounted(async () => {
     </div>
 
     <ShareModal
+        v-if="!loading"
         ref="shareModalRef"
         :id="quiz.id"
         :name="quiz.name"

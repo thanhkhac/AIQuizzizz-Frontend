@@ -100,8 +100,15 @@ const { validateInfos } = Form.useForm(props.question, {
 
 const checkHaveAnswer = () => {
     const haveAnswer = props.question.multipleChoices.filter((item) => item.isAnswer);
-    const yes = haveAnswer.length > 0;
-    let message = yes ? "" : "This type of question need at least one correct answer";
+    const isEnough = props.question.multipleChoices.length >= 2;
+    const yes = haveAnswer.length > 0 && isEnough;
+
+    let message = "";
+    if (!isEnough) {
+        message = "This type of question needs at least two choices";
+    } else if (haveAnswer.length === 0) {
+        message = "This type of question needs at least one correct answer";
+    }
 
     return { yes, message };
 };

@@ -102,6 +102,14 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
     props.question.matchingPairs[index].leftItem = rightItem;
     props.question.matchingPairs[index].rightItem = temp;
 };
+
+const checkEnoughOption = () => {
+    const valid = props.question.matchingPairs.length >= 2;
+    const yes = valid;
+    let message = yes ? "" : "This type of question need at least two options";
+
+    return { yes, message };
+};
 </script>
 <template>
     <a-form :layout="'vertical'" :rules="validateInfos" :model="props.question">
@@ -167,44 +175,56 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                 <div class="question-body-answer">
                     <div class="option-section">
                         <div class="option-title">{{ $t("create_QS.question.answer_option") }}</div>
-                        <div :class="['option-list-container']">
+                        <a-tooltip
+                            :title="!checkEnoughOption().yes ? checkEnoughOption().message : null"
+                            :color="'red'"
+                        >
                             <div
-                                class="pair-item"
-                                v-for="(option, index) in props.question.matchingPairs"
-                                :key="option.id"
+                                :class="[
+                                    'option-list-container',
+                                    !checkEnoughOption().yes ? 'option-list-container-error' : '',
+                                ]"
                             >
-                                <div class="pair-item-input">
-                                    <TextArea
-                                        v-model="option.leftItem"
-                                        :placeholder="
-                                            t('create_QS.question.answer_option_placeholder')
+                                <div
+                                    class="pair-item"
+                                    v-for="(option, index) in props.question.matchingPairs"
+                                    :key="option.id"
+                                >
+                                    <div class="pair-item-input">
+                                        <TextArea
+                                            v-model="option.leftItem"
+                                            :placeholder="
+                                                t('create_QS.question.answer_option_placeholder')
+                                            "
+                                            :isRequired="true"
+                                            :maxLength="1000"
+                                        />
+                                    </div>
+                                    <i
+                                        class="bx bx-transfer pair-icon"
+                                        @click="
+                                            onSwitchItem(index, option.leftItem, option.rightItem)
                                         "
-                                        :isRequired="true"
-                                        :maxLength="1000"
-                                    />
+                                    ></i>
+                                    <div class="pair-item-input">
+                                        <TextArea
+                                            v-model="option.rightItem"
+                                            :placeholder="'Enter option text'"
+                                            :isRequired="true"
+                                            :maxLength="1000"
+                                        />
+                                    </div>
+                                    <i
+                                        class="bx bx-minus-circle remove-btn"
+                                        @click="removeOption(index)"
+                                    ></i>
                                 </div>
-                                <i
-                                    class="bx bx-transfer pair-icon"
-                                    @click="onSwitchItem(index, option.leftItem, option.rightItem)"
-                                ></i>
-                                <div class="pair-item-input">
-                                    <TextArea
-                                        v-model="option.rightItem"
-                                        :placeholder="'Enter option text'"
-                                        :isRequired="true"
-                                        :maxLength="1000"
-                                    />
+                                <div class="add-option" @click="addOption">
+                                    <i class="bx bx-plus"></i>
+                                    {{ $t("create_QS.buttons.add_pair") }}
                                 </div>
-                                <i
-                                    class="bx bx-minus-circle remove-btn"
-                                    @click="removeOption(index)"
-                                ></i>
                             </div>
-                            <div class="add-option" @click="addOption">
-                                <i class="bx bx-plus"></i>
-                                {{ $t("create_QS.buttons.add_pair") }}
-                            </div>
-                        </div>
+                        </a-tooltip>
                     </div>
                 </div>
             </div>
