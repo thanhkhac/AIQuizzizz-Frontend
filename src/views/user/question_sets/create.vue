@@ -266,14 +266,25 @@ const onFinish = () => {
 
 const showModalConfirmation = () => {
     Modal.confirm({
-        title: t("create_QS.Modal.confirmvalid.title"),
+        title: t("create_QS.modal.valid.title"),
         content: t("create_QS.modal.valid.content"),
         centered: true,
         okText: t("sidebar.buttons.ok"),
         cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
             //logic here
+
+            formState.questions = formState.questions.map((x) =>
+                x.id.startsWith("new_") ? { ...x, questionId: null } : x,
+            );
             let result = await ApiQuestionSet.Create(formState);
+            // let result = await ApiQuestionSet.Create({
+            //     ...formState,
+            //     questions: formState.questions.map((x) => ({
+            //         questionId: x.id.startsWith("new_") ? null : x.id,
+            //         ...x,
+            //     })),
+            // });
             if (result.data.success) {
                 message.success(t("message.created_successfully"));
                 isDataValid.value = false;
