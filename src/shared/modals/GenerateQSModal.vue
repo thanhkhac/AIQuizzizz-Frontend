@@ -69,7 +69,7 @@ const handleModalImport = () => {
         cancelText: t("create_QS.buttons.cancel"),
         onOk: () => {
             const selectedQuestions = generatedQuestions.value.filter((question) =>
-                generateModalState.checkedList.includes(question.id),
+                generateModalState.checkedList.includes(question),
             ) as RequestQuestion[];
 
             //emit event & params to main
@@ -103,7 +103,7 @@ const generatedQuestions = ref<RequestQuestion[]>([]);
 const generateModalState = reactive({
     checkAll: false,
     indeterminate: false,
-    checkedList: [] as string[],
+    checkedList: [] as RequestQuestion[],
 });
 
 const generateByAIModalState = reactive({
