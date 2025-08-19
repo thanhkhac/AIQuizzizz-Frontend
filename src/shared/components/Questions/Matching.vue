@@ -71,9 +71,9 @@ const { validateInfos } = Form.useForm(props.question, {
             validator: (_rule: string, value: string) => {
                 const plainText = value.replace(/<[^>]+>/g, ""); //editor return as html in <p></p>
                 if (!plainText) return Promise.reject(t("create_QS.error_msg.required"));
-                if (plainText.length > 500) {
+                if (plainText.length > 5000) {
                     return Promise.reject(
-                        t("create_QS.error_msg.out_of_range", { maxLength: 500 }),
+                        t("create_QS.error_msg.out_of_range", { max_length: 5000 }),
                     );
                 }
                 return Promise.resolve();
@@ -85,9 +85,9 @@ const { validateInfos } = Form.useForm(props.question, {
         {
             validator: (_rule: string, value: string) => {
                 const plainText = value.replace(/<[^>]+>/g, "");
-                if (plainText.length > 500) {
+                if (plainText.length > 5000) {
                     return Promise.reject(
-                        t("create_QS.error_msg.out_of_range", { maxLength: 500 }),
+                        t("create_QS.error_msg.out_of_range", { max_length: 5000 }),
                     );
                 }
                 return Promise.resolve();
@@ -180,7 +180,7 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                                             t('create_QS.question.answer_option_placeholder')
                                         "
                                         :isRequired="true"
-                                        :maxLength="500"
+                                        :maxLength="1000"
                                     />
                                 </div>
                                 <i
@@ -192,7 +192,7 @@ const onSwitchItem = (index: number, leftItem: string, rightItem: string) => {
                                         v-model="option.rightItem"
                                         :placeholder="'Enter option text'"
                                         :isRequired="true"
-                                        :maxLength="500"
+                                        :maxLength="1000"
                                     />
                                 </div>
                                 <i

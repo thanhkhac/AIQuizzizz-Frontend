@@ -227,7 +227,7 @@ const onFinish = () => {
                 .replace(/<\/p>$/, "") //replace </p> at the end
                 .trim();
 
-            return 0 === questionText.length || questionText.length >= 500;
+            return 0 === questionText.length || questionText.length >= 5000;
         }),
 
         //invalid explain text
@@ -239,7 +239,7 @@ const onFinish = () => {
                       .trim()
                 : "";
 
-            return explainText.length >= 500;
+            return explainText.length >= 5000;
         }),
 
         //invalid multiplechoice
@@ -247,7 +247,7 @@ const onFinish = () => {
             (x) =>
                 x.type === QUESTION_TYPE.MULTIPLE_CHOICE &&
                 (x.multipleChoices.some(
-                    (x) => x.text.trim().length === 0 || x.text.trim().length > 500,
+                    (x) => x.text.trim().length === 0 || x.text.trim().length > 1000,
                 ) ||
                     x.multipleChoices.filter((x) => x.isAnswer).length === 0),
         ),
@@ -257,10 +257,10 @@ const onFinish = () => {
             (x) =>
                 x.type === QUESTION_TYPE.MATCHING &&
                 (x.matchingPairs.some(
-                    (x) => x.leftItem.trim().length === 0 || x.leftItem.trim().length > 500,
+                    (x) => x.leftItem.trim().length === 0 || x.leftItem.trim().length > 1000,
                 ) ||
                     x.matchingPairs.some(
-                        (x) => x.rightItem.trim().length === 0 || x.rightItem.trim().length > 500,
+                        (x) => x.rightItem.trim().length === 0 || x.rightItem.trim().length > 1000,
                     )),
         ),
 
@@ -269,7 +269,7 @@ const onFinish = () => {
             (x) =>
                 x.type === QUESTION_TYPE.ORDERING &&
                 x.orderingItems.some(
-                    (x) => x.text.trim().length === 0 || x.text.trim().length > 500,
+                    (x) => x.text.trim().length === 0 || x.text.trim().length > 1000,
                 ),
         ),
 
@@ -277,7 +277,7 @@ const onFinish = () => {
         formState.createUpdateQuestions.filter(
             (x) =>
                 x.type === QUESTION_TYPE.SHORT_TEXT &&
-                (x.shortAnswer.trim().length === 0 || x.shortAnswer.trim().length > 500),
+                (x.shortAnswer.trim().length === 0 || x.shortAnswer.trim().length > 1000),
         ),
     ];
 
