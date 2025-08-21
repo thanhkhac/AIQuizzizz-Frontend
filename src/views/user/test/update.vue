@@ -175,8 +175,8 @@ const onHandleChangeQuestionType = (question: RequestQuestion) => {
 };
 
 const onAddQuestion = () => {
-    if (formState.createUpdateQuestions.length >= 500) {
-        message.warning(t("message.limit_question", { number: 500 }));
+    if (formState.createUpdateQuestions.length >= 100) {
+        message.warning(t("message.limit_question", { number: 100 }));
         return;
     }
 

@@ -68,7 +68,7 @@
                 "learnQuiz": "Learn, Quiz, ",
                 "earnRewards": "Earn Rewards"
             },
-            "content": "Join thousands of students and teachers on the ultimate quiz platform. Test your knowledge, compete with peers, and win exciting rewards",
+            "content": "Join thousands of students and lecturers on the ultimate quiz platform. Test your knowledge, compete with peers, and win exciting rewards",
             "buttons": {
                 "started": "Get Started",
                 "explore": "Explore Quizzes"
@@ -125,7 +125,7 @@
                 "description": "Earn points, badges, and real rewards for your achievements"
             },
             "teacherDashboard": {
-                "name": "Teacher Dashboard",
+                "name": "Lecturer Dashboard",
                 "description": "Comprehensive tools for educators to create and manage quizzes"
             },
             "progressTracking": {
@@ -143,7 +143,7 @@
         },
         "banner": {
             "title": "Ready to Start Your Great Journey?",
-            "content": "Join thousands of students and teachers. Sign up today and get access to all features",
+            "content": "Join thousands of students and lecturers. Sign up today and get access to all features",
             "buttons": {
                 "createAccount": "Create Account",
                 "explore": "Explore"
@@ -612,7 +612,7 @@
         "sub_title": "Shape, supervise, and study your classes from start to finish",
         "select_option": {
             "All": "All",
-            "Teacher": "Teacher",
+            "Teacher": "Lecturer",
             "Student": "Student",
             "Owner": "Owner"
         },
@@ -678,8 +678,8 @@
         },
         "buttons": {
             "invite_member": "Invite member",
-            "assign_lecturer": "Assign teacher",
-            "remove_lecturer": "Remove teacher",
+            "assign_lecturer": "Assign lecturer",
+            "remove_lecturer": "Remove lecturer",
             "history_test": "History test",
             "delete_class": "Delete class",
             "reset_code": " Reset code"
@@ -710,7 +710,7 @@
         },
         "position": {
             "Onwer": "Owner",
-            "Teacher": "Teacher",
+            "Teacher": "Lecturer",
             "Student": "Student"
         },
         "column": {
@@ -1068,7 +1068,7 @@
         "NOT_FOUND_STUDENT": "Student not found",
         "NOT_FOUND_STUDENT_IN_CLASS": "Student not found in class",
         "PERMISSION_NOT_FOUND": "Permission not found",
-        "NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS": "Teacher or owner not found in class",
+        "NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS": "Lecturer or owner not found in class",
         "NOT_FOUND_USER_IN_CLASS": "User not found in class",
 
         "QUESTION_SET_ALREADY_IN_CLASS": "Question set already in class",
