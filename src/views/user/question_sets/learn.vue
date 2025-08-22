@@ -63,7 +63,6 @@ const getQuizData = async () => {
             router.push({ name: "404" });
             return;
         }
-
         quiz.value = result.data.data;
         if (quiz.value.completedQuestionCount === quiz.value.totalQuestionCount) {
             openCompleteModal();
@@ -76,7 +75,6 @@ const getQuizData = async () => {
         currentSession.value = [...quiz.value.questions];
         currentQuestion.value = currentSession.value[0];
         currentSession.value.shift();
-        console.log(currentQuestion.value);
     } catch (error: any) {
         const errorKeys = Object.keys(error.response.data.errors);
         if (errorKeys.includes(ERROR.PLAN_REQUIRE_PLAN)) {
@@ -400,22 +398,23 @@ const onSubmitAnswer = () => {
         }
     }
 
+    const isCorrect = currentQuestionResult.value.result;
+    const isReLearn = isCurrentSessionReLearn.value;
+    const question = currentQuestion.value;
+
     //if hasn't re-tried and has incorrect
-    if (currentQuestionResult.value.result === false && !isCurrentSessionReLearn.value) {
-        incorrect.value.add(currentQuestion.value);
-    } else if (currentQuestionResult.value.result && isCurrentSessionReLearn.value) {
-        //if re-tried and correct
-        incorrect.value.delete(currentQuestion.value);
-        completed.value.push(currentQuestion.value);
-        quiz.value.completedQuestionCount += 1;
-        sendCorrectQuestionHistory();
-    } else if (currentQuestionResult.value.result === false) {
-        incorrect.value.add(currentQuestion.value);
+    if (!isCorrect) {
+        incorrect.value.add(question);
     } else {
-        completed.value.push(currentQuestion.value);
-        quiz.value.completedQuestionCount += 1;
+        if (isReLearn) {
+            incorrect.value.delete(question);
+        }
+        //if re-tried and correct send it or correct
+        completed.value.push(question);
+        quiz.value.completedQuestionCount++;
         sendCorrectQuestionHistory();
     }
+
     triggerFinalModal();
 };
 
@@ -538,47 +537,12 @@ const closeFinalModal = () => {
     finalModalOpen.value = false;
 };
 
-// const triggerFinalModal = async () => {
-//     debugger;
-//     if (currentSession.value.length > 0) return;
-
-//     //has incorrect and hasn't re-learned
-//     if (incorrect.value.size > 0 && !isCurrentSessionReLearn.value) {
-//         //append 1st incorrect question - re-try incorrect
-//         isCurrentSessionReLearn.value = true;
-//         currentSession.value = Array.from(incorrect.value);
-//     } else if (
-//         (incorrect.value.size === 0 && !isCurrentSessionReLearn.value) ||
-//         (incorrect.value.size > 0 && isCurrentSessionReLearn.value)
-//     ) {
-//         //has no incorrect OR re-learned but didnot correct all
-
-//         // re-tried - send 2nd incorrect to backend
-//         // trigger open final modal
-//         if (incorrect.value.size > 0) {
-//             const learnHistory = quiz.value.questions
-//                 .filter((x) => {
-//                     return incorrect.value.has(x);
-//                 })
-//                 .map((x) => {
-//                     return {
-//                         questionId: x.id,
-//                         isCorrect: completed.value.some((c) => c.id === x.id),
-//                     };
-//                 });
-//             await ApiQuestionSet.LearnHistory(questionSetId.value.toString(), learnHistory);
-//         }
-
-//         openFinalModal();
-//         return;
-//     }
-// };
-
 const triggerFinalModal = async () => {
     if (currentSession.value.length > 0) return;
 
     const hasIncorrect = incorrect.value.size > 0;
-
+    //has incorrect and hasn't re-learned
+    //append 1st incorrect question - re-try incorrect
     if (hasIncorrect && !isCurrentSessionReLearn.value) {
         isCurrentSessionReLearn.value = true;
         currentSession.value = Array.from(incorrect.value);
@@ -587,11 +551,12 @@ const triggerFinalModal = async () => {
 
     if (!hasIncorrect || isCurrentSessionReLearn.value) {
         if (hasIncorrect) {
+            // re-tried - send 2nd incorrects to backend
             const learnHistory = quiz.value.questions
                 .filter((x) => incorrect.value.has(x))
                 .map((x) => ({
                     questionId: x.id,
-                    isCorrect: completed.value.some((c) => c.id === x.id),
+                    isCorrect: false,
                 }));
 
             await ApiQuestionSet.LearnHistory(questionSetId.value.toString(), learnHistory);
@@ -611,6 +576,12 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
     if (answer) $(answer).slideToggle();
 };
 const onContinuesLearn = async () => {
+    if (quiz.value.completedQuestionCount === quiz.value.totalQuestionCount) {
+        closeFinalModal();
+        openCompleteModal();
+        return;
+    }
+
     await getQuizData();
 
     isCurrentSessionReLearn.value = false;
@@ -624,6 +595,7 @@ const onContinuesLearn = async () => {
     toggleExplainModal();
 
     resetUserAnswer();
+    syncMatchingHeights();
 };
 
 //#endregion
@@ -1512,7 +1484,7 @@ onMounted(async () => {
                 <div class="modal-complete-buttons-container">
                     <a-button
                         type="primary"
-                        class="main-color-btn ghost-btn"
+                        class="main-color-btn-ghost"
                         size="large"
                         @click="onRedirectToLibrary"
                     >
@@ -1702,8 +1674,8 @@ onMounted(async () => {
 }
 .ghost-btn {
     background-color: transparent;
-    border-color: var(--text-color);
-    color: var(--text-color);
+    border-color: var(--main-color);
+    color: var(--main-color) !important;
 }
 .ghost-btn:hover {
     background-color: transparent !important;

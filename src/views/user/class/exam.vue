@@ -513,10 +513,13 @@ onMounted(async () => {
     padding: 10px;
     display: flex;
     align-items: center;
+    transition: all 0.2s ease-in-out;
 }
 
 .exam-item:hover {
     border: 1px solid var(--main-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .exam-item i {

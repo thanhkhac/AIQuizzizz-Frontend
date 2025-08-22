@@ -219,7 +219,7 @@ onMounted(async () => {
 }
 
 ::v-deep(.ant-picker-calendar-date-today.ant-picker-cell-selected) {
-    background: #111a2c !important;
+    background: var(--content-item-children-background-color) !important;
     border-color: var(--main-color) !important;
     color: var(--text-color-contrast) !important;
 }
@@ -256,7 +256,7 @@ onMounted(async () => {
 }
 
 ::v-deep(.ant-picker-cell-selected .ant-picker-cell-inner) {
-    background: #111a2c !important;
+    background: var(--content-item-children-background-color) !important;
 }
 
 ::v-deep(.ant-radio-button-wrapper) {

@@ -49,8 +49,7 @@ import Header from "@/shared/components/Header.vue";
             <div class="d-flex flex-column justify-content-center align-items-center">
                 <div class="home-content-item">
                     <!-- <div class="home-content-item-icon">⭐</div> -->
-                    <AppstoreOutlined style="color: #ac63e6" />
-                    <i class="bxr bx-science"></i>
+                    🎲
                     <div>{{ $t("homepage.categories.sub_title") }}</div>
                 </div>
                 <div class="home-content-item">
@@ -174,8 +173,7 @@ import Header from "@/shared/components/Header.vue";
         <div class="content-container">
             <div class="d-flex flex-column justify-content-center align-items-center">
                 <div class="home-content-item">
-                    <StarOutlined style="color: #ac63e6" />
-                    <i class="bxr bx-science"></i>
+                    🤖
                     <div>{{ $t("homepage.features.sub_title") }}</div>
                 </div>
                 <div class="home-content-item">
@@ -283,7 +281,7 @@ import Header from "@/shared/components/Header.vue";
 <style scoped>
 .background {
     height: 100vh;
-    background-color: var(--background-color);
+    background-color: var(--content-item-background-color);
     overflow-x: hidden;
     position: relative;
 }
@@ -355,7 +353,8 @@ import Header from "@/shared/components/Header.vue";
 
 .home-content-item:first-child {
     border-radius: 20px;
-    background: var(--background-color-selected);
+    background: var(--main-color);
+    color: var(--text-color-contrast);
     display: inline-flex;
     padding: 4px 12px;
     justify-content: center;
@@ -374,6 +373,7 @@ import Header from "@/shared/components/Header.vue";
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    color: var(--text-color);
 }
 .home-content-item:nth-child(3) {
     width: 600px;
@@ -385,22 +385,26 @@ import Header from "@/shared/components/Header.vue";
     align-items: center;
     text-decoration: none;
     border-radius: 10px;
-    background-color: var(--background-color-contrast);
+    background-color: var(--content-item-background-color);
+    border: 1px solid var(--main-color);
     margin: 0 10px;
-    color: var(--text-color-black);
+    color: var(--main-color);
     font-weight: 500;
+    transition: all 0.2s ease-in-out;
 }
 
 .home-content-item:nth-child(4) a:nth-child(2):hover {
-    background-color: #eee;
+    background-color: var(--main-color);
+    color: var(--text-color-contrast);
 }
 
 .home-content-item:nth-child(4) a:first-child {
     background: linear-gradient(97deg, #5813c1 -5.8%, #c45037 99.69%);
-    color: var(--text-color);
+    color: var(--text-color-contrast);
     background-size: 200% 200%;
     background-position: 0% 50%;
     transition: background-position 0.3s ease-in;
+    border-color: transparent;
 }
 .home-content-item:nth-child(4) a:first-child:hover {
     background-position: 50% 100%;
@@ -423,8 +427,9 @@ import Header from "@/shared/components/Header.vue";
     padding: 10px;
     margin: 10px;
     border-radius: 8px;
-    border: 4px solid var(--background-color-selected);
-    background: var(--background-color-selected);
+    border: 4px solid var(--content-item-background-color);
+    background: var(--content-item-background-color);
+    box-shadow: 1px 5px 10px 0.5px var(--content-item-border-color);
 }
 
 .category-item-icon {
@@ -529,6 +534,7 @@ import Header from "@/shared/components/Header.vue";
     justify-content: start !important;
     text-align: center !important;
     font-weight: 600 !important;
+    border-color: transparent !important;
 }
 
 .category-item-content i {
@@ -553,7 +559,7 @@ import Header from "@/shared/components/Header.vue";
     justify-content: start;
     align-items: start;
 
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--main-color);
     background: var(--form-item-background-color);
 }
 
@@ -608,7 +614,7 @@ import Header from "@/shared/components/Header.vue";
 }
 .banner-item div:nth-child(1) {
     width: 400px;
-    color: var(--text-color);
+    color: var(--text-color-contrast);
     font-size: 36px;
     font-style: normal;
     font-weight: 700;
@@ -617,7 +623,7 @@ import Header from "@/shared/components/Header.vue";
 
 .banner-item div:nth-child(2) {
     width: 550px;
-    color: var(--text-color);
+    color: var(--text-color-contrast);
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
@@ -632,15 +638,15 @@ import Header from "@/shared/components/Header.vue";
     margin-right: 15px;
     background-color: var(--background-color-contrast);
     border-radius: 10px;
-    color: var(--text-color-black);
+    color: var(--main-color);
     text-decoration: none;
     font-weight: 500;
 }
 
 .banner-item a:nth-child(2) {
     background-color: transparent;
-    border: 2px solid var(--border-color-contrast);
-    color: var(--text-color);
+    border: 2px solid var(--text-color-contrast);
+    color: var(--text-color-contrast);
 }
 .banner-item a:nth-child(1):hover {
     opacity: 0.8;

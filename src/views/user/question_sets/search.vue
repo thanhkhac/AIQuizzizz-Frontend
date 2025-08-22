@@ -433,7 +433,7 @@ onMounted(async () => {
 }
 .tag-item-qs-count {
     background-color: var(--main-color);
-    color: var(--text-color);
+    color: var(--text-color-contrast);
     padding: 0px 5px;
     margin-left: 10px;
 }
@@ -503,7 +503,8 @@ onMounted(async () => {
 }
 
 .result-tag i {
-    background-color: #f44336;
+    background-color: var(--incorrect-answer-color);
+    color: var(--text-color-contrast);
     padding: 2px;
     display: flex;
     align-items: center;
