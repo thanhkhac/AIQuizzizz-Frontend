@@ -83,7 +83,7 @@
     --background-color-contrast: #000;
     --background-color-contrast-hovered: #222;
 
-    --background-color-gradient: linear-gradient(150deg, #fff 20%, #fff 100%);
+    --background-color-gradient: linear-gradient(150deg, #5813c1 20%, #c45037 100%);
 
     --border-color: rgba(0, 0, 0, 0.1);
     --border-color-contrast: rgba(0, 0, 0, 0.8);
@@ -91,7 +91,7 @@
     --content-item-background-color: #f8f8fa;
     --content-item-border-color: #d4d4d8;
 
-    --content-item-children-background-color: #f0f0f0;
+    --content-item-children-background-color: var(--main-color-theme);
 
     --form-item-background-color: #ffffff;
     --form-item-border-color: #c4c4c4;

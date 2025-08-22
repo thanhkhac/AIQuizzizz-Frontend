@@ -1054,23 +1054,10 @@ onMounted(async () => {
                                     </div>
                                 </div>
                                 <div
+                                    v-if="getInCorrectPercentage() > 0"
                                     class="result-button"
-                                    v-if="getInCorrectPercentage() === 100"
-                                    @click="onRedirectToLearn"
+                                    @click="onRetest"
                                 >
-                                    <i class="bx bx-analyse"></i>
-                                    <div>
-                                        <div class="result-button-title">
-                                            {{ $t("practice_test.final_modal.buttons.practice") }}
-                                        </div>
-                                        <div class="result-button-content">
-                                            {{
-                                                $t("practice_test.final_modal.buttons_ins.practice")
-                                            }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div v-else class="result-button" @click="onRetest">
                                     <i class="bx bx-reset"></i>
                                     <div>
                                         <div class="result-button-title">
@@ -1079,6 +1066,19 @@ onMounted(async () => {
                                         <div class="result-button-content">
                                             {{
                                                 $t("practice_test.final_modal.buttons_ins.re_test")
+                                            }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="result-button" v-else @click="onRedirectToLearn">
+                                    <i class="bx bx-analyse"></i>
+                                    <div>
+                                        <div class="result-button-title">
+                                            {{ $t("practice_test.final_modal.buttons.practice") }}
+                                        </div>
+                                        <div class="result-button-content">
+                                            {{
+                                                $t("practice_test.final_modal.buttons_ins.practice")
                                             }}
                                         </div>
                                     </div>

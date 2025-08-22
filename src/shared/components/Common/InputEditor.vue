@@ -265,9 +265,11 @@ defineExpose({
     border-radius: 5px;
     display: flex;
     align-items: center;
+    transition: all 0.2s ease-in-out;
 }
 .toolbar-button:hover {
     background-color: var(--main-color);
+    color: var(--text-color-contrast);
 }
 
 .toolbar-button i {
@@ -283,10 +285,11 @@ defineExpose({
 }
 .is-active {
     background-color: var(--main-color);
+    color: var(--text-color-contrast);
 }
 
 .ProseMirror {
-    background-color: var(--content-item-children-background-color);
+    background-color: var(--form-item-background-color);
     border: 1px solid var(--form-item-border-color);
     padding: 10px;
     height: 100%;

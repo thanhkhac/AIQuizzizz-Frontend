@@ -623,7 +623,7 @@ onMounted(async () => {
     border-radius: 8px;
     font-size: 16px;
     font-weight: 500;
-    color: var(--text-color);
+    color: var(--main-color);
     transition: all 0.2s ease-in-out;
     cursor: pointer;
 }

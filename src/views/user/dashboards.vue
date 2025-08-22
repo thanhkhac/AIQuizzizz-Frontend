@@ -96,7 +96,7 @@ const public_quiz_data = ref<QuestionSet[]>([]);
 
 const publicPageParams = reactive({
     pageNumber: 1,
-    pageSize: 10,
+    pageSize: 9,
     sortBy: QUESTION_SET_SORT_CATEGORY.RATING,
 });
 
@@ -248,7 +248,7 @@ onMounted(async () => {
                         <i class="bx bx-chevron-right"></i>
                     </RouterLink>
                 </div>
-                <div class="popular-quiz-container">
+                <div class="quiz-container">
                     <template v-if="loading">
                         <a-skeleton active :loading="loading"></a-skeleton>
                         <a-skeleton active :loading="loading"></a-skeleton>
@@ -256,7 +256,7 @@ onMounted(async () => {
                     <template v-else>
                         <div
                             v-for="quiz in public_quiz_data"
-                            class="popular-quiz-item"
+                            class="quiz-item"
                             @click="onRedirectToDetail(quiz.id)"
                         >
                             <div class="p-quiz-item-info">
@@ -323,10 +323,14 @@ onMounted(async () => {
     height: 200px;
     max-height: 200px;
     cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.1s ease-in-out;
 }
 
 .quiz-item:hover {
     border: 1px solid var(--main-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .quiz-item i {
@@ -449,6 +453,8 @@ onMounted(async () => {
 
 .search-result-item:hover {
     border-color: var(--main-color);
+    background-color: var(--content-item-children-background-color);
+    box-shadow: 0 2px 5px 3px rgba(0, 0, 0, 0.1);
 }
 
 .result-item-title {
@@ -468,7 +474,7 @@ onMounted(async () => {
 
 .result-item-noq {
     font-size: 14px;
-    color: var(--text-color);
+    color: var(--text-color-contrast);
     padding: 0px 10px;
     background-color: var(--main-color);
     border-radius: 50px;
@@ -476,45 +482,6 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     margin-right: 10px;
-}
-
-.popular-quiz-container {
-    display: flex;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    flex-wrap: nowrap;
-    padding: 10px 0px;
-    gap: 16px;
-}
-
-.popular-quiz-container::-webkit-scrollbar {
-    height: 10px;
-}
-
-.popular-quiz-container::-webkit-scrollbar-thumb {
-    height: 10px;
-    background-color: var(--main-color);
-    border-radius: 10px;
-}
-
-.popular-quiz-item {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--main-color);
-    border-radius: 8px;
-    padding: 10px;
-    flex: 0 0 calc(33.3333% - 16px);
-    height: 200px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-
-.popular-quiz-item:hover {
-    background-color: var(--content-item-border-color);
-}
-
-.popular-quiz-item:hover .p-quiz-item-title {
-    color: var(--main-color);
 }
 
 .p-quiz-item-title {
@@ -538,6 +505,7 @@ onMounted(async () => {
     justify-content: space-between;
     align-items: center;
     margin-top: 15px;
+    width: 100%;
 }
 
 .p-quiz-item-question-count {

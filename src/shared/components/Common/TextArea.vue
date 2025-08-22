@@ -64,7 +64,7 @@ const checkInvalid = () => {
 .input {
     height: 35px;
     padding: 5px 10px;
-    background-color: var(--content-item-children-background-color);
+    background-color: var(--form-item-background-color);
     border: 1px solid var(--form-item-border-color);
     min-height: 60px;
     max-height: 160px;
