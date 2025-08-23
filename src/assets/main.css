@@ -464,7 +464,7 @@ Custome a-select
 }
 
 .add-option:hover {
-    border: 1px dashed #aaa;
+    border: 1px dashed var(--main-color);
 }
 
 .main-color-btn {
@@ -472,6 +472,7 @@ Custome a-select
     transition: all 0.2s ease-in-out;
     display: flex;
     align-items: center;
+    justify-content: center;
     color: var(--text-color-contrast) !important;
     font-size: 16px;
     text-decoration: none;
@@ -942,6 +943,7 @@ pre {
     height: 520px;
     max-height: 520px;
     overflow-y: scroll;
+    box-shadow: 0px 0px 20px var(--form-item-border-color);
 }
 
 .preview-section .section-content::-webkit-scrollbar {
@@ -2245,7 +2247,8 @@ ant-select-tree */
 .ant-tree-list-holder-inner {
     background-color: var(--form-item-background-color) !important;
     border-color: var(--form-item-border-color) !important;
-    color: var(--text-color-contrast) !important;
+    color: var(--text-color) !important;
+    font-weight: 500 !important;
 }
 
 .ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-normal.ant-tree-node-selected {
@@ -2261,6 +2264,11 @@ ant-select-tree */
 .ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-close.ant-tree-node-selected {
     background-color: var(--main-color) !important;
     color: var(--text-color-contrast) !important;
+}
+
+.ant-tree-checkbox.ant-tree-checkbox-checked .ant-tree-checkbox-inner {
+    background-color: var(--main-color) !important;
+    border-color: var(--main-color) !important;
 }
 
 /* ========================================Create-QuestionSet and siblings====================================================== */

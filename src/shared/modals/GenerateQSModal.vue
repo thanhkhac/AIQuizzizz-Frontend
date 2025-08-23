@@ -711,7 +711,7 @@ onMounted(() => {});
     padding: 10px;
     border: 1px solid var(--main-color);
     border-radius: 8px;
-    color: var(--text-color-contrast);
+    color: var(--main-color);
     font-weight: 500;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
@@ -724,6 +724,7 @@ onMounted(() => {});
 .file-structure:hover {
     background-color: var(--main-color);
     border-color: var(--main-color);
+    color: var(--text-color-contrast);
 }
 .loading-container {
     width: 100vw;

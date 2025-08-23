@@ -73,7 +73,6 @@ const getSystemSettingsData = async () => {
         <!-- header title -->
         <div class="title-container">
             <div class="main-title">
-                <!-- <span>{{ t(`admin.manage_subscription.title`) }}</span> -->
                 <span>System settings</span>
             </div>
         </div>
@@ -81,70 +80,69 @@ const getSystemSettingsData = async () => {
         <div class="content">
             <div class="content-item">
                 <a-form layout="vertical" ref="createPlanFormRef" :model="system_settings">
-                    <!-- <a-row :gutter="16">
-                        <a-col :span="8"> -->
-                    <a-form-item
-                        label="Input Cost Per Million Tokens"
-                        name="inputCostPerMillionTokens"
-                    >
-                        <a-input
-                            v-model:value="system_settings.inputCostPerMillionTokens"
-                            class="update_input_name"
-                        />
-                    </a-form-item>
-                    <!-- </a-col> -->
-
-                    <!-- <a-col :span="8"> -->
-                    <a-form-item
-                        label="Output Cost Per Million Tokens"
-                        name="outputCostPerMillionTokens"
-                    >
-                        <a-input
-                            v-model:value="system_settings.outputCostPerMillionTokens"
-                            class="update_input_name"
-                        />
-                    </a-form-item>
-                    <!-- </a-col> -->
-
-                    <!-- <a-col :span="8"> -->
-                    <a-form-item label="Fixed System Fee" name="fixedSystemFee">
-                        <a-input
-                            v-model:value="system_settings.fixedSystemFee"
-                            class="update_input_name"
-                        />
-                    </a-form-item>
-                    <!-- </a-col> -->
-                    <!-- </a-row> -->
-
-                    <!-- <a-row :gutter="16">
-                        <a-col :span="12"> -->
-                    <a-form-item label="Max Input Token" name="maxInputToken">
-                        <a-input
-                            v-model:value="system_settings.maxInputToken"
-                            class="update_input_name"
-                        />
-                    </a-form-item>
-                    <!-- </a-col> -->
-
-                    <!-- <a-col :span="12"> -->
-                    <a-form-item label="Max Output Token" name="maxOutputToken">
-                        <a-input
-                            v-model:value="system_settings.maxOutputToken"
-                            class="update_input_name"
-                        />
-                    </a-form-item>
-                    <!-- </a-col> -->
-                    <!-- </a-row> -->
-
-                    <a-button
-                        :loading="isUpdateLoading"
-                        class="main-color-btn"
-                        key="submit"
-                        type="primary"
-                        @click="onUpdate"
-                    >
-                        {{ t("admin.manage_subscription.btn.save") }}
-                    </a-button>
+                    <a-row class="w-100 d-flex justify-content-between">
+                        <a-col :span="11">
+                            <a-form-item
+                                label="Input Cost Per Million Tokens"
+                                name="inputCostPerMillionTokens"
+                            >
+                                <a-input-number
+                                    v-model:value="system_settings.inputCostPerMillionTokens"
+                                    class="update_input_name"
+                                />
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="11">
+                            <a-form-item
+                                label="Output Cost Per Million Tokens"
+                                name="outputCostPerMillionTokens"
+                            >
+                                <a-input-number
+                                    v-model:value="system_settings.outputCostPerMillionTokens"
+                                    class="update_input_name"
+                                />
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <a-row class="w-100 d-flex justify-content-between">
+                        <a-col :span="11">
+                            <a-form-item label="Max Input Token" name="maxInputToken">
+                                <a-input-number
+                                    v-model:value="system_settings.maxInputToken"
+                                    class="update_input_name"
+                                />
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="11">
+                            <a-form-item label="Max Output Token" name="maxOutputToken">
+                                <a-input-number
+                                    v-model:value="system_settings.maxOutputToken"
+                                    class="update_input_name"
+                                />
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <a-row class="w-100 d-flex justify-content-between">
+                        <a-col :span="11">
+                            <a-form-item label="Fixed System Fee" name="fixedSystemFee">
+                                <a-input-number
+                                    v-model:value="system_settings.fixedSystemFee"
+                                    class="update_input_name"
+                                />
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <div class="w-100 d-flex justify-content-end">
+                        <a-button
+                            :loading="isUpdateLoading"
+                            class="main-color-btn"
+                            key="submit"
+                            type="primary"
+                            @click="onUpdate"
+                        >
+                            {{ t("admin.manage_subscription.btn.save") }}
+                        </a-button>
+                    </div>
                 </a-form>
             </div>
         </div>
@@ -153,10 +151,7 @@ const getSystemSettingsData = async () => {
 
 <style scoped>
 .update_input_name {
-    height: 35px;
-    padding: 5px 10px;
-    background-color: var(--content-item-children-background-color);
-    border: 1px solid var(--form-item-border-color);
-    color: var(--text-color-white);
+    width: 100%;
+    align-items: center;
 }
 </style>

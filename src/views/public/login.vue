@@ -117,11 +117,12 @@ const onGoogleLogin = async () => {
             </a-form-item>
             <a-form-item>
                 <a-button
+                    class="main-color-btn"
                     :loading="button_loading"
                     @click="onFinish"
                     size="large"
                     type="primary"
-                    style="background-color: #9823f5; width: 100%"
+                    style="width: 100%"
                 >
                     {{ $t("auth.buttons.signIn") }}
                 </a-button>
