@@ -434,10 +434,15 @@
         "billing": {
             "title": "Billing and transaction",
             "sub_title": "Observe your transaction history and upgrade your plan.",
+            "transaction_count": "Transactions",
             "bank": {
                 "name": "Account name",
                 "number": "Bank account number",
                 "bank_name": "Bank"
+            },
+            "deposit": {
+                "title": "Top up",
+                "content": "Top up into AIQuiz to convert to AIQuiz Points and use"
             },
             "qr": {
                 "title": "Create payment QR Code",

@@ -434,10 +434,15 @@
         "billing": {
             "title": "Lịch sử giao dịch",
             "sub_title": "Kiểm tra lịch sử giao dịch và nâng cấp tài khoản của bạn",
+            "transaction_count": "Giao dịch",
             "bank": {
                 "name": "Chủ tài khoản",
                 "number": "Số tài khoản",
                 "bank_name": "Ngân hàng"
+            },
+            "deposit": {
+                "title": "Nạp tiền",
+                "content": "Nạp tiền vào AIQuiz để chuyển đổi thành điểm AIQuiz và sử dụng"
             },
             "qr": {
                 "title": "Tạo QR Code thanh toán",
