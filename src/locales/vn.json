@@ -968,16 +968,17 @@
         "title": "Cấu trúc tệp",
         "sub_title": "Nghiên cứu cấu trúc tệp đã tạo",
         "buttons": {
-            "generate_structure": "Tạo cấu trúc",
+            "generate_structure": "Tạo cấu trúc với AI",
             "confirm": "Xác nhận",
             "re_load": "Thử lại"
         },
         "other": {
             "analyzing": "Đang phân tích cấu trúc tệp...",
-            "invalid_structure": "Có vẻ như tệp của bạn không có cấu trúc rõ ràng. Bạn có muốn AI tạo một cấu trúc cho bạn không?"
+            "invalid_structure": "Có vẻ như tệp của bạn không có cấu trúc rõ ràng. Bạn có muốn AI tạo một cấu trúc cho bạn không?",
+            "generate_structure_ins": "Bạn không hài lòng với cấu trúc hiện tại? Hãy để AI tạo một cái mới cho bạn."
         },
         "confirm_modal": {
-            "title": "Bạn có chắc chắn muốn tạo cấu trúc tệp không?",
+            "title": "Bạn có chắc chắn muốn tạo cấu trúc tệp bằng AI không?",
             "content": "Bạn sẽ cần ít nhất ",
             "content_tail": "điểm AIQ để xử lý tệp này."
         }
@@ -1178,7 +1179,11 @@
         "minimun_question_type": "Phải chọn ít nhất một loại câu hỏi.",
 
         "failed_to_generate_file_structure": "Tạo cấu trúc tệp thất bại.",
-        "failed_to_get_cost": "Tính toán chi phí để tạo cấu trúc tệp thất bại."
+        "failed_to_get_cost": "Tính toán chi phí để tạo cấu trúc tệp thất bại.",
+
+        "generated_structure_successfully": "Tạo cấu trúc tệp thành công!",
+        "generated_question_successfully": "Tạo câu hỏi thành công!",
+        "generated_question_failed": "Tạo câu hỏi thất bại."
     },
     "admin": {
         "manage_acc": {

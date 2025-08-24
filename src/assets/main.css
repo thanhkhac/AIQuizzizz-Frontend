@@ -1386,7 +1386,8 @@ ol {
 }
 
 .answer-option:hover {
-    background-color: var(--content-item-border-color);
+    background-color: var(--main-color-theme);
+    border-color: var(--main-color);
 }
 
 .answer-option-content {
@@ -1419,10 +1420,21 @@ ol {
 
 .answer-correct {
     border-color: var(--correct-answer-color);
+    background-color: var(--correct-answer-theme);
+}
+.answer-correct:hover {
+    border-color: var(--correct-answer-color);
+    background-color: var(--correct-answer-theme);
 }
 
 .answer-incorrect {
     border-color: var(--incorrect-answer-color);
+    background-color: var(--incorrect-answer-theme);
+}
+
+.answer-incorrect:hover {
+    border-color: var(--incorrect-answer-color);
+    background-color: var(--incorrect-answer-theme);
 }
 
 .answer-icon {
@@ -1682,7 +1694,7 @@ ol {
 
 /* matching */
 .sortable-chosen .answer-option {
-    background-color: var(--content-item-border-color);
+    background-color: var(--main-color-theme);
     border: 2px solid var(--main-color);
 }
 
@@ -2040,9 +2052,13 @@ Custom a-switch
 }
 
 .import-button:nth-child(2) {
-    background: var(--background-color-gradient);
     border: 2px solid transparent;
     color: var(--text-color-contrast);
+
+    background: linear-gradient(97deg, #5813c1 -5.8%, #c45037 99.69%);
+    background-size: 200% 200%;
+    background-position: 25% 50%;
+    transition: background-position 0.2s ease-in-out;
 }
 .import-button:nth-child(2):hover {
     background-position: 50% 100%;

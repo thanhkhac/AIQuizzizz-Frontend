@@ -24,7 +24,7 @@ import home_vector from "@/assets/home_vector.png";
 </template>
 <style>
 .authentication-item:nth-child(1) {
-    background-color: var(--background-color);
+    background-color: #000;
     height: 100vh;
     width: 50vw;
     position: relative;
@@ -93,10 +93,8 @@ import home_vector from "@/assets/home_vector.png";
     font-style: normal;
     line-height: normal;
     letter-spacing: -0.24px;
-    color: var(--text-color);
 }
 .authentication-item-title span:nth-child(1) {
-    color: var(--text-color);
     font-size: 30px;
     font-weight: 600;
 }

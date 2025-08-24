@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ApiAIGenerate from "@/api/ApiAIGenerate";
 import ApiPdf from "@/api/ApiPdf";
+import type Cost from "@/models/response/question_set/cost";
 import { ref, computed, h, nextTick, watch } from "vue";
 import { LoadingOutlined, ExclamationCircleFilled } from "@ant-design/icons-vue";
 
@@ -18,11 +19,6 @@ interface TreeNode {
 
 interface Props {
     file: File;
-}
-
-interface Cost {
-    miniumPointToGenerate: number;
-    tokenCount: number;
 }
 
 //#endregion
@@ -144,6 +140,9 @@ const fetchTreeData = async (apiCall: (file: File) => Promise<any>, shouldCloseM
 
         serverData.value = topLevel;
         treeData.value = addRandomKeys(serverData.value);
+        if (apiCall === ApiAIGenerate.GenerateDocumentStructure) {
+            message.success(t("message.generated_structure_successfully"));
+        }
     } catch (e) {
         console.error(e);
     } finally {
@@ -208,8 +207,8 @@ const onEmitImport = () => {
 const onConfirmImportStructure = () => {
     if (selectedTree.value.length === 0) {
         Modal.error({
-            title: "Error",
-            content: "Please choose at least one section in your document to proceed.",
+            title: t("generate_qs_modal.invalid_structure_modal.title"),
+            content: t("generate_qs_modal.invalid_structure_modal.content"),
             centered: true,
         });
         return;
@@ -231,21 +230,21 @@ defineExpose({ openModal, closeModal, clearData });
 
 <template>
     <a-modal
+        :closable="false"
         centered
         width="100%"
         wrap-class-name="medium-modal large"
         :open="modal_open"
-        @cancel="closeModal"
     >
         <div class="modal-container">
             <div class="modal-title-container">
                 <a-row class="w-100 d-flex align-items-center">
-                    <a-col :span="1">
+                    <!-- <a-col :span="2">
                         <RouterLink @click="closeModal" :to="{ name: '' }">
                             <i class="bx bx-chevron-left navigator-back-button"></i>
                         </RouterLink>
-                    </a-col>
-                    <a-col class="main-title" :span="23">
+                    </a-col> -->
+                    <a-col class="ms-3 main-title" :span="22">
                         <span> {{ $t("generate_file_structure.title") }}</span> <br />
                         <span>
                             {{ $t("generate_file_structure.sub_title") }}
@@ -261,6 +260,27 @@ defineExpose({ openModal, closeModal, clearData });
 
                 <div v-else class="content-wrapper">
                     <div v-if="treeData.length > 0" class="tree-container">
+                        <div class="mb-2 d-flex justify-content-end align-items-center">
+                            <div class="me-3">
+                                {{ $t("generate_file_structure.other.generate_structure_ins") }}
+                            </div>
+                            <a-button
+                                v-if="cost"
+                                type="primary"
+                                class="main-color-btn"
+                                @click="modal_confirm_generate_structure_open = true"
+                            >
+                                {{ $t("generate_file_structure.buttons.generate_structure") }}
+                            </a-button>
+                            <a-button
+                                v-else
+                                type="primary"
+                                class="main-color-btn"
+                                @click="getCostToGenerate"
+                            >
+                                {{ $t("generate_file_structure.buttons.generate_structure") }}
+                            </a-button>
+                        </div>
                         <a-tree
                             v-model:checkedKeys="checked"
                             :tree-data="treeData"
@@ -369,7 +389,6 @@ defineExpose({ openModal, closeModal, clearData });
 }
 
 .tree-container {
-    padding: 20px;
     width: 100%;
 }
 

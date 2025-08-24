@@ -626,9 +626,12 @@ const onResetLearnHistory = async () => {
     if (result.data.success) {
         message.success(t("learn_QS.msg.learn_mode_reset"));
         completeModalOpen.value = false;
-        await getQuizData();
-        resetUserAnswer();
-        syncMatchingHeights();
+        // await getQuizData();
+
+        // toggleExplainModal();
+        // resetUserAnswer();
+        // syncMatchingHeights();
+        window.location.reload();
     }
 };
 
@@ -1591,7 +1594,8 @@ onMounted(async () => {
 }
 .relearn-ins {
     padding: 0px 10px;
-    background-color: #f39c12;
+    background-color: var(--skipped-answer-color);
+    color: #fff;
     width: fit-content;
     border-radius: 100px;
     font-size: 14px;
