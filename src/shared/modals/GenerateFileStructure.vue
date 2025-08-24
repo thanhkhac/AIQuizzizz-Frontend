@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import ApiAIGenerate from "@/api/ApiAIGenerate";
+import ApiPdf from "@/api/ApiPdf";
 import { ref, computed, h, nextTick, watch } from "vue";
 import { LoadingOutlined, ExclamationCircleFilled } from "@ant-design/icons-vue";
 
 import { TreeSelect as ATreeSelect, message, Modal } from "ant-design-vue";
 import { Tree as ATree } from "ant-design-vue";
 
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+//#region inteface
 interface TreeNode {
     title: string;
     key: string;
@@ -20,6 +24,8 @@ interface Cost {
     miniumPointToGenerate: number;
     tokenCount: number;
 }
+
+//#endregion
 
 const props = defineProps<Props>();
 
@@ -95,11 +101,21 @@ const getCostToGenerate = async () => {
         if (!result.data.success) {
             Modal.error({
                 title: "Error",
-                content: result.data.message || "Failed to get cost to generate.",
+                content: result.data.message || t("message.failed_to_get_cost"),
             });
             return null;
         }
-        return result.data.data as Cost;
+        const costResult = result.data.data as Cost;
+
+        if (!costResult) {
+            message.error(t("message.failed_to_get_cost"));
+            return;
+        }
+
+        cost.value = costResult;
+
+        // open confirm generate modal
+        modal_confirm_generate_structure_open.value = true;
     } catch (e) {
         console.error(e);
         return null;
@@ -108,16 +124,16 @@ const getCostToGenerate = async () => {
     }
 };
 
-const generateTreeData = async () => {
+const fetchTreeData = async (apiCall: (file: File) => Promise<any>, shouldCloseModal: boolean) => {
     try {
         loading.value = true;
 
-        const result = await ApiAIGenerate.GenerateDocumentStructure(props.file);
+        const result = await apiCall(props.file);
 
         if (!result.data.success) {
             Modal.error({
                 title: "Error",
-                content: result.data.message || "Failed to generate file structure.",
+                content: result.data.message || t("message.failed_to_generate_file_structure"),
             });
             return;
         }
@@ -132,8 +148,18 @@ const generateTreeData = async () => {
         console.error(e);
     } finally {
         loading.value = false;
-        modal_confirm_generate_structure_open.value = false;
+        if (shouldCloseModal) {
+            modal_confirm_generate_structure_open.value = false;
+        }
     }
+};
+
+const generateTreeData = () => {
+    fetchTreeData(ApiAIGenerate.GenerateDocumentStructure, true);
+};
+
+const getTreeData = () => {
+    fetchTreeData(ApiPdf.GetPdfStructure, false);
 };
 
 const openModal = async () => {
@@ -141,17 +167,7 @@ const openModal = async () => {
 
     if (serverData.value.length > 0 || cost.value) return;
 
-    const costResult = await getCostToGenerate();
-
-    if (!costResult) {
-        message.error("Failed to get cost to generate file structure.");
-        return;
-    }
-
-    cost.value = costResult;
-
-    //open confirm generate modal
-    modal_confirm_generate_structure_open.value = true;
+    getTreeData();
 };
 
 const closeModal = () => {
@@ -163,7 +179,7 @@ const modal_confirm_generate_structure_open = ref(false);
 
 const onConfirmGenerateFileStructure = async () => {
     if (!cost.value) return;
-    await generateTreeData();
+    generateTreeData();
 };
 
 const emit =
@@ -240,7 +256,7 @@ defineExpose({ openModal, closeModal, clearData });
             <div class="modal-content-item" ref="modalContentRef">
                 <div v-if="loading" class="loading-container">
                     <a-spin size="large" :indicator="indicator" />
-                    <div v-if="!cost">{{ $t("generate_file_structure.other.calculating") }}</div>
+                    <div v-if="!cost">{{ $t("generate_file_structure.other.analyzing") }}</div>
                 </div>
 
                 <div v-else class="content-wrapper">
@@ -259,12 +275,37 @@ defineExpose({ openModal, closeModal, clearData });
                     <!-- get cost success but cancel -->
                     <div v-else-if="cost" class="button-container">
                         <a-button
+                            size="large"
                             type="primary"
                             class="main-color-btn"
                             @click="modal_confirm_generate_structure_open = true"
                         >
                             {{ $t("generate_file_structure.buttons.generate_structure") }}
                         </a-button>
+                    </div>
+                    <!-- get structure but failed -->
+                    <div v-else class="button-container">
+                        <div class="fs-6 mb-3">
+                            {{ $t("generate_file_structure.other.invalid_structure") }}
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <a-button
+                                :loading="loading"
+                                class="me-3 main-color-btn-ghost"
+                                type="primary"
+                                @click="getTreeData"
+                            >
+                                {{ $t("generate_file_structure.buttons.re_load") }}
+                            </a-button>
+                            <a-button
+                                size="large"
+                                type="primary"
+                                class="main-color-btn"
+                                @click="getCostToGenerate"
+                            >
+                                {{ $t("generate_file_structure.buttons.generate_structure") }}
+                            </a-button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -346,6 +387,7 @@ defineExpose({ openModal, closeModal, clearData });
     align-items: center;
     justify-content: center;
     height: 100%;
+    flex-direction: column;
 }
 
 .confirm-modal-container {

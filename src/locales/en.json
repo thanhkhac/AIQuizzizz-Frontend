@@ -921,7 +921,7 @@
         "upload_area": {
             "title": "Click or drag file to this area to upload",
             "content": "Please use the template above to ensure the file is read correctly.",
-            "sub_content": "Support for a single upload."
+            "sub_content": "Support for a single upload (less than 15MB or 1000 pages)."
         },
         "preview_section": "Preview",
         "other": {
@@ -944,6 +944,10 @@
             "title": "Error",
             "content": "Please choose at least one section in your document to proceed."
         },
+        "confirm_delete_file_modal": {
+            "title": "Are you sure you want to remove the uploaded file?",
+            "content": "This action will also delete all generated contents including cost and file structure."
+        },
         "form": {
             "structure": "Structure",
             "language": "Language",
@@ -965,10 +969,12 @@
         "sub_title": "Analyze the generated file structure",
         "buttons": {
             "generate_structure": "Generate Structure",
-            "confirm": "Confirm"
+            "confirm": "Confirm",
+            "re_load": "Reload"
         },
         "other": {
-            "calculating": "Calculating cost to generate file..."
+            "analyzing": "Analyzing file structure...",
+            "invalid_structure": "It looks like your file has no structure yet. Would you like AI to generate one for you?"
         },
         "confirm_modal": {
             "title": " Are you sure you want to generate the file structure?",
@@ -1169,7 +1175,10 @@
 
         "invalid_reference": "Please enter a reference for the document citation.",
         "file_support_only": "Only {fileTypes} files are supported.",
-        "minimun_question_type": "At least one question type must be selected."
+        "minimun_question_type": "At least one question type must be selected.",
+
+        "failed_to_generate_file_structure": "Failed to generate file structure.",
+        "failed_to_get_cost": "Failed to calculate cost to generate file structure."
     },
     "admin": {
         "manage_acc": {

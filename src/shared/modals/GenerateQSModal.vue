@@ -273,8 +273,14 @@ const handleDrop = async (event: DragEvent) => {
 };
 
 const onRemoveUploadedFile = () => {
-    files.value = [];
-    generateFileStructureRef.value?.clearData();
+    Modal.confirm({
+        title: t("generate_qs_modal.confirm_delete_file_modal.title"),
+        content: t("generate_qs_modal.confirm_delete_file_modal.content"),
+        onOk: () => {
+            files.value = [];
+            generateFileStructureRef.value?.clearData();
+        },
+    });
 };
 
 //#endregion
@@ -399,7 +405,7 @@ onMounted(() => {});
                         </div>
                         <div v-if="files.length" class="file-container">
                             <div class="file-item" v-for="file in files">
-                                <span>{{ file.name }}</span>
+                                <div>{{ file.name }}</div>
                                 <i
                                     class="bx bx-trash text-danger"
                                     @click="onRemoveUploadedFile()"
@@ -560,7 +566,7 @@ onMounted(() => {});
                                                             >
                                                                 {{ option.text }}
                                                                 <span
-                                                                    class="text-success"
+                                                                    class="result-correct"
                                                                     v-if="option.isAnswer"
                                                                 >
                                                                     ({{ option.isAnswer }})

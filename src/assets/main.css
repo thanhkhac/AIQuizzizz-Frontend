@@ -1003,6 +1003,8 @@ pre {
     justify-content: space-between;
     align-items: center;
     height: fit-content;
+    max-width: 300px;
+    line-break: anywhere;
 }
 
 .file-item i {
@@ -1035,6 +1037,7 @@ pre {
 
 .check-all {
     background-color: var(--main-color);
+    color: var(--text-color-contrast) !important;
 }
 .check-all .ant-checkbox-wrapper {
     color: #fff;

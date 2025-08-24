@@ -409,7 +409,7 @@ onMounted(() => {});
                                                         >
                                                             {{ option.text }}
                                                             <span
-                                                                class="text-success"
+                                                                class="result-correct"
                                                                 v-if="option.isAnswer"
                                                             >
                                                                 ({{ option.isAnswer }})
