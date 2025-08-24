@@ -44,72 +44,6 @@
     --skipped-answer-color: #f39c12;
 }
 
-.theme-dark {
-    --background-color: #000;
-    --background-color-hovered: #313131;
-    --background-color-selected: #2a2a2e;
-
-    --background-color-contrast: #fff;
-    --background-color-contrast-hovered: #eee;
-
-    --background-color-gradient: linear-gradient(150deg, #5813c1 20%, #c45037 100%);
-
-    --border-color: rgba(255, 255, 255, 0.1);
-    --border-color-contrast: rgba(255, 255, 255, 0.8);
-
-    --content-item-background-color: #151518;
-    --content-item-border-color: #27272a;
-
-    --content-item-children-background-color: #19191b;
-
-    --form-item-background-color: #1f1f20;
-    --form-item-border-color: #424242;
-
-    --sidebar-background-color: #101010;
-
-    --text-color: #fff;
-    --text-color-sub-white: #fff;
-    --text-color-contrast: #fff;
-
-    --background-sub-color1: #ac63e6;
-    --background-sub-color2: #c45037;
-}
-
-.theme-light {
-    --background-color: #e5e7eb;
-    --background-color-hovered: #f5f5f5;
-    --background-color-selected: #e8e8ea;
-
-    --background-color-contrast: #000;
-    --background-color-contrast-hovered: #222;
-
-    --background-color-gradient: linear-gradient(150deg, #5813c1 20%, #c45037 100%);
-
-    --border-color: rgba(0, 0, 0, 0.1);
-    --border-color-contrast: rgba(0, 0, 0, 0.8);
-
-    --content-item-background-color: #f8f8fa;
-    --content-item-border-color: #d4d4d8;
-
-    --content-item-children-background-color: var(--main-color-theme);
-
-    --form-item-background-color: #ffffff;
-    --form-item-border-color: #c4c4c4;
-
-    --sidebar-background-color: #fafafa;
-
-    --text-color: #3f3f3f;
-    --text-color-sub-white: #333;
-    --text-color-contrast: #fff;
-
-    --background-sub-color1: #fff;
-    --background-sub-color2: #fff;
-
-    --correct-answer-color: #00b300;
-    --incorrect-answer-color: #ff0033;
-    --skipped-answer-color: #ff6600;
-}
-
 .purple {
     --main-color: #7c3aed;
     --main-sub-color: #9823f5;
@@ -144,6 +78,79 @@
     --main-color: #ec4899;
     --main-sub-color: #f472b6;
     --main-color-theme: #fce7f3;
+}
+
+.theme-dark {
+    --background-color: #000;
+    --background-color-hovered: #313131;
+    --background-color-selected: #2a2a2e;
+
+    --background-color-contrast: #fff;
+    --background-color-contrast-hovered: #eee;
+
+    --background-color-gradient: linear-gradient(150deg, #5813c1 20%, #c45037 100%);
+
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-color-contrast: rgba(255, 255, 255, 0.8);
+
+    --content-item-background-color: #151518;
+    --content-item-border-color: #27272a;
+
+    --content-item-children-background-color: #19191b;
+
+    --form-item-background-color: #1f1f20;
+    --form-item-border-color: #424242;
+
+    --sidebar-background-color: #101010;
+
+    --text-color: #fff;
+    --text-color-sub-white: #fff;
+    --text-color-contrast: #fff;
+
+    --background-sub-color1: #ac63e6;
+    --background-sub-color2: #c45037;
+
+    --main-color-theme: var(--content-item-border-color);
+    --correct-answer-theme: #003300;
+    --incorrect-answer-theme: #330000;
+}
+
+.theme-light {
+    --background-color: #e5e7eb;
+    --background-color-hovered: #f5f5f5;
+    --background-color-selected: #e8e8ea;
+
+    --background-color-contrast: #000;
+    --background-color-contrast-hovered: #222;
+
+    --background-color-gradient: linear-gradient(150deg, #5813c1 20%, #c45037 100%);
+
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-color-contrast: rgba(0, 0, 0, 0.8);
+
+    --content-item-background-color: #f8f8fa;
+    --content-item-border-color: #d4d4d8;
+
+    --content-item-children-background-color: var(--main-color-theme);
+
+    --form-item-background-color: #ffffff;
+    --form-item-border-color: #c4c4c4;
+
+    --sidebar-background-color: #fafafa;
+
+    --text-color: #3f3f3f;
+    --text-color-sub-white: #333;
+    --text-color-contrast: #fff;
+
+    --background-sub-color1: #fff;
+    --background-sub-color2: #fff;
+
+    --correct-answer-color: #00b300;
+    --incorrect-answer-color: #ff0033;
+    --skipped-answer-color: #f39c12;
+
+    --correct-answer-theme: #dcfce7;
+    --incorrect-answer-theme: #fee2e2;
 }
 
 /* color palette from <https://github.com/vuejs/theme> */

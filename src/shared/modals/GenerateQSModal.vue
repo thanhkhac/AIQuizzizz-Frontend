@@ -7,7 +7,7 @@ import SUPPORTED_LOCALES from "@/constants/languages";
 
 import { ref, reactive, watch, onMounted, nextTick, h } from "vue";
 import { Modal, message } from "ant-design-vue";
-import { InboxOutlined, LoadingOutlined } from "@ant-design/icons-vue";
+import { InboxOutlined, LoadingOutlined, ExclamationCircleFilled } from "@ant-design/icons-vue";
 
 import TextArea from "../components/Common/TextArea.vue";
 
@@ -212,8 +212,47 @@ const onGenerateQuestions = async () => {
         console.log(error);
     } finally {
         loading.value = false;
+        modal_confirm_generate_question_open.value = false;
     }
 };
+//#endregion
+
+//#region cost
+
+const modal_confirm_generate_question_open = ref(false);
+const cost = ref<Cost | null>(null);
+const getCostToGenerateQuestion = async () => {
+    if (cost.value) {
+        modal_confirm_generate_question_open.value = true;
+        return;
+    }
+    try {
+        loading.value = true;
+        const result = await ApiAIGenerate.GetCostToGenerate(files.value[0]);
+        if (!result.data.success) {
+            Modal.error({
+                title: "Error",
+                content: result.data.message || t("message.failed_to_get_cost"),
+            });
+            return null;
+        }
+        const costResult = result.data.data as Cost;
+
+        if (!costResult) {
+            message.error(t("message.failed_to_get_cost"));
+            return;
+        }
+
+        cost.value = costResult;
+        modal_confirm_generate_question_open.value = true;
+    } catch (e) {
+        console.error(e);
+        return null;
+    } finally {
+        loading.value = false;
+    }
+};
+
 //#endregion
 
 //#region file
@@ -253,6 +292,7 @@ const handleFileChange = (event: Event) => {
     if (file) {
         onFileChange(file);
         target.value = "";
+        cost.value = null;
     }
 };
 
@@ -269,6 +309,7 @@ const handleDrop = async (event: DragEvent) => {
 
     if (file) {
         onFileChange(file);
+        cost.value = null;
     }
 };
 
@@ -317,6 +358,7 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 //#region generate file structure
 import GenerateFileStructure from "./GenerateFileStructure.vue";
 import ApiAIGenerate from "@/api/ApiAIGenerate";
+import type Cost from "@/models/response/question_set/cost";
 const generateFileStructureRef = ref<InstanceType<typeof GenerateFileStructure> | null>(null);
 
 const openFileStructureModal = () => {
@@ -331,7 +373,6 @@ const handleImportStructure = (document_structure: string, selected_structure: s
 };
 
 //#endregion
-
 onMounted(() => {});
 </script>
 
@@ -411,7 +452,15 @@ onMounted(() => {});
                                     @click="onRemoveUploadedFile()"
                                 ></i>
                             </div>
-                            <div class="file-structure" @click="openFileStructureModal">
+                            <div
+                                :class="[
+                                    'file-structure',
+                                    generateByAIModalState.selectedPartJson
+                                        ? 'answer-correct result-correct '
+                                        : 'answer-incorrect result-incorrect ',
+                                ]"
+                                @click="openFileStructureModal"
+                            >
                                 <i class="bx bx-file"></i>
                                 <div>{{ $t("generate_qs_modal.form.structure") }}</div>
                             </div>
@@ -493,9 +542,14 @@ onMounted(() => {});
                                 <a-button
                                     :loading="loading"
                                     size="large"
-                                    class="w-100 main-color-btn generate_ai"
+                                    :class="[
+                                        'w-100 main-color-btn generate_ai',
+                                        !generateByAIModalState.selectedPartJson
+                                            ? 'main-color-btn-disabled'
+                                            : '',
+                                    ]"
                                     type="primary"
-                                    @click="onGenerateQuestions"
+                                    @click="getCostToGenerateQuestion"
                                 >
                                     {{ $t("generate_qs_modal.buttons.generate") }}
                                 </a-button>
@@ -528,7 +582,7 @@ onMounted(() => {});
                                 <div class="header-item">
                                     {{
                                         $t("import_qs_modal.other.total_question", {
-                                            number: generateModalState.checkedList.length,
+                                            number: generatedQuestions.length,
                                         })
                                     }}
                                 </div>
@@ -668,6 +722,44 @@ onMounted(() => {});
         <template #footer></template>
     </a-modal>
 
+    <a-modal
+        wrap-class-name="medium-modal"
+        centered
+        :open="modal_confirm_generate_question_open"
+        :closable="false"
+    >
+        <div class="confirm-modal-container">
+            <div class="d-flex align-items-center">
+                <ExclamationCircleFilled class="fs-4 me-3 text-warning" />
+                <div class="fs-6 fw-bold">
+                    {{ $t("generate_qs_modal.confirm_modal.title") }}
+                </div>
+            </div>
+            <div class="fs-6 ms-5 mt-3">
+                {{ $t("generate_file_structure.confirm_modal.content") }}
+                <span class="fw-bold text-danger">{{ cost?.miniumPointToGenerate }}</span>
+                {{ $t("generate_file_structure.confirm_modal.content_tail") }}
+            </div>
+        </div>
+        <template #footer>
+            <a-button
+                :class="['main-color-btn-ghost', loading ? 'main-color-btn-disabled' : '']"
+                type="ghost"
+                @click="modal_confirm_generate_question_open = false"
+            >
+                {{ $t("sidebar.buttons.cancel") }}
+            </a-button>
+            <a-button
+                :loading="loading"
+                class="main-color-btn"
+                type="primary"
+                @click="onGenerateQuestions"
+            >
+                {{ $t("generate_file_structure.buttons.confirm") }}
+            </a-button>
+        </template>
+    </a-modal>
+
     <GenerateFileStructure
         :file="files[0]"
         ref="generateFileStructureRef"
@@ -715,9 +807,9 @@ onMounted(() => {});
     height: 100px;
     width: 100px;
     padding: 10px;
-    border: 1px solid var(--main-color);
+    border: 1px solid;
     border-radius: 8px;
-    color: var(--main-color);
+    /* color: var(--main-color); */
     font-weight: 500;
     transition: all 0.2s ease-in-out;
     cursor: pointer;

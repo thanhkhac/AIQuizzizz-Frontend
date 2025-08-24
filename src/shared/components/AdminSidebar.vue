@@ -102,6 +102,12 @@ const onSignOut = () => {
                         <span class="sidebar-listItemText">System Settings</span>
                     </RouterLink>
                 </li>
+                <li :class="['sidebar-listItem']">
+                    <RouterLink :to="{ name: 'User_Dashboard' }">
+                        <i class="bx bx-refresh"></i>
+                        <span class="sidebar-listItemText"> Switch to User </span>
+                    </RouterLink>
+                </li>
                 <!-- <li :class="['sidebar-listItem', { active: activeItem === 'class' }]">
                     <RouterLink :to="{ name: 'Admin_Manager_Class' }">
                         <i class="bx bx-cog"></i>

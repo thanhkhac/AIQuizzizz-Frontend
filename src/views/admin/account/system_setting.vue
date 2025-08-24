@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import ApiAdmin from "@/api/ApiAdmin";
-import type SystemSettings from "@/models/request/admin/systemSetting";
 import type SystemSettingsResp from "@/models/response/admin/systemSettingResp";
-import Input from "@/shared/components/Common/Input.vue";
 import { message } from "ant-design-vue";
 import { onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -11,6 +9,7 @@ const emit = defineEmits(["updateSidebar"]);
 const { t } = useI18n();
 
 const isUpdateLoading = ref(false);
+const updateSystemSettingFormRef = ref();
 
 onMounted(() => {
     const sidebarActiveItem = "system_settings";
@@ -27,9 +26,79 @@ const system_settings = reactive<SystemSettingsResp>({
     maxOutputToken: 0,
 });
 
+const rules = {
+    inputCostPerMillionTokens: [
+        {
+            required: true,
+            message: "This field is required.",
+            trigger: "change",
+        },
+        {
+            type: "number",
+            max: 1000000000,
+            message: "Max Output Token must be less than 1,000,000,000",
+            trigger: "change",
+        },
+    ],
+    outputCostPerMillionTokens: [
+        {
+            required: true,
+            message: "This field is required.",
+            trigger: "change",
+        },
+        {
+            type: "number",
+            max: 1000000000,
+            message: "Max Output Token must be less than 1,000,000,000",
+            trigger: "change",
+        },
+    ],
+    fixedSystemFee: [
+        {
+            required: true,
+            message: "This field is required.",
+            trigger: "change",
+        },
+        {
+            type: "number",
+            max: 1000000000,
+            message: "Max Output Token must be less than 1,000,000,000",
+            trigger: "change",
+        },
+    ],
+    maxInputToken: [
+        {
+            required: true,
+            message: "This field is required.",
+            trigger: "change",
+        },
+        {
+            type: "number",
+            min: 0,
+            max: 1048575,
+            message: "Max Input Token must be less than 1,048,576",
+            trigger: "change",
+        },
+    ],
+    maxOutputToken: [
+        {
+            required: true,
+            message: "This field is required.",
+            trigger: "change",
+        },
+        {
+            type: "number",
+            max: 65535,
+            message: "Max Output Token must be less than 65,536",
+            trigger: "change",
+        },
+    ],
+};
+
 const onUpdate = async () => {
-    isUpdateLoading.value = true;
     try {
+        await updateSystemSettingFormRef.value.validate();
+        isUpdateLoading.value = true;
         const plainData = { ...system_settings };
         const { id, ...dataWithoutId } = plainData;
 
@@ -40,7 +109,7 @@ const onUpdate = async () => {
         }
         getSystemSettingsData();
     } catch (error: any) {
-        message.error("Create fail.");
+        message.error("Update fail.");
         console.log("error", error.response.data);
     } finally {
         isUpdateLoading.value = false;
@@ -79,7 +148,12 @@ const getSystemSettingsData = async () => {
 
         <div class="content">
             <div class="content-item">
-                <a-form layout="vertical" ref="createPlanFormRef" :model="system_settings">
+                <a-form
+                    layout="vertical"
+                    ref="updateSystemSettingFormRef"
+                    :model="system_settings"
+                    :rules="rules"
+                >
                     <a-row class="w-100 d-flex justify-content-between">
                         <a-col :span="11">
                             <a-form-item
@@ -89,6 +163,8 @@ const getSystemSettingsData = async () => {
                                 <a-input-number
                                     v-model:value="system_settings.inputCostPerMillionTokens"
                                     class="update_input_name"
+                                    min="0"
+                                    :is-required="true"
                                 />
                             </a-form-item>
                         </a-col>
@@ -100,6 +176,7 @@ const getSystemSettingsData = async () => {
                                 <a-input-number
                                     v-model:value="system_settings.outputCostPerMillionTokens"
                                     class="update_input_name"
+                                    min="0"
                                 />
                             </a-form-item>
                         </a-col>
@@ -110,6 +187,7 @@ const getSystemSettingsData = async () => {
                                 <a-input-number
                                     v-model:value="system_settings.maxInputToken"
                                     class="update_input_name"
+                                    min="0"
                                 />
                             </a-form-item>
                         </a-col>
@@ -118,6 +196,7 @@ const getSystemSettingsData = async () => {
                                 <a-input-number
                                     v-model:value="system_settings.maxOutputToken"
                                     class="update_input_name"
+                                    min="0"
                                 />
                             </a-form-item>
                         </a-col>
@@ -128,6 +207,7 @@ const getSystemSettingsData = async () => {
                                 <a-input-number
                                     v-model:value="system_settings.fixedSystemFee"
                                     class="update_input_name"
+                                    min="0"
                                 />
                             </a-form-item>
                         </a-col>

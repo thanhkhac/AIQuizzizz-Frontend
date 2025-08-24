@@ -7,9 +7,10 @@ import type ManageAccountsParams from "../../../../src/models/request/admin/mana
 import type ManageAccountsResp from "../../../../src/models/response/admin/manageAccountsResp";
 import debounce from "lodash/debounce";
 import { Modal } from "ant-design-vue";
+import { useRoute } from "vue-router";
 
 const emit = defineEmits(["updateSidebar"]);
-
+const route = useRoute();
 const { t } = useI18n();
 
 // select box for account status
@@ -20,7 +21,7 @@ const account_status_credit_options = computed(() =>
         value: key,
     })),
 );
-const selected_acc_status_option = ref(account_status_credit_options.value[0].value);
+// const selected_acc_status_option = ref(account_status_credit_options.value[0].value);
 
 // select box for user role
 const optionKeysAccRole = ["all", "Administrator", "Moderator", "User"];
@@ -30,40 +31,15 @@ const account_role_credit_options = computed(() =>
         value: key,
     })),
 );
-const selected_acc_role_option = ref(account_role_credit_options.value[0].value);
-
-const searchValue = ref("");
-
-const onFilter = async () => {
-    console.log({
-        search: searchValue.value,
-        status: selected_acc_status_option.value,
-        role: selected_acc_role_option.value,
-    });
-
-    payloadGetUsers.keyword = searchValue.value;
-    if (selected_acc_status_option.value === "all") {
-        delete payloadGetUsers.IsBanned;
-    } else {
-        payloadGetUsers.IsBanned = selected_acc_status_option.value === "ban";
-    }
-    payloadGetUsers.role =
-        selected_acc_role_option.value === "all" ? "" : selected_acc_role_option.value;
-    getUsersData();
-};
-
-watch(
-    searchValue,
-    debounce((Val) => {
-        onFilter();
-    }, 300),
-);
+// const selected_acc_role_option = ref(account_role_credit_options.value[0].value);
 
 const columns = [
     {
         title: "ID",
         dataIndex: "id",
-        customRender: ({ index }: { index: number }) => index + 1,
+        customRender: ({ index }: { index: number }) => {
+            return (pageParams.pageNumber - 1) * pageParams.pageSize + index + 1;
+        },
         width: 50,
         align: "center",
     },
@@ -97,7 +73,6 @@ const columns = [
         dataIndex: "role",
         key: "role",
         sorter: (a: { role: string }, b: { role: string }) => a.role.localeCompare(b.role),
-        defaultSortOrder: "ascend",
         width: 100,
         align: "center",
     },
@@ -151,7 +126,7 @@ async function onToggle(record: ManageAccountsResp) {
 
 async function onPromoteToModerator(record: ManageAccountsResp) {
     try {
-        console.log("Promote uid: ", record.id);
+        // console.log("Promote uid: ", record.id);
         Modal.confirm({
             title: "Promote User to Moderator",
             content: "Are you sure you want to promote this user to Moderator?",
@@ -171,7 +146,7 @@ async function onPromoteToModerator(record: ManageAccountsResp) {
 
 async function onDemoteToUser(record: ManageAccountsResp) {
     try {
-        console.log("Demote uid: ", record.id);
+        // console.log("Demote uid: ", record.id);
         Modal.confirm({
             title: "Demote Moderator to User",
             content: "Are you sure you want to demote this moderator to User?",
@@ -189,21 +164,65 @@ async function onDemoteToUser(record: ManageAccountsResp) {
     }
 }
 
-const payloadGetUsers = reactive<ManageAccountsParams>({
+const pageParams = reactive({
+    pageNumber: route.query.pageNumber || 1,
+    pageSize: route.query.pageSize || 10,
+    keyword: route.query.keyword?.toString() || "",
+    isBanned: route.query.isBanned || account_status_credit_options.value[0].value,
+    role: route.query.role || account_role_credit_options.value[0].value,
     fieldName: "Email",
-    keyword: "",
-    pageNumber: 1,
-    pageSize: 15,
+    totalCount: 0,
+    statusFilter: false,
 });
+
+//change when page change (pageParams)
+const onPaginationChange = (page: any, pageSize: any) => {
+    pageParams.pageNumber = page;
+    pageParams.pageSize = pageSize;
+    pageParams.statusFilter = true;
+    getUsersData();
+};
+
+const mapStatusToApi = (status: string) => {
+    if (status === "active") return false;
+    if (status === "ban") return true;
+    return undefined; // all
+};
+
+const mapRoleToApi = (role: string) => {
+    if (role === "Administrator") return "Administrator";
+    if (role === "Moderator") return "Moderator";
+    if (role === "User") return "User";
+    return "";
+};
 
 const getUsersData = async () => {
     try {
-        let result = await ApiAdmin.GetAllUser(payloadGetUsers);
+        const payload: any = { ...pageParams };
+        const mappedStatus = mapStatusToApi(payload.isBanned as string);
+        if (mappedStatus !== undefined) {
+            payload.isBanned = mappedStatus;
+        } else {
+            delete payload.isBanned;
+        }
+
+        const mappedRole = mapRoleToApi(payload.role as string);
+        if (mappedRole !== undefined) {
+            payload.role = mappedRole;
+        } else {
+            delete payload.isBanned;
+        }
+
+        let result = await ApiAdmin.GetAllUser(payload as ManageAccountsParams);
         if (result.data.success) {
-            dataSource.value = result.data.data.items;
+            let resultData = result.data.data;
+            dataSource.value = resultData.items;
+            pageParams.pageNumber = resultData.pageNumber;
+            pageParams.pageSize = resultData.pageSize;
+            pageParams.totalCount = resultData.totalCount;
         }
     } catch (error) {
-        console.log("ERROR: GETALLBYLIMIT testtemplate: " + error);
+        console.log("ERROR: " + error);
     }
 };
 </script>
@@ -226,8 +245,9 @@ const getUsersData = async () => {
                 <div class="filter-input-full">
                     <Input
                         class="custom-input"
-                        v-model:value="searchValue"
+                        v-model:value="pageParams.keyword"
                         :placeholder="t('admin.manage_acc.search_placeholder')"
+                        @input="getUsersData"
                     >
                         <template #icon>
                             <i class="bx bx-search"></i>
@@ -238,8 +258,8 @@ const getUsersData = async () => {
                 <!-- filter account status -->
                 <a-select
                     style="width: calc(19%)"
-                    v-model:value="selected_acc_status_option"
-                    @change="onFilter"
+                    v-model:value="pageParams.isBanned"
+                    @change="getUsersData"
                 >
                     <a-select-option
                         v-for="option in account_status_credit_options"
@@ -253,8 +273,8 @@ const getUsersData = async () => {
                 <!-- filter account role -->
                 <a-select
                     style="width: calc(19%)"
-                    v-model:value="selected_acc_role_option"
-                    @change="onFilter"
+                    v-model:value="pageParams.role"
+                    @change="getUsersData"
                 >
                     <a-select-option
                         v-for="option in account_role_credit_options"
@@ -268,7 +288,12 @@ const getUsersData = async () => {
 
             <!-- table list account -->
             <div class="account-table">
-                <a-table :data-source="dataSource" :columns="columns" row-key="id">
+                <a-table
+                    :data-source="dataSource"
+                    :columns="columns"
+                    row-key="id"
+                    :pagination="false"
+                >
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.key === 'ban'">
                             <div class="action-cell">
@@ -289,7 +314,7 @@ const getUsersData = async () => {
                                     <i
                                         v-if="record.role === 'User'"
                                         class="bx bx-id-card"
-                                        style="color: #fff; font-size: 25px"
+                                        style="color: #5813c1; font-size: 25px"
                                         @click="onPromoteToModerator(record)"
                                     ></i>
                                 </a-tooltip>
@@ -309,24 +334,23 @@ const getUsersData = async () => {
                         </template>
                     </template>
                 </a-table>
-                <!-- <div class="pagination-container">
-                    <a-pagination
-                        @change="onPaginationChange"
-                        v-model:current="pageParams.pageNumber"
-                        :total="pageParams.totalCount"
-                        :pageSize="pageParams.pageSize"
-                        :show-total="
-                            (total: any, range: any) =>
-                                `${range[0]}-${range[1]} of ${total} ${t('class_member.other.items')}`
-                        "
-                        show-size-changer
-                        show-quick-jumper
-                        class="crud-layout-pagination"
-                        :locale="{
-                            items_per_page: t('class_index.other.pages'),
-                        }"
-                    ></a-pagination>
-                </div> -->
+            </div>
+            <div class="pagination-container">
+                <a-pagination
+                    @change="onPaginationChange"
+                    v-model:current="pageParams.pageNumber"
+                    :total="pageParams.totalCount"
+                    :pageSize="pageParams.pageSize"
+                    :show-total="
+                        (total: any, range: any) =>
+                            `${range[0]}-${range[1]} of ${total} ${t('class_member.other.items')}`
+                    "
+                    show-size-changer
+                    class="crud-layout-pagination"
+                    :locale="{
+                        items_per_page: t('class_index.other.pages'),
+                    }"
+                ></a-pagination>
             </div>
         </div>
     </div>
@@ -353,7 +377,7 @@ const getUsersData = async () => {
     color: var(--text-color);
 }
 .account-table {
-    width: calc(100% - 60px);
+    width: calc(100% - 70px);
     margin: 8px;
 }
 .action-cell {

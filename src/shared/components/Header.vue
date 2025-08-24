@@ -22,7 +22,7 @@ onMounted(() => {});
             class="header-authentication-navigator"
             :style="isUserLogged ? { display: 'none' } : {}"
         >
-            <RouterLink :to="{ name: 'login' }">Sign In</RouterLink>
+            <RouterLink class="main-color-btn-ghost" :to="{ name: 'login' }">Sign In</RouterLink>
             <RouterLink :to="{ name: 'register' }">Register</RouterLink>
         </div>
     </div>
@@ -121,11 +121,11 @@ onMounted(() => {});
 
 .header-authentication-navigator a:nth-child(1):hover {
     background-color: var(--background-color-contrast);
-    color: var(--text-color-contrast);
+    color: var(--main-color);
 }
 
 .header-authentication-navigator a:nth-child(2) {
-    color: var(--text-color);
+    color: var(--text-color-contrast);
     background: linear-gradient(97deg, #5813c1 -5.8%, #c45037 99.69%);
     background-size: 200% 200%;
     background-position: 25% 50%;

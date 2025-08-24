@@ -605,7 +605,7 @@ const onSkipQuestion = () => {
         type: currentQuestion.value.type,
         isSkipped: true,
         result: false,
-        resultText: "Skipped",
+        resultText:  t("learn_QS.result.skipped") ,
         multipleChoices: userAnswerMultipleChoice.value,
         matchingLeft: userAnswerMatchingLeft.value,
         matchingRight: userAnswerMatchingRight.value,
