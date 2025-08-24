@@ -93,10 +93,10 @@ import home_vector from "@/assets/home_vector.png";
     font-style: normal;
     line-height: normal;
     letter-spacing: -0.24px;
-    color: #667085;
+    color: var(--text-color);
 }
 .authentication-item-title span:nth-child(1) {
-    color: var(--background-color);
+    color: var(--text-color);
     font-size: 30px;
     font-weight: 600;
 }
@@ -117,13 +117,14 @@ import home_vector from "@/assets/home_vector.png";
     padding: 8px 20px;
     margin: 15px 0px;
     border-radius: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--main-color);
     font-size: 18px;
     font-weight: 400;
     cursor: pointer;
+    transition: all 0.2s ease-in-out;
 }
 .external-login:hover {
-    background-color: #eee;
+    background-color: var(--main-color-theme);
 }
 
 .external-login div:nth-child(1) {

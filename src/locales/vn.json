@@ -921,7 +921,7 @@
         "upload_area": {
             "title": "Nhấn hoặc kéo tệp vào khu vực này để tải lên",
             "content": "Vui lòng sử dụng mẫu ở trên để đảm bảo tệp được đọc chính xác.",
-            "sub_content": "Hỗ trợ tải lên một tệp duy nhất."
+            "sub_content": "Hỗ trợ tải lên một tệp duy nhất (dưới 15MB hoặc 1000 trang)."
         },
         "preview_section": "Xem trước",
         "other": {
@@ -944,6 +944,10 @@
             "title": "Lỗi",
             "content": "Vui lòng chọn ít nhất một phần trong tài liệu của bạn để tiếp tục."
         },
+        "confirm_delete_file_modal": {
+            "title": "Bạn có chắc chắn muốn xóa tệp đã tải lên không?",
+            "content": "Hành động này cũng sẽ xóa tất cả nội dung đã tạo bao gồm chi phí và cấu trúc tệp."
+        },
         "form": {
             "structure": "Cấu trúc",
             "language": "Ngôn ngữ",
@@ -965,10 +969,12 @@
         "sub_title": "Nghiên cứu cấu trúc tệp đã tạo",
         "buttons": {
             "generate_structure": "Tạo cấu trúc",
-            "confirm": "Xác nhận"
+            "confirm": "Xác nhận",
+            "re_load": "Thử lại"
         },
         "other": {
-            "calculating": "Đang tính toán chi phí để tạo tệp..."
+            "analyzing": "Đang phân tích cấu trúc tệp...",
+            "invalid_structure": "Có vẻ như tệp của bạn không có cấu trúc rõ ràng. Bạn có muốn AI tạo một cấu trúc cho bạn không?"
         },
         "confirm_modal": {
             "title": "Bạn có chắc chắn muốn tạo cấu trúc tệp không?",
@@ -1169,7 +1175,10 @@
 
         "invalid_reference": "Vui lòng nhập tham chiếu cho phần giải thích, trích dẫn tài liệu.",
         "file_support_only": "Chỉ hỗ trợ các tệp {fileTypes}.",
-        "minimun_question_type": "Phải chọn ít nhất một loại câu hỏi."
+        "minimun_question_type": "Phải chọn ít nhất một loại câu hỏi.",
+
+        "failed_to_generate_file_structure": "Tạo cấu trúc tệp thất bại.",
+        "failed_to_get_cost": "Tính toán chi phí để tạo cấu trúc tệp thất bại."
     },
     "admin": {
         "manage_acc": {
