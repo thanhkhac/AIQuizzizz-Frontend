@@ -67,7 +67,7 @@ const getData = async () => {
 
         const result = await ApiTestTemplate.GetById(question_set_id.value.toString());
 
-        if (!result.data.success) router.push({ name: "User_Library" });
+        if (!result.data.success) router.push({ name: "404" });
 
         quiz.value = result.data.data;
         // quiz.value.createdBy = question_set_result.data.data.createdBy.fullName;
@@ -417,6 +417,9 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
+            <a href="#top" class="up-button">
+                <i class="bx bx-up-arrow-alt"></i>
+            </a>
         </div>
     </div>
 

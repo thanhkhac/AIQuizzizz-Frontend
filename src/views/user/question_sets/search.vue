@@ -149,10 +149,16 @@ const searchTagPageParams = reactive({
 });
 
 const getSearchTagData = async () => {
+    if (searchTagPageParams.name.trim().length >= 50) {
+        return;
+    }
     const result = await ApiTag.GetAllByLimit(searchTagPageParams);
     if (result.data.success) {
         tag_search_data.value = result.data.data;
         lastSearchResult.value = result.data.data;
+        if (searchTagPageParams.name.trim().length === 0) {
+            tag_search_data.value = [];
+        }
     }
 };
 

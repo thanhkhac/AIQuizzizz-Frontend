@@ -6,13 +6,14 @@ import type { Class } from "@/models/response/class/class";
 import type { ClassQuestionSet } from "@/models/response/class/classQuestionSet";
 import CLASS_STUDENT_POSITION from "@/constants/classStudentPosition";
 
-import { ref, onMounted, reactive, onUpdated, watch } from "vue";
+import { ref, onMounted, reactive, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { message, Modal } from "ant-design-vue";
 import Input from "@/shared/components/Common/Input.vue";
 import { useI18n } from "vue-i18n";
 import Validator from "@/services/Validator";
+import ERROR from "@/constants/errors";
 
 const route = useRoute();
 const router = useRouter();
@@ -26,15 +27,6 @@ const classData = ref<Class>({
     name: "",
     topic: "",
 });
-
-// const optionKeys = Object.values(CLASS_QUESTION_SET_SHARE_MODE);
-
-// const share_mode_options = computed(() =>
-//     optionKeys.map((key) => ({
-//         label: t(`class_question_set.select_option.${key}`),
-//         value: key !== CLASS_QUESTION_SET_SHARE_MODE.ALL ? key : "",
-//     })),
-// );
 
 const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
@@ -70,8 +62,15 @@ const getClassData = async () => {
         if (!result.data.success) router.push({ name: "404" });
 
         classData.value = result.data.data;
-    } catch (error) {
-        console.log("ERROR: GETBYID class: " + error);
+    } catch (error: any) {
+        const errorKeys = Object.keys(error.response.data.errors);
+        if (
+            errorKeys.includes(ERROR.NOT_FOUND_STUDENT_IN_CLASS) ||
+            errorKeys.includes(ERROR.NOT_FOUND_USER_IN_CLASS)
+        ) {
+            router.push({ name: "User_Class" });
+            return;
+        }
     }
 };
 

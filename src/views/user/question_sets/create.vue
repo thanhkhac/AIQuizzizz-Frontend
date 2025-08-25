@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import ApiQuestionSet from "@/api/ApiQuestionSet";
+import ApiTag from "@/api/ApiTag";
 import type { RequestQuestion } from "@/models/request/question";
+import type Tag from "@/models/response/tag/tag";
 
-import { ref, reactive, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, reactive, onMounted, onUnmounted, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
 
@@ -87,24 +89,76 @@ const componentMap = {
     ShortText,
 };
 
-//#region  tag
+//#region tag
 //tag
 const tagContent = ref("");
 const addTag = () => {
     if (formState.tags.length >= 5) {
-        message.warning(t("maximum_tag.out_of_range", { tag: 5 }));
+        message.warning(t("message.maximum_tag", { tag: 5 }));
+        return;
+    }
+
+    if (formState.tags.includes(tagContent.value.trim())) {
+        message.warning(t("message.duplicate_tag"));
         return;
     }
     if (tagContent.value && tagContent.value.trim().length <= 50) {
         formState.tags.push(tagContent.value);
         tagContent.value = "";
     } else {
-        message.warning(t("maximum_tag.invalid_tag_content"));
+        message.warning(t("message.invalid_tag_content"));
     }
 };
 
 const removeTag = (index: number) => {
     formState.tags.splice(index, 1);
+};
+
+const appendTagContent = (name: string) => {
+    tagContent.value = name;
+    addTag();
+};
+
+const tag_search_data = ref<Tag[]>([]);
+
+/* use this for tracking whether mouse is in search components */
+const searchResultRef = ref<HTMLElement | null>(null);
+
+/* use this for temporary when mouse leave */
+const lastSearchResult = ref<Tag[]>([]);
+function handleMouseClickOutside(event: MouseEvent) {
+    if (!searchTagPageParams.name || !searchResultRef.value?.contains(event.target as Node)) {
+        tag_search_data.value = [];
+    } else {
+        tag_search_data.value = [...lastSearchResult.value];
+    }
+}
+
+const searchTagPageParams = reactive({
+    name: tagContent.value,
+    pageSize: 10,
+});
+
+watch(
+    () => tagContent.value,
+    () => {
+        searchTagPageParams.name = tagContent.value;
+        getSearchTagData();
+    },
+);
+
+const getSearchTagData = async () => {
+    if (tagContent.value.trim().length >= 50) {
+        return;
+    }
+    const result = await ApiTag.GetAllByLimit(searchTagPageParams);
+    if (result.data.success) {
+        tag_search_data.value = result.data.data;
+        lastSearchResult.value = result.data.data;
+        if (tagContent.value.trim().length === 0) {
+            tag_search_data.value = [];
+        }
+    }
 };
 
 //#endregion
@@ -326,6 +380,10 @@ const onModalImport = (selected: RequestQuestion[]) => {
         ...selected.map((item, i) => ({
             ...item,
             id: `new_${formState.questions.length + i}`,
+            orderingItems: item.orderingItems.map((x, index) => ({
+                ...x,
+                correctOrder: index,
+            })),
         })),
     );
 
@@ -389,6 +447,7 @@ const handleScroll = () => {
 };
 
 onMounted(() => {
+    document.addEventListener("click", handleMouseClickOutside);
     formState.questions.push(createQuestionTemplate());
     // intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
     window.addEventListener("beforeunload", handleBeforeUnload);
@@ -417,7 +476,7 @@ onUnmounted(() => {
         </div>
         <div class="content">
             <a-form layout="vertical" v-model="formState" :rules="rules" ref="formRef">
-                <div class="content-item">
+                <div style="height: 500px" class="content-item">
                     <div class="content-item-title">
                         <div>
                             <span>{{ $t("create_QS.quiz.question_detail_title") }}</span>
@@ -428,7 +487,7 @@ onUnmounted(() => {
                         class="question-input-item"
                         v-model="formState.name"
                         :isRequired="true"
-                        :placeholder="t('question_sets_index.search_placeholder')"
+                        :placeholder="t('create_QS.other.title_placeholder')"
                         :label="t('create_QS.quiz.title')"
                         :max-length="100"
                     />
@@ -436,7 +495,7 @@ onUnmounted(() => {
                         <TextArea
                             class="question-input-item"
                             v-model="formState.description"
-                            placeholder="textarea with clear icon"
+                            :placeholder="t('create_QS.other.description_placeholder')"
                             :max-length="250"
                             :label="t('create_QS.quiz.description')"
                         />
@@ -453,15 +512,56 @@ onUnmounted(() => {
                                 </div>
                             </div>
                             <div class="tag-inputter">
-                                <Input
+                                <!-- <Input
                                     v-model="tagContent"
-                                    :placeholder="t('question_sets_index.search_placeholder')"
+                                    :placeholder="t('create_QS.other.tag_content_placeholder')"
                                     :max-length="50"
                                 >
                                     <template #icon>
                                         <i class="bx bx-purchase-tag-alt"></i>
                                     </template>
-                                </Input>
+                                </Input> -->
+                                <div class="search-bar" ref="searchResultRef">
+                                    <Input
+                                        @input="getSearchTagData"
+                                        v-model="tagContent"
+                                        :placeholder="t('create_QS.other.tag_content_placeholder')"
+                                        :max-length="50"
+                                    >
+                                        <template #icon>
+                                            <i class="bx bx-purchase-tag-alt"></i>
+                                        </template>
+                                    </Input>
+                                    <div
+                                        v-if="tag_search_data.length > 0"
+                                        :class="['search-result-container']"
+                                    >
+                                        <div class="search-result">
+                                            <div
+                                                class="search-result-tag"
+                                                v-for="tag in tag_search_data"
+                                            >
+                                                <div class="result-tag">
+                                                    {{ tag.name }}
+                                                    <div class="result-tag-qs-count">
+                                                        {{ tag.questionSetCount }}
+                                                    </div>
+                                                </div>
+                                                <div class="result-item-action">
+                                                    <a-button
+                                                        type="primary"
+                                                        class="main-color-btn"
+                                                        size="small"
+                                                        @click="appendTagContent(tag.name)"
+                                                    >
+                                                        <i class="bx bx-plus"></i>
+                                                    </a-button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <i class="bx bx-plus tag-inputter-button" @click="addTag"></i>
                             </div>
                         </div>
