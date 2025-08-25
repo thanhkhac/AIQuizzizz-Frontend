@@ -347,7 +347,13 @@ onMounted(async () => {
                     <a-row class="mb-2 d-flex align-items-center justify-content-between">
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
                             <span>{{ $t("exam_result.grade_attempt_method") }}</span>
-                            <span> {{ $t(`testData.gradeAttemptMethod`) }}</span>
+                            <span>
+                                {{
+                                    $t(
+                                        `setting_test_modal.final_score_options.${testData.gradeAttemptMethod}`,
+                                    )
+                                }}</span
+                            >
                         </a-col>
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
                             <span>{{ $t("exam_result.max_attempt") }}</span>
@@ -364,7 +370,11 @@ onMounted(async () => {
                     <a-row class="mb-2 d-flex align-items-center justify-content-between">
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
                             <span>{{ $t("exam_result.grade_question_method") }}</span>
-                            <span>{{ testData.gradeQuestionMethod }}</span>
+                            <span>{{
+                                $t(
+                                    `setting_test_modal.partial_grade_method.${testData.gradeQuestionMethod}`,
+                                )
+                            }}</span>
                         </a-col>
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
                             <span>{{ $t("exam_result.passing_score") }}</span>
@@ -377,11 +387,21 @@ onMounted(async () => {
                     <a-row class="mb-2 d-flex align-items-center justify-content-between">
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
                             <span>{{ $t("exam_result.show_correct_answer") }}</span>
-                            <span> {{ testData.isShowCorrectAnswerInReview ? "Yes" : "No" }}</span>
+                            <span>
+                                {{
+                                    testData.isShowCorrectAnswerInReview
+                                        ? $t("share_modal.buttons.yes")
+                                        : $t("share_modal.buttons.no")
+                                }}</span
+                            >
                         </a-col>
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
                             <span>{{ $t("exam_result.allow_review") }}</span>
-                            <span>{{ testData.isAllowReviewAfterSubmit ? "Yes" : "No" }}</span>
+                            <span>{{
+                                testData.isAllowReviewAfterSubmit
+                                    ? $t("share_modal.buttons.yes")
+                                    : $t("share_modal.buttons.no")
+                            }}</span>
                         </a-col>
                     </a-row>
                 </div>

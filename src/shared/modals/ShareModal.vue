@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import user_image from "@/assets/user.png";
+
 import ApiUser from "@/api/ApiUser";
 import ApiQuestionSet from "@/api/ApiQuestionSet";
 import ApiClass from "@/api/ApiClass";
 import ApiTestTemplate from "@/api/ApiTestTemplate";
 import ApiFolder from "@/api/ApiFolder";
 
-import { ref, computed, onMounted, watch, reactive, nextTick } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "../components/Common/Input.vue";
 import { useAuthStore } from "@/stores/AuthStore";
@@ -494,7 +496,7 @@ onMounted(() => {
                             <div class="list-item-container">
                                 <template v-for="people in sharedUser">
                                     <div class="list-item">
-                                        <img class="people-access-img" src="" alt="" />
+                                        <img class="people-access-img" :src="user_image" alt="" />
                                         <div class="people-access-info">
                                             <span>{{ people.fullName }}</span>
                                             <span>{{ people.email }}</span>
@@ -519,6 +521,16 @@ onMounted(() => {
                                                     :value="option.value"
                                                 >
                                                     {{ option.label }}
+                                                </a-select-option>
+                                                <a-select-option
+                                                    v-if="people.shareMode === PERMISSION.OWNER"
+                                                    :value="PERMISSION.OWNER"
+                                                >
+                                                    {{
+                                                        t(
+                                                            `share_modal.permission.${PERMISSION.OWNER}.mode`,
+                                                        )
+                                                    }}
                                                 </a-select-option>
                                             </a-select>
                                             <a-popconfirm
@@ -731,6 +743,7 @@ onMounted(() => {
     background-color: var(--text-color-white);
     border-radius: 50%;
     margin-right: 10px;
+    padding: 5px;
 }
 
 .people-access-info {

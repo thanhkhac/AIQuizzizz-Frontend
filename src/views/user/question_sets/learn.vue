@@ -688,6 +688,34 @@ const onRedirectToTest = () => {
 const onRedirectToLibrary = () => {
     router.push({ name: "User_Library" });
 };
+const explainContainsHtmlTag = (str: string) => {
+    if (!str) return false;
+
+    // remove content inside backticks
+    let processedStr = str?.replace(/`[^`]*`/g, "");
+
+    // remove p tag only
+    processedStr = processedStr
+        .trim()
+        .replace(/^<p>/i, "")
+        .replace(/<\/p>$/i, "");
+
+    // check if contains htlm tags
+    // const htmlTagPattern = /<[^>]+>/gi;
+    // return htmlTagPattern.test(processedStr);
+
+    //only count as html if contains allowed tags
+    return (
+        (processedStr.includes("<pre>") && processedStr.includes("</pre>")) ||
+        (processedStr.includes("<code>") && processedStr.includes("</code>")) ||
+        (processedStr.includes("<strong>") && processedStr.includes("</strong>")) ||
+        (processedStr.includes("<i>") && processedStr.includes("</i>")) ||
+        (processedStr.includes("<u>") && processedStr.includes("</u>")) ||
+        (processedStr.includes("<ul>") && processedStr.includes("</ul>")) ||
+        (processedStr.includes("<ol>") && processedStr.includes("</ol>")) ||
+        (processedStr.includes("<li>") && processedStr.includes("</li>"))
+    );
+};
 
 onMounted(async () => {
     await getQuizData();
@@ -1079,7 +1107,14 @@ onMounted(async () => {
                 class="explain-modal explain-modal-up"
                 :class="{ show: explainModalOpen }"
             >
-                <div class="learn-question-explain" v-html="currentQuestion.explainText"></div>
+                <div
+                    v-if="explainContainsHtmlTag(currentQuestion.explainText)"
+                    class="learn-question-explain html"
+                    v-html="currentQuestion.explainText"
+                ></div>
+                <div v-else class="learn-question-explain text">
+                    {{ currentQuestion.explainText }}
+                </div>
                 <a-button
                     :class="['main-color-btn close-modal-btn']"
                     type="primary"

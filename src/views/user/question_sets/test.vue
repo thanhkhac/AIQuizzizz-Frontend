@@ -605,7 +605,7 @@ const onSkipQuestion = () => {
         type: currentQuestion.value.type,
         isSkipped: true,
         result: false,
-        resultText:  t("learn_QS.result.skipped") ,
+        resultText: t("learn_QS.result.skipped"),
         multipleChoices: userAnswerMultipleChoice.value,
         matchingLeft: userAnswerMatchingLeft.value,
         matchingRight: userAnswerMatchingRight.value,
@@ -919,10 +919,53 @@ const onRedirectToSubcription = () => {
     router.push({ name: "User_Settings" });
 };
 
+const explainContainsHtmlTag = (str: string) => {
+    if (!str) return false;
+
+    // remove content inside backticks
+    let processedStr = str?.replace(/`[^`]*`/g, "");
+
+    // remove p tag only
+    processedStr = processedStr
+        .trim()
+        .replace(/^<p>/i, "")
+        .replace(/<\/p>$/i, "");
+
+    // check if contains htlm tags
+    // const htmlTagPattern = /<[^>]+>/gi;
+    // return htmlTagPattern.test(processedStr);
+
+    //only count as html if contains allowed tags
+    return (
+        (processedStr.includes("<pre>") && processedStr.includes("</pre>")) ||
+        (processedStr.includes("<code>") && processedStr.includes("</code>")) ||
+        (processedStr.includes("<strong>") && processedStr.includes("</strong>")) ||
+        (processedStr.includes("<i>") && processedStr.includes("</i>")) ||
+        (processedStr.includes("<u>") && processedStr.includes("</u>")) ||
+        (processedStr.includes("<ul>") && processedStr.includes("</ul>")) ||
+        (processedStr.includes("<ol>") && processedStr.includes("</ol>")) ||
+        (processedStr.includes("<li>") && processedStr.includes("</li>"))
+    );
+};
+
+watch(
+    () => settingFormState.numberOfQuestion,
+    () => {
+        if (settingFormState.numberOfQuestion > quiz.value.totalQuestionCount) {
+            settingFormState.numberOfQuestion = quiz.value.totalQuestionCount;
+        } else if (settingFormState.numberOfQuestion < 1) {
+            settingFormState.numberOfQuestion = 1;
+        }
+    },
+);
+
 onMounted(async () => {
     let session_settings = sessionStorage.getItem("test_settings");
     if (session_settings) {
-        settingFormState.numberOfQuestion = JSON.parse(session_settings).numberOfQuestion;
+        settingFormState.numberOfQuestion = Math.max(
+            1,
+            Math.min(quiz.value.totalQuestionCount, JSON.parse(session_settings).numberOfQuestion),
+        );
         settingFormState.questionTypes = JSON.parse(session_settings).questionTypes;
     }
 
@@ -932,7 +975,6 @@ onMounted(async () => {
     onLoadCurrentQuestion(0);
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
-    console.log(currentQuestion.value);
 
     timerStart();
 });
@@ -1435,7 +1477,14 @@ onMounted(async () => {
                     class="explain-modal explain-modal-up"
                     :class="{ show: explainModalOpen }"
                 >
-                    <div class="learn-question-explain" v-html="currentQuestion.explainText"></div>
+                    <div
+                        v-if="explainContainsHtmlTag(currentQuestion.explainText)"
+                        class="learn-question-explain html"
+                        v-html="currentQuestion.explainText"
+                    ></div>
+                    <div v-else class="learn-question-explain text">
+                        {{ currentQuestion.explainText }}
+                    </div>
                     <a-button
                         :class="['main-color-btn close-modal-btn']"
                         type="primary"

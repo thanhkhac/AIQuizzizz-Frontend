@@ -3,7 +3,7 @@ import user_image from "@/assets/user.png";
 
 import ApiClass from "@/api/ApiClass";
 
-import { ref, onMounted, reactive, computed, onUpdated, h, watch } from "vue";
+import { ref, onMounted, reactive, computed, h, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
 
@@ -12,6 +12,7 @@ import type { Class } from "@/models/response/class/class";
 import type { ClassStudent } from "@/models/response/class/classStudent";
 import CLASS_STUDENT_SELECT_FIELD from "@/constants/classSelectFieldName";
 import CLASS_STUDENT_POSITION from "@/constants/classStudentPosition";
+import ERROR from "@/constants/errors";
 
 import { useRoute, useRouter } from "vue-router";
 import type ClassStudentPageParams from "@/models/request/class/classStudentPageParams";
@@ -95,8 +96,15 @@ const getClassData = async () => {
         if (!result.data.success) router.push({ name: "404" });
 
         classData.value = result.data.data;
-    } catch (error) {
-        console.log("ERROR: GETBYID class: " + error);
+    } catch (error: any) {
+        const errorKeys = Object.keys(error.response.data.errors);
+        if (
+            errorKeys.includes(ERROR.NOT_FOUND_STUDENT_IN_CLASS) ||
+            errorKeys.includes(ERROR.NOT_FOUND_USER_IN_CLASS)
+        ) {
+            router.push({ name: "User_Class" });
+            return;
+        }
     }
 };
 const userRoleInClass = ref<string>("");
@@ -174,8 +182,14 @@ const getData = async () => {
                 pageParams.statusFilter = !pageParams.statusFilter; //toggle filter status
             }
         }
-    } catch (error) {
-        console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+    } catch (error: any) {
+        const errorKeys = Object.keys(error.response.data.errors);
+        if (
+            errorKeys.includes(ERROR.NOT_FOUND_STUDENT_IN_CLASS) ||
+            errorKeys.includes(ERROR.NOT_FOUND_USER_IN_CLASS)
+        ) {
+            router.push({ name: "User_Class" });
+        }
     } finally {
         loading.value = false;
     }
@@ -318,6 +332,25 @@ const onConfirmUpdateMemberPosition = (userId: string, position: string) => {
 
 /* delete class */
 const onOpenConfirmDeleteClass = () => {
+    Modal.confirm({
+        title: t("class_member.danger_zone.warning"),
+        content: h("div", { style: "color: red" }, t("class_member.danger_zone.warning_explain")),
+        centered: true,
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
+        onOk: async () => {
+            let result = await ApiClass.Delete(classId.value.toString());
+            if (!result.data.success) {
+                message.error(t("message.deleted_failed"));
+                return;
+            }
+            message.success(t("message.deleted_successfully"));
+            router.push({ name: "User_Class" });
+        },
+    });
+};
+
+const onOpenConfirmLeaveClass = () => {
     Modal.confirm({
         title: t("class_member.danger_zone.warning"),
         content: h("div", { style: "color: red" }, t("class_member.danger_zone.warning_explain")),
@@ -559,6 +592,18 @@ onMounted(async () => {
                         {{ $t("class_member.buttons.delete_class") }}
                     </a-button>
                 </div>
+            </div>
+            <div class="mt-4 content-item" v-else>
+                <a-button
+                    class="mt-3"
+                    type="primary"
+                    danger
+                    size="large"
+                    @click="onOpenConfirmLeaveClass"
+                >
+                    {{ $t("class_member.buttons.move_out_class") }}
+                    <i class="bx bx-download bx-rotate-270"></i>
+                </a-button>
             </div>
         </div>
     </div>

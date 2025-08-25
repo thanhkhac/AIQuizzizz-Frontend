@@ -51,7 +51,7 @@ instance.interceptors.response.use(
                 //   )
             ) {
                 notification["error"]({
-                    message: "ERROR",
+                    message: translate("generate_qs_modal.invalid_structure_modal.title"),
                     description: translate(`ERROR_CODE.${errorKeys[0]}`),
                 });
             }

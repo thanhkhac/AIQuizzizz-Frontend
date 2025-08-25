@@ -321,6 +321,11 @@
                 "title": "Rời đi thật sao?",
                 "content": "Bạn có thay đổi chưa được lưu."
             }
+        },
+        "other": {
+            "title_placeholder": "Nhập tiêu đề",
+            "description_placeholder": "Nhập mô tả",
+            "tag_content_placeholder": "Nhập nội dung thẻ"
         }
     },
     "update_QS": {
@@ -423,9 +428,16 @@
                 "popular": "Phổ biến",
                 "learn": "Học",
                 "test": "Kiểm tra",
-                "day_plural": "ngày",
                 "year_singular": "năm",
-                "year_plural": "năm"
+                "year_plural": "năm",
+                "month_singular": "tháng",
+                "month_plural": "tháng",
+                "week_singular": "tuần",
+                "week_plural": "tuần",
+                "day_singular": "ngày",
+                "day_plural": "ngày",
+                "hour_plural": "giờ",
+                "hour_singular": "giờ"
             },
             "buttons": {
                 "Change_plan": "Thay đổi gói"
@@ -502,6 +514,10 @@
             "ViewOnly": {
                 "mode": "Xem",
                 "explain": "Chỉ được xem"
+            },
+            "Owner": {
+                "mode": "Chủ sở hữu",
+                "explain": "Chủ sở hữu"
             }
         },
         "buttons": {
@@ -539,7 +555,8 @@
         },
         "modal": {
             "delete_title": "Bạn có chắc chắn muốn xóa bộ câu hỏi này không?",
-            "delete_content": "Hành động này không thể hoàn tác, mọi dữ liệu liên quan sẽ bị xóa vĩnh viễn. Hãy cẩn thận!"
+            "delete_content": "Hành động này không thể hoàn tác, mọi dữ liệu liên quan sẽ bị xóa vĩnh viễn. Hãy cẩn thận!",
+            "rate_title": "Đánh giá bộ câu hỏi này"
         }
     },
     "search_QS": {
@@ -667,7 +684,9 @@
             "items": "bài kiểm tra",
             "min": "phút",
             "completions": "lượt hoàn thành",
-            "assigned": "Đã giao"
+            "assigned": "Đã giao",
+            "ago": " trước",
+            "start_in": "Bắt đầu trong "
         },
         "modal": {
             "delete_title": "Bạn có chắc chắn muốn xóa bài kiểm tra này khỏi lớp không?",
@@ -687,7 +706,8 @@
             "remove_lecturer": "Xóa giảng viên",
             "history_test": "Lịch sử kiểm tra",
             "delete_class": "Xóa lớp",
-            "reset_code": "Đặt lại mã"
+            "reset_code": "Đặt lại mã",
+            "move_out_class": "Rời khỏi lớp"
         },
         "other": {
             "search_placeholder": "Tìm kiếm thành viên lớp...",
@@ -711,7 +731,9 @@
             "delete_member_title": "Bạn có chắc chắn muốn xóa thành viên này khỏi lớp?",
             "delete_member_content": "Hành động này sẽ không thể hoàn tác, mọi dữ liệu liên quan sẽ bị xóa vĩnh viễn. Hãy cẩn thận!",
             "update_member_title": "Cập nhật vai trò của thành viên trong lớp",
-            "update_member_content": "Vui lòng kiểm tra kỹ các thông tin quan trọng!"
+            "update_member_content": "Vui lòng kiểm tra kỹ các thông tin quan trọng!",
+            "leave_class_title": "Rời khỏi lớp?",
+            "leave_class_content": "Bạn sẽ không còn quyền truy cập vào tài nguyên của lớp học này."
         },
         "position": {
             "Onwer": "Chủ lớp",
@@ -894,6 +916,10 @@
         "final_score_options": {
             "LastAttempt": "Lần làm bài cuối",
             "HighestScore": "Điểm cao nhất"
+        },
+        "partial_grade_method": {
+            "Partial": "Chấm điểm theo từng phần",
+            "AllOrNothing": "Tất cả đúng hoặc sai hết"
         },
         "other": {
             "back": "Quay lại"
@@ -1081,7 +1107,7 @@
         "NOT_FOUND_STUDENT_IN_CLASS": "Không tìm thấy học sinh trong lớp",
         "PERMISSION_NOT_FOUND": "Không tìm thấy quyền",
         "NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS": "Không tìm thấy giáo viên hoặc chủ sở hữu trong lớp",
-        "NOT_FOUND_USER_IN_CLASS": "Không tìm thấy người dùng trong lớp",
+        "NOT_FOUND_USER_IN_CLASS": "Bạn không có quyền truy cập lớp này",
 
         "QUESTION_SET_ALREADY_IN_CLASS": "Bộ câu hỏi đã có trong lớp",
         "QUESTION_SET_NOT_FOUND": "Không tìm thấy bộ câu hỏi",
@@ -1174,6 +1200,7 @@
         "minimum_options": "Mỗi câu hỏi phải có ít nhất 2 lựa chọn",
         "maximum_options": "Mỗi câu hỏi có tối đa 10 lựa chọn",
         "maximum_tag": "Giới hạn {tag} thẻ",
+        "duplicate_tag": "Thẻ bị trùng lặp",
 
         "invalid_time_range": "Thời gian bắt đầu và kết thúc phải cách nhau ít nhất {time_limit} phút (giới hạn thời gian) và thời gian bắt đầu phải sau thời gian hiện tại.",
 

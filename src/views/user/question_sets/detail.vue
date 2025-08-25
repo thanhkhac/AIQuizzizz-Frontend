@@ -7,7 +7,7 @@ import type QuestionSet from "@/models/response/question_set/questionSet";
 import type Tag from "@/models/response/tag/tag";
 import QUESTION_TYPE from "@/constants/questionTypes";
 
-import { ref, reactive, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import Input from "@/shared/components/Common/Input.vue";
@@ -464,6 +464,9 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
+            <a href="#top" class="up-button">
+                <i class="bx bx-up-arrow-alt"></i>
+            </a>
         </div>
     </div>
 
@@ -494,7 +497,7 @@ onMounted(async () => {
                     </div>
                 </a-col>
                 <a-col class="main-title" :span="20">
-                    <span>Rate the question set</span> <br />
+                    <span>{{ $t("detail_QS.modal.rate_title") }}</span> <br />
                 </a-col>
             </a-row>
         </div>
@@ -502,7 +505,9 @@ onMounted(async () => {
             <a-rate v-model:value="rateValue" style="font-size: 40px" />
         </div>
         <template #footer>
-            <a-button type="primary" class="main-color-btn" @click="updateRating">Send</a-button>
+            <a-button type="primary" class="main-color-btn" @click="updateRating">
+                {{ $t("auth.buttons.send") }}
+            </a-button>
         </template>
     </a-modal>
 </template>

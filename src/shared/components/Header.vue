@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
 
 const authStore = useAuthStore();
@@ -13,11 +13,11 @@ onMounted(() => {});
         <div class="header-logo">
             <RouterLink :to="{ name: 'home' }">AIQuizizz</RouterLink>
         </div>
-        <div class="header-navigator">
+        <!-- <div class="header-navigator">
             <RouterLink :to="{ name: 'User_Dashboard' }">Dashboards</RouterLink>
             <RouterLink :to="{ name: 'User_Library' }">Library</RouterLink>
             <RouterLink :to="{ name: 'User_Class' }">Class</RouterLink>
-        </div>
+        </div> -->
         <div
             class="header-authentication-navigator"
             :style="isUserLogged ? { display: 'none' } : {}"
@@ -53,7 +53,7 @@ onMounted(() => {});
     -webkit-text-fill-color: transparent;
 }
 
-.header-navigator {
+/* .header-navigator {
     display: flex;
     list-style: none;
     align-items: center;
@@ -64,7 +64,7 @@ onMounted(() => {});
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
-    line-height: 100%; /* 16px */
+    line-height: 100%; 
 
     position: absolute;
     left: 50%;
@@ -95,7 +95,7 @@ onMounted(() => {});
 .header-navigator a:hover::after,
 .header-navigator a:focus::after {
     width: 100%;
-}
+} */
 
 .header-authentication-navigator {
     display: flex;
