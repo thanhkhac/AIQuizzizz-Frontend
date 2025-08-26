@@ -146,6 +146,33 @@ const onCreateNewTest = async () => {
 const questionSetId = ref<string>(route.params.id.toString());
 const loading = ref(false);
 const isAllowed = ref(true);
+const quizTypes = ref<string[]>([]);
+
+const getQuizTypes = async () => {
+    try {
+        if (!Validator.isValidGuid(questionSetId.value.toString())) {
+            router.push({ name: "404" });
+            return;
+        }
+        loading.value = true;
+        const result = await ApiQuestionSet.GetQuizTypes(questionSetId.value.toString());
+        if (result.data.success) {
+            quizTypes.value = result.data.data.map((x: any) => x.type);
+            settingFormState.questionTypes = result.data.data.map((x: any) => x.type);
+        }
+    } catch (error) {
+        console.error(error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+watch(quizTypes, (newValue) => {
+    if (newValue.length > 0) {
+        settingFormState.numberOfQuestion = newValue.length;
+    }
+});
+
 const getQuizData = async () => {
     if (!Validator.isValidGuid(questionSetId.value.toString())) {
         router.push({ name: "404" });
@@ -959,6 +986,8 @@ const processTextWithHtmlTag = (string: string) => {
 watch(
     () => settingFormState.numberOfQuestion,
     () => {
+        if (quiz.value.totalQuestionCount <= 0) return;
+
         if (settingFormState.numberOfQuestion > quiz.value.totalQuestionCount) {
             settingFormState.numberOfQuestion = quiz.value.totalQuestionCount;
         } else if (settingFormState.numberOfQuestion < 1) {
@@ -976,7 +1005,7 @@ onMounted(async () => {
         );
         settingFormState.questionTypes = JSON.parse(session_settings).questionTypes;
     }
-
+    await getQuizTypes();
     await getQuizData();
 
     openSettingModal();
@@ -1593,7 +1622,7 @@ onMounted(async () => {
             </a-form-item>
             <a-divider style="background-color: var(--form-item-border-color)"></a-divider>
             <a-form-item>
-                <div class="setting-form-item setting-form-switch" v-for="type in QUESTION_TYPE">
+                <div class="setting-form-item setting-form-switch" v-for="type in quizTypes">
                     <div>{{ t(`create_QS.type.${type}`) }}</div>
                     <a-switch
                         :disabled="
