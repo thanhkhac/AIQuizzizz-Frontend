@@ -448,17 +448,27 @@ onMounted(async () => {
                         </RouterLink>
                         <i class="bx bx-chevron-right"></i>
                     </li>
-                    <li class="title-breadcrumb-item">
-                        <RouterLink
-                            :to="{ name: '' }"
-                            class="breadcrumb-item-class"
-                            @click="modal_update_open = true"
-                        >
-                            <span> {{ classData.name }} </span>
-                            <span class="breadcrumb-item-topic"> {{ classData.topic }} </span>
-                        </RouterLink>
-                        <i class="bx bx-edit"></i>
-                    </li>
+                    <template v-if="userRoleInClass === CLASS_STUDENT_POSITION.OWNER">
+                        <li class="title-breadcrumb-item">
+                            <RouterLink
+                                :to="{ name: '' }"
+                                class="breadcrumb-item-class"
+                                @click="modal_update_open = true"
+                            >
+                                <span> {{ classData.name }} </span>
+                                <span class="breadcrumb-item-topic"> {{ classData.topic }} </span>
+                            </RouterLink>
+                            <i class="bx bx-edit"></i>
+                        </li>
+                    </template>
+                    <template v-else>
+                        <li class="title-breadcrumb-item">
+                            <RouterLink :to="{ name: '' }" class="breadcrumb-item-class">
+                                <span> {{ classData.name }} </span>
+                                <span class="breadcrumb-item-topic"> {{ classData.topic }} </span>
+                            </RouterLink>
+                        </li>
+                    </template>
                 </ul>
             </div>
         </div>

@@ -114,7 +114,10 @@ router.beforeEach(async (to, from, next) => {
         useAuthStore().checkUser()
     ) {
         // if (useAuthStore().user_info.claims.includes("Admin_Dashboard_View")) {
-        if (useAuthStore().getUserInfo().roles.includes("Administrator")) {
+        if (
+            useAuthStore().getUserInfo().roles.includes("Administrator") ||
+            useAuthStore().getUserInfo().roles.includes("Moderator")
+        ) {
             next({ name: "Admin_Manager_Account" });
         } else {
             next({ name: "/" });
@@ -156,7 +159,10 @@ router.beforeEach(async (to, from, next) => {
         //     next();
         // }
 
-        if (useAuthStore().getUserInfo().roles.includes("Administrator")) {
+        if (
+            useAuthStore().getUserInfo().roles.includes("Administrator") ||
+            useAuthStore().getUserInfo().roles.includes("Moderator")
+        ) {
             next();
         }
         next({ name: "404" });
