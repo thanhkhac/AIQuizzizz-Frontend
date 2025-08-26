@@ -40,7 +40,12 @@ const toggleSidebar = () => {
 
 const authStore = useAuthStore();
 const isAdmin = computed(() => {
-    return user.value?.roles?.includes("Administrator") ?? false;
+    // return user.value?.roles?.includes("Administrator",) ?? false;
+    return (
+        user.value?.roles?.some(
+            (role: string) => role === "Administrator" || role === "Moderator",
+        ) ?? false
+    );
 });
 onMounted(async () => {});
 

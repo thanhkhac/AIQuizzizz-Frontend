@@ -20,7 +20,10 @@ export const useAuthStore = defineStore("authStore", {
                 this.user_info = user_result.data.data;
                 localStorageService.SetUserInfo(user_result.data.data);
 
-                if (this.user_info.roles.includes("Administrator")) {
+                if (
+                    this.user_info.roles.includes("Administrator") ||
+                    this.user_info.roles.includes("Moderator")
+                ) {
                     this.router.push(this.returnURL || "/admin"); //returnURL or home page
                 } else {
                     this.router.push(this.returnURL || "/user/dashboards"); //returnURL or home page

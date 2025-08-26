@@ -8,11 +8,13 @@ import type ManageAccountsResp from "../../../../src/models/response/admin/manag
 import debounce from "lodash/debounce";
 import { Modal } from "ant-design-vue";
 import { useRoute } from "vue-router";
+import { useAuthStore } from "@/stores/AuthStore";
 
 const emit = defineEmits(["updateSidebar"]);
 const route = useRoute();
 const { t } = useI18n();
-
+const authStore = useAuthStore();
+const user_info = authStore.getUserInfo();
 // select box for account status
 const optionKeysAccStatus = ["all", "active", "ban"];
 const account_status_credit_options = computed(() =>
@@ -60,14 +62,14 @@ const columns = [
         width: 450,
         align: "center",
     },
-    {
-        title: "Token",
-        dataIndex: "token",
-        key: "token",
-        sorter: (a: { token: number }, b: { token: number }) => a.token - b.token,
-        width: 100,
-        align: "center",
-    },
+    // {
+    //     title: "Token",
+    //     dataIndex: "token",
+    //     key: "token",
+    //     sorter: (a: { token: number }, b: { token: number }) => a.token - b.token,
+    //     width: 100,
+    //     align: "center",
+    // },
     {
         title: "Role",
         dataIndex: "role",
@@ -297,7 +299,7 @@ const getUsersData = async () => {
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.key === 'ban'">
                             <div class="action-cell">
-                                <div v-if="record.role === 'Administrator'">
+                                <template v-if="user_info.roles.includes('Administrator')">
                                     <!-- icon assign moderator -->
                                     <a-tooltip>
                                         <template #title> Demote moderator to User </template>
@@ -319,7 +321,7 @@ const getUsersData = async () => {
                                             @click="onPromoteToModerator(record)"
                                         ></i>
                                     </a-tooltip>
-                                </div>
+                                </template>
 
                                 <!-- button ban.active user -->
                                 <a-tooltip>
