@@ -242,9 +242,9 @@ const onSave = async () => {
             message.error(t("message.submited_failed"));
             return;
         }
-        message.info(t("message.submited_successfully"));
+        message.info(t("message.saved_successfully"));
     } catch (error) {
-        message.error(t("message.submited_failed"));
+        message.error(t("message.saved_failed"));
     }
 };
 
