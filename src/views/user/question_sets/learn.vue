@@ -1100,6 +1100,7 @@ onMounted(async () => {
                             </div>
 
                             <a-button
+                                :disabled="currentQuestionIsSubmitted"
                                 :class="[
                                     'main-color-btn',
                                     currentQuestionIsSubmitted ? 'main-color-btn-disabled' : '',
