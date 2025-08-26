@@ -6,6 +6,7 @@ import type ClassQuestionSetPageParams from "@/models/request/class/classQSPageP
 
 const END_POINTS = {
     CREATE: "Class",
+    UPDATE: "Class/{ClassId}",
     GET_ALL_BY_LIMIT: "Class",
     GET_ALL_EXAM_BY_LIMIT: "Class/{ClassId}/Tests",
     GET_ALL_STUDENT_BY_LIMIT: "Class/{ClassId}/Students",
@@ -25,6 +26,11 @@ const END_POINTS = {
 class ApiUser {
     async Create(formState: object) {
         return await Api.post(`${END_POINTS.CREATE}`, formState);
+    }
+
+    async Update(formState: any) {
+        const url = END_POINTS.GET_BY_ID.replace("{ClassId}", formState.classId);
+        return await Api.patch(url, formState);
     }
 
     async JoinClass(formState: object) {
