@@ -535,7 +535,8 @@
         },
         "other": {
             "search_email_placeholder": "Add people, group members, or keep it yourself",
-            "delete_warning": "Are your sure to remove this user?"
+            "delete_warning": "Are your sure to remove this user?",
+            "search_ins": "Enter full email to search user"
         }
     },
     "detail_QS": {
@@ -979,6 +980,9 @@
             "title": "Are you sure you want to remove the uploaded file?",
             "content": "This action will also delete all generated contents including cost and file structure."
         },
+        "confirm_modal": {
+            "title": "Are you sure you want to generate questions with your settings using AI?"
+        },
         "form": {
             "structure": "Structure",
             "language": "Language",
@@ -1042,6 +1046,21 @@
             "question": "question",
             "time_plural": "times",
             "time": "time"
+        }
+    },
+    "user_attempts_modal": {
+        "title": "Test name: {name}",
+        "columns": {
+            "no": "No",
+            "start": "Start",
+            "submit": "Submit",
+            "student_score": "Student score",
+            "result": "Result",
+            "action": "Action",
+            "final_score": "Final score"
+        },
+        "buttons": {
+            "review": "Review"
         }
     },
     "ERROR_CODE": {
@@ -1127,7 +1146,7 @@
         "MAX_ATTEMPT_IN_THIS_TEST": "Maximum attempt reached in this test.",
         "TEST_NOT_FOUND": "Test not found",
         "NOT_YET_TIME_TO_OPEN_TEST": "Not yet time to open the test",
-        "STUDENT_CAN_REVIEW_THIS_TEST": "Student can review this test",
+        "STUDENT_CAN_NOT_REVIEW_THIS_TEST": "Student cannot review this test",
         "TEST_ALREADY_OPEN": "Test is already open",
         "TEST_TEMPLATE_NOT_FOUND": "Test template not found",
         "USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE": "User does not have permission in this test template",
@@ -1154,7 +1173,12 @@
         "PAYMENT_IN_PROGRESS": "Payment is in progress",
         "GENERATE_CONTENT_FAILED": "Failed to generate content",
         "AI_FILE_TOO_LARGE": "AI file is too large",
-        "NO_STRUCTURE_FOUND": "No structure found"
+        "NO_STRUCTURE_FOUND": "No structure found",
+
+        "FILE_EMPTY": "File is empty",
+        "FILE_TOO_LARGE": "File is too large",
+        "PDF_PAGE_LIMIT_EXCEEDED": "PDF page limit exceeded",
+        "INVALID_FILE_TYPE": "Invalid file type"
     },
     "message": {
         "added_successfully": "Add successfully!",

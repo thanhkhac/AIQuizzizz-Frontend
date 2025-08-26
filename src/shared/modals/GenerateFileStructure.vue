@@ -185,7 +185,7 @@ const emit =
     defineEmits<(e: "import", document_structure: string, selected_structure: string) => void>();
 
 const onEmitImport = () => {
-    if (treeData.value.length === 0 || selectedTree.value.length === 0) {
+    if (treeData.value.length === 0) {
         return;
     }
 
@@ -197,8 +197,8 @@ const onEmitImport = () => {
 
     const selectedRoot = selectedTree.value?.[0];
     const selected_structure = JSON.stringify({
-        title: selectedRoot.title,
-        children: selectedRoot.children,
+        title: selectedRoot?.title,
+        children: selectedRoot?.children,
     });
 
     emit("import", document_structure, selected_structure);
@@ -230,11 +230,12 @@ defineExpose({ openModal, closeModal, clearData });
 
 <template>
     <a-modal
-        :closable="false"
+        :closable="true"
         centered
         width="100%"
         wrap-class-name="medium-modal large"
         :open="modal_open"
+        @cancel="closeModal"
     >
         <div class="modal-container">
             <div class="modal-title-container">

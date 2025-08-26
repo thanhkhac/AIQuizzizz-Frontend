@@ -35,7 +35,7 @@ class ApiUser {
         return await Api.get(`${END_POINTS.GET_ALL_BY_LIMIT}`, {
             params: {
                 pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
-                pageSize: Math.max(5, Math.min(pageParams.pageSize || 5, 100)),
+                pageSize: Math.max(12, Math.min(pageParams.pageSize || 12, 100)),
                 name: pageParams.name || "",
                 shareMode: pageParams.shareMode || "",
             },

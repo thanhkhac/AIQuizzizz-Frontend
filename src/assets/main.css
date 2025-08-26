@@ -1386,7 +1386,7 @@ ol {
 }
 
 .answer-option:hover {
-    background-color: var(--main-color-theme);
+    background-color: var(--content-item-border-color);
     border-color: var(--main-color);
 }
 

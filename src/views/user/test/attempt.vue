@@ -235,6 +235,19 @@ const onSubmit = () => {
     });
 };
 
+const onSave = async () => {
+    try {
+        const result = await sendUserAnswer(false);
+        if (!result) {
+            message.error(t("message.submited_failed"));
+            return;
+        }
+        message.info(t("message.submited_successfully"));
+    } catch (error) {
+        message.error(t("message.submited_failed"));
+    }
+};
+
 const onLoadCurrentQuestion = (index: number) => {
     syncMatchingHeights();
     currentQuestionIsSkipped.value = false;
@@ -545,13 +558,28 @@ onMounted(async () => {
                             </div>
                         </div>
                     </div>
-                    <a-button
-                        type="primary"
-                        :class="['main-color-btn', isSubmitted ? 'main-color-btn-disabled' : '']"
-                        @click="onSubmit"
-                    >
-                        {{ $t("learn_QS.buttons.submit") }}
-                    </a-button>
+                    <div class="d-flex">
+                        <a-button
+                            type="primary"
+                            :class="[
+                                'main-color-btn',
+                                isSubmitted ? 'main-color-btn-disabled' : '',
+                            ]"
+                            @click="onSubmit"
+                        >
+                            {{ $t("learn_QS.buttons.submit") }}
+                        </a-button>
+                        <a-button
+                            type="primary"
+                            :class="[
+                                'ms-3 main-color-btn-ghost',
+                                isSubmitted ? 'main-color-btn-disabled' : '',
+                            ]"
+                            @click="onSave"
+                        >
+                            {{ $t("admin.manage_subscription.btn.save") }}
+                        </a-button>
+                    </div>
                 </div>
             </div>
             <div class="content-item">
@@ -786,7 +814,7 @@ onMounted(async () => {
 }
 
 .countdown.danger {
-    color: red;
+    color: var(--incorrect-answer-color);
 }
 
 .answer-short-text {
@@ -803,14 +831,14 @@ onMounted(async () => {
     content: "";
     position: absolute;
     inset: 0;
-    background-color: yellow;
+    background-color: gold;
     clip-path: polygon(100% 0, 100% 50%, 50% 0);
 }
 
 .flag-button {
     font-size: 24px;
     cursor: pointer;
-    color: yellow;
+    color: gold;
     transition: all 0.2s ease-in-out;
 }
 .flag-button:hover {

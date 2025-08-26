@@ -421,7 +421,7 @@ onMounted(() => {
                             <div class="visibility-explain">{{ selected_visibility_explain }}</div>
                         </a-form-item>
                     </a-col>
-                    <a-col
+                    <!-- <a-col
                         :span="24"
                         :class="[
                             'shareable-link-container',
@@ -440,11 +440,37 @@ onMounted(() => {
                                 {{ $t("share_modal.buttons.copy_link") }}
                             </a-button>
                         </div>
-                    </a-col>
+                    </a-col> -->
                     <a-col
                         :span="24"
-                        :class="[selected_visibility_option === VISIBILITY.PRIVATE ? '' : 'd-none']"
+                        :class="[
+                            selected_visibility_option === VISIBILITY.PRIVATE ||
+                            selected_visibility_option === VISIBILITY.PUBLIC
+                                ? ''
+                                : 'd-none',
+                        ]"
                     >
+                        <a-col
+                            :span="24"
+                            :class="[
+                                'shareable-link-container',
+                                selected_visibility_option === VISIBILITY.PUBLIC ? '' : 'd-none',
+                            ]"
+                        >
+                            <a-qrcode :value="getPublicShareUrl()" />
+                            <div>
+                                <a-input class="share-link" :value="getPublicShareUrl()" />
+                                <a-button
+                                    class="mt-2 main-color-btn"
+                                    type="primary"
+                                    @click="onCopyPublicShareUrl"
+                                >
+                                    <i class="me-3 bx bx-link-alt"></i>
+                                    {{ $t("share_modal.buttons.copy_link") }}
+                                </a-button>
+                            </div>
+                        </a-col>
+
                         <div
                             v-if="isUserOwner"
                             class="form-item search-user"
@@ -452,7 +478,7 @@ onMounted(() => {
                         >
                             <label>
                                 {{ $t("share_modal.component_title.share_with_email") }} -
-                                <span>enter full email to search user</span>
+                                <span>{{ $t("share_modal.other.search_ins") }}</span>
                             </label>
                             <Input
                                 @change="onSearchUser"

@@ -5,7 +5,7 @@ import TEST_STATUS from "@/constants/testStatus";
 import type { RequestQuestion } from "@/models/request/question";
 import type UserAnswerDTO from "@/models/response/test/userAnswerDTO";
 import type { ResponseQuestion } from "@/models/response/question";
-
+import ERROR from "@/constants/errors";
 import Validator from "@/services/Validator";
 import TransferQuestionData from "@/services/TransferQuestionData";
 import TransferUserAnswerData from "@/services/TransferUserAnswerData";
@@ -143,13 +143,15 @@ const getData = async () => {
             router.push({ name: "404" });
             return;
         }
-
         const result = await ApiTest.GetAttemptReview(attemptId.value);
         if (result.data.success) {
             reviewData.value = result.data.data;
         }
     } catch (error: any) {
-        console.error("Error fetching review data:", error);
+        if (Object.keys(error.response.data.errors).includes(ERROR.STUDENT_CAN_REVIEW_THIS_TEST)) {
+            router.push({ name: "User_Class" });
+            return;
+        }
         if (error.response && !error.response.data.success) {
             router.push({ name: "404" });
         }
