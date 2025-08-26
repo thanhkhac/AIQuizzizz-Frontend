@@ -1198,6 +1198,8 @@
         "purchased_failed": "Purchase failed",
         "submited_successfully": "Submit successfully!",
         "submited_failed": "Submit failed",
+        "saved_successfully": "Save successfully!",
+        "saved_failed": "Save failed",
         "auto_save_successfully": "Auto save successfully!",
         "uploaded_successfully": "{name} uploaded successfully!",
         "uploaded_failed": "Upload failed",

@@ -1198,6 +1198,8 @@
         "purchased_failed": "Thanh toán thất bại",
         "submited_successfully": "Gửi bài làm thành công!",
         "submited_failed": "Gửi bài làm thất bại",
+        "saved_successfully": "Lưu thành công!",
+        "saved_failed": "Lưu thất bại!",
         "auto_save_successfully": "Lưu tự động thành công!",
         "uploaded_successfully": "{name} tải lên thành công!",
         "uploaded_failed": "Tải lên thất bại",
