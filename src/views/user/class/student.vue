@@ -686,7 +686,7 @@ onMounted(async () => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="20">
-                        <span>{{ t("folder_detail.modal.create_title") }}</span>
+                        <span>{{ t("class_index.modal.update_title") }}</span>
                     </a-col>
                 </a-row>
             </div>
