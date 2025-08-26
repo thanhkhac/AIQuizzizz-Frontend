@@ -103,7 +103,7 @@ const columns = [
         title: "No",
         dataIndex: "no",
         customRender: ({ index }: { index: number }) => {
-            return (pageParams.pageNumber - 1) * pageParams.pageSize + index + 1;
+            return (Number(pageParams.pageNumber) - 1) * Number(pageParams.pageSize) + index + 1;
         },
         width: 50,
         align: "center",
