@@ -688,7 +688,7 @@ const onRedirectToTest = () => {
 const onRedirectToLibrary = () => {
     router.push({ name: "User_Library" });
 };
-const explainContainsHtmlTag = (str: string) => {
+const isHTMLContent = (str: string) => {
     if (!str) return false;
 
     // remove content inside backticks
@@ -715,6 +715,14 @@ const explainContainsHtmlTag = (str: string) => {
         (processedStr.includes("<ol>") && processedStr.includes("</ol>")) ||
         (processedStr.includes("<li>") && processedStr.includes("</li>"))
     );
+};
+
+const processTextWithHtmlTag = (string: string) => {
+    if (!string) return "";
+    const stringWithoutP = string.replace(/^<p>/i, "").replace(/<\/p>$/i, "");
+    const result = stringWithoutP.replace("<", "'<").replace(">", ">'");
+
+    return result;
 };
 
 onMounted(async () => {
@@ -765,7 +773,7 @@ onMounted(async () => {
             </div>
             <a-progress
                 :show-info="false"
-                stroke-color="#7C3AED"
+                stroke-color="var(--main-color)"
                 status="active"
                 :percent="completionPercentage"
             />
@@ -781,9 +789,13 @@ onMounted(async () => {
                 <template v-else>
                     <div class="section question-section">
                         <div
-                            :class="['learn-question']"
+                            v-if="isHTMLContent(currentQuestion.questionText)"
+                            class="learn-question html"
                             v-html="currentQuestion.questionText"
                         ></div>
+                        <div v-else class="learn-question text">
+                            {{ processTextWithHtmlTag(currentQuestion.questionText) }}
+                        </div>
                         <!-- <div
                                 :class="[
                                     'learn-question',
@@ -1108,12 +1120,12 @@ onMounted(async () => {
                 :class="{ show: explainModalOpen }"
             >
                 <div
-                    v-if="explainContainsHtmlTag(currentQuestion.explainText)"
+                    v-if="isHTMLContent(currentQuestion.explainText)"
                     class="learn-question-explain html"
                     v-html="currentQuestion.explainText"
                 ></div>
                 <div v-else class="learn-question-explain text">
-                    {{ currentQuestion.explainText }}
+                    {{ processTextWithHtmlTag(currentQuestion.explainText) }}
                 </div>
                 <a-button
                     :class="['main-color-btn close-modal-btn']"

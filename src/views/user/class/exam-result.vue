@@ -85,13 +85,13 @@ const columns: MyColumn[] = [
         sorter: (a: any, b: any) => a.studentEmail.localeCompare(b.studentEmail),
     },
     {
-        title: "Final score",
+        title: t("user_attempts_modal.columns.final_score"),
         dataIndex: "score",
         key: "score",
         sorter: (a: any, b: any) => a.score - b.score,
     },
     {
-        title: "Result",
+        title: t("user_attempts_modal.columns.result"),
         dataIndex: "status",
         key: "status",
     },

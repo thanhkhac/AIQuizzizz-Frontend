@@ -535,7 +535,8 @@
         },
         "other": {
             "search_email_placeholder": "Thêm người, thành viên nhóm, hoặc giữ cho riêng bạn",
-            "delete_warning": "Bạn có chắc chắn muốn xóa người dùng này không?"
+            "delete_warning": "Bạn có chắc chắn muốn xóa người dùng này không?",
+            "search_ins": "Nhập đầy đủ email để tìm kiếm người dùng"
         }
     },
     "detail_QS": {
@@ -702,8 +703,8 @@
         },
         "buttons": {
             "invite_member": "Mời thành viên",
-            "assign_lecturer": "Phân công giảng viên",
-            "remove_lecturer": "Xóa giảng viên",
+            "assign_lecturer": "Phân công giáo viên",
+            "remove_lecturer": "Xóa giáo viên",
             "history_test": "Lịch sử kiểm tra",
             "delete_class": "Xóa lớp",
             "reset_code": "Đặt lại mã",
@@ -979,6 +980,9 @@
             "title": "Bạn có chắc chắn muốn xóa tệp đã tải lên không?",
             "content": "Hành động này cũng sẽ xóa tất cả nội dung đã tạo bao gồm chi phí và cấu trúc tệp."
         },
+        "confirm_modal": {
+            "title": "Bạn có chắc chắn muốn tạo câu hỏi với các cài đặt của mình bằng AI không?"
+        },
         "form": {
             "structure": "Cấu trúc",
             "language": "Ngôn ngữ",
@@ -1042,6 +1046,21 @@
             "question": "câu hỏi",
             "time_plural": "lần",
             "time": "lần"
+        }
+    },
+    "user_attempts_modal": {
+        "title": "Tên bài kiểm tra: {name}",
+        "columns": {
+            "no": "Số thứ tự",
+            "start": "Bắt đầu",
+            "submit": "Nộp bài",
+            "student_score": "Điểm",
+            "result": "Kết quả",
+            "action": "Hành động",
+            "final_score": "Điểm cuối cùng"
+        },
+        "buttons": {
+            "review": "Xem chi tiết"
         }
     },
     "ERROR_CODE": {
@@ -1127,7 +1146,7 @@
         "MAX_ATTEMPT_IN_THIS_TEST": "Đã đạt số lần làm bài tối đa cho bài kiểm tra này.",
         "TEST_NOT_FOUND": "Không tìm thấy bài kiểm tra",
         "NOT_YET_TIME_TO_OPEN_TEST": "Chưa đến thời gian mở bài kiểm tra",
-        "STUDENT_CAN_REVIEW_THIS_TEST": "Học sinh có thể xem lại bài kiểm tra này",
+        "STUDENT_CAN_NOT_REVIEW_THIS_TEST": "Học sinh không thể xem lại bài kiểm tra này",
         "TEST_ALREADY_OPEN": "Bài kiểm tra đã được mở",
         "TEST_TEMPLATE_NOT_FOUND": "Không tìm thấy mẫu bài kiểm tra",
         "USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE": "Người dùng không có quyền trong mẫu bài kiểm tra này",
@@ -1154,7 +1173,12 @@
         "PAYMENT_IN_PROGRESS": "Thanh toán đang được xử lý",
         "GENERATE_CONTENT_FAILED": "Tạo nội dung thất bại",
         "AI_FILE_TOO_LARGE": "Tệp AI quá lớn",
-        "NO_STRUCTURE_FOUND": "Không tìm thấy cấu trúc"
+        "NO_STRUCTURE_FOUND": "Không tìm thấy cấu trúc",
+
+        "FILE_EMPTY": "Tệp rỗng",
+        "FILE_TOO_LARGE": "Tệp quá lớn",
+        "PDF_PAGE_LIMIT_EXCEEDED": "Vượt quá giới hạn trang PDF",
+        "INVALID_FILE_TYPE": "Loại tệp không hợp lệ"
     },
     "message": {
         "added_successfully": "Thêm thành công!",
@@ -1219,55 +1243,55 @@
     },
     "admin": {
         "manage_acc": {
-            "title": "Manage Accounts",
-            "search_placeholder": "Search email ...",
+            "title": "Quản lý tài khoản",
+            "search_placeholder": "Tìm kiếm email ...",
             "acc_status": {
-                "all": "All",
-                "ban": "Ban",
-                "active": "Active"
+                "all": "Tất cả",
+                "ban": "Đã khóa",
+                "active": "Hoạt động"
             },
             "acc_role": {
-                "all": "All",
-                "Administrator": "Administrator",
-                "Moderator": "Moderator",
-                "User": "User"
+                "all": "Tất cả",
+                "Administrator": "Quản trị viên",
+                "Moderator": "Điều hành viên",
+                "User": "Người dùng"
             }
         },
         "manage_subscription": {
-            "title": "Manage Subscriptions",
-            "create_new_sub": "Create New Subscription",
+            "title": "Quản lý gói đăng ký",
+            "create_new_sub": "Tạo gói đăng ký mới",
             "stat_card": {
-                "total_subs": "Total Subscripbers",
-                "monthly_rev": "Monthly Revenue",
-                "new_subs": "New Subscribers",
-                "class": "Total Class"
+                "total_subs": "Tổng số người đăng ký",
+                "monthly_rev": "Doanh thu hàng tháng",
+                "new_subs": "Người đăng ký mới",
+                "class": "Tổng số lớp học"
             },
-            "plan_comparison": "Plan Comparison",
-            "plan_comparison_content": "Compare available subscription plans",
+            "plan_comparison": "So sánh các gói",
+            "plan_comparison_content": "So sánh các gói đăng ký hiện có",
             "modal": {
-                "title_create": "Create New Subscription",
-                "title_update": "Edit Subscription"
+                "title_create": "Tạo gói đăng ký mới",
+                "title_update": "Chỉnh sửa gói đăng ký"
             },
             "plan_unit": {
-                "Day": "Day",
-                "Month": "Month",
-                "Year": "Year"
+                "Day": "Ngày",
+                "Month": "Tháng",
+                "Year": "Năm"
             },
             "plan_feature": {
-                "canLearn": "Learning",
-                "canOpenTest": "Access tests",
-                "canCopyOrImportQuestionSet": "Copy or import question sets"
+                "canLearn": "Học tập",
+                "canOpenTest": "Truy cập bài kiểm tra",
+                "canCopyOrImportQuestionSet": "Sao chép hoặc nhập bộ câu hỏi"
             },
             "create_plan": {
-                "name": "Subscriptions Name",
-                "price": "Price",
-                "duration": "Duration",
-                "unit": "Unit",
-                "feature": "Feature"
+                "name": "Tên gói đăng ký",
+                "price": "Giá",
+                "duration": "Thời hạn",
+                "unit": "Đơn vị",
+                "feature": "Tính năng"
             },
             "btn": {
-                "create": "Create",
-                "save": "Save"
+                "create": "Tạo",
+                "save": "Lưu"
             }
         },
         "manage_class": {}

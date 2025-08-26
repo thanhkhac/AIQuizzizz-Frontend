@@ -380,7 +380,7 @@ const onModalImport = (selected: RequestQuestion[]) => {
         ...selected.map((item, i) => ({
             ...item,
             id: `new_${formState.questions.length + i}`,
-            orderingItems: item.orderingItems.map((x, index) => ({
+            orderingItems: item.orderingItems?.map((x, index) => ({
                 ...x,
                 correctOrder: index,
             })),

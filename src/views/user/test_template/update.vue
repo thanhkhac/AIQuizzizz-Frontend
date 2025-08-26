@@ -372,12 +372,23 @@ const onModalImport = (selected: RequestQuestion[]) => {
         ...selected.map((item, i) => ({
             ...item,
             id: `new_${formState.createUpdateQuestions.length + i}`,
-            orderingItems: item.orderingItems.map((x, index) => ({
+            orderingItems: item.orderingItems?.map((x, index) => ({
                 ...x,
                 correctOrder: index,
             })),
         })),
     );
+
+    nextTick(() => {
+        scrollerRef.value?.forceUpdate?.();
+        nextTick(() => {
+            const lastIndex = formState.createUpdateQuestions.length;
+            requestAnimationFrame(() => {
+                scrollerRef.value?.scrollToItem(lastIndex);
+            });
+        });
+    });
+
     message.success(`${t("message.imported_question", { number: selected.length })}`);
 };
 //#endregion

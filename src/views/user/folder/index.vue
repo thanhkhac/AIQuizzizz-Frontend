@@ -124,12 +124,12 @@ const rules = {
     folderName: [
         {
             required: true,
-            message: "This field is required.",
+            message: t("message.required"),
             trigger: "change",
         },
         {
             max: 100,
-            message: "Limit 100.",
+            message: t("message.out_of_range", { max_length: 100 }),
             trigger: "change",
         },
     ],

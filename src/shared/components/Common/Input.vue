@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const modelValue = defineModel<string>("modelValue");
 const placeholder = defineModel<string>("placeholder");
@@ -31,8 +34,8 @@ const checkInvalid = () => {
     const isOutOfRange = valueLength > max;
     const isInvalid = (required && isEmpty && isTouched.value) || isOutOfRange;
 
-    let message = "This field is required";
-    if (isOutOfRange) message = `Limit: ${max} characters.`;
+    let message = t("message.required");
+    if (isOutOfRange) message = t("message.out_of_range", { max_length: max });
 
     return { isInvalid, message };
 };

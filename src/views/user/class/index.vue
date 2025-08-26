@@ -29,9 +29,11 @@ const class_credit_options = computed(() =>
     })),
 );
 
+const pageSizeOptions = ref<string[]>(["12", "24", "36", "48", "60"]);
+
 const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
-    pageSize: route.query.pageSize || 10,
+    pageSize: route.query.pageSize || 12,
     name: route.query.name?.toString() || "",
     shareMode: route.query.shareMode || class_credit_options.value[0].value,
     totalCount: 0,
@@ -109,7 +111,7 @@ watch(
     () => Object.keys(route.query).length,
     () => {
         pageParams.pageNumber = route.query.pageNumber || 1;
-        pageParams.pageSize = route.query.pageSize || 10;
+        pageParams.pageSize = route.query.pageSize || 12;
         pageParams.name = route.query.name?.toString() || "";
         pageParams.shareMode = route.query.shareMode || class_credit_options.value[0].value;
         pageParams.statusFilter = true;
@@ -131,26 +133,26 @@ const rules = {
     code: [
         {
             required: true,
-            message: "This field is required.",
+            message: t("message.required"),
             trigger: "change",
         },
     ],
     name: [
         {
             required: true,
-            message: "This field is required.",
+            message: t("message.required"),
             trigger: "change",
         },
         {
             max: 100,
-            message: "Limit 100.",
+            message: t("message.out_of_range", { max_length: 100 }),
             trigger: "change",
         },
     ],
     topic: [
         {
             max: 100,
-            message: "Limit 100",
+            message: t("message.out_of_range", { max_length: 100 }),
             trigger: "change",
         },
     ],
@@ -212,11 +214,11 @@ const onCreateClass = async () => {
         }
 
         if (!result.data.success) {
-            message.error("Create class failed");
+            message.error(t("message.created_failed"));
             return;
         }
         modal_create_class_open.value = false;
-        message.success("Create class successfully.");
+        message.success(t("message.created_successfully"));
         await getData();
     } catch (error) {
         console.log(error);
@@ -337,6 +339,7 @@ onMounted(async () => {
                         v-model:current="pageParams.pageNumber"
                         :total="pageParams.totalCount"
                         :pageSize="pageParams.pageSize"
+                        :page-size-options="pageSizeOptions"
                         :show-total="
                             (total: number, range: number[]) =>
                                 `${range[0]}-${range[1]} of ${total} ${t('class_index.other.items')}`
