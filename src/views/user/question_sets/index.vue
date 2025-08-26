@@ -377,7 +377,7 @@ onMounted(async () => {
     color: var(--text-color-sub-white);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: start;
     margin: 3px 0px;
 }
 .quiz-item-info i {

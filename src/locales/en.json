@@ -321,6 +321,11 @@
                 "title": "Leave already?",
                 "content": "You have unsaved changes."
             }
+        },
+        "other": {
+            "title_placeholder": "Enter title",
+            "description_placeholder": "Enter description",
+            "tag_content_placeholder": "Enter tag content"
         }
     },
     "update_QS": {
@@ -423,9 +428,16 @@
                 "popular": "Popular",
                 "learn": "Learn",
                 "test": "Test",
-                "day_plural": "days",
                 "year_singular": "year",
-                "year_plural": "years"
+                "year_plural": "years",
+                "month_singular": "month",
+                "month_plural": "months",
+                "week_singular": "week",
+                "week_plural": "weeks",
+                "day_singular": "day",
+                "day_plural": "days",
+                "hour_plural": "hours",
+                "hour_singular": "hour"
             },
             "buttons": {
                 "Change_plan": "Change plan"
@@ -502,6 +514,10 @@
             "ViewOnly": {
                 "mode": "view",
                 "explain": "View only"
+            },
+            "Owner": {
+                "mode": "Owner",
+                "explain": "Owner"
             }
         },
         "buttons": {
@@ -519,7 +535,8 @@
         },
         "other": {
             "search_email_placeholder": "Add people, group members, or keep it yourself",
-            "delete_warning": "Are your sure to remove this user?"
+            "delete_warning": "Are your sure to remove this user?",
+            "search_ins": "Enter full email to search user"
         }
     },
     "detail_QS": {
@@ -528,7 +545,7 @@
             "share_class": "Add to class",
             "learn": "Learn",
             "test": "Test",
-            "assign_to_class": "Assisng to class",
+            "assign_to_class": "Assign to class",
             "download": "Download"
         },
         "other": {
@@ -539,7 +556,8 @@
         },
         "modal": {
             "delete_title": "Are you sure to delete this question set?",
-            "delete_content": "This action is irreversible, every related data will be erased forever. Careful!"
+            "delete_content": "This action is irreversible, every related data will be erased forever. Careful!",
+            "rate_title": "Rate this question set"
         }
     },
     "search_QS": {
@@ -635,7 +653,8 @@
             "create_class_name_label": "Class name",
             "create_class_name_placeholder": "New class name",
             "create_class_topic_label": "Topic",
-            "create_class_topic_placeholder": "Topic, subject, or class description"
+            "create_class_topic_placeholder": "Topic, subject, or class description",
+            "update_title": "Update class"
         },
         "other": {
             "search_class_placeholder": "Search class by name...",
@@ -667,7 +686,9 @@
             "items": "exams",
             "min": "min",
             "completions": "completions",
-            "assigned": "Assigned"
+            "assigned": "Assigned",
+            "ago": " ago",
+            "start_in": "Start in "
         },
         "modal": {
             "delete_title": "Are you sure to delete this test from class?",
@@ -687,7 +708,8 @@
             "remove_lecturer": "Remove teacher",
             "history_test": "History test",
             "delete_class": "Delete class",
-            "reset_code": " Reset code"
+            "reset_code": " Reset code",
+            "move_out_class": "Move out class"
         },
         "other": {
             "search_placeholder": "Search class member...",
@@ -711,7 +733,9 @@
             "delete_member_title": "Are you sure to remove this member from class?",
             "delete_member_content": "This action is irreversible, every related data will be erased forever. Careful!",
             "update_member_title": "Update member position in class",
-            "update_member_content": "Please make sure to double check the important information!"
+            "update_member_content": "Please make sure to double check the important information!",
+            "leave_class_title": "Leave class?",
+            "leave_class_content": "You will no longer have access to this class's resources."
         },
         "position": {
             "Onwer": "Owner",
@@ -895,6 +919,10 @@
             "LastAttempt": "Last attempt",
             "HighestScore": "Highest score"
         },
+        "partial_grade_method": {
+            "Partial": "Partial",
+            "AllOrNothing": "All or Nothing"
+        },
         "other": {
             "back": "Back"
         }
@@ -952,6 +980,9 @@
         "confirm_delete_file_modal": {
             "title": "Are you sure you want to remove the uploaded file?",
             "content": "This action will also delete all generated contents including cost and file structure."
+        },
+        "confirm_modal": {
+            "title": "Are you sure you want to generate questions with your settings using AI?"
         },
         "form": {
             "structure": "Structure",
@@ -1016,6 +1047,21 @@
             "question": "question",
             "time_plural": "times",
             "time": "time"
+        }
+    },
+    "user_attempts_modal": {
+        "title": "Test name: {name}",
+        "columns": {
+            "no": "No",
+            "start": "Start",
+            "submit": "Submit",
+            "student_score": "Student score",
+            "result": "Result",
+            "action": "Action",
+            "final_score": "Final score"
+        },
+        "buttons": {
+            "review": "Review"
         }
     },
     "ERROR_CODE": {
@@ -1101,7 +1147,7 @@
         "MAX_ATTEMPT_IN_THIS_TEST": "Maximum attempt reached in this test.",
         "TEST_NOT_FOUND": "Test not found",
         "NOT_YET_TIME_TO_OPEN_TEST": "Not yet time to open the test",
-        "STUDENT_CAN_REVIEW_THIS_TEST": "Student can review this test",
+        "STUDENT_CAN_NOT_REVIEW_THIS_TEST": "Student cannot review this test",
         "TEST_ALREADY_OPEN": "Test is already open",
         "TEST_TEMPLATE_NOT_FOUND": "Test template not found",
         "USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE": "User does not have permission in this test template",
@@ -1128,7 +1174,12 @@
         "PAYMENT_IN_PROGRESS": "Payment is in progress",
         "GENERATE_CONTENT_FAILED": "Failed to generate content",
         "AI_FILE_TOO_LARGE": "AI file is too large",
-        "NO_STRUCTURE_FOUND": "No structure found"
+        "NO_STRUCTURE_FOUND": "No structure found",
+
+        "FILE_EMPTY": "File is empty",
+        "FILE_TOO_LARGE": "File is too large",
+        "PDF_PAGE_LIMIT_EXCEEDED": "PDF page limit exceeded",
+        "INVALID_FILE_TYPE": "Invalid file type"
     },
     "message": {
         "added_successfully": "Add successfully!",
@@ -1174,6 +1225,7 @@
         "minimum_options": "Each question must have at least 2 options",
         "maximum_options": "Each question must have at most 10 options",
         "maximum_tag": "Limit {tag} tags",
+        "duplicate_tag": "Duplicate tag",
 
         "invalid_time_range": "Start time and end time must be at least {time_limit} minutes (time limit) apart and start time must be after current time.",
 

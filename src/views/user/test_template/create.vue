@@ -291,6 +291,10 @@ const onModalImport = (selected: RequestQuestion[]) => {
         ...selected.map((item, i) => ({
             ...item,
             id: `new_${formState.questions.length + i}`,
+            orderingItems: item.orderingItems?.map((x, index) => ({
+                ...x,
+                correctOrder: index,
+            })),
         })),
     );
 
@@ -383,7 +387,7 @@ onMounted(() => {
                         class="question-input-item"
                         v-model="formState.name"
                         :isRequired="true"
-                        :placeholder="t('question_sets_index.search_placeholder')"
+                        :placeholder="t('create_QS.other.title_placeholder')"
                         :label="t('create_QS.quiz.title')"
                         :max-length="100"
                     />
@@ -391,7 +395,7 @@ onMounted(() => {
                         <TextArea
                             class="question-input-item"
                             v-model="formState.description"
-                            placeholder="textarea with clear icon"
+                            :placeholder="t('create_QS.other.description_placeholder')"
                             :max-length="250"
                             :label="t('create_QS.quiz.description')"
                         />

@@ -3,7 +3,7 @@ import user_image from "@/assets/user.png";
 
 import ApiClass from "@/api/ApiClass";
 
-import { ref, onMounted, reactive, computed, onUpdated, h, watch } from "vue";
+import { ref, onMounted, reactive, computed, h, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
 
@@ -12,6 +12,7 @@ import type { Class } from "@/models/response/class/class";
 import type { ClassStudent } from "@/models/response/class/classStudent";
 import CLASS_STUDENT_SELECT_FIELD from "@/constants/classSelectFieldName";
 import CLASS_STUDENT_POSITION from "@/constants/classStudentPosition";
+import ERROR from "@/constants/errors";
 
 import { useRoute, useRouter } from "vue-router";
 import type ClassStudentPageParams from "@/models/request/class/classStudentPageParams";
@@ -95,8 +96,17 @@ const getClassData = async () => {
         if (!result.data.success) router.push({ name: "404" });
 
         classData.value = result.data.data;
-    } catch (error) {
-        console.log("ERROR: GETBYID class: " + error);
+        updateClassFormState.name = classData.value.name;
+        updateClassFormState.topic = classData.value.topic;
+    } catch (error: any) {
+        const errorKeys = Object.keys(error.response.data.errors);
+        if (
+            errorKeys.includes(ERROR.NOT_FOUND_STUDENT_IN_CLASS) ||
+            errorKeys.includes(ERROR.NOT_FOUND_USER_IN_CLASS)
+        ) {
+            router.push({ name: "User_Class" });
+            return;
+        }
     }
 };
 const userRoleInClass = ref<string>("");
@@ -174,8 +184,14 @@ const getData = async () => {
                 pageParams.statusFilter = !pageParams.statusFilter; //toggle filter status
             }
         }
-    } catch (error) {
-        console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+    } catch (error: any) {
+        const errorKeys = Object.keys(error.response.data.errors);
+        if (
+            errorKeys.includes(ERROR.NOT_FOUND_STUDENT_IN_CLASS) ||
+            errorKeys.includes(ERROR.NOT_FOUND_USER_IN_CLASS)
+        ) {
+            router.push({ name: "User_Class" });
+        }
     } finally {
         loading.value = false;
     }
@@ -336,6 +352,82 @@ const onOpenConfirmDeleteClass = () => {
     });
 };
 
+const onOpenConfirmLeaveClass = () => {
+    Modal.confirm({
+        title: t("class_member.danger_zone.warning"),
+        content: h("div", { style: "color: red" }, t("class_member.danger_zone.warning_explain")),
+        centered: true,
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
+        onOk: async () => {
+            let result = await ApiClass.Delete(classId.value.toString());
+            if (!result.data.success) {
+                message.error(t("message.deleted_failed"));
+                return;
+            }
+            message.success(t("message.deleted_successfully"));
+            router.push({ name: "User_Class" });
+        },
+    });
+};
+
+//#region update class
+
+const rules = {
+    name: [
+        {
+            required: true,
+            message: t("message.required"),
+            trigger: "change",
+        },
+        {
+            max: 100,
+            message: t("message.out_of_range", { max_length: 100 }),
+            trigger: "change",
+        },
+    ],
+    topic: [
+        {
+            max: 100,
+            message: t("message.out_of_range", { max_length: 100 }),
+            trigger: "change",
+        },
+    ],
+};
+
+const modal_update_open = ref(false);
+
+const updateClassFormRef = ref();
+const updateClassFormState = reactive({
+    name: classData.value.name,
+    topic: classData.value.topic,
+});
+
+const isUpdateLoading = ref(false);
+const onUpdateClass = async () => {
+    isUpdateLoading.value = true;
+    try {
+        updateClassFormRef.value?.validate(); //this will throw err to catch
+        let result = await ApiClass.Update({
+            classId: classId.value,
+            name: updateClassFormState.name,
+            topic: updateClassFormState.topic,
+        });
+        if (!result.data.success) {
+            message.error(t("message.updated_failed"));
+            return;
+        }
+        message.success(t("message.updated_successfully"));
+        modal_update_open.value = false;
+        window.location.reload();
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isUpdateLoading.value = false;
+    }
+};
+//#endregion
+
 onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
@@ -357,10 +449,15 @@ onMounted(async () => {
                         <i class="bx bx-chevron-right"></i>
                     </li>
                     <li class="title-breadcrumb-item">
-                        <RouterLink :to="{ name: '' }" class="breadcrumb-item-class">
+                        <RouterLink
+                            :to="{ name: '' }"
+                            class="breadcrumb-item-class"
+                            @click="modal_update_open = true"
+                        >
                             <span> {{ classData.name }} </span>
                             <span class="breadcrumb-item-topic"> {{ classData.topic }} </span>
                         </RouterLink>
+                        <i class="bx bx-edit"></i>
                     </li>
                 </ul>
             </div>
@@ -560,8 +657,78 @@ onMounted(async () => {
                     </a-button>
                 </div>
             </div>
+            <div class="mt-4 content-item" v-else>
+                <a-button
+                    class="mt-3"
+                    type="primary"
+                    danger
+                    size="large"
+                    @click="onOpenConfirmLeaveClass"
+                >
+                    {{ $t("class_member.buttons.move_out_class") }}
+                    <i class="bx bx-download bx-rotate-270"></i>
+                </a-button>
+            </div>
         </div>
     </div>
+    <a-modal
+        centered
+        wrap-class-name="medium-modal"
+        :open="modal_update_open"
+        @cancel="modal_update_open = false"
+    >
+        <div class="modal-container">
+            <div class="modal-title-container">
+                <a-row class="w-100 d-flex align-items-center">
+                    <a-col :span="4">
+                        <RouterLink @click="modal_update_open = false" :to="{ name: '' }">
+                            <i class="bx bx-chevron-left navigator-back-button"></i>
+                        </RouterLink>
+                    </a-col>
+                    <a-col class="main-title" :span="20">
+                        <span>{{ t("class_index.modal.update_title") }}</span>
+                    </a-col>
+                </a-row>
+            </div>
+            <a-form
+                ref="updateClassFormRef"
+                layout="vertical"
+                :rules="rules"
+                :model="updateClassFormState"
+            >
+                <a-form-item>
+                    <Input
+                        :label="t('class_index.modal.create_class_name_label')"
+                        :name="'name'"
+                        v-model="updateClassFormState.name"
+                        :placeholder="t('class_index.modal.create_class_name_placeholder')"
+                        :is-required="true"
+                        :max-length="100"
+                    ></Input>
+                </a-form-item>
+                <a-form-item>
+                    <Input
+                        :label="t('class_index.modal.create_class_topic_label')"
+                        :name="'topic'"
+                        v-model="updateClassFormState.topic"
+                        :placeholder="t('class_index.modal.create_class_topic_placeholder')"
+                        :max-length="100"
+                    ></Input>
+                </a-form-item>
+            </a-form>
+        </div>
+        <template #footer>
+            <a-button
+                :loading="isUpdateLoading"
+                class="main-color-btn"
+                key="submit"
+                type="primary"
+                @click="onUpdateClass"
+            >
+                {{ $t("update_QS.buttons.update") }}
+            </a-button>
+        </template>
+    </a-modal>
     <!-- invitation modal -->
     <a-modal
         width="750px"

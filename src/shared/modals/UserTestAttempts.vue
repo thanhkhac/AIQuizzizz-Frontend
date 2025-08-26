@@ -83,24 +83,24 @@ type MyColumn = TableColumnType<Attempt>;
 
 const columns: MyColumn[] = [
     {
-        title: "No",
+        title: t("user_attempts_modal.columns.no"),
         key: "no",
         customRender: (info: { index: number }) => info.index + 1,
     },
     {
-        title: "Start",
+        title: t("user_attempts_modal.columns.start"),
         dataIndex: "timeStart",
         key: "timeStart",
         sorter: (a: any, b: any) => dayjs(a.timeStart).unix() - dayjs(b.timeStart).unix(),
     },
     {
-        title: "Submit",
+        title: t("user_attempts_modal.columns.submit"),
         dataIndex: "timeSubmit",
         key: "timeSubmit",
         sorter: (a: any, b: any) => dayjs(a.timeSubmit).unix() - dayjs(b.timeSubmit).unix(),
     },
     {
-        title: "Student score",
+        title: t("user_attempts_modal.columns.student_score"),
         dataIndex: "score",
         key: "score",
         sorter: (a: any, b: any) => a.score - b.score,
@@ -112,12 +112,12 @@ const columns: MyColumn[] = [
     //     sorter: (a: any, b: any) => a.score - b.score,
     // },
     {
-        title: "Result",
+        title: t("user_attempts_modal.columns.result"),
         dataIndex: "status",
         key: "status",
     },
     {
-        title: "Action",
+        title: t("user_attempts_modal.columns.action"),
         dataIndex: "action",
         key: "action",
     },
@@ -205,11 +205,12 @@ const onRedirectToReview = (attemptId: string) => {
                                 </template>
                                 <template v-if="column.key === 'action'">
                                     <a-button
+                                        v-if="record.canReview"
                                         type="ghost"
                                         class="main-color-btn-ghost"
                                         @click="onRedirectToReview(record.attemptId)"
                                     >
-                                        Review
+                                        {{ $t("user_attempts_modal.buttons.review") }}
                                     </a-button>
                                 </template>
                             </template>

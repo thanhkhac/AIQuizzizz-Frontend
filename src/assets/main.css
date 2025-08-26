@@ -1386,7 +1386,7 @@ ol {
 }
 
 .answer-option:hover {
-    background-color: var(--main-color-theme);
+    background-color: var(--content-item-border-color);
     border-color: var(--main-color);
 }
 
@@ -2290,6 +2290,78 @@ ant-select-tree */
     border-color: var(--main-color) !important;
 }
 
+.search-bar {
+    width: 100%;
+}
+
+.search-result-container {
+    position: relative;
+    color: var(--text-color);
+}
+
+.search-result::-webkit-scrollbar {
+    width: 10px;
+}
+.search-result::-webkit-scrollbar-thumb {
+    background-color: var(--form-item-border-color);
+}
+
+.search-result {
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
+    position: absolute;
+    top: -2px;
+    z-index: 10;
+    width: 100%;
+    margin: 0px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    overflow-y: scroll;
+    box-shadow: 1px 0px 10px 1px var(--border-color);
+    height: 300px;
+    padding: 10px;
+}
+
+.search-result-tag {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.search-result-tag:hover {
+    background-color: var(--form-item-border-color);
+}
+
+.result-tag {
+    margin: 0px 5px 5px 0px;
+    padding-left: 10px;
+    border-radius: 3px;
+    border: 2px solid var(--main-color);
+    display: flex;
+    justify-content: space-between;
+    height: fit-content;
+}
+
+.result-tag-qs-count {
+    margin-left: 10px;
+    padding: 0px 5px;
+    background-color: var(--main-color);
+    color: var(--text-color-contrast);
+    height: 100%;
+}
+
+.result-tag i {
+    background-color: var(--incorrect-answer-color);
+    color: var(--text-color-contrast);
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
 /* ========================================Create-QuestionSet and siblings====================================================== */
 /****/
 /* ========================================User folder and siblings====================================================== */
@@ -2409,6 +2481,23 @@ ant-select-tree */
 .ant-result-title,
 .ant-result-subtitle {
     color: var(--text-color) !important;
+}
+
+.up-button {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-size: 25px;
+    padding: 5px 10px;
+    background-color: var(--main-color);
+    color: var(--text-color-contrast);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    z-index: 100000;
+}
+.up-button:hover {
+    opacity: 0.8;
 }
 
 /* ========================================QuestionSet detail and siblings====================================================== */

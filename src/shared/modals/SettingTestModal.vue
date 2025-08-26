@@ -228,7 +228,7 @@ onMounted(async () => {});
                             class="question-input-item"
                             v-model="formState.name"
                             :isRequired="true"
-                            :placeholder="'Enter test title'"
+                            :placeholder="t('create_QS.other.title_placeholder')"
                             :label="t('setting_test_modal.form.title')"
                             :max-length="100"
                         />
@@ -260,7 +260,7 @@ onMounted(async () => {});
                             >
                                 <a-input-number
                                     size="large"
-                                    :addon-after="'time'"
+                                    :addon-after="t('exam_result.other.time')"
                                     v-model:value="formState.maxAttempt"
                                     min="1"
                                     max="100"
@@ -280,7 +280,7 @@ onMounted(async () => {});
                             >
                                 <a-input-number
                                     size="large"
-                                    :addon-after="'times'"
+                                    :addon-after="t('exam_result.other.time')"
                                     v-model:value="formState.numberOfShuffles"
                                     min="1"
                                     max="100"
@@ -302,7 +302,7 @@ onMounted(async () => {});
                             >
                                 <a-input-number
                                     size="large"
-                                    :addon-after="'minutes'"
+                                    :addon-after="t('practice_test.other.minute')"
                                     v-model:value="formState.timeLimit"
                                     min="1"
                                     max="120"

@@ -288,13 +288,13 @@ onMounted(() => {
                 <div class="text-white fw-bold fs-6">
                     {{ $t("settings.billing.note.title") }}
                 </div>
-                <div class="text-white-50">
+                <div class="text-white">
                     {{ $t("settings.billing.note.content1") }}
                 </div>
-                <div class="text-white-50">
+                <div class="text-white">
                     {{ $t("settings.billing.note.content2") }}
                 </div>
-                <div class="text-white-50">
+                <div class="text-white">
                     {{ $t("settings.billing.note.contact") }}: 0986386984
                 </div>
             </div>

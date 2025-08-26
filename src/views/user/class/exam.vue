@@ -7,6 +7,7 @@ import CLASS_EXAM_STATUS from "@/constants/classExamStatus";
 import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
 import type { Class } from "@/models/response/class/class";
 import type { ClassExam } from "@/models/response/class/classExam";
+import ERROR from "@/constants/errors";
 
 import { ref, onMounted, reactive, computed, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -76,8 +77,17 @@ const getClassData = async () => {
         if (!result.data.success) router.push({ name: "404" });
 
         classData.value = result.data.data;
-    } catch (error) {
-        console.log("ERROR: GETBYID class: " + error);
+        updateClassFormState.name = classData.value.name;
+        updateClassFormState.topic = classData.value.topic;
+    } catch (error: any) {
+        const errorKeys = Object.keys(error.response.data.errors);
+        if (
+            errorKeys.includes(ERROR.NOT_FOUND_STUDENT_IN_CLASS) ||
+            errorKeys.includes(ERROR.NOT_FOUND_USER_IN_CLASS)
+        ) {
+            router.push({ name: "User_Class" });
+            return;
+        }
     }
 };
 
@@ -172,19 +182,19 @@ const onPaginationChange = (page: any, pageSize: any) => {
 
 const getFormattedRelativeTime = (hoursAgo: number) => {
     if (hoursAgo < 24) {
-        return `${hoursAgo} hour${hoursAgo !== 1 ? "s" : ""} ago`;
+        return `${hoursAgo} ${hoursAgo !== 1 ? t("settings.subscription.plan.hour_plural") : t("settings.subscription.plan.hour_singular")} ${t("class_exam.other.ago")}`;
     } else if (hoursAgo < 24 * 7) {
         const days = Math.floor(hoursAgo / 24);
-        return `${days} day${days !== 1 ? "s" : ""} ago`;
+        return `${days} ${days !== 1 ? t("settings.subscription.plan.day_plural") : t("settings.subscription.plan.day_singular")} ${t("class_exam.other.ago")}`;
     } else if (hoursAgo < 24 * 30) {
         const weeks = Math.floor(hoursAgo / (24 * 7));
-        return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
+        return `${weeks} ${weeks !== 1 ? t("settings.subscription.plan.week_plural") : t("settings.subscription.plan.week_singular")} ${t("class_exam.other.ago")}`;
     } else if (hoursAgo < 24 * 365) {
         const months = Math.floor(hoursAgo / (24 * 30));
-        return `${months} month${months !== 1 ? "s" : ""} ago`;
+        return `${months} ${months !== 1 ? t("settings.subscription.plan.month_plural") : t("settings.subscription.plan.month_singular")} ${t("class_exam.other.ago")}`;
     } else {
         const years = Math.floor(hoursAgo / (24 * 365));
-        return `${years} year${years !== 1 ? "s" : ""} ago`;
+        return `${years} ${years !== 1 ? t("settings.subscription.plan.year_plural") : t("settings.subscription.plan.year_singular")} ${t("class_exam.other.ago")}`;
     }
 };
 
@@ -268,13 +278,6 @@ const chosenExam = ref<ClassExam>(
 import UserTestAttempts from "@/shared/modals/UserTestAttempts.vue";
 const userHistoryModalRef = ref<InstanceType<typeof UserTestAttempts> | null>(null);
 
-// const openUserHistoryModal = async (user: TestResult) => {
-//     chosenUser.value = user;
-//     await nextTick();
-
-//     userHistoryModalRef.value?.openModal();
-// };
-
 const onOpenHistoryModal = async (exam: ClassExam) => {
     chosenExam.value = exam;
     await nextTick();
@@ -282,6 +285,63 @@ const onOpenHistoryModal = async (exam: ClassExam) => {
     userHistoryModalRef.value?.openModal();
 };
 
+//#endregion
+
+//#region update class
+
+const rules = {
+    name: [
+        {
+            required: true,
+            message: t("message.required"),
+            trigger: "change",
+        },
+        {
+            max: 100,
+            message: t("message.out_of_range", { max_length: 100 }),
+            trigger: "change",
+        },
+    ],
+    topic: [
+        {
+            max: 100,
+            message: t("message.out_of_range", { max_length: 100 }),
+            trigger: "change",
+        },
+    ],
+};
+
+const modal_update_open = ref(false);
+
+const updateClassFormRef = ref();
+const updateClassFormState = reactive({
+    name: classData.value.name,
+    topic: classData.value.topic,
+});
+
+const isUpdateLoading = ref(false);
+const onUpdateClass = async () => {
+    isUpdateLoading.value = true;
+    try {
+        updateClassFormRef.value?.validate(); //this will throw err to catch
+        let result = await ApiClass.Update({
+            classId: classId.value,
+            name: updateClassFormState.name,
+            topic: updateClassFormState.topic,
+        });
+        if (!result.data.success) {
+            message.error(t("message.updated_failed"));
+            return;
+        }
+        message.success(t("message.updated_successfully"));
+        modal_update_open.value = false;
+        window.location.reload();
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isUpdateLoading.value = false;
+    }
+};
 //#endregion
 
 onMounted(async () => {
@@ -305,10 +365,15 @@ onMounted(async () => {
                         <i class="bx bx-chevron-right"></i>
                     </li>
                     <li class="title-breadcrumb-item">
-                        <RouterLink :to="{ name: '' }" class="breadcrumb-item-class">
+                        <RouterLink
+                            :to="{ name: '' }"
+                            class="breadcrumb-item-class"
+                            @click="modal_update_open = true"
+                        >
                             <span> {{ classData.name }} </span>
                             <span class="breadcrumb-item-topic"> {{ classData.topic }} </span>
                         </RouterLink>
+                        <i class="bx bx-edit"></i>
                     </li>
                 </ul>
             </div>
@@ -320,7 +385,12 @@ onMounted(async () => {
                         <span>{{ $t("class_index.title") }}</span>
                         <span>{{ $t("class_exam.sub_title") }}</span>
                     </div>
-                    <a-button type="primary" class="main-color-btn" @click="onRedirectToCreate">
+                    <a-button
+                        v-if="userRoleInClass !== CLASS_STUDENT_POSITION.STUDENT"
+                        type="primary"
+                        class="main-color-btn"
+                        @click="onRedirectToCreate"
+                    >
                         <i class="me-2 bx bx-list-plus"></i>
                         {{ $t("class_exam.buttons.assign_test") }}
                     </a-button>
@@ -402,9 +472,18 @@ onMounted(async () => {
                                         {{ exam.numberOfCompletion }}
                                         {{ $t("class_exam.other.completions") }}
                                     </span>
-                                    <span class="exam-item-assigned">
+                                    <span v-if="exam.relativeTime >= 0" class="exam-item-assigned">
                                         {{ $t("class_exam.other.assigned") }}
                                         {{ getFormattedRelativeTime(exam.relativeTime) }}
+                                    </span>
+                                    <span v-else class="exam-item-assigned">
+                                        {{ $t("class_exam.other.start_in") }}
+                                        {{ exam.relativeTime * -1 }}
+                                        {{
+                                            exam.relativeTime * -1 > 0
+                                                ? $t("settings.subscription.plan.hour_plural")
+                                                : $t("settings.subscription.plan.hour_singular")
+                                        }}
                                     </span>
                                 </div>
                             </div>
@@ -480,7 +559,6 @@ onMounted(async () => {
                                 `${range[0]}-${range[1]} of ${total} ${t('class_exam.other.items')}`
                         "
                         show-size-changer
-                        show-quick-jumper
                         class="crud-layout-pagination"
                         :locale="{
                             items_per_page: t('class_index.other.pages'),
@@ -490,6 +568,65 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+
+    <a-modal
+        centered
+        wrap-class-name="medium-modal"
+        :open="modal_update_open"
+        @cancel="modal_update_open = false"
+    >
+        <div class="modal-container">
+            <div class="modal-title-container">
+                <a-row class="w-100 d-flex align-items-center">
+                    <a-col :span="4">
+                        <RouterLink @click="modal_update_open = false" :to="{ name: '' }">
+                            <i class="bx bx-chevron-left navigator-back-button"></i>
+                        </RouterLink>
+                    </a-col>
+                    <a-col class="main-title" :span="20">
+                        <span>{{ t("class_index.modal.update_title") }}</span>
+                    </a-col>
+                </a-row>
+            </div>
+            <a-form
+                ref="updateClassFormRef"
+                layout="vertical"
+                :rules="rules"
+                :model="updateClassFormState"
+            >
+                <a-form-item>
+                    <Input
+                        :label="t('class_index.modal.create_class_name_label')"
+                        :name="'name'"
+                        v-model="updateClassFormState.name"
+                        :placeholder="t('class_index.modal.create_class_name_placeholder')"
+                        :is-required="true"
+                        :max-length="100"
+                    ></Input>
+                </a-form-item>
+                <a-form-item>
+                    <Input
+                        :label="t('class_index.modal.create_class_topic_label')"
+                        :name="'topic'"
+                        v-model="updateClassFormState.topic"
+                        :placeholder="t('class_index.modal.create_class_topic_placeholder')"
+                        :max-length="100"
+                    ></Input>
+                </a-form-item>
+            </a-form>
+        </div>
+        <template #footer>
+            <a-button
+                :loading="isUpdateLoading"
+                class="main-color-btn"
+                key="submit"
+                type="primary"
+                @click="onUpdateClass"
+            >
+                {{ $t("update_QS.buttons.update") }}
+            </a-button>
+        </template>
+    </a-modal>
 
     <UserTestAttempts
         ref="userHistoryModalRef"
@@ -559,7 +696,8 @@ onMounted(async () => {
 
 .exam-item-date {
     font-size: 14px;
-    color: #ccc;
+    color: var(--main-color);
+    font-weight: 500;
 }
 .exam-info-detail {
     border-top: 1px solid var(--border-color);

@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import user_image from "@/assets/user.png";
+
 import ApiUser from "@/api/ApiUser";
 import ApiQuestionSet from "@/api/ApiQuestionSet";
 import ApiClass from "@/api/ApiClass";
 import ApiTestTemplate from "@/api/ApiTestTemplate";
 import ApiFolder from "@/api/ApiFolder";
 
-import { ref, computed, onMounted, watch, reactive, nextTick } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "../components/Common/Input.vue";
 import { useAuthStore } from "@/stores/AuthStore";
@@ -419,7 +421,7 @@ onMounted(() => {
                             <div class="visibility-explain">{{ selected_visibility_explain }}</div>
                         </a-form-item>
                     </a-col>
-                    <a-col
+                    <!-- <a-col
                         :span="24"
                         :class="[
                             'shareable-link-container',
@@ -438,11 +440,37 @@ onMounted(() => {
                                 {{ $t("share_modal.buttons.copy_link") }}
                             </a-button>
                         </div>
-                    </a-col>
+                    </a-col> -->
                     <a-col
                         :span="24"
-                        :class="[selected_visibility_option === VISIBILITY.PRIVATE ? '' : 'd-none']"
+                        :class="[
+                            selected_visibility_option === VISIBILITY.PRIVATE ||
+                            selected_visibility_option === VISIBILITY.PUBLIC
+                                ? ''
+                                : 'd-none',
+                        ]"
                     >
+                        <a-col
+                            :span="24"
+                            :class="[
+                                'shareable-link-container',
+                                selected_visibility_option === VISIBILITY.PUBLIC ? '' : 'd-none',
+                            ]"
+                        >
+                            <a-qrcode :value="getPublicShareUrl()" />
+                            <div>
+                                <a-input class="share-link" :value="getPublicShareUrl()" />
+                                <a-button
+                                    class="mt-2 main-color-btn"
+                                    type="primary"
+                                    @click="onCopyPublicShareUrl"
+                                >
+                                    <i class="me-3 bx bx-link-alt"></i>
+                                    {{ $t("share_modal.buttons.copy_link") }}
+                                </a-button>
+                            </div>
+                        </a-col>
+
                         <div
                             v-if="isUserOwner"
                             class="form-item search-user"
@@ -450,7 +478,7 @@ onMounted(() => {
                         >
                             <label>
                                 {{ $t("share_modal.component_title.share_with_email") }} -
-                                <span>enter full email to search user</span>
+                                <span>{{ $t("share_modal.other.search_ins") }}</span>
                             </label>
                             <Input
                                 @change="onSearchUser"
@@ -494,7 +522,7 @@ onMounted(() => {
                             <div class="list-item-container">
                                 <template v-for="people in sharedUser">
                                     <div class="list-item">
-                                        <img class="people-access-img" src="" alt="" />
+                                        <img class="people-access-img" :src="user_image" alt="" />
                                         <div class="people-access-info">
                                             <span>{{ people.fullName }}</span>
                                             <span>{{ people.email }}</span>
@@ -519,6 +547,16 @@ onMounted(() => {
                                                     :value="option.value"
                                                 >
                                                     {{ option.label }}
+                                                </a-select-option>
+                                                <a-select-option
+                                                    v-if="people.shareMode === PERMISSION.OWNER"
+                                                    :value="PERMISSION.OWNER"
+                                                >
+                                                    {{
+                                                        t(
+                                                            `share_modal.permission.${PERMISSION.OWNER}.mode`,
+                                                        )
+                                                    }}
                                                 </a-select-option>
                                             </a-select>
                                             <a-popconfirm
@@ -731,6 +769,7 @@ onMounted(() => {
     background-color: var(--text-color-white);
     border-radius: 50%;
     margin-right: 10px;
+    padding: 5px;
 }
 
 .people-access-info {

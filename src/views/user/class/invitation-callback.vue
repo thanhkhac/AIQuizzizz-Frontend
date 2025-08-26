@@ -34,6 +34,7 @@ const onJoinClass = async () => {
         message.success(t("message.join_class_successfully"));
     } catch (error) {
         console.log(error);
+    } finally {
         router.push({ name: "User_Class" });
     }
 };

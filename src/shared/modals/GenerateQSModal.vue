@@ -141,8 +141,8 @@ const onGenerateQuestions = async () => {
             return;
         }
         if (
-            generateByAIModalState.documentStructureJson === null ||
-            generateByAIModalState.selectedPartJson === null
+            generateByAIModalState.documentStructureJson === null
+            //  || generateByAIModalState.selectedPartJson === null
         ) {
             Modal.error({
                 title: t("generate_qs_modal.invalid_structure_modal.title"),
@@ -154,7 +154,7 @@ const onGenerateQuestions = async () => {
         }
 
         const object_document_structure = JSON.parse(generateByAIModalState.documentStructureJson);
-        const object_selected_part = JSON.parse(generateByAIModalState.selectedPartJson);
+        const object_selected_part = JSON.parse(generateByAIModalState.selectedPartJson || "{}");
 
         if (generateByAIModalState.isGenerateExplain && generateByAIModalState.title) {
             generateByAIModalState.documentStructureJson = JSON.stringify({
@@ -188,7 +188,7 @@ const onGenerateQuestions = async () => {
         );
 
         formData.append("documentStructureJson", generateByAIModalState.documentStructureJson);
-        formData.append("selectedPartJson", generateByAIModalState.selectedPartJson);
+        formData.append("selectedPartJson", generateByAIModalState.selectedPartJson || "");
 
         const result = await ApiAIGenerate.GenerateQuestion(formData);
         if (!result.data.success) {
@@ -320,6 +320,8 @@ const onRemoveUploadedFile = () => {
         onOk: () => {
             files.value = [];
             generateFileStructureRef.value?.clearData();
+            generateByAIModalState.documentStructureJson = null;
+            generateByAIModalState.selectedPartJson = null;
         },
     });
 };
@@ -455,7 +457,7 @@ onMounted(() => {});
                             <div
                                 :class="[
                                     'file-structure',
-                                    generateByAIModalState.selectedPartJson
+                                    generateByAIModalState.documentStructureJson
                                         ? 'answer-correct result-correct '
                                         : 'answer-incorrect result-incorrect ',
                                 ]"
@@ -544,7 +546,7 @@ onMounted(() => {});
                                     size="large"
                                     :class="[
                                         'w-100 main-color-btn generate_ai',
-                                        !generateByAIModalState.selectedPartJson
+                                        !generateByAIModalState.documentStructureJson
                                             ? 'main-color-btn-disabled'
                                             : '',
                                     ]"
