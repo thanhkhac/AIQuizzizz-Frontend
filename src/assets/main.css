@@ -1101,6 +1101,7 @@ ol {
     padding: 5px 10px;
     border: 1px solid var(--form-item-border-color);
     border-radius: 3px;
+    text-wrap: wrap;
 }
 
 .ordering-answer {
@@ -1110,6 +1111,7 @@ ol {
 
 .ordering-answer-item {
     max-width: 400px;
+    text-wrap: wrap;
 }
 
 .ordering-answer-item div {
@@ -1129,6 +1131,7 @@ ol {
     padding: 5px 10px;
     border: 1px solid var(--form-item-border-color);
     border-radius: 3px;
+    text-wrap: wrap;
 }
 
 ::v-deep(.ant-select-selection-item-remove) {
