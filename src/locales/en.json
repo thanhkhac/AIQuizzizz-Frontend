@@ -653,7 +653,8 @@
             "create_class_name_label": "Class name",
             "create_class_name_placeholder": "New class name",
             "create_class_topic_label": "Topic",
-            "create_class_topic_placeholder": "Topic, subject, or class description"
+            "create_class_topic_placeholder": "Topic, subject, or class description",
+            "update_title": "Update class"
         },
         "other": {
             "search_class_placeholder": "Search class by name...",

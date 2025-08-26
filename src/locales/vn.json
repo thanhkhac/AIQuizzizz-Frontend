@@ -653,7 +653,8 @@
             "create_class_name_label": "Tên lớp",
             "create_class_name_placeholder": "Tên cho lớp học mới",
             "create_class_topic_label": "Chủ đề",
-            "create_class_topic_placeholder": "Chủ đề, môn học, hoặc mô tả lớp"
+            "create_class_topic_placeholder": "Chủ đề, môn học, hoặc mô tả lớp",
+            "update_title": "Cập nhật thông tin lớp"
         },
         "other": {
             "search_class_placeholder": "Tìm lớp học theo tên...",
