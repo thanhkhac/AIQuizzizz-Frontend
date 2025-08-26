@@ -24,6 +24,7 @@ const END_POINTS = {
     UPDATE_RATING: "QuestionSet/{questionSetId}/Rating",
     GET_SHARED_CLASSES: "QuestionSet/{questionSetId}/Classes",
     DOWNLOAD_FILE_IMPORT: "QuestionSet/DownloadFileImport",
+    GET_QUIZ_TYPES: "QuestionSet/{questionSetId}/Types",
 };
 
 class ApiQuestionSet {
@@ -145,6 +146,11 @@ class ApiQuestionSet {
 
     DownloadFileImport = async () => {
         return await Api.get(`${END_POINTS.DOWNLOAD_FILE_IMPORT}`);
+    };
+
+    GetQuizTypes = async (questionSetId: string) => {
+        const url = END_POINTS.GET_QUIZ_TYPES.replace("{questionSetId}", questionSetId);
+        return await Api.get(url);
     };
 }
 
