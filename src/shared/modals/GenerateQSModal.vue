@@ -111,7 +111,7 @@ const generateByAIModalState = reactive({
     isGenerateExplain: true,
     language: SUPPORTED_LOCALES[0].code,
     questionCount: questionMaximumOptions.value[0].value,
-    questionTypes: [questionTypeOptions[0]],
+    questionTypes: [questionTypeOptions[0].value],
     // difficulty: questionDifficultyOptions[0].value,
     documentStructureJson: null as string | null,
     selectedPartJson: null as string | null,
@@ -184,7 +184,7 @@ const onGenerateQuestions = async () => {
         formData.append("questionCount", generateByAIModalState.questionCount);
         formData.append(
             "questionTypes",
-            JSON.stringify(generateByAIModalState.questionTypes.map((x) => x.value)),
+            JSON.stringify(generateByAIModalState.questionTypes.map((x) => x)),
         );
 
         formData.append("documentStructureJson", generateByAIModalState.documentStructureJson);
@@ -791,6 +791,8 @@ onMounted(() => {});
 .preview-section .section-content {
     height: 550px;
     max-height: 550px;
+    max-width: 1000px;
+    overflow-x: scroll;
 }
 
 ::v-deep(.ant-form-item-control-input-content textarea) {
@@ -834,5 +836,10 @@ onMounted(() => {});
     align-items: center;
     justify-content: center;
     position: absolute;
+}
+
+.question-text {
+    text-wrap: wrap;
+    margin-bottom: 10px;
 }
 </style>
