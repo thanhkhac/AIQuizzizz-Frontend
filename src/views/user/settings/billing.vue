@@ -9,17 +9,26 @@ import type PaymentHistory from "../../../../src/models/response/plan/paymentHis
 import { useAuthStore } from "@/stores/AuthStore";
 import { useRoute } from "vue-router";
 import { data } from "jquery";
+import ApiUser from "@/api/ApiUser";
 
 const { t } = useI18n();
 const route = useRoute();
 const authStore = useAuthStore();
-const user_info = authStore.getUserInfo();
+// const user_info = authStore.getUserInfo();
 const modal_qr_open = ref(false);
 const isCreateQrLoading = ref(false);
 const dataSource = ref<PaymentHistory[]>([]);
 const historyPaymentPayload = ref<HistoryPayment>({
     pageNumber: 1,
     pageSize: 5,
+});
+const userData = reactive({
+    id: "",
+    email: "",
+    fullName: "",
+    tokenCount: 0,
+    balance: 0,
+    roles: [],
 });
 const qrSrc = ref<string>("");
 const onOpenQrModal = async () => {
@@ -49,6 +58,17 @@ watch(
     },
     { immediate: true },
 );
+
+const getUserData = async () => {
+    try {
+        let result = await ApiUser.GetUserInfo();
+
+        console.log("111111: ", result.data.data);
+        Object.assign(userData, result.data.data);
+    } catch (err) {
+        console.log(err);
+    }
+};
 
 const getHistoryPayment = async () => {
     try {
@@ -157,6 +177,7 @@ const onPaginationChange = (page: any, pageSize: any) => {
 
 onMounted(() => {
     getHistoryPayment();
+    getUserData();
 });
 </script>
 <template>
@@ -169,7 +190,7 @@ onMounted(() => {
                 </div>
                 <div class="w-50 justify-content-center m-2">
                     <span class="text-end"
-                        >AIQuizz Points: {{ formatCurrency(user_info.balance) }}</span
+                        >AIQuizz Points: {{ formatCurrency(userData.balance) }}</span
                     >
                 </div>
             </div>
@@ -294,9 +315,7 @@ onMounted(() => {
                 <div class="text-white">
                     {{ $t("settings.billing.note.content2") }}
                 </div>
-                <div class="text-white">
-                    {{ $t("settings.billing.note.contact") }}: 0986386984
-                </div>
+                <div class="text-white">{{ $t("settings.billing.note.contact") }}: 0986386984</div>
             </div>
         </div>
     </div>
@@ -341,7 +360,13 @@ onMounted(() => {
                 class="main-color-btn"
                 key="submit"
                 type="primary"
-                @click="modal_qr_open = false"
+                @click="
+                    () => {
+                        modal_qr_open = false;
+                        getUserData();
+                        getHistoryPayment();
+                    }
+                "
             >
                 {{ t("settings.billing.modal.close_btn") }}
             </a-button>

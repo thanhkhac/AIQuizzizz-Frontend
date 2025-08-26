@@ -297,27 +297,29 @@ const getUsersData = async () => {
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.key === 'ban'">
                             <div class="action-cell">
-                                <!-- icon assign moderator -->
-                                <a-tooltip>
-                                    <template #title> Demote moderator to User </template>
-                                    <i
-                                        v-if="record.role === 'Moderator'"
-                                        class="bx bx-id-card"
-                                        style="color: #ff002e; font-size: 25px"
-                                        @click="onDemoteToUser(record)"
-                                    ></i>
-                                </a-tooltip>
+                                <div v-if="record.role === 'Administrator'">
+                                    <!-- icon assign moderator -->
+                                    <a-tooltip>
+                                        <template #title> Demote moderator to User </template>
+                                        <i
+                                            v-if="record.role === 'Moderator'"
+                                            class="bx bx-id-card"
+                                            style="color: #ff002e; font-size: 25px"
+                                            @click="onDemoteToUser(record)"
+                                        ></i>
+                                    </a-tooltip>
 
-                                <!-- icon assign user -->
-                                <a-tooltip>
-                                    <template #title> Promote user to Moderator </template>
-                                    <i
-                                        v-if="record.role === 'User'"
-                                        class="bx bx-id-card"
-                                        style="color: #5813c1; font-size: 25px"
-                                        @click="onPromoteToModerator(record)"
-                                    ></i>
-                                </a-tooltip>
+                                    <!-- icon assign user -->
+                                    <a-tooltip>
+                                        <template #title> Promote user to Moderator </template>
+                                        <i
+                                            v-if="record.role === 'User'"
+                                            class="bx bx-id-card"
+                                            style="color: #5813c1; font-size: 25px"
+                                            @click="onPromoteToModerator(record)"
+                                        ></i>
+                                    </a-tooltip>
+                                </div>
 
                                 <!-- button ban.active user -->
                                 <a-tooltip>
