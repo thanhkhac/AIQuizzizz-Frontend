@@ -25,6 +25,10 @@ const getData = async () => {
     }
 };
 
+const formatCurrency = (num?: number) => {
+    return Number(num).toLocaleString("en-US");
+};
+
 const onBuyPlan = (plan: Plan) => {
     Modal.confirm({
         title: "Are your sure to perform this action?",
@@ -83,7 +87,7 @@ onMounted(async () => {
                     </div>
                     <div class="plan-name">{{ plan.name }}</div>
                     <div class="plan-price">
-                        {{ plan.price }}đ
+                        {{ formatCurrency(plan.price) }}đ
                         <div v-if="plan.unit === 'Day'" class="plan-duration">
                             {{ plan.duration }} ({{ $t("settings.subscription.plan.day_plural") }})
                         </div>
