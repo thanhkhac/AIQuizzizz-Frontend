@@ -184,7 +184,7 @@ const onGenerateQuestions = async () => {
         formData.append("questionCount", generateByAIModalState.questionCount);
         formData.append(
             "questionTypes",
-            JSON.stringify(generateByAIModalState.questionTypes.map((x) => x)),
+            JSON.stringify(generateByAIModalState.questionTypes.map((x) => x.value)),
         );
 
         formData.append("documentStructureJson", generateByAIModalState.documentStructureJson);
