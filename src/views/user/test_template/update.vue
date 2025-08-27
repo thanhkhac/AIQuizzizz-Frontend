@@ -372,6 +372,7 @@ const onModalImport = (selected: RequestQuestion[]) => {
         ...selected.map((item, i) => ({
             ...item,
             id: `new_${formState.createUpdateQuestions.length + i}`,
+            questionId: null,
             orderingItems: item.orderingItems?.map((x, index) => ({
                 ...x,
                 correctOrder: index,

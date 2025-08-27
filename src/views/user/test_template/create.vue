@@ -246,7 +246,7 @@ const showModalConfirmation = () => {
             //logic here
             //remove draft
             formState.questions = formState.questions.map((x) =>
-                x.id.startsWith("new_") ? { ...x, questionId: null } : x,
+                x.id.startsWith("new_") ? { questionId: null, ...x } : x,
             );
 
             let result = await ApiTestTemplate.Create(formState);
@@ -291,6 +291,7 @@ const onModalImport = (selected: RequestQuestion[]) => {
         ...selected.map((item, i) => ({
             ...item,
             id: `new_${formState.questions.length + i}`,
+            questionId: null,
             orderingItems: item.orderingItems?.map((x, index) => ({
                 ...x,
                 correctOrder: index,
