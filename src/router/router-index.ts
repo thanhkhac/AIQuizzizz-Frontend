@@ -9,7 +9,11 @@ const indexRoutes = [
         path: "/",
         name: "home",
         component: import("../views/public/home.vue"),
-        meta: { title: "home" },
+        meta: {
+            title: "AI generated quiz & learning tools",
+            description:
+                "Online learning platform integrated AI tools for generating questions and analyzing documentation",
+        },
     },
     {
         path: "/404",
@@ -27,7 +31,10 @@ const indexRoutes = [
         path: "/register",
         name: "register",
         component: () => import("@/views/public/register.vue"),
-        meta: { title: "register", layout: "authentication" },
+        meta: {
+            title: "register",
+            layout: "authentication",
+        },
     },
     {
         path: "/verify-email",

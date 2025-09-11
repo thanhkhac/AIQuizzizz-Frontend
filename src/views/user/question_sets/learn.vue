@@ -1493,6 +1493,7 @@ onMounted(async () => {
             <div class="content-item final-modal-footer">
                 <div>{{ $t("learn_QS.other.preview_modal_continues_ins") }}</div>
                 <a-button
+                    :disabled="currentSession.length <= 0"
                     :class="['main-color-btn']"
                     type="primary"
                     size="large"
