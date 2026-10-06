@@ -1,4 +1,9 @@
 {
+    "404": {
+        "errorMessage": "Không tìm thấy trang!",
+        "errorDescription": "Rất tiếc, hệ thống không thể tìm thấy trang bạn đang cố truy cập.",
+        "homePageNavigator": "Quay về trang chủ"
+    },
     "auth": {
         "greetings": {
             "signIn": "Chào mừng quay lại!",
@@ -14,6 +19,7 @@
             "forgotPassword": "Đừng lo, có chúng tôi ở đây rồi 😉. Nhập email và chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu cho bạn nha.",
             "resetPassword": "Nhập mật khẩu mới bên dưới để đổi mật khẩu nha.",
             "verify_email": "Chúng tôi đã gửi mã OTP đến địa chỉ email của bạn {email}. Hãy chú ý kiểm tra hộp thư 📬",
+            "verify_email_no_address": "Nhập email bạn đã đăng ký và mã xác minh chúng tôi đã gửi.",
             "send_email_result": "Đã gửi email thành công!",
             "create_password": "Bước này giúp bạn có tạo thêm một phương thức khác để đăng nhập vào hệ thống. Bạn hoàn toàn có thể bỏ qua nếu không cần thiết."
         },
@@ -21,13 +27,14 @@
             "username": "Tên đăng nhập",
             "fullName": "Họ và tên",
             "email": "Email",
-            "emailPlaceholder": "ten@example.com",
+            "emailPlaceholder": "ten{'@'}example.com",
             "password": "Mật khẩu",
             "confirmPassword": "Xác nhận mật khẩu",
             "code": "Mã OTP",
             "code_placeholder": "Mã code đã gửi trong email",
             "new_password": "Mật khẩu mới",
-            "new_password_confirmation": "Xác nhận mật khẩu mới"
+            "new_password_confirmation": "Xác nhận mật khẩu mới",
+            "code_numeric_placeholder": "Mã gồm 6 chữ số"
         },
         "buttons": {
             "signIn": "Đăng nhập",
@@ -57,8 +64,23 @@
             "required": "Trường này là bắt buộc",
             "out_of_range": "Giới hạn: {max_length} ký tự",
             "email": "Trường này yêu cầu định dạng email hợp lệ",
-            "password": "Mật khẩu phải có ít nhất 8 ký tự (1 chữ hoa, 1 chữ thường, 1 số, 1 ký tự đặc biệt).",
-            "confirm_password": "Xác nhận mật khẩu phải trùng với mật khẩu"
+            "password": "Mật khẩu phải có ít nhất 8 ký tự, gồm ít nhất 1 chữ cái và 1 chữ số.",
+            "confirm_password": "Xác nhận mật khẩu phải trùng với mật khẩu",
+            "same_password": "Mật khẩu mới phải khác mật khẩu hiện tại"
+        },
+        "banned": {
+            "reason": "Lý do",
+            "auto_strikes": "Tài khoản bị khóa tự động do có {count} vi phạm tiêu chuẩn cộng đồng (ảnh khỏa thân/bạo lực) trong vòng {days} ngày.",
+            "no_reason": "Không có lý do cụ thể.",
+            "contact": "Nếu bạn cho rằng đây là nhầm lẫn, vui lòng liên hệ quản trị viên."
+        },
+        "verify": {
+            "send_success_title": "Đã gửi email thành công!",
+            "resend_success_desc": "Chúng tôi đã gửi mã xác minh mới vào hộp thư của bạn.",
+            "verified_title": "Đã xác minh email",
+            "verified_desc": "Email của bạn đã được xác minh. Đang chuyển đến trang đăng nhập...",
+            "failed_title": "Xác minh thất bại",
+            "failed_desc": "Đã xảy ra lỗi. Vui lòng thử lại."
         }
     },
     "homepage": {
@@ -108,7 +130,6 @@
             },
             "explore": "Khám phá Quiz"
         },
-
         "features": {
             "sub_title": "Tính năng",
             "moto": {
@@ -150,15 +171,10 @@
             }
         }
     },
-    "404": {
-        "errorMessage": "Không tìm thấy trang!",
-        "errorDescription": "Rất tiếc, hệ thống không thể tìm thấy trang bạn đang cố truy cập.",
-        "homePageNavigator": "Quay về trang chủ"
-    },
     "now_allowed": {
         "main_msg": "Từ chối truy cập!",
         "errorMessage": "Tài nguyên hoặc tính năng bạn đang cố truy cập không khả dụng!",
-        "errorDescription": "Vui lòng liên hệ với chủ sở hữu để được cấp quyền truy cập hoặc nâng cấp gói tài khoản của bạn!",
+        "errorDescription": "Bạn không có quyền xem nội dung này. Vui lòng liên hệ chủ sở hữu để được chia sẻ quyền truy cập.",
         "libraryNavigator": "Quay lại thư viện của bạn",
         "subscriptionNavigator": "Nâng cấp gói tài khoản của bạn"
     },
@@ -184,6 +200,12 @@
         },
         "others": {
             "Manage": "Quản lý"
+        },
+        "admin": {
+            "account": "Quản lý tài khoản",
+            "subscription": "Quản lý gói đăng ký",
+            "system_settings": "Cài đặt hệ thống",
+            "switch_to_user": "Chuyển sang người dùng"
         }
     },
     "dashboards": {
@@ -207,7 +229,7 @@
         },
         "list_items": {
             "quiz": {
-                "questions": "câu hỏi",
+                "questions": "{n} câu hỏi",
                 "learningProgress": "Tiến độ"
             },
             "schedule": {
@@ -253,7 +275,6 @@
     "create_QS": {
         "title": "Tạo bộ câu hỏi mới",
         "sub_title": "Thêm câu hỏi, đặt đáp án và cấu hình",
-
         "quiz": {
             "title": "Tiêu đề bộ câu hỏi",
             "description": "Mô tả",
@@ -284,6 +305,7 @@
         },
         "question": {
             "question": "Câu hỏi",
+            "score": "Điểm",
             "text": "Nội dung câu hỏi",
             "text_placeholder": "Nhập nội dung câu hỏi",
             "explain_text": "Giải thích (tùy chọn)",
@@ -292,7 +314,6 @@
             "answer_option_placeholder": "Nhập nội dung lựa chọn",
             "answer_text": "Đáp án",
             "answer_text_placeholder": "Nhập đáp án",
-
             "multiple_choice_ins": "Chọn ít nhất một đáp án đúng",
             "matching_ins": "Mỗi lựa chọn là một cặp đúng",
             "ordering_ins": "Điền vào các tùy chọn theo thứ tự đúng",
@@ -311,7 +332,24 @@
         "modal": {
             "invalid": {
                 "title": "Không thể tạo bộ câu hỏi mới!",
-                "content": "Có lỗi ở các câu hỏi: "
+                "content": "Có lỗi ở các câu hỏi: ",
+                "question_reason": "Câu {number}: {reasons}",
+                "reasons": {
+                    "blank_question": "nội dung câu hỏi đang để trống",
+                    "question_too_long": "nội dung câu hỏi quá dài (tối đa 5000 ký tự)",
+                    "explain_too_long": "phần giải thích quá dài (tối đa 5000 ký tự)",
+                    "invalid_score": "điểm phải từ 0 đến 999",
+                    "too_few_options": "cần ít nhất 2 đáp án",
+                    "blank_option": "có đáp án để trống",
+                    "option_too_long": "có đáp án quá dài (tối đa 1000 ký tự)",
+                    "no_correct_answer": "chưa chọn đáp án đúng",
+                    "duplicate_options": "có đáp án bị trùng nội dung",
+                    "too_few_pairs": "cần ít nhất 2 cặp ghép",
+                    "blank_pair": "có cặp để trống một vế",
+                    "too_few_items": "cần ít nhất 2 mục",
+                    "blank_item": "có mục để trống",
+                    "blank_short_answer": "đáp án đang để trống"
+                }
             },
             "valid": {
                 "title": "Tạo bộ câu hỏi mới!",
@@ -424,7 +462,7 @@
             "sub_title": "Quản lý gói đăng ký và thông tin thanh toán của bạn",
             "plan": {
                 "title": "So sánh gói",
-                "sub_title": "So sánh uy đãi các gói sẵn có trong hệ thống",
+                "sub_title": "So sánh ưu đãi các gói sẵn có trong hệ thống",
                 "popular": "Phổ biến",
                 "learn": "Học",
                 "test": "Kiểm tra",
@@ -437,16 +475,41 @@
                 "day_singular": "ngày",
                 "day_plural": "ngày",
                 "hour_plural": "giờ",
-                "hour_singular": "giờ"
+                "hour_singular": "giờ",
+                "copy_import": "Sao chép/nhập bộ câu hỏi",
+                "upload_image": "Tải ảnh lên",
+                "upload_video": "Tải video lên",
+                "valid_until": "Có hiệu lực đến {date}"
             },
             "buttons": {
-                "Change_plan": "Thay đổi gói"
+                "Change_plan": "Thay đổi gói",
+                "current_plan": "Gói hiện tại"
+            },
+            "current": {
+                "label": "Gói hiện tại của bạn",
+                "free_plan": "Chưa có gói",
+                "no_expiry": "Không giới hạn thời hạn"
+            },
+            "confirm": {
+                "title": "Bạn có chắc muốn thực hiện thao tác này?",
+                "content": "Bạn sẽ bị trừ {price}đ để mua gói này."
             }
         },
         "billing": {
             "title": "Lịch sử giao dịch",
             "sub_title": "Kiểm tra lịch sử giao dịch và nâng cấp tài khoản của bạn",
             "transaction_count": "Giao dịch",
+            "col": {
+                "no": "STT",
+                "date": "Ngày",
+                "plan": "Gói",
+                "amount": "Số tiền",
+                "status": "Trạng thái"
+            },
+            "status": {
+                "paid": "Đã thanh toán",
+                "topup": "Nạp tiền"
+            },
             "bank": {
                 "name": "Chủ tài khoản",
                 "number": "Số tài khoản",
@@ -454,7 +517,7 @@
             },
             "deposit": {
                 "title": "Nạp tiền",
-                "content": "Nạp tiền vào AIQuiz để chuyển đổi thành điểm AIQuiz và sử dụng"
+                "content": "Nạp tiền vào AIQuizizz để chuyển đổi thành điểm AIQuizizz và sử dụng"
             },
             "qr": {
                 "title": "Tạo QR Code thanh toán",
@@ -473,15 +536,20 @@
                 "close_btn": "Đóng"
             },
             "err": {
-                "number_only": "Vui lòng chỉ nhập số",
-                "greater_than_5000": "Số tiền phải lớn hơn hoặc bằng 5000 VNĐ"
+                "number_only": "Vui lòng chỉ nhập số nguyên (chỉ gồm chữ số)",
+                "greater_than_5000": "Số tiền tối thiểu là 5.000 VNĐ",
+                "required": "Vui lòng nhập số tiền",
+                "too_large": "Số tiền tối đa là 2.000.000.000 VNĐ",
+                "qr_failed": "Tạo mã QR thất bại."
             },
             "note": {
                 "title": "Lưu ý quan trọng",
                 "content1": "Vui lòng giữ nguyên nội dung chuyển khoản để tránh không nhận được điểm AIQuizizz.",
                 "content2": "Sau khi chuyển tiền, vui lòng chờ ít nhất 1 phút để hệ thống xử lý.",
                 "contact": "Liên hệ hỗ trợ"
-            }
+            },
+            "points": "Điểm AIQuizizz",
+            "amount_placeholder": "Số tiền (VNĐ)"
         }
     },
     "share_modal": {
@@ -552,7 +620,8 @@
             "library": "Thư viện",
             "created_by": "Tạo bởi {username}",
             "reviews": "đánh giá",
-            "questions": "Câu hỏi ({number})"
+            "questions": "Câu hỏi ({number})",
+            "no_questions_found": "Không tìm thấy câu hỏi nào"
         },
         "modal": {
             "delete_title": "Bạn có chắc chắn muốn xóa bộ câu hỏi này không?",
@@ -688,7 +757,16 @@
             "completions": "lượt hoàn thành",
             "assigned": "Đã giao",
             "ago": " trước",
-            "start_in": "Bắt đầu trong "
+            "start_in": "Bắt đầu trong ",
+            "assigned_just_now": "Vừa giao",
+            "questions_n": "{n} câu hỏi",
+            "completions_n": "{n} lượt hoàn thành",
+            "unit_minute": "{n} phút",
+            "unit_hour": "{n} giờ",
+            "unit_day": "{n} ngày",
+            "unit_week": "{n} tuần",
+            "unit_month": "{n} tháng",
+            "unit_year": "{n} năm"
         },
         "modal": {
             "delete_title": "Bạn có chắc chắn muốn xóa bài kiểm tra này khỏi lớp không?",
@@ -709,7 +787,8 @@
             "history_test": "Lịch sử kiểm tra",
             "delete_class": "Xóa lớp",
             "reset_code": "Đặt lại mã",
-            "move_out_class": "Rời khỏi lớp"
+            "move_out_class": "Rời khỏi lớp",
+            "confirm_leave_class": "Rời lớp"
         },
         "other": {
             "search_placeholder": "Tìm kiếm thành viên lớp...",
@@ -721,7 +800,9 @@
             "title": "Vùng nguy hiểm",
             "sub_title": "Các thao tác không thể hoàn tác cho lớp học của bạn",
             "warning": "Xóa lớp",
-            "warning_explain": "Sau khi bạn xóa lớp học, sẽ không thể khôi phục. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn."
+            "warning_explain": "Sau khi bạn xóa lớp học, sẽ không thể khôi phục. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn.",
+            "leave_title": "Rời khỏi lớp học này?",
+            "leave_explain": "Bạn sẽ mất quyền truy cập các bài kiểm tra và kết quả của lớp này. Bạn chỉ có thể tham gia lại khi có lời mời mới."
         },
         "modal": {
             "title": "Mời thành viên",
@@ -791,7 +872,8 @@
         "modal": {
             "create_title": "Tạo thư mục mới",
             "create_folder_name_label": "Tên thư mục",
-            "create_folder_name_placeholder": "Nhập tên thư mục mới"
+            "create_folder_name_placeholder": "Nhập tên thư mục mới",
+            "choose_folder_title": "Chọn thư mục"
         },
         "other": {
             "search_class_placeholder": "Tìm thư mục theo tên...",
@@ -801,11 +883,14 @@
         }
     },
     "test_template_index": {
+        "title": "Mẫu đề thi",
+        "sub_title": "Quản lý các mẫu đề thi dùng lại và sắp xếp chúng vào thư mục.",
         "other": {
             "items": "mẫu"
         }
     },
     "folder_detail": {
+        "search_placeholder": "Tìm kiếm theo tên...",
         "title": "Chi tiết thư mục",
         "modal": {
             "create_title": "Cập nhật thư mục",
@@ -881,6 +966,12 @@
         "buttons": {
             "choose_from_folder": "Chọn từ thư mục",
             "next": "Tiếp theo"
+        },
+        "modal": {
+            "valid": {
+                "title": "Tạo bài kiểm tra mới!",
+                "content": "Hãy đảm bảo bạn đã xem lại nội dung trước khi tiếp tục."
+            }
         }
     },
     "update_test": {
@@ -941,7 +1032,8 @@
     "schedule": {
         "title": "Lịch kiểm tra",
         "current_date": "Ngày: {date}",
-        "count_exam": "Số lượng bài kiểm tra: "
+        "count_exam": "Số lượng bài kiểm tra: ",
+        "tests_count": "{n} bài kiểm tra"
     },
     "import_qs_modal": {
         "title": "Nhập câu hỏi",
@@ -997,7 +1089,8 @@
             "generate": "✨ Tạo với AI"
         },
         "other": {
-            "ai_warning": "AI có thể mắc lỗi. Vui lòng kiểm tra kỹ thông tin quan trọng."
+            "ai_warning": "AI có thể mắc lỗi. Vui lòng kiểm tra kỹ thông tin quan trọng.",
+            "upload_hint": "Tải lên tài liệu PDF. AI sẽ phân tích cấu trúc để bạn chọn phần muốn tạo câu hỏi."
         }
     },
     "generate_file_structure": {
@@ -1023,7 +1116,9 @@
         "select_folder": "Chọn thư mục",
         "folder": "Folder: {name}",
         "select_template": "Chọn mẫu",
-        "choose_question": "Chọn câu hỏi"
+        "choose_question": "Chọn câu hỏi",
+        "import_confirm_title": "Nhập các câu hỏi đã chọn?",
+        "import_confirm_content": "{number} câu hỏi sẽ được thêm vào bài kiểm tra của bạn."
     },
     "exam_result": {
         "test_name": "Tên bài kiểm tra: {name}",
@@ -1064,6 +1159,38 @@
             "review": "Xem chi tiết"
         }
     },
+    "question_media": {
+        "label": "Ảnh / video",
+        "one_media_hint": "mỗi câu hỏi một ảnh hoặc một video",
+        "upload_image": "Tải ảnh lên",
+        "upload_video": "Tải video lên",
+        "drop_hint": "hoặc kéo thả tệp vào đây",
+        "image_limit": "Ảnh: tối đa {max} MB",
+        "video_limit": "Video: tối đa {max} MB, {seconds} giây",
+        "uploading": "Đang tải lên... {percent}%",
+        "processing": "Đang xử lý...",
+        "processing_video": "Đang xử lý video, có thể mất vài phút. Bạn có thể tiếp tục chỉnh sửa các câu hỏi khác.",
+        "upload_success": "Tải media lên thành công",
+        "replace": "Thay thế",
+        "remove": "Xoá",
+        "remove_confirm": "Xoá media khỏi câu hỏi này?",
+        "attached": "Đã đính kèm media",
+        "plan_not_allowed": "Gói hiện tại của bạn không cho phép đính kèm ảnh hoặc video vào câu hỏi. Hãy nâng cấp gói để sử dụng tính năng này.",
+        "loading_permission": "Đang kiểm tra quyền tải media...",
+        "permission_failed": "Không tải được quyền tải media.",
+        "retry": "Thử lại",
+        "wait_for_upload": "Vui lòng đợi tải media lên hoàn tất.",
+        "image_alt": "Ảnh câu hỏi",
+        "expired": "Không tải được media (liên kết có thể đã hết hạn).",
+        "reload": "Tải lại",
+        "refresh_page": "Vui lòng tải lại trang để xem lại.",
+        "preview_expired_editor": "Media vẫn được đính kèm với câu hỏi, chỉ liên kết xem trước đã hết hạn.",
+        "reload_unavailable": "Hiện không thể tải lại media. Vui lòng tải lại trang.",
+        "error": {
+            "too_large": "Tệp vượt quá dung lượng cho phép ({max} MB)",
+            "too_long": "Video vượt quá thời lượng cho phép ({max} giây)"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Không được phép",
         "COMMON_SERVER_INTERNAL_ERROR": "Lỗi máy chủ nội bộ",
@@ -1074,7 +1201,6 @@
         "COMMON_TIMEOUT_ERROR": "Yêu cầu đã hết thời gian",
         "COMMON_UNAUTHORIZED": "Người dùng chưa được xác thực",
         "COMMON_INVALID_MODEL": "Dữ liệu model không hợp lệ",
-
         "FIELD_NAME_NOT_FOUND": "Không tìm thấy tên trường",
         "IDENTITY_DUPLICATE_EMAIL": "Email đã được sử dụng",
         "NUMBER_OF_QUESTION_EXCEED_LIMIT": "Số lượng câu hỏi vượt quá giới hạn cho phép",
@@ -1091,11 +1217,11 @@
         "ACCOUNT_INVALID_VERIFICATION_CODE": "Mã xác minh không hợp lệ",
         "ACCOUNT_LOCKED_OUT": "Tài khoản bị khóa đăng nhập",
         "ACCOUNT_WRONG_PASSWORD": "Sai mật khẩu",
+        "ACCOUNT_NEW_PASSWORD_SAME_AS_CURRENT": "Mật khẩu mới phải khác mật khẩu hiện tại",
         "EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY": "Quá nhiều lần nhập mã xác minh sai",
         "EMAIL_VERIFICATION_REQUEST_TOO_MANY": "Yêu cầu xác minh quá nhiều lần",
         "PASSWORD_RESET_CODE_FAILED_TOO_MANY": "Quá nhiều lần nhập mã đặt lại sai",
         "PASSWORD_RESET_REQUEST_TOO_MANY": "Yêu cầu đặt lại mật khẩu quá nhiều lần",
-
         "IDENTITY_DEFAULT_ERROR": "Đã xảy ra lỗi danh tính",
         "IDENTITY_CONCURRENCY_FAILURE": "Xung đột đồng thời",
         "IDENTITY_PASSWORD_MISMATCH": "Mật khẩu không khớp",
@@ -1117,7 +1243,6 @@
         "IDENTITY_PASSWORD_REQUIRES_DIGIT": "Mật khẩu yêu cầu số",
         "IDENTITY_PASSWORD_REQUIRES_LOWER": "Mật khẩu yêu cầu chữ thường",
         "IDENTITY_PASSWORD_REQUIRES_UPPER": "Mật khẩu yêu cầu chữ hoa",
-
         "CLASS_NOTFOUND": "Không tìm thấy lớp học",
         "CLASS_ALREADY_EXISTS": "Lớp học đã tồn tại",
         "CLASS_CODE_NOT_FOUND": "Không tìm thấy mã lớp",
@@ -1128,21 +1253,18 @@
         "PERMISSION_NOT_FOUND": "Không tìm thấy quyền",
         "NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS": "Không tìm thấy giáo viên hoặc chủ sở hữu trong lớp",
         "NOT_FOUND_USER_IN_CLASS": "Bạn không có quyền truy cập lớp này",
-
         "QUESTION_SET_ALREADY_IN_CLASS": "Bộ câu hỏi đã có trong lớp",
         "QUESTION_SET_NOT_FOUND": "Không tìm thấy bộ câu hỏi",
         "QUESTION_SET_NOT_FOUND_IN_CLASS": "Không tìm thấy bộ câu hỏi trong lớp",
         "INVALID_QUESTION_TYPE": "Loại câu hỏi không hợp lệ",
         "QUESTION_NOT_FOUND_TO_DELETE": "Không tìm thấy câu hỏi để xóa",
         "USER_NOT_ACCESS_TO_QUESTION_SET": "Người dùng không có quyền truy cập bộ câu hỏi này",
-
         "PLAN_REQUIRE_PLAN": "Yêu cầu có gói!",
         "INSUFFICIENT_BALANCE": "Số dư không đủ!",
         "PLAN_NOT_FOUND": "Không tìm thấy gói",
         "FOLDER_NOT_FOUND": "Không tìm thấy thư mục",
         "FOLDER_ALREADY_EXISTS": "Thư mục đã tồn tại",
         "USER_NOT_HAVE_PERMISSION_IN_FOLDER": "Người dùng không có quyền trong thư mục này",
-
         "TEST_IS_OVERDUE": "Bài kiểm tra đã quá hạn!",
         "MAX_ATTEMPT_IN_THIS_TEST": "Đã đạt số lần làm bài tối đa cho bài kiểm tra này.",
         "TEST_NOT_FOUND": "Không tìm thấy bài kiểm tra",
@@ -1156,30 +1278,39 @@
         "ATTEMPT_ALREADY_SUBMIT": "Bài làm đã được nộp",
         "ATTEMPT_NOT_FOUND": "Không tìm thấy bài làm",
         "NOT_SUBMITTED_CAN_NOT_VIEW": "Không thể xem vì chưa được nộp",
-
         "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER": "Mẫu bài kiểm tra đã tồn tại trong thư mục này.",
-
         "FILE_NOT_FOUND": "Không tìm thấy tệp",
         "INVALID_FILE_FORMAT": "Định dạng tệp không hợp lệ",
         "ERROR_FORMAT_FILE": "Lỗi định dạng tệp",
         "FILE_UPLOAD_FAILED": "Tải tệp lên thất bại",
         "FILE_URI_NOTFOUND": "Không tìm thấy URI của tệp",
-
         "QUESTION_CAN_NOT_COMMENT": "Không thể bình luận về câu hỏi này",
         "USER_NOT_HAVE_PERMISSION_IN_COMMENT": "Người dùng không có quyền trong bình luận này",
         "COMMENT_NOT_FOUND": "Không tìm thấy bình luận",
         "USER_NOT_HAVE_PERMISSION": "Người dùng không có quyền",
-
         "PAYMENT_TRANSACTION_EXISTED": "Giao dịch thanh toán đã tồn tại",
         "PAYMENT_IN_PROGRESS": "Thanh toán đang được xử lý",
         "GENERATE_CONTENT_FAILED": "Tạo nội dung thất bại",
         "AI_FILE_TOO_LARGE": "Tệp AI quá lớn",
         "NO_STRUCTURE_FOUND": "Không tìm thấy cấu trúc",
-
         "FILE_EMPTY": "Tệp rỗng",
         "FILE_TOO_LARGE": "Tệp quá lớn",
         "PDF_PAGE_LIMIT_EXCEEDED": "Vượt quá giới hạn trang PDF",
-        "INVALID_FILE_TYPE": "Loại tệp không hợp lệ"
+        "INVALID_FILE_TYPE": "Loại tệp không hợp lệ",
+        "PLAN_NOT_ALLOW_UPLOAD_IMAGE": "Gói hiện tại của bạn không cho phép tải ảnh lên",
+        "PLAN_NOT_ALLOW_UPLOAD_VIDEO": "Gói hiện tại của bạn không cho phép tải video lên",
+        "MEDIA_INVALID_FILE": "Tệp media không hợp lệ hoặc bị lỗi",
+        "MEDIA_UNSUPPORTED_TYPE": "Định dạng tệp không được hỗ trợ. Ảnh: JPG, PNG, WEBP, GIF, BMP, HEIC/HEIF, TIFF. Video: MP4, MOV, WEBM, MKV, AVI, MPEG, 3GP",
+        "MEDIA_FILE_TOO_LARGE": "Tệp vượt quá dung lượng cho phép",
+        "MEDIA_VIDEO_TOO_LONG": "Video vượt quá thời lượng cho phép",
+        "MEDIA_PROCESS_FAILED": "Không thể xử lý tệp media, vui lòng thử lại",
+        "MEDIA_NOT_FOUND": "Không tìm thấy media (có thể đã bị xoá)",
+        "MEDIA_VIOLATED": "Media vi phạm chính sách nội dung và không thể sử dụng",
+        "NOT_HAVE_PERMISSION_TO_ADD_QUESTION_SET": "Bạn không có quyền thêm bộ câu hỏi vào lớp này",
+        "OWNER_CAN_NOT_MOVE_OUT_CLASS": "Chủ lớp không thể rời khỏi lớp",
+        "STUDENT_CAN_REVIEW_THIS_TEST": "Bạn không được phép xem lại bài làm này",
+        "TEST_TEMPLATE_NOT_FOUND_IN_FOLDER": "Không tìm thấy đề mẫu trong thư mục này",
+        "USER_NOTFOUND": "Không tìm thấy người dùng"
     },
     "message": {
         "added_successfully": "Thêm thành công!",
@@ -1205,14 +1336,11 @@
         "uploaded_failed": "Tải lên thất bại",
         "auto_save_failed": "Lưu tự động thất bại",
         "time_up": "Đã hết thời gian làm bài",
-
         "join_class_successfully": "Tham gia lớp học thành công!",
         "join_class_failed": "Tham gia lớp học thất bại!",
         "created_new_invitation": "Đã tạo mã mời mới!",
-
         "change_password_successfully": "Đổi mật khẩu thành công!",
         "change_password_failed": "Đổi mật khẩu thất bại!",
-
         "invalid_title": "Tiêu đề không hợp lệ",
         "invalid_question": "Câu hỏi không hợp lệ",
         "invalid_description": "Mô tả không hợp lệ",
@@ -1220,7 +1348,6 @@
         "invalid_tag_content": "Nội dung thẻ không hợp lệ",
         "limit_question": "Giới hạn: {number} câu hỏi",
         "minimum_question": "Tối thiểu {number} câu hỏi",
-
         "required": "Trường này là bắt buộc",
         "out_of_range": "Giới hạn {max_length} ký tự",
         "have_no_answer": "Câu hỏi {index} phải có ít nhất một đáp án đúng",
@@ -1228,18 +1355,13 @@
         "maximum_options": "Mỗi câu hỏi có tối đa 10 lựa chọn",
         "maximum_tag": "Giới hạn {tag} thẻ",
         "duplicate_tag": "Thẻ bị trùng lặp",
-
         "invalid_time_range": "Thời gian bắt đầu và kết thúc phải cách nhau ít nhất {time_limit} phút (giới hạn thời gian) và thời gian bắt đầu phải sau thời gian hiện tại.",
-
         "imported_question": "Đã nhập {number} câu hỏi.",
-
         "invalid_reference": "Vui lòng nhập tham chiếu cho phần giải thích, trích dẫn tài liệu.",
         "file_support_only": "Chỉ hỗ trợ các tệp {fileTypes}.",
         "minimun_question_type": "Phải chọn ít nhất một loại câu hỏi.",
-
         "failed_to_generate_file_structure": "Tạo cấu trúc tệp thất bại.",
         "failed_to_get_cost": "Tính toán chi phí để tạo cấu trúc tệp thất bại.",
-
         "generated_structure_successfully": "Tạo cấu trúc tệp thành công!",
         "generated_question_successfully": "Tạo câu hỏi thành công!",
         "generated_question_failed": "Tạo câu hỏi thất bại."
@@ -1248,6 +1370,11 @@
         "manage_acc": {
             "title": "Quản lý tài khoản",
             "search_placeholder": "Tìm kiếm email ...",
+            "col": {
+                "fullname": "Họ và tên",
+                "email": "Email",
+                "role": "Vai trò"
+            },
             "acc_status": {
                 "all": "Tất cả",
                 "ban": "Đã khóa",
@@ -1258,15 +1385,31 @@
                 "Administrator": "Quản trị viên",
                 "Moderator": "Điều hành viên",
                 "User": "Người dùng"
-            }
+            },
+            "ban_title": "Xác nhận khóa tài khoản",
+            "ban_content": "Bạn có chắc muốn khóa tài khoản này? Lý do sẽ hiển thị cho người dùng khi họ đăng nhập.",
+            "ban_reason_placeholder": "Lý do khóa (không bắt buộc)",
+            "unban_title": "Xác nhận mở khóa",
+            "unban_content": "Bạn có chắc muốn mở khóa tài khoản này?",
+            "ban_success": "Đã khóa tài khoản!",
+            "unban_success": "Đã mở khóa tài khoản!",
+            "promote_title": "Nâng quyền lên Điều hành viên",
+            "promote_content": "Bạn có chắc muốn nâng người dùng này lên Điều hành viên?",
+            "promote_success": "Đã nâng quyền lên Điều hành viên!",
+            "demote_title": "Hạ quyền xuống Người dùng",
+            "demote_content": "Bạn có chắc muốn hạ quyền điều hành viên này xuống Người dùng?",
+            "demote_success": "Đã hạ quyền xuống Người dùng!",
+            "tooltip_promote": "Nâng lên Điều hành viên",
+            "tooltip_demote": "Hạ xuống Người dùng",
+            "tooltip_ban": "Khóa/Mở khóa"
         },
         "manage_subscription": {
             "title": "Quản lý gói đăng ký",
             "create_new_sub": "Tạo gói đăng ký mới",
             "stat_card": {
-                "total_subs": "Tổng số người đăng ký",
-                "monthly_rev": "Doanh thu hàng tháng",
-                "new_subs": "Người đăng ký mới",
+                "total_subs": "Tổng số người dùng",
+                "monthly_rev": "Tổng doanh thu",
+                "new_subs": "Người dùng đã mua gói",
                 "class": "Tổng số lớp học"
             },
             "plan_comparison": "So sánh các gói",
@@ -1283,7 +1426,9 @@
             "plan_feature": {
                 "canLearn": "Học tập",
                 "canOpenTest": "Truy cập bài kiểm tra",
-                "canCopyOrImportQuestionSet": "Sao chép hoặc nhập bộ câu hỏi"
+                "canCopyOrImportQuestionSet": "Sao chép hoặc nhập bộ câu hỏi",
+                "canUploadImage": "Tải ảnh lên câu hỏi",
+                "canUploadVideo": "Tải video lên câu hỏi"
             },
             "create_plan": {
                 "name": "Tên gói đăng ký",
@@ -1295,8 +1440,50 @@
             "btn": {
                 "create": "Tạo",
                 "save": "Lưu"
+            },
+            "pie": {
+                "title": "Người đăng ký",
+                "subscribed": "Đã mua gói",
+                "free": "Người dùng miễn phí"
+            },
+            "chart": {
+                "revenue_title": "Doanh thu theo tháng",
+                "new_class_title": "Lớp học mới theo tháng",
+                "y_revenue": "Doanh thu (nghìn VND)",
+                "y_class": "Số lớp học",
+                "series_revenue": "Doanh thu",
+                "series_class": "Lớp học",
+                "in_year": "{title} năm {year}"
+            },
+            "msg": {
+                "create_success": "Tạo thành công.",
+                "create_fail": "Tạo thất bại.",
+                "update_success": "Cập nhật thành công.",
+                "update_fail": "Cập nhật thất bại.",
+                "required": "Trường này là bắt buộc.",
+                "price_min": "Giá phải từ 0 trở lên",
+                "price_integer": "Giá phải là số nguyên",
+                "duration_min": "Thời hạn phải từ 1 trở lên",
+                "duration_integer": "Thời hạn phải là số nguyên"
             }
         },
-        "manage_class": {}
+        "manage_class": {},
+        "system_settings": {
+            "title": "Cài đặt hệ thống",
+            "input_cost": "Chi phí đầu vào mỗi triệu token",
+            "output_cost": "Chi phí đầu ra mỗi triệu token",
+            "max_input_token": "Số token đầu vào tối đa",
+            "max_output_token": "Số token đầu ra tối đa",
+            "fixed_fee": "Phí hệ thống cố định",
+            "update_success": "Cập nhật thành công.",
+            "update_fail": "Cập nhật thất bại.",
+            "err": {
+                "required": "Trường này là bắt buộc.",
+                "integer": "Vui lòng nhập số nguyên",
+                "min": "Giá trị tối thiểu là {min}",
+                "max": "Giá trị tối đa là {max}"
+            },
+            "read_only": "Chỉ quản trị viên mới được thay đổi cài đặt hệ thống."
+        }
     }
 }

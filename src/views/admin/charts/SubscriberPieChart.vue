@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import Highcharts from "highcharts";
+import { getChartTheme, observeTheme } from "./chartTheme";
 
 type PiePoint = { name: string; y: number };
 
@@ -13,17 +14,20 @@ const props = defineProps<{
 const containerRef = ref<HTMLElement | null>(null);
 let chart: Highcharts.Chart | null = null;
 let ro: ResizeObserver | null = null;
+let stopThemeWatch: (() => void) | null = null;
 
 function renderChart() {
     if (!containerRef.value) return;
     chart?.destroy();
 
+    const theme = getChartTheme();
     chart = Highcharts.chart(containerRef.value as HTMLElement, {
+        credits: { enabled: false },
         chart: {
             type: "pie",
-            backgroundColor: props.background ?? "#151518",
+            backgroundColor: props.background ?? theme.background,
         },
-        title: { text: props.title ?? "Subscribers", style: { color: "#fff" } },
+        title: { text: props.title ?? "Subscribers", style: { color: theme.text } },
         legend: { enabled: false },
         tooltip: {
             pointFormat: "<b>{point.percentage:.1f}%</b> ({point.y})",
@@ -35,9 +39,9 @@ function renderChart() {
                 dataLabels: {
                     enabled: true,
                     formatter() {
-                        return `${this.point.name}: ${this.percentage?.toFixed(1)}%`;
+                        return `${this.name}: ${this.percentage?.toFixed(1)}%`;
                     },
-                    style: { color: "#fff" },
+                    style: { color: theme.text },
                 },
             },
         ],
@@ -51,6 +55,7 @@ function renderChart() {
 onMounted(async () => {
     await nextTick();
     renderChart();
+    stopThemeWatch = observeTheme(renderChart);
 });
 
 watch(
@@ -60,6 +65,7 @@ watch(
 );
 
 onBeforeUnmount(() => {
+    stopThemeWatch?.();
     ro?.disconnect();
     chart?.destroy();
     chart = null;

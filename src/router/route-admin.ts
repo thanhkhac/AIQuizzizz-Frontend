@@ -34,13 +34,13 @@ const adminRoutes = [
             {
                 name: "Admin_Manager_Account",
                 path: "account-manager",
-                meta: { title: "Manager Account" },
+                meta: { title: "Account management" },
                 component: () => import("@/views/admin/account/manage_acc.vue"),
             },
             {
                 name: "Admin_Manager_Subscription",
                 path: "account-subscription",
-                meta: { title: "Manager Subscription" },
+                meta: { title: "Subscription management" },
                 component: () => import("@/views/admin/account/manage_subscription.vue"),
             },
             {

@@ -1,20 +1,51 @@
-<script setup>
+<script setup lang="ts">
 import user_image from "@/assets/user.png";
 
-import { ref, onBeforeMount } from "vue";
-import { useAuthStore } from "/src/stores/AuthStore.ts";
+import { ref, onBeforeMount, watch, onMounted, onBeforeUnmount } from "vue";
+import { useAuthStore } from "@/stores/AuthStore";
 import { Modal } from "ant-design-vue";
+import { useRoute } from "vue-router";
+import {
+    sidebarOpen,
+    isDrawerMode,
+    isCompact,
+    closeSidebarDrawer,
+} from "@/shared/composables/useSidebar";
+import { useI18n } from "vue-i18n";
 
 const { activeItem } = defineProps(["activeItem"]);
+const { t } = useI18n();
 
-const isShrinkView = ref(false);
+// tablet/laptop nhỏ (< 1200px): tự thu gọn thành mini sidebar; < 992px: dùng drawer nên không thu gọn
+const isShrinkView = ref(isCompact.value && !isDrawerMode.value);
+watch([isCompact, isDrawerMode], ([compact, drawer]) => {
+    isShrinkView.value = compact && !drawer;
+});
+
+const route = useRoute();
+watch(
+    () => route.fullPath,
+    () => closeSidebarDrawer(),
+);
+const onKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") closeSidebarDrawer();
+};
+onMounted(() => window.addEventListener("keydown", onKeydown));
+onBeforeUnmount(() => {
+    window.removeEventListener("keydown", onKeydown);
+    closeSidebarDrawer();
+});
+// chạm vào một liên kết trong drawer thì đóng drawer (kể cả khi liên kết trỏ về trang hiện tại)
+const onSidebarClick = (e: MouseEvent) => {
+    if (isDrawerMode.value && (e.target as HTMLElement).closest("a")) closeSidebarDrawer();
+};
 
 const toggleSidebar = () => {
     isShrinkView.value = !isShrinkView.value;
 };
 
 const authStore = useAuthStore();
-const user = ref({});
+const user = ref<any>({});
 
 onBeforeMount(async () => {
     user.value = await authStore.getUserInfo();
@@ -22,8 +53,10 @@ onBeforeMount(async () => {
 
 const onSignOut = () => {
     Modal.confirm({
-        title: "Wanna sign out from AIQ ?",
-        content: "Make sure you don't forget anything.",
+        title: t("sidebar.popUp.signOut.message"),
+        content: t("sidebar.popUp.signOut.content"),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
         centered: true,
         onOk: () => {
             authStore.logOut();
@@ -33,11 +66,26 @@ const onSignOut = () => {
 };
 </script>
 <template>
-    <div :class="['sidebar-container', { shrink: isShrinkView }]">
+    <div
+        v-if="isDrawerMode && sidebarOpen"
+        class="sidebar-backdrop"
+        aria-hidden="true"
+        @click="closeSidebarDrawer"
+    ></div>
+    <div
+        :class="[
+            'sidebar-container',
+            { shrink: isShrinkView && !isDrawerMode, drawer: isDrawerMode, open: sidebarOpen },
+        ]"
+        :aria-hidden="isDrawerMode && !sidebarOpen ? 'true' : undefined"
+        :inert="isDrawerMode && !sidebarOpen ? true : undefined"
+        @click="onSidebarClick"
+    >
         <button
             class="sidebar-viewButton"
             type="button"
             :aria-label="isShrinkView ? 'Expand Sidebar' : 'Shrink Sidebar'"
+            :aria-expanded="!isShrinkView"
             @click="toggleSidebar"
         >
             <i class="bx bx-left-arrow-alt"></i>
@@ -72,11 +120,14 @@ const onSignOut = () => {
                     class="divider"
                     orientation="left"
                     orientation-margin="0px"
-                    style="margin-bottom: 0px; color: #fff"
+                    style="margin-bottom: 0px; color: var(--text-color)"
                 >
-                    Manage
+                    {{ $t("sidebar.others.Manage") }}
                 </a-divider>
-                <a-divider class="divider" style="margin-top: 0px; background-color: #fff" />
+                <a-divider
+                    class="divider"
+                    style="margin-top: 0px; background-color: var(--border-color-contrast)"
+                />
 
                 <!-- <li :class="['sidebar-listItem', { active: activeItem === 'specialty' }]">
                     <RouterLink :to="{}">
@@ -87,25 +138,31 @@ const onSignOut = () => {
                 <li :class="['sidebar-listItem', { active: activeItem === 'account' }]">
                     <RouterLink :to="{ name: 'Admin_Manager_Account' }">
                         <i class="bx bx-cog"></i>
-                        <span class="sidebar-listItemText">Manager Account</span>
+                        <span class="sidebar-listItemText">{{ $t("sidebar.admin.account") }}</span>
                     </RouterLink>
                 </li>
                 <li :class="['sidebar-listItem', { active: activeItem === 'subscription' }]">
                     <RouterLink :to="{ name: 'Admin_Manager_Subscription' }">
                         <i class="bx bx-cog"></i>
-                        <span class="sidebar-listItemText">Manager Subscription</span>
+                        <span class="sidebar-listItemText">{{
+                            $t("sidebar.admin.subscription")
+                        }}</span>
                     </RouterLink>
                 </li>
                 <li :class="['sidebar-listItem', { active: activeItem === 'system_settings' }]">
                     <RouterLink :to="{ name: 'Admin_System_Settings' }">
                         <i class="bx bx-cog"></i>
-                        <span class="sidebar-listItemText">System Settings</span>
+                        <span class="sidebar-listItemText">{{
+                            $t("sidebar.admin.system_settings")
+                        }}</span>
                     </RouterLink>
                 </li>
                 <li :class="['sidebar-listItem']">
                     <RouterLink :to="{ name: 'User_Dashboard' }">
                         <i class="bx bx-refresh"></i>
-                        <span class="sidebar-listItemText"> Switch to User </span>
+                        <span class="sidebar-listItemText">{{
+                            $t("sidebar.admin.switch_to_user")
+                        }}</span>
                     </RouterLink>
                 </li>
                 <!-- <li :class="['sidebar-listItem', { active: activeItem === 'class' }]">
@@ -120,7 +177,9 @@ const onSignOut = () => {
                 >
                     <RouterLink :to="{}">
                         <i class="bx bx-download bx-rotate-270"></i>
-                        <span class="sidebar-listItemText">Sign out</span>
+                        <span class="sidebar-listItemText">{{
+                            $t("sidebar.buttons.signOut")
+                        }}</span>
                     </RouterLink>
                 </li>
             </ul>
@@ -129,7 +188,7 @@ const onSignOut = () => {
                 <div>
                     <span>{{ user.fullName }}</span>
                     <span class="sign-out-btn" @click="onSignOut">
-                        Sign out
+                        {{ $t("sidebar.buttons.signOut") }}
                         <i class="bx bx-download bx-rotate-270"></i>
                     </span>
                 </div>

@@ -1,4 +1,5 @@
 import Api from "@/api/Api";
+import localStorageService from "@/services/LocalStorageService";
 const END_POINTS = {
     LOGIN: "Authentication/Login",
     REGISTER: "Authentication/Register",
@@ -13,13 +14,26 @@ const END_POINTS = {
     CHANGE_PASSWORD: "Authentication/ChangePassword",
 };
 
+const saveTokens = (result: any) => {
+    const data = result?.data?.data;
+    if (result?.data?.success && data?.accessToken) {
+        localStorageService.SetTokens(data.accessToken, data.refreshToken);
+    }
+    return result;
+};
+
 class ApiAuthentication {
     Login = async (formState: object) => {
-        return await Api.post(`${END_POINTS.LOGIN}`, formState);
+        return saveTokens(await Api.post(`${END_POINTS.LOGIN}`, formState));
     };
 
     RenewToken = async () => {
-        return await Api.post(`${END_POINTS.RENEW_TOKEN}`, {});
+        return saveTokens(
+            await Api.post(`${END_POINTS.RENEW_TOKEN}`, {
+                accessToken: localStorageService.GetAccessToken(),
+                refreshToken: localStorageService.GetRefreshToken(),
+            }),
+        );
     };
 
     Register = async (formState: object) => {
@@ -43,7 +57,7 @@ class ApiAuthentication {
     };
 
     GoogleLogin = async (formState: object) => {
-        return await Api.post(`${END_POINTS.GOOGLE_LOGIN}`, formState);
+        return saveTokens(await Api.post(`${END_POINTS.GOOGLE_LOGIN}`, formState));
     };
 
     CreatePassword = async (formState: object) => {

@@ -14,8 +14,10 @@ import { ref, onMounted, watch, reactive, computed, nextTick } from "vue";
 
 import Input from "@/shared/components/Common/Input.vue";
 import Validator from "@/services/Validator";
+import { canManageClass } from "@/services/ClassPermissionService";
 
 import dayjs from "dayjs";
+import { formatScore } from "@/services/QuestionValidator";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
@@ -37,6 +39,7 @@ type TestResult = {
 //#endregion
 
 const loading = ref<boolean>(false);
+const pageReady = ref(false);
 const classId = ref(route.params.classId || "");
 const classData = ref<Class>({
     classId: "",
@@ -264,13 +267,20 @@ onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
 
+    // chỉ Owner/Teacher được xem kết quả của cả lớp; học viên -> /not-allowed
+    if (!(await canManageClass(classId.value.toString()))) {
+        router.replace({ name: "not-allowed" });
+        return;
+    }
+    pageReady.value = true;
+
     await getClassData();
     await getTestDetail();
     await getData();
 });
 </script>
 <template>
-    <div class="page-container">
+    <div v-if="pageReady" class="page-container">
         <div class="title-container">
             <div class="breadcrumb-container">
                 <ul>
@@ -309,13 +319,13 @@ onMounted(async () => {
                             <div class="d-flex justify-content-between">
                                 <span>{{ $t("exam_result.start_time") }}</span>
                                 <span>
-                                    {{ dayjs(testData.startTime).format("DD/MM/YYYY HH:mm A") }}
+                                    {{ dayjs(testData.startTime).format("DD/MM/YYYY HH:mm") }}
                                 </span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span>{{ $t("exam_result.end_time") }}</span>
                                 <span>
-                                    {{ dayjs(testData.endTime).format("DD/MM/YYYY HH:mm A") }}
+                                    {{ dayjs(testData.endTime).format("DD/MM/YYYY HH:mm") }}
                                 </span>
                             </div>
                         </a-col>
@@ -379,7 +389,7 @@ onMounted(async () => {
                         <a-col :span="11" class="d-flex justify-content-between test-info-item">
                             <span>{{ $t("exam_result.passing_score") }}</span>
                             <span>
-                                {{ testData.totalScore * (testData.passingScore / 100) }}
+                                {{ formatScore(testData.totalScore * (testData.passingScore / 100)) }}
                                 ({{ testData.passingScore }}%)
                             </span>
                         </a-col>
@@ -408,6 +418,7 @@ onMounted(async () => {
                 <div class="content-item-functions">
                     <a-select
                         v-model:value="pageParams.isPassed"
+                        :placeholder="t('exam_result.test_status.All')"
                         style="width: 230px; margin-right: 10px"
                         @change="getData"
                     >
@@ -457,6 +468,9 @@ onMounted(async () => {
                                     <div class="student-name" @click="openUserHistoryModal(record)">
                                         {{ record.studentName }}
                                     </div>
+                                </template>
+                                <template v-if="column.key === 'score'">
+                                    {{ formatScore(record.score) }}
                                 </template>
                                 <template v-if="column.key === 'status'">
                                     <a-tag :color="getTagColor(record.status)">{{
@@ -520,6 +534,6 @@ onMounted(async () => {
 
 .student-name:hover {
     cursor: pointer;
-    color: var(--main-color);
+    color: var(--c-primary-text);
 }
 </style>

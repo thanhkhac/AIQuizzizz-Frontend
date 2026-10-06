@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onActivated, onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import Input from "@/shared/components/Common/Input.vue";
 import { message } from "ant-design-vue";
@@ -8,7 +8,6 @@ import type HistoryPayment from "../../../../src/models/request/plan/historyPaym
 import type PaymentHistory from "../../../../src/models/response/plan/paymentHistory";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useRoute } from "vue-router";
-import { data } from "jquery";
 import ApiUser from "@/api/ApiUser";
 
 const { t } = useI18n();
@@ -31,39 +30,43 @@ const userData = reactive({
     roles: [],
 });
 const qrSrc = ref<string>("");
-const onOpenQrModal = async () => {
-    onQrGenerate();
-    modal_qr_open.value = true;
-};
+
+// số tiền nạp: chỉ nhận số nguyên >= 5000 (backend nhận int)
+const MIN_TOP_UP_AMOUNT = 5000;
+const MAX_TOP_UP_AMOUNT = 2000000000;
+
 const inputAmountFormRef = ref({
     amount: "",
 });
 const errorMessage = ref("");
-watch(
-    () => inputAmountFormRef.value.amount,
-    (raw) => {
-        const digits = String(raw ?? "").replace(/\D/g, "");
 
-        if (!digits) {
-            errorMessage.value = t("settings.billing.err.number_only");
-            return;
-        }
+// trả về chuỗi lỗi (đã dịch) hoặc "" nếu hợp lệ
+const validateAmount = (raw: string): string => {
+    const value = String(raw ?? "").trim();
+    if (!value) return t("settings.billing.err.required");
+    if (!/^\d+$/.test(value)) return t("settings.billing.err.number_only");
+    const num = Number(value);
+    if (num < MIN_TOP_UP_AMOUNT) return t("settings.billing.err.greater_than_5000");
+    if (num > MAX_TOP_UP_AMOUNT) return t("settings.billing.err.too_large");
+    return "";
+};
 
-        const num = Number(digits);
-        if (num <= 5000) {
-            errorMessage.value = t("settings.billing.err.greater_than_5000");
-        } else {
-            errorMessage.value = "";
-        }
-    },
-    { immediate: true },
-);
+// chỉ hiển thị lỗi sau khi người dùng đã nhập hoặc bấm tạo QR
+const onAmountInput = () => {
+    errorMessage.value = validateAmount(inputAmountFormRef.value.amount);
+};
+
+const onOpenQrModal = async () => {
+    errorMessage.value = validateAmount(inputAmountFormRef.value.amount);
+    if (errorMessage.value) return;
+    const created = await onQrGenerate();
+    if (created) modal_qr_open.value = true;
+};
 
 const getUserData = async () => {
     try {
         let result = await ApiUser.GetUserInfo();
 
-        console.log("111111: ", result.data.data);
         Object.assign(userData, result.data.data);
     } catch (err) {
         console.log(err);
@@ -87,22 +90,24 @@ const getHistoryPayment = async () => {
     }
 };
 
-const onQrGenerate = async () => {
+const onQrGenerate = async (): Promise<boolean> => {
     isCreateQrLoading.value = true;
     try {
-        const amount = inputAmountFormRef.value.amount;
-        console.log("Số tiền nhập:", amount);
+        const amount = Number(inputAmountFormRef.value.amount.trim());
         let result = await ApiPlan.QrCodeGenerate(amount);
 
         if (result.data.success) {
             qrSrc.value = result.data.data;
+            return true;
         }
+        message.error(t("settings.billing.err.qr_failed"));
     } catch (error: any) {
-        message.error("Create Qr fail.");
-        console.log("error", error.response.data);
+        message.error(t("settings.billing.err.qr_failed"));
+        console.log("error", error?.response?.data);
     } finally {
         isCreateQrLoading.value = false;
     }
+    return false;
 };
 
 const formatDate = (isoString: string) => {
@@ -118,9 +123,9 @@ const formatCurrency = (num?: number) => {
     return Number(num).toLocaleString("en-US") + " VND";
 };
 
-const columns = [
+const columns = computed(() => [
     {
-        title: "No",
+        title: t("settings.billing.col.no"),
         dataIndex: "no",
         customRender: ({ index }: { index: number }) => {
             return (Number(pageParams.pageNumber) - 1) * Number(pageParams.pageSize) + index + 1;
@@ -129,21 +134,21 @@ const columns = [
         align: "center",
     },
     {
-        title: "Date",
+        title: t("settings.billing.col.date"),
         dataIndex: "date",
         key: "date",
         width: 300,
         align: "center",
     },
     {
-        title: "Plan",
+        title: t("settings.billing.col.plan"),
         dataIndex: "planName",
         key: "planName",
         width: 200,
         align: "center",
     },
     {
-        title: "Amount",
+        title: t("settings.billing.col.amount"),
         dataIndex: "price",
         key: "price",
         width: 200,
@@ -151,14 +156,19 @@ const columns = [
         customRender: ({ text }: { text: number }) => formatCurrency(text),
     },
     {
-        title: "Status",
+        title: t("settings.billing.col.status"),
         dataIndex: "status",
         key: "status",
         defaultSortOrder: "ascend",
         width: 200,
         align: "center",
     },
-];
+]);
+
+const statusLabel = (status: string) => {
+    const key = String(status).toLowerCase() === "topup" ? "topup" : String(status).toLowerCase();
+    return ["topup", "paid"].includes(key) ? t(`settings.billing.status.${key}`) : status;
+};
 
 const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
@@ -190,7 +200,8 @@ onMounted(() => {
                 </div>
                 <div class="w-50 justify-content-center m-2">
                     <span class="text-end"
-                        >AIQuizz Points: {{ formatCurrency(userData.balance) }}</span
+                        >{{ $t("settings.billing.points") }}:
+                        {{ formatCurrency(userData.balance) }}</span
                     >
                 </div>
             </div>
@@ -208,7 +219,7 @@ onMounted(() => {
                         <template v-if="column.key === 'status'">
                             <span
                                 :class="['status-pill', `status-${String(text).toLowerCase()}`]"
-                                >{{ text === "TopUp" ? "Deposit" : text }}</span
+                                >{{ statusLabel(text) }}</span
                             >
                         </template>
                     </template>
@@ -267,9 +278,10 @@ onMounted(() => {
                             <span>
                                 <Input
                                     v-model:value="inputAmountFormRef.amount"
-                                    placeholder="Số tiền"
+                                    :placeholder="t('settings.billing.amount_placeholder')"
                                     style="width: 100%"
                                     :is-required="true"
+                                    @change="onAmountInput"
                                 />
                             </span>
                             <span>VNĐ</span>
@@ -284,11 +296,7 @@ onMounted(() => {
                                 class="main-color-btn"
                                 type="primary"
                                 size="large"
-                                @click="
-                                    () => {
-                                        if (!errorMessage) onOpenQrModal();
-                                    }
-                                "
+                                @click="onOpenQrModal"
                             >
                                 <i class="me-2 bx bx-qr"></i>
                                 {{ t("settings.billing.qr.qr_gen") }}

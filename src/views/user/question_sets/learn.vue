@@ -17,6 +17,8 @@ import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined, CloseSquareFilled } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import Validator from "@/services/Validator";
+import { mergeQuestionMedia } from "@/services/QuestionMediaService";
+import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
 import dayjs from "dayjs";
 
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
@@ -76,13 +78,38 @@ const getQuizData = async () => {
         currentQuestion.value = currentSession.value[0];
         currentSession.value.shift();
     } catch (error: any) {
-        const errorKeys = Object.keys(error.response.data.errors);
+        const errorKeys = Object.keys(error?.response?.data?.errors ?? {});
         if (errorKeys.includes(ERROR.PLAN_REQUIRE_PLAN)) {
             isAllowed.value = false;
             router.back();
+        } else if (errorKeys.includes(ERROR.QUESTION_SET_NOT_FOUND)) {
+            router.replace({ name: "404" });
+        } else {
+            // bộ câu hỏi đã bị xoá / không truy cập được: toast lỗi đã hiện ở interceptor -> về thư viện
+            router.replace({ name: "User_Library" });
         }
     } finally {
         loading.value = false;
+    }
+};
+
+// presigned URL của media hết hạn -> lấy URL mới, chỉ cập nhật media (giữ nguyên tiến trình học)
+const reloadQuestionMedia = async () => {
+    try {
+        const result = await ApiQuestionSet.GetQuestionById(questionSetId.value.toString());
+        if (result?.data?.success) {
+            mergeQuestionMedia(
+                [
+                    ...quiz.value.questions,
+                    ...currentSession.value,
+                    ...completed.value,
+                    currentQuestion.value,
+                ],
+                result.data.data,
+            );
+        }
+    } catch (error) {
+        console.log("ERROR: reload question media", error);
     }
 };
 
@@ -252,6 +279,7 @@ const getCommentData = async () => {
 };
 
 const onAddComment = async () => {
+    if (commentLoading.value || !commentValue.value?.trim()) return;
     try {
         commentLoading.value = true;
         let result;
@@ -269,6 +297,8 @@ const onAddComment = async () => {
 
         if (result.data.success) {
             message.success(t("message.added_successfully"));
+            // reset ô nhập + trạng thái reply để bấm lần 2 không gửi trùng
+            onCancelReplying();
             await getCommentData();
             return;
         }
@@ -485,12 +515,12 @@ const resetUserAnswer = () => {
             break;
         }
         case QUESTION_TYPE.ORDERING: {
-            currentQuestionInstruction.value = t("learn_QS.instructions.matching");
+            currentQuestionInstruction.value = t("learn_QS.instructions.ordering");
             userAnswerOrdering.value = currentQuestion.value.questionData.ordering!;
             break;
         }
         case QUESTION_TYPE.MATCHING: {
-            currentQuestionInstruction.value = t("learn_QS.instructions.ordering");
+            currentQuestionInstruction.value = t("learn_QS.instructions.matching");
             userAnswerMatchingLeft.value = currentQuestion.value.questionData.matching!.leftItems;
             userAnswerMatchingRight.value = currentQuestion.value.questionData.matching!.rightItems;
             break;
@@ -796,6 +826,10 @@ onMounted(async () => {
                         <div v-else class="learn-question text">
                             {{ processTextWithHtmlTag(currentQuestion.questionText) }}
                         </div>
+                        <QuestionMediaView
+                            :media="currentQuestion.media"
+                            @reload="reloadQuestionMedia"
+                        />
                         <!-- <div
                                 :class="[
                                     'learn-question',
@@ -1012,7 +1046,7 @@ onMounted(async () => {
                                                     ]"
                                                 >
                                                     <i class="bx bx-hash answer-icon"></i>
-                                                    {{ option.correctOrder }}
+                                                    {{ option.correctOrder + 1 }}
                                                 </div>
                                             </div>
                                         </template>
@@ -1416,6 +1450,11 @@ onMounted(async () => {
                         <div v-else class="question-text">
                             {{ question.questionText }}
                         </div>
+                        <QuestionMediaView
+                            :media="question.media"
+                            compact
+                            @reload="reloadQuestionMedia"
+                        />
                         <div class="question-item-answer" :id="`question-item-answer-${index}`">
                             <template v-if="question.type === QUESTION_TYPE.MULTIPLE_CHOICE">
                                 <div class="multiple-choice-answer">
@@ -1468,7 +1507,7 @@ onMounted(async () => {
                                                 (asc, desc) => asc.correctOrder - desc.correctOrder,
                                             )"
                                         >
-                                            <span>#{{ option.correctOrder }}</span> -
+                                            <span>#{{ option.correctOrder + 1 }}</span> -
                                             {{ option.text }}
                                         </div>
                                     </div>
@@ -1728,7 +1767,7 @@ onMounted(async () => {
 .ghost-btn {
     background-color: transparent;
     border-color: var(--main-color);
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
 }
 .ghost-btn:hover {
     background-color: transparent !important;

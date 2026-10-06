@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import ApiPlan from "@/api/ApiPlan";
 import type Plan from "@/models/response/plan/plan";
+import type CurrentPlan from "@/models/response/plan/currentPlan";
+import { formatPlanDuration } from "@/services/PlanDurationService";
 import { message, Modal } from "ant-design-vue";
+import dayjs from "dayjs";
 
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const planData = ref<Plan[]>([]);
+const currentPlan = ref<CurrentPlan | null>(null);
 
 const loading = ref(false);
 const getData = async () => {
@@ -25,28 +29,80 @@ const getData = async () => {
     }
 };
 
+// gói đang dùng: đăng ký còn hạn gần nhất (backend trả danh sách, đã sắp xếp theo ngày hết hạn giảm dần)
+const getCurrentPlan = async () => {
+    try {
+        const result = await ApiPlan.CurrentPlan();
+        if (result.data.success) {
+            const list: CurrentPlan[] = result.data.data ?? [];
+            currentPlan.value = list.length > 0 ? list[0] : null;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+// Chỉ coi là "gói hiện tại" khi người dùng có gói còn hạn (kể cả gói giá 0 đã đăng ký).
+// Chưa có gói nào thì KHÔNG gán gói miễn phí: quyền upload/copy... chỉ có khi đã đăng ký gói.
+const currentPlanId = computed(() => currentPlan.value?.planId ?? "");
+
+// gói "Popular": gói có giá cao nhất trong các gói trả phí (chỉ hiển thị khi có từ 2 gói trả phí trở lên)
+const popularPlanId = computed(() => {
+    const paid = planData.value.filter((x) => x.isActive && x.price > 0);
+    if (paid.length < 2) return "";
+    return paid.reduce((max, x) => (x.price > max.price ? x : max)).id;
+});
+
+// danh sách tính năng của gói (hiển thị dấu tick / dấu x)
+const featuresOf = (plan: Plan) => [
+    { key: "learn", enabled: plan.canLearn },
+    { key: "test", enabled: plan.canOpenTest },
+    { key: "copy_import", enabled: plan.canCopyOrImportQuestionSet },
+    { key: "upload_image", enabled: plan.canUploadImage },
+    { key: "upload_video", enabled: plan.canUploadVideo },
+];
+
 const formatCurrency = (num?: number) => {
     return Number(num).toLocaleString("en-US");
 };
 
+// Gói hiển thị ở thẻ đầu trang: gói còn hạn, hoặc "chưa có gói"
+const currentPlanName = computed(() => {
+    const found = planData.value.find((x) => x.id === currentPlanId.value);
+    return found?.name ?? t("settings.subscription.current.free_plan");
+});
+const currentPlanDuration = computed(() =>
+    currentPlan.value && currentPlan.value.duration > 0 && currentPlan.value.unit
+        ? formatPlanDuration(currentPlan.value.duration, currentPlan.value.unit)
+        : "",
+);
+
+const formatDate = (value?: string) => (value ? dayjs(value).format("DD/MM/YYYY") : "");
+
 const onBuyPlan = (plan: Plan) => {
     Modal.confirm({
-        title: "Are your sure to perform this action?",
-        content: `This will cost you ${plan.price}đ for purchasing this plan`,
+        title: t("settings.subscription.confirm.title"),
+        content: t("settings.subscription.confirm.content", { price: formatCurrency(plan.price) }),
         okText: t("sidebar.buttons.ok"),
         cancelText: t("sidebar.buttons.cancel"),
         centered: true,
         onOk: async () => {
-            const result = await ApiPlan.BuyPlan(plan.id);
-            if (result.data.success) {
-                message.success(t("message.purchased_successfully"));
+            try {
+                const result = await ApiPlan.BuyPlan(plan.id);
+                if (result.data.success) {
+                    message.success(t("message.purchased_successfully"));
+                    await getCurrentPlan();
+                }
+            } catch (error) {
+                // lỗi API (vd: không đủ số dư) đã được interceptor hiển thị; đóng modal xác nhận
+                console.log(error);
             }
         },
     });
 };
 
 onMounted(async () => {
-    await getData();
+    await Promise.all([getData(), getCurrentPlan()]);
 });
 </script>
 
@@ -58,6 +114,25 @@ onMounted(async () => {
                     <span>{{ $t("settings.subscription.title") }}</span>
                     <span>{{ $t("settings.subscription.sub_title") }}</span>
                 </div>
+            </div>
+            <div v-if="!loading" class="current-plan-summary" data-testid="current-plan-summary">
+                <span class="current-plan-label">{{ $t("settings.subscription.current.label") }}:</span>
+                <b class="current-plan-name">{{ currentPlanName }}</b>
+                <template v-if="currentPlan">
+                    <span v-if="currentPlanDuration" class="current-plan-meta">
+                        ({{ currentPlanDuration }})
+                    </span>
+                    <span class="current-plan-meta">
+                        {{
+                            $t("settings.subscription.plan.valid_until", {
+                                date: formatDate(currentPlan.endDate),
+                            })
+                        }}
+                    </span>
+                </template>
+                <span v-else-if="currentPlan" class="current-plan-meta">
+                    {{ $t("settings.subscription.current.no_expiry") }}
+                </span>
             </div>
         </div>
         <div class="content-item">
@@ -74,50 +149,60 @@ onMounted(async () => {
             <div v-else class="plan-container">
                 <div
                     v-for="plan in planData"
+                    :key="plan.id"
                     :class="[
                         'plan-item',
-                        plan.id === '8d4acf9c-1eb2-4941-a2bc-01034db75ca0' ? 'popular-item' : '',
+                        plan.id === popularPlanId ? 'popular-item' : '',
+                        plan.id === currentPlanId ? 'current-item' : '',
                     ]"
                 >
-                    <div
-                        v-if="plan.id === '8d4acf9c-1eb2-4941-a2bc-01034db75ca0'"
-                        class="popular-badge"
-                    >
+                    <div v-if="plan.id === popularPlanId" class="popular-badge">
                         {{ $t("settings.subscription.plan.popular") }} 🔥
                     </div>
                     <div class="plan-name">{{ plan.name }}</div>
                     <div class="plan-price">
                         {{ formatCurrency(plan.price) }}đ
-                        <div v-if="plan.unit === 'Day'" class="plan-duration">
-                            {{ plan.duration }} ({{ $t("settings.subscription.plan.day_plural") }})
+                        <div v-if="plan.duration > 0 && plan.unit" class="plan-duration">
+                            {{ formatPlanDuration(plan.duration, plan.unit) }}
                         </div>
-                        <div v-if="plan.unit === 'Year'" class="plan-duration">
-                            {{ plan.duration }} ({{
-                                $t(
-                                    `settings.subscription.plan.${plan.duration > 0 ? "year_plural" : "year_singular"}`,
-                                )
-                            }})
+                        <div
+                            v-if="plan.id === currentPlanId && currentPlan"
+                            class="plan-duration plan-valid-until"
+                        >
+                            {{
+                                $t("settings.subscription.plan.valid_until", {
+                                    date: formatDate(currentPlan.endDate),
+                                })
+                            }}
                         </div>
                     </div>
                     <div class="plan-advance-container">
-                        <div class="plan-advance">
-                            <i v-if="plan.canLearn" class="bx bx-check"></i>
-                            <i v-else class="bx bx-x"></i>
-                            {{ $t("settings.subscription.plan.learn") }}
-                        </div>
-                        <div class="plan-advance">
-                            <i v-if="plan.canOpenTest" class="bx bx-check"></i>
-                            <i v-else class="bx bx-x"></i>
-                            {{ $t("settings.subscription.plan.test") }}
+                        <div
+                            v-for="feature in featuresOf(plan)"
+                            :key="feature.key"
+                            class="plan-advance"
+                        >
+                            <i
+                                :class="[
+                                    'bx',
+                                    feature.enabled ? 'bx-check feature-on' : 'bx-x feature-off',
+                                ]"
+                            ></i>
+                            {{ $t(`settings.subscription.plan.${feature.key}`) }}
                         </div>
                     </div>
                     <a-button
                         type="primary"
                         size="large"
                         class="main-color-btn"
+                        :disabled="plan.id === currentPlanId"
                         @click="onBuyPlan(plan)"
                     >
-                        {{ $t("settings.subscription.buttons.Change_plan") }}
+                        {{
+                            plan.id === currentPlanId
+                                ? $t("settings.subscription.buttons.current_plan")
+                                : $t("settings.subscription.buttons.Change_plan")
+                        }}
                     </a-button>
                 </div>
             </div>
@@ -125,20 +210,40 @@ onMounted(async () => {
     </div>
 </template>
 <style scoped>
+.current-plan-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 8px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--form-item-border-color);
+    border-radius: 8px;
+    min-width: 0;
+}
+.current-plan-name {
+    color: var(--main-color);
+    font-size: 18px;
+}
+.current-plan-meta {
+    opacity: 0.8;
+}
+
 .plan-container {
     width: 100%;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
     padding: 10px;
+    box-sizing: border-box;
 }
 
 .plan-item {
-    width: calc(100% / 3 - 20px);
-    height: 300px;
+    min-width: 0;
+    min-height: 340px;
     display: flex;
     flex-direction: column;
     padding: 10px;
-    margin: 0px 10px;
     border: 2px solid var(--form-item-border-color);
     border-radius: 8px;
     cursor: pointer;
@@ -150,6 +255,10 @@ onMounted(async () => {
 .popular-item {
     position: relative;
     border-color: var(--main-color);
+}
+
+.current-item {
+    border-color: var(--correct-answer-color);
 }
 
 .popular-badge {
@@ -178,17 +287,30 @@ onMounted(async () => {
 }
 .plan-duration {
     font-size: 14px;
-    font-synthesis: 400px;
+    font-weight: 400;
+}
+.plan-valid-until {
+    color: var(--correct-answer-color);
 }
 
 .plan-advance-container {
     flex: 1;
+    margin-bottom: 10px;
 }
-.plan-advance i {
+.plan-advance i.feature-on {
     color: var(--correct-answer-color);
+}
+.plan-advance i.feature-off {
+    color: var(--incorrect-answer-color);
 }
 .main-color-btn {
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: auto;
+    min-height: 40px;
+    white-space: normal;
+    text-align: center;
+    width: 100%;
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { normalizeScore } from "@/services/QuestionValidator";
 import { computed, shallowRef } from "vue";
 import { Form, message } from "ant-design-vue";
 
@@ -14,6 +15,7 @@ import TextArea from "../Common/TextArea.vue";
 
 //@ts-ignore
 import InputEditor from "../Common/InputEditor.vue";
+import QuestionMediaPicker from "../Media/QuestionMediaPicker.vue";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
 
@@ -118,12 +120,15 @@ const checkEnoughOption = () => {
                 </div>
                 <div class="question-functions">
                     <div v-if="displayScore" class="question-score-select">
-                        Score:
-                        <a-select v-model:value="questionData.score" style="width: 100px">
-                            <a-select-option v-for="option in pointOptions" :value="option">
-                                {{ option }}
-                            </a-select-option>
-                        </a-select>
+                        {{ $t("create_QS.question.score") }}:
+                        <a-input-number
+                            v-model:value="questionData.score"
+                            :min="0"
+                            :max="999"
+                            :step="1"
+                            style="width: 100px"
+                            @blur="questionData.score = normalizeScore(questionData.score)"
+                        />
                     </div>
                     <div class="question-function-select">
                         <a-select
@@ -160,6 +165,7 @@ const checkEnoughOption = () => {
                         :is-required="true"
                     />
                 </div>
+                <QuestionMediaPicker :question="props.question" />
                 <div class="question-body-answer">
                     <InputEditor
                         style="max-width: 500px"

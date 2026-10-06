@@ -1,0 +1,1025 @@
+/* ==========================================================================
+   theme-overrides.css  -  loaded AFTER main.css (see src/main.ts)
+
+   Purpose: make every third-party component (Ant Design Vue, bootstrap-vue-3,
+   Highcharts, TipTap ...) and every legacy hard-coded colour follow the
+   semantic tokens defined at the end of base.css (--c-*).  All text / icon
+   pairs below are verified by tools/theme-audit (WCAG AA) in both themes and
+   for all six accent colours.  Keep this file token-driven: no raw colours
+   except white/black on a known solid background.
+   ========================================================================== */
+
+html {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    /* "clip" thay cho "hidden": hidden biến <body> thành scroll container nên position: sticky của sidebar không bám theo viewport */
+    overflow-x: clip !important;
+}
+
+::selection {
+    background: var(--main-color);
+    color: var(--c-on-primary);
+}
+
+a {
+    color: var(--c-primary-text);
+}
+
+:focus-visible {
+    outline: 2px solid var(--c-focus-ring);
+    outline-offset: 2px;
+}
+
+/* -------- placeholders (one rule for native + Ant Design + TipTap) -------- */
+input::placeholder,
+textarea::placeholder,
+.ant-input::placeholder,
+.ant-input-number input::placeholder,
+.ant-picker-input > input::placeholder,
+.ant-select-selection-placeholder,
+.ant-select-selection-search-input::placeholder {
+    color: var(--c-placeholder) !important;
+    opacity: 1 !important;
+}
+.tiptap p.is-editor-empty:first-child::before,
+.ProseMirror p.is-editor-empty:first-child::before {
+    color: var(--c-placeholder) !important;
+}
+
+/* -------- muted / secondary text used by many pages -------- */
+.text-muted,
+.text-secondary,
+.text-body-secondary {
+    color: var(--c-text-muted) !important;
+}
+.text-danger {
+    color: var(--c-danger-text) !important;
+}
+.text-success {
+    color: var(--c-success-text) !important;
+}
+.text-warning {
+    color: var(--c-warning-text) !important;
+}
+.text-primary {
+    color: var(--c-primary-text) !important;
+}
+.noti-content .text-white {
+    color: var(--c-on-primary) !important;
+}
+
+/* -------- inputs (every a-input / textarea / password, also inside Modal.confirm) -------- */
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-input-password,
+textarea.ant-input {
+    background-color: var(--c-surface-raised);
+    color: var(--c-text);
+    border-color: var(--c-border-strong);
+}
+.ant-input-affix-wrapper > input.ant-input {
+    background-color: transparent;
+    color: var(--c-text);
+}
+.ant-input:hover,
+.ant-input-affix-wrapper:hover {
+    border-color: var(--main-color);
+}
+.ant-input-affix-wrapper-focused,
+.ant-input:focus,
+.ant-input-focused {
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 2px var(--c-focus-ring);
+}
+.ant-input[disabled],
+.ant-input-disabled,
+.ant-input-affix-wrapper-disabled,
+.ant-picker-disabled,
+.ant-select-disabled .ant-select-selector {
+    background-color: var(--background-color-selected) !important;
+    color: var(--c-disabled-text) !important;
+}
+.ant-input-affix-wrapper .ant-input-suffix .anticon,
+.ant-input-affix-wrapper .anticon.ant-input-password-icon,
+.ant-input-suffix,
+.ant-input-prefix,
+.ant-input-password-icon,
+.ant-input-clear-icon,
+.ant-input-textarea-show-count::after,
+.ant-input-show-count-suffix {
+    color: var(--c-text-muted);
+}
+.ant-input-password-icon:hover,
+.ant-input-clear-icon:hover {
+    color: var(--c-text);
+}
+.ant-form-item-explain-error,
+.ant-form-item-explain-error div,
+.ant-form-item-extra {
+    color: var(--c-danger-text);
+}
+.ant-form-item-extra {
+    color: var(--c-text-muted);
+}
+.ant-form-item-label > label,
+.ant-form-item-label > label.ant-form-item-required::before {
+    color: var(--c-text);
+}
+.ant-form-item-label > label.ant-form-item-required::before {
+    color: var(--c-danger-text) !important;
+}
+
+/* -------- select -------- */
+.ant-select-selection-placeholder {
+    color: var(--c-placeholder) !important;
+}
+.ant-select-dropdown {
+    background-color: var(--c-surface-raised) !important;
+}
+.ant-select-item-empty,
+.ant-empty-description,
+.ant-empty-normal {
+    color: var(--c-text-muted) !important;
+}
+.ant-select-item-option-disabled {
+    color: var(--c-disabled-text) !important;
+}
+.ant-select-selection-item-remove:hover {
+    color: var(--c-danger-text) !important;
+}
+.ant-select-multiple .ant-select-selection-item {
+    background: var(--background-color-selected);
+    border-color: var(--c-border);
+}
+
+/* -------- buttons -------- */
+.ant-btn-default,
+.ant-btn-dashed {
+    background-color: var(--c-surface-raised);
+    color: var(--c-text);
+    border-color: var(--c-border-strong);
+}
+.ant-btn-default:hover,
+.ant-btn-default:focus,
+.ant-btn-dashed:hover {
+    color: var(--c-primary-text);
+    border-color: var(--main-color);
+    background-color: var(--c-surface-raised);
+}
+.ant-btn-ghost:not(.main-color-btn) {
+    color: var(--c-primary-text);
+    border-color: var(--c-primary-text);
+}
+.ant-btn-primary {
+    background-color: var(--main-color);
+    border-color: var(--main-color);
+    color: var(--c-on-primary);
+}
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+    background-color: var(--main-sub-color);
+    border-color: var(--main-sub-color);
+    color: var(--c-on-primary);
+}
+.ant-btn-primary:not(.main-color-btn-ghost) span,
+.ant-btn-primary:not(.main-color-btn-ghost) .anticon {
+    color: var(--c-on-primary);
+}
+.ant-btn-link {
+    color: var(--c-primary-text);
+}
+.ant-btn-text {
+    color: var(--c-text);
+}
+.ant-btn-dangerous.ant-btn-primary {
+    background-color: var(--c-solid-danger);
+    border-color: var(--c-solid-danger);
+    color: #fff;
+}
+.ant-btn-dangerous.ant-btn-primary span,
+.ant-btn-dangerous.ant-btn-primary .anticon {
+    color: #fff;
+}
+.ant-btn-dangerous:not(.ant-btn-primary) {
+    color: var(--c-danger-text);
+    border-color: var(--c-danger-text);
+}
+.ant-btn[disabled],
+.ant-btn-disabled {
+    background-color: var(--background-color-selected) !important;
+    color: var(--c-disabled-text) !important;
+    border-color: var(--c-border) !important;
+}
+.ant-btn[disabled] span,
+.ant-btn-disabled span {
+    color: var(--c-disabled-text) !important;
+}
+
+/* -------- links / buttons that carry --main-color text -------- */
+.main-color-btn-ghost,
+.main-color-btn.link {
+    color: var(--c-primary-text);
+}
+.main-color-btn:not(.main-color-btn-ghost),
+.main-color-btn:not(.main-color-btn-ghost) i,
+.main-color-btn:not(.main-color-btn-ghost) span {
+    color: var(--c-on-primary) !important;
+}
+.main-color-btn-ghost span,
+.main-color-btn-ghost i,
+.main-color-btn-ghost .anticon {
+    color: inherit !important;
+}
+.main-color-btn.main-color-btn-ghost {
+    background: transparent !important;
+}
+.main-color-btn-ghost:hover {
+    color: var(--c-primary-text) !important;
+}
+
+/* -------- tabs -------- */
+.ant-tabs {
+    color: var(--c-text);
+}
+.ant-tabs-tab {
+    color: var(--c-text-muted);
+}
+.ant-tabs-tab:hover {
+    color: var(--c-primary-text);
+}
+.ant-tabs-nav::before {
+    border-bottom-color: var(--c-border) !important;
+}
+.ant-tabs-nav-more,
+.ant-tabs-nav-operations .ant-tabs-nav-more {
+    color: var(--c-text-muted);
+}
+
+/* -------- table -------- */
+.ant-table-thead > tr > th,
+.ant-table-thead > tr > th.ant-table-cell {
+    background-color: var(--c-surface-raised) !important;
+    color: var(--c-text) !important;
+    font-weight: 600;
+}
+.ant-table-column-sorter {
+    color: var(--c-text-muted) !important;
+}
+.ant-table-column-sorter-up.active,
+.ant-table-column-sorter-down.active {
+    color: var(--c-primary-text) !important;
+}
+.ant-table-placeholder .ant-table-cell,
+.ant-table-placeholder:hover > td {
+    background-color: var(--c-surface) !important;
+}
+.ant-table-filter-trigger,
+.ant-table-row-expand-icon {
+    color: var(--c-text-muted);
+}
+.ant-table-tbody > tr.ant-table-row-selected > td {
+    background-color: var(--background-color-selected) !important;
+}
+.ant-table-wrapper {
+    max-width: 100%;
+}
+
+/* -------- pagination -------- */
+.ant-pagination-item a,
+.ant-pagination-item-link,
+.ant-pagination-prev,
+.ant-pagination-next,
+.ant-pagination-jump-prev,
+.ant-pagination-jump-next,
+.ant-pagination-options,
+.ant-pagination-total-text {
+    color: var(--c-text) !important;
+}
+.ant-pagination-item-active a {
+    color: var(--c-primary-text) !important;
+}
+.ant-pagination-item-ellipsis {
+    color: var(--c-text-muted) !important;
+}
+
+/* -------- tags (colour comes from inline style; pick readable text per background) -------- */
+.ant-tag {
+    color: var(--c-text);
+}
+.ant-tag-has-color {
+    color: #fff;
+}
+.ant-tag-has-color[style*="rgb(34, 197, 94)"],
+.ant-tag-has-color[style*="rgb(59, 130, 246)"],
+.ant-tag-has-color[style*="rgb(245, 158, 11)"],
+.ant-tag-has-color[style*="rgb(74, 164, 75)"] {
+    color: #0b0b0f;
+}
+.ant-tag-has-color > span {
+    color: inherit;
+}
+
+/* -------- popovers / popconfirm / tooltip / dropdown -------- */
+.ant-popover-inner-content,
+.ant-popover-title,
+.ant-popconfirm-description,
+.ant-popconfirm-message-title,
+.ant-popover-message {
+    color: var(--c-text) !important;
+}
+.ant-popover-message > .anticon,
+.ant-popconfirm .anticon-exclamation-circle {
+    color: var(--c-warning-text);
+}
+.ant-popover-buttons .ant-btn-default,
+.ant-popconfirm-buttons .ant-btn-default {
+    background-color: transparent;
+    color: var(--c-text);
+    border-color: var(--c-border-strong);
+}
+.ant-tooltip-inner {
+    background-color: var(--c-surface-raised);
+    color: var(--c-text);
+    border: 1px solid var(--c-border-strong);
+}
+.ant-tooltip-arrow-content,
+.ant-tooltip-arrow::before {
+    background-color: var(--c-surface-raised) !important;
+}
+.ant-dropdown-menu {
+    background-color: var(--c-surface-raised) !important;
+    border: 1px solid var(--c-border);
+}
+.ant-dropdown-menu-item,
+.ant-dropdown-menu-title-content,
+.ant-dropdown-menu-title-content a {
+    color: var(--c-text) !important;
+}
+.ant-dropdown-menu-item:hover {
+    background-color: var(--main-color) !important;
+    color: var(--c-on-primary) !important;
+}
+.ant-dropdown-menu-item:hover .ant-dropdown-menu-title-content,
+.ant-dropdown-menu-item:hover .ant-dropdown-menu-title-content a,
+.ant-dropdown-menu-item:hover i {
+    color: var(--c-on-primary) !important;
+}
+.ant-dropdown-menu-item:last-child,
+.ant-dropdown-menu-item:last-child .ant-dropdown-menu-title-content {
+    color: var(--c-danger-text) !important;
+}
+.ant-dropdown-menu-item:last-child:hover {
+    background-color: var(--c-solid-danger) !important;
+    color: #fff !important;
+}
+.ant-dropdown-menu-item:last-child:hover .ant-dropdown-menu-title-content,
+.ant-dropdown-menu-item:last-child:hover i {
+    color: #fff !important;
+}
+.ant-dropdown-menu-item-disabled,
+.ant-dropdown-menu-item-disabled .ant-dropdown-menu-title-content {
+    color: var(--c-disabled-text) !important;
+}
+.ant-dropdown-link {
+    color: var(--c-text);
+}
+
+/* -------- modal / drawer / confirm -------- */
+.ant-modal-header {
+    background: var(--c-surface-raised);
+    border-bottom-color: var(--c-border);
+}
+.ant-modal-title {
+    color: var(--c-text);
+}
+.ant-modal-close {
+    color: var(--c-text-muted);
+}
+.ant-modal-close:hover {
+    color: var(--c-text);
+}
+.ant-modal-close-x {
+    color: var(--c-text) !important;
+}
+.ant-modal-footer {
+    border-top-color: var(--c-border);
+}
+.ant-modal-confirm-body > .anticon-exclamation-circle,
+.ant-modal-confirm-warning .ant-modal-confirm-body > .anticon {
+    color: var(--c-warning-text) !important;
+}
+.ant-modal-confirm-error .ant-modal-confirm-body > .anticon,
+.ant-modal-confirm-body > .anticon-close-circle {
+    color: var(--c-danger-text) !important;
+}
+.ant-modal-confirm-success .ant-modal-confirm-body > .anticon,
+.ant-modal-confirm-body > .anticon-check-circle {
+    color: var(--c-success-text) !important;
+}
+.ant-modal-confirm-info .ant-modal-confirm-body > .anticon,
+.ant-modal-confirm-body > .anticon-info-circle {
+    color: var(--c-primary-text) !important;
+}
+.ant-modal-mask,
+.ant-drawer-mask {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+.ant-drawer-body {
+    color: var(--c-text);
+}
+.ant-drawer-close {
+    color: var(--c-text) !important;
+}
+
+/* -------- message / notification / alert -------- */
+.ant-message-notice-content,
+.ant-notification-notice {
+    background-color: var(--c-surface-raised) !important;
+    color: var(--c-text) !important;
+    border: 1px solid var(--c-border);
+}
+.ant-message-notice-content .ant-message-custom-content,
+.ant-notification-notice-message,
+.ant-notification-notice-description {
+    color: var(--c-text) !important;
+}
+.ant-message-success .anticon,
+.ant-notification-notice-icon-success {
+    color: var(--c-success-text) !important;
+}
+.ant-message-error .anticon,
+.ant-notification-notice-icon-error {
+    color: var(--c-danger-text) !important;
+}
+.ant-message-warning .anticon,
+.ant-notification-notice-icon-warning {
+    color: var(--c-warning-text) !important;
+}
+.ant-message-info .anticon,
+.ant-message-loading .anticon,
+.ant-notification-notice-icon-info {
+    color: var(--c-primary-text) !important;
+}
+.ant-notification-notice-close {
+    color: var(--c-text-muted);
+}
+.ant-alert {
+    color: var(--c-text);
+}
+.ant-alert-message,
+.ant-alert-description {
+    color: var(--c-text);
+}
+.ant-alert-success {
+    background-color: var(--correct-answer-theme, var(--c-surface-raised));
+    border-color: var(--c-success-text);
+}
+.ant-alert-error {
+    background-color: var(--incorrect-answer-theme, var(--c-surface-raised));
+    border-color: var(--c-danger-text);
+}
+.ant-alert-warning {
+    background-color: var(--c-surface-raised);
+    border-color: var(--c-warning-text);
+}
+.ant-alert-info {
+    background-color: var(--c-surface-raised);
+    border-color: var(--c-primary-text);
+}
+.ant-alert-success .ant-alert-icon {
+    color: var(--c-success-text);
+}
+.ant-alert-error .ant-alert-icon {
+    color: var(--c-danger-text);
+}
+.ant-alert-warning .ant-alert-icon {
+    color: var(--c-warning-text);
+}
+.ant-alert-info .ant-alert-icon {
+    color: var(--c-primary-text);
+}
+.ant-alert-close-icon .anticon-close {
+    color: var(--c-text-muted);
+}
+
+/* -------- result / empty / spin / skeleton / progress / steps / rate / badge -------- */
+.ant-result-title {
+    color: var(--c-text);
+}
+.ant-result-subtitle {
+    color: var(--c-text-muted);
+}
+.ant-spin {
+    color: var(--c-primary-text);
+}
+.ant-spin-text {
+    color: var(--c-text-muted);
+}
+.ant-spin-container::after {
+    background: var(--c-page);
+}
+.ant-progress-text {
+    color: var(--c-text) !important;
+}
+.ant-progress-inner {
+    background-color: var(--background-color-selected);
+}
+.ant-steps-item-title,
+.ant-steps-item-description,
+.ant-steps-item-wait .ant-steps-item-title {
+    color: var(--c-text) !important;
+}
+.ant-steps-item-wait .ant-steps-item-description,
+.ant-steps-item-description {
+    color: var(--c-text-muted) !important;
+}
+.ant-steps-item-wait .ant-steps-item-icon {
+    border-color: var(--c-border-strong);
+}
+.ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
+    color: var(--c-text-muted);
+}
+.ant-steps-item-process .ant-steps-item-icon {
+    background: var(--main-color);
+    border-color: var(--main-color);
+}
+.ant-steps-item-process .ant-steps-item-icon > .ant-steps-icon {
+    color: var(--c-on-primary);
+}
+.ant-steps-item-finish .ant-steps-item-icon {
+    border-color: var(--c-primary-text);
+    background: transparent;
+}
+.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+    color: var(--c-primary-text);
+}
+.ant-rate-star:not(.ant-rate-star-full) .ant-rate-star-first,
+.ant-rate-star:not(.ant-rate-star-full) .ant-rate-star-second {
+    color: var(--c-border-strong);
+}
+.ant-badge-count {
+    color: #fff;
+}
+.ant-badge-status-text {
+    color: var(--c-text);
+}
+.ant-skeleton-title,
+.ant-skeleton-paragraph > li {
+    background: var(--background-color-selected) !important;
+}
+
+/* -------- collapse / list / divider / tree / menu / radio / checkbox -------- */
+.ant-collapse {
+    background-color: var(--c-surface);
+    border-color: var(--c-border);
+    color: var(--c-text);
+}
+.ant-collapse > .ant-collapse-item > .ant-collapse-header,
+.ant-collapse-header-text,
+.ant-collapse-content {
+    color: var(--c-text) !important;
+    background-color: var(--c-surface);
+    border-color: var(--c-border);
+}
+.ant-divider {
+    color: var(--c-text);
+    border-top-color: var(--c-border);
+}
+.ant-divider-inner-text {
+    color: var(--c-text);
+}
+.ant-tree {
+    background: transparent;
+    color: var(--c-text);
+}
+.ant-tree .ant-tree-node-content-wrapper,
+.ant-tree-title,
+.ant-tree-switcher {
+    color: var(--c-text);
+}
+.ant-radio-wrapper,
+.ant-radio-group {
+    color: var(--c-text);
+}
+.ant-radio-inner {
+    background-color: var(--c-surface-raised);
+    border-color: var(--c-border-strong);
+}
+.ant-radio-checked .ant-radio-inner {
+    border-color: var(--main-color);
+}
+.ant-radio-inner::after {
+    background-color: var(--main-color);
+}
+.ant-checkbox-inner {
+    background-color: var(--c-surface-raised);
+}
+.ant-checkbox-checked .ant-checkbox-inner::after {
+    border-color: var(--c-on-primary) !important;
+}
+.ant-checkbox-wrapper-disabled,
+.ant-radio-wrapper-disabled {
+    color: var(--c-disabled-text) !important;
+}
+/* a-switch: OFF = neutral grey, ON = accent colour (distinguishable in both themes / all accents) */
+:root,
+.theme-dark {
+    --c-switch-off: #6b6b75; /* 5.2:1 with the white knob, 3.8:1 on the black page */
+}
+.theme-light {
+    --c-switch-off: #71717a; /* 4.8:1 with the white knob, 3.7:1 on the page */
+}
+.ant-switch {
+    background-color: var(--c-switch-off) !important;
+    border: 0;
+}
+.ant-switch .ant-switch-handle::before {
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.ant-switch.ant-switch-checked {
+    background-color: var(--c-primary) !important;
+    /* 1px accent-text outline keeps the ON track visible on the page even for light accents (amber/green) */
+    box-shadow: inset 0 0 0 1px var(--c-primary-text);
+}
+.ant-switch.ant-switch-checked .ant-switch-handle::before {
+    background-color: var(--c-on-primary);
+}
+.ant-switch.ant-switch-checked:hover:not(.ant-switch-disabled) {
+    background-color: var(--c-primary-hover) !important;
+}
+.ant-switch:focus,
+.ant-switch:focus-visible {
+    outline: 2px solid var(--c-focus-ring);
+    outline-offset: 2px;
+}
+.ant-switch:focus:not(:focus-visible) {
+    outline: none;
+}
+.ant-switch.ant-switch-disabled {
+    opacity: 0.5;
+}
+.ant-upload,
+.ant-upload-list-item-name,
+.ant-upload-list-item-card-actions .anticon,
+.ant-upload-text,
+.ant-upload-hint {
+    color: var(--c-text);
+}
+.ant-upload-hint,
+.ant-upload-drag-icon .anticon {
+    color: var(--c-text-muted);
+}
+.ant-upload.ant-upload-drag {
+    background: var(--c-surface-raised);
+    border-color: var(--c-border-strong);
+}
+.ant-qrcode {
+    background-color: #fff !important;
+    color: #000;
+}
+
+/* -------- date / time picker & calendar (also the portal panels) -------- */
+.ant-picker-dropdown .ant-picker-panel-container,
+.ant-picker-panel,
+.ant-picker-calendar,
+.ant-picker-calendar-full .ant-picker-panel {
+    background-color: var(--c-surface-raised) !important;
+    color: var(--c-text) !important;
+    border-color: var(--c-border) !important;
+}
+.ant-picker-header,
+.ant-picker-header button,
+.ant-picker-content th,
+.ant-picker-time-panel-column > li .ant-picker-time-panel-cell-inner {
+    color: var(--c-text) !important;
+    border-color: var(--c-border) !important;
+}
+.ant-picker-header-view button:hover {
+    color: var(--c-primary-text) !important;
+}
+.ant-picker-header-super-prev-btn,
+.ant-picker-header-prev-btn,
+.ant-picker-header-next-btn,
+.ant-picker-header-super-next-btn {
+    color: var(--c-text-muted) !important;
+}
+.ant-picker-cell {
+    color: var(--c-text-muted) !important;
+}
+.ant-picker-cell-in-view,
+.ant-picker-cell-in-view .ant-picker-cell-inner,
+.ant-picker-calendar-date-value {
+    color: var(--c-text) !important;
+}
+.ant-picker-cell:not(.ant-picker-cell-in-view) .ant-picker-cell-inner,
+.ant-picker-cell:not(.ant-picker-cell-in-view) .ant-picker-calendar-date-value {
+    color: var(--c-text-muted) !important;
+}
+.ant-picker-cell-disabled,
+.ant-picker-cell-disabled .ant-picker-cell-inner {
+    color: var(--c-disabled-text) !important;
+}
+.ant-picker-cell-selected .ant-picker-cell-inner,
+.ant-picker-cell-range-start .ant-picker-cell-inner,
+.ant-picker-cell-range-end .ant-picker-cell-inner {
+    background: var(--main-color) !important;
+    color: var(--c-on-primary) !important;
+}
+.ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+    border-color: var(--main-color) !important;
+}
+.ant-picker-cell:hover:not(.ant-picker-cell-in-view) .ant-picker-cell-inner,
+.ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end) .ant-picker-cell-inner {
+    background: var(--background-color-selected) !important;
+}
+.ant-picker-cell-in-view.ant-picker-cell-in-range::before {
+    background: var(--background-color-selected) !important;
+}
+.ant-picker-footer,
+.ant-picker-panel .ant-picker-footer {
+    border-color: var(--c-border) !important;
+}
+.ant-picker-now-btn,
+.ant-picker-today-btn {
+    color: var(--c-primary-text) !important;
+}
+.ant-picker-ok .ant-btn-primary {
+    color: var(--c-on-primary) !important;
+}
+.ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+    background: var(--background-color-selected) !important;
+}
+.ant-picker-calendar-full .ant-picker-calendar-date {
+    border-top-color: var(--c-border) !important;
+}
+.ant-picker-calendar-full .ant-picker-panel .ant-picker-calendar-date-today {
+    border-color: var(--main-color) !important;
+}
+
+/* -------- code blocks, TipTap, rich text -------- */
+pre,
+pre code,
+code {
+    color: var(--c-text);
+}
+pre {
+    background-color: var(--c-surface-raised) !important;
+}
+:not(pre) > code {
+    background-color: var(--background-color-selected);
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+.tiptap,
+.ProseMirror {
+    color: var(--c-text);
+}
+.tiptap a,
+.ProseMirror a {
+    color: var(--c-primary-text);
+}
+.tiptap blockquote,
+.ProseMirror blockquote {
+    border-left: 3px solid var(--c-border-strong);
+    color: var(--c-text-muted);
+    padding-left: 1rem;
+}
+
+/* -------- bootstrap-vue pieces -------- */
+.modal-content {
+    background-color: var(--c-surface-raised);
+    color: var(--c-text);
+    border-color: var(--c-border);
+}
+.modal-header,
+.modal-footer {
+    border-color: var(--c-border);
+}
+.btn-close {
+    filter: none;
+    opacity: 0.8;
+}
+.theme-dark .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+.form-control,
+.form-select {
+    background-color: var(--c-surface-raised);
+    color: var(--c-text);
+    border-color: var(--c-border-strong);
+}
+.form-control::placeholder {
+    color: var(--c-placeholder);
+}
+.dropdown-menu {
+    background-color: var(--c-surface-raised);
+    color: var(--c-text);
+    border-color: var(--c-border);
+}
+.dropdown-item {
+    color: var(--c-text);
+}
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--main-color);
+    color: var(--c-on-primary);
+}
+.list-group-item,
+.card {
+    background-color: var(--c-surface);
+    color: var(--c-text);
+    border-color: var(--c-border);
+}
+.badge {
+    color: #fff;
+}
+.border,
+.border-top,
+.border-bottom {
+    border-color: var(--c-border) !important;
+}
+
+/* -------- scrollbars -------- */
+* {
+    scrollbar-color: var(--c-border-strong) transparent;
+}
+
+/* -------- misc fixes for legacy components -------- */
+.result-tag i {
+    background-color: var(--c-solid-danger) !important;
+    color: #fff !important;
+}
+.result-tag-qs-count {
+    color: var(--c-on-primary) !important;
+}
+.input-item {
+    color: var(--c-text) !important;
+}
+.authentication-item-navigator {
+    color: var(--c-text) !important;
+}
+.question-info {
+    color: var(--c-on-primary);
+}
+.sidebar-listItem.active a,
+.sidebar-listItem.active i,
+.sidebar-listItem:hover a,
+.sidebar-listItem:hover i,
+.sidebar-listItem:hover span {
+    color: var(--c-on-primary) !important;
+}
+.sidebar-profileSection,
+.sidebar-profileSection span {
+    color: var(--c-text);
+}
+.sidebar-container .ant-divider-inner-text {
+    color: var(--c-text-muted) !important;
+    font-size: 13px;
+}
+.sidebar-container .sign-out-btn:hover,
+.sidebar-container .sign-out-btn:hover i {
+    color: var(--c-on-primary);
+}
+.answer-correct .answer-icon,
+.result-correct,
+.progress-info-percentage span {
+    color: var(--c-success-text);
+}
+.result-incorrect,
+.answer-incorrect .answer-icon {
+    color: var(--c-danger-text);
+}
+.result-skipped {
+    color: var(--c-warning-text);
+}
+.explain-modal-up,
+.learn-question-explain {
+    color: var(--c-text);
+}
+.status-pill {
+    color: var(--c-text);
+}
+
+/* generic containers that otherwise inherit Ant Design's fixed rgba(0,0,0,.88) */
+.ant-form,
+.ant-modal-body,
+.question-media-picker,
+.ant-notification-notice-with-icon {
+    color: var(--c-text);
+}
+.ant-notification-notice-close,
+.ant-notification-notice-close .anticon,
+.ant-message-notice-content .anticon-close {
+    color: var(--c-text-muted) !important;
+}
+.ant-notification-notice-close:hover {
+    color: var(--c-text) !important;
+}
+
+/* home page category cards / billing pills */
+.category-item i.category-item-icon {
+    color: #fff;
+}
+.theme-dark .category-item:nth-child(2) i.category-item-icon,
+.theme-dark .category-item:nth-child(5) i.category-item-icon {
+    color: #0b0b0f;
+}
+.category-item .category-item-content a {
+    color: var(--c-primary-text) !important;
+}
+.status-paid {
+    background-color: var(--correct-answer-theme, var(--c-surface-raised)) !important;
+    color: var(--c-success-text) !important;
+    border-color: var(--c-success-text) !important;
+}
+.status-topup {
+    background-color: var(--c-surface-raised) !important;
+    color: var(--c-warning-text) !important;
+    border-color: var(--c-warning-text) !important;
+}
+
+/* inline `style="color: red"` coming from h() confirm dialogs / icons */
+.ant-modal-confirm-content div[style*="color: red"] {
+    color: var(--c-danger-text) !important;
+}
+.highcharts-credits {
+    fill: var(--c-text-muted) !important;
+}
+
+/* gradient text (logo / hero / auth panel) must stay readable on both themes */
+.header-logo,
+.home-content-item:nth-child(2) span {
+    background: var(--brand-gradient-text) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent;
+}
+.header-logo a {
+    text-decoration: none;
+}
+.authentication-item-text {
+    background: linear-gradient(95deg, #a78bfa 30%, #fb923c 96%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+/* disabled controls stay legible (WCAG exempts them, but they must not look empty) */
+.main-color-btn:disabled i,
+.main-color-btn[disabled] i,
+.main-color-btn.main-color-btn-disabled i,
+.ant-btn[disabled] i,
+.ant-btn-disabled i {
+    color: var(--c-disabled-text) !important;
+}
+.ant-pagination-disabled {
+    opacity: 1 !important;
+}
+.ant-pagination-disabled .ant-pagination-item-link,
+.ant-pagination-disabled button,
+.ant-pagination-disabled .anticon {
+    color: var(--c-disabled-text) !important;
+}
+
+/* matching-question connector icon + flag button (attempt / practice test) */
+.matching-icon {
+    color: var(--c-placeholder) !important;
+}
+.theme-light .flag-button {
+    color: #8a6d00 !important;
+}
+
+/* sidebar: nhãn dài (vd "Subscription management") xuống dòng trong "pill" thay vì chạm/tràn mép phải */
+.sidebar-container:not(.shrink) .sidebar-listItem a {
+    padding-right: 20px;
+}
+.sidebar-container:not(.shrink) .sidebar-listItemText {
+    white-space: normal;
+    min-width: 0;
+    flex: 1 1 auto;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+.sidebar-container .sidebar-listItem i {
+    flex: 0 0 auto;
+}
+
+/* icon trong addon/prefix của ô nhập: svg bị max-width:100% (responsive.css) co về 0 trong ô shrink-to-fit -> luôn có kích thước + màu */
+.anticon svg {
+    max-width: none;
+}
+.ant-input-group-addon {
+    background-color: var(--c-surface-raised);
+    color: var(--c-text-muted);
+    border-color: var(--c-border-strong);
+    min-width: 40px;
+    text-align: center;
+}
+.ant-input-group-addon .anticon {
+    font-size: 16px;
+    color: var(--c-text-muted);
+}

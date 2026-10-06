@@ -15,6 +15,7 @@ const END_POINTS = {
     CREATE_INVITATION: "Class/{ClassId}/Invitations",
     JOIN_CLASS: "Class/Students",
     DELETE_CLASS: "Class/{ClassId}",
+    MOVE_OUT_CLASS: "Class/{ClassId}/MoveOut",
     DELETE_CLASS_MEMBER: "Class/{ClassId}/Members/{UserId}",
     UPDATE_CLASS_MEMBER_POSITION: "Class/{ClassId}/Members/{UserId}",
     DELETE_CLASS_QUESTION_SET: "Class/{ClassId}/QuestionSets/{QuestionSetId}",
@@ -86,6 +87,12 @@ class ApiUser {
                 fieldName: pageParams.fieldName || "",
             },
         });
+    }
+
+    // Học viên/giảng viên tự rời lớp (chủ lớp không được rời, phải xoá lớp)
+    async MoveOut(classId: string) {
+        const url = END_POINTS.MOVE_OUT_CLASS.replace("{ClassId}", classId);
+        return await Api.post(url);
     }
 
     async Delete(classId: string) {

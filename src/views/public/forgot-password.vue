@@ -44,24 +44,27 @@ const showNotification = (type: NotificationType, message: string, description: 
 };
 
 const onFinish = () => {
-    formRef.value.validate().then(async () => {
-        try {
-            button_loading.value = true;
-            const result = await ApiAuthentication.ForgotPassword(formState);
-            if (result.data.success) {
-                showNotification("success", "Forgot-password result", "Success");
-                setTimeout(() => {
-                    router.push({ name: "reset-password" });
-                }, 1000);
-                return;
+    formRef.value
+        .validate()
+        .then(async () => {
+            try {
+                button_loading.value = true;
+                const result = await ApiAuthentication.ForgotPassword(formState);
+                if (result.data.success) {
+                    showNotification("success", "Forgot-password result", "Success");
+                    setTimeout(() => {
+                        router.push({ name: "reset-password", query: { email: formState.email } });
+                    }, 1000);
+                    return;
+                }
+                showNotification("error", "Register result", "ERROR");
+            } catch (error) {
+                console.log(error);
+            } finally {
+                button_loading.value = false;
             }
-            showNotification("error", "Register result", "ERROR");
-        } catch (error) {
-            console.log(error);
-        } finally {
-            button_loading.value = false;
-        }
-    });
+        })
+        .catch(() => {}); // lỗi validate đã hiển thị inline trên form
 };
 </script>
 <template>

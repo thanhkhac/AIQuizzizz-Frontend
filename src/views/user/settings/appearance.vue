@@ -267,7 +267,7 @@ onMounted(() => {
 
 .theme-item-header i:nth-child(2) {
     font-size: 24px;
-    color: var(--main-color);
+    color: var(--c-primary-text);
     margin: 0px;
 }
 

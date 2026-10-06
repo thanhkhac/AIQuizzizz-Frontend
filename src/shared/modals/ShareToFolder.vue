@@ -113,7 +113,7 @@ const handleAddToFolder = (folder: Folder) => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span>Choose from folder test</span>
+                        <span>{{ $t("folder_index.modal.choose_folder_title") }}</span>
                     </a-col>
                 </a-row>
             </div>
@@ -146,7 +146,7 @@ const handleAddToFolder = (folder: Folder) => {
                                 <Input
                                     @input="getData"
                                     v-model="pageParams.folderName"
-                                    :placeholder="t('class_index.other.search_class_placeholder')"
+                                    :placeholder="t('folder_index.other.search_class_placeholder')"
                                 >
                                     <template #icon>
                                         <i class="bx bx-search"></i>

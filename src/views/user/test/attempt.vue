@@ -8,7 +8,6 @@ import type { UserAnswerData } from "@/models/response/test/userAnswer";
 import type UserAnswerSubmit from "@/models/response/test/userAnswer";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import QUESTION_FORMAT from "@/constants/questionTextFormat";
-import ERROR from "@/constants/errors";
 
 import TransferUserAnswerData from "@/services/TransferUserAnswerData";
 
@@ -16,6 +15,8 @@ import TextArea from "@/shared/components/Common/TextArea.vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import Validator from "@/services/Validator";
+import { mergeQuestionMedia } from "@/services/QuestionMediaService";
+import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
 
 import { useI18n } from "vue-i18n";
 import { Modal, message } from "ant-design-vue";
@@ -87,13 +88,31 @@ const attemptData = ref<AttemptData>({
     questions: [],
 });
 const loading = ref(false);
-const getAttemptData = async () => {
+// trang danh sách bài kiểm tra của lớp (nếu biết lớp), ngược lại về danh sách lớp
+const leaveToClass = () => {
+    const classId = route.query.classId?.toString();
+    if (classId && Validator.isValidGuid(classId)) {
+        router.replace({ name: "User_Class_Exam", params: { id: classId } });
+    } else {
+        router.replace({ name: "User_Class" });
+    }
+};
+
+const backRoute = computed(() => {
+    const classId = route.query.classId?.toString();
+    return classId && Validator.isValidGuid(classId)
+        ? { name: "User_Class_Exam", params: { id: classId } }
+        : { name: "User_Class" };
+});
+
+/** @returns true nếu đã tải được bài làm hợp lệ; false nếu đã chuyển hướng/lỗi (không được render tiếp) */
+const getAttemptData = async (): Promise<boolean> => {
     try {
         loading.value = true;
         if (!Validator.isValidGuid(testId.value)) {
             isDataValid.value = false;
-            router.push({ name: "404" });
-            return;
+            router.replace({ name: "404" });
+            return false;
         }
 
         const result = await ApiTest.Attempt(testId.value);
@@ -101,8 +120,13 @@ const getAttemptData = async () => {
 
         if (attemptData.value.timeRemaining <= 0) {
             message.error(t("message.time_up"));
-            router.push({ name: "User_Class" });
-            return;
+            leaveToClass();
+            return false;
+        }
+
+        if (!Array.isArray(result.data.data.questions) || result.data.data.questions.length === 0) {
+            leaveToClass();
+            return false;
         }
 
         quiz.value = [...result.data.data.questions.map((x: any) => ({ id: x.questionId, ...x }))];
@@ -115,11 +139,12 @@ const getAttemptData = async () => {
         );
 
         currentQuestion.value = quiz.value[0] as ResponseQuestion;
+        return true;
     } catch (error: any) {
-        const errorKeys = Object.keys(error.response.data.errors);
-        if (errorKeys.includes(ERROR.MAX_ATTEMPT_IN_THIS_TEST)) {
-            router.back();
-        }
+        // Mọi lỗi (hết lượt, chưa tới giờ, không thuộc lớp...): toast lỗi đã do interceptor hiển thị, rời trang
+        isDataValid.value = false;
+        leaveToClass();
+        return false;
     } finally {
         loading.value = false;
     }
@@ -230,7 +255,7 @@ const onSubmit = () => {
                 return;
             }
             message.info(t("message.submited_successfully"));
-            router.push({ name: "User_Class" });
+            leaveToClass();
         },
     });
 };
@@ -273,6 +298,8 @@ const onLoadCurrentQuestion = (index: number) => {
                           ?.text,
                   }))
                 : currentQuestion.value.questionData.ordering?.map((x) => x) || [];
+            // Thứ tự đang hiển thị chính là đáp án sẽ nộp nếu học viên không kéo thả -> ghi nhận luôn
+            if (!answer) onUserAnswerChange();
             break;
         }
 
@@ -295,7 +322,8 @@ const onLoadCurrentQuestion = (index: number) => {
                       )?.text,
                   }))
                 : currentQuestion.value.questionData.matching!.rightItems.map((x) => x) || {};
-
+            // Ghép đang hiển thị (trái i - phải i) chính là đáp án sẽ nộp nếu học viên không thao tác -> ghi nhận luôn
+            if (!answer) onUserAnswerChange();
             break;
         }
 
@@ -413,7 +441,30 @@ const updateCountdown = async () => {
             return;
         }
         message.info(t("message.time_up"));
-        router.push({ name: "User_Class" });
+        leaveToClass();
+    }
+};
+
+/*
+ * presigned URL của media hết hạn -> gọi lại Attempt (server trả về đúng lượt làm bài đang dở) để lấy URL mới,
+ * CHỈ cập nhật media, không đụng tới câu trả lời/timer.
+ * Không gọi khi sắp hết giờ: nếu lượt làm bài đã bị nộp tự động, gọi Attempt sẽ tạo lượt làm bài mới.
+ */
+const MEDIA_RELOAD_MIN_REMAINING_SECONDS = 15;
+const reloadQuestionMedia = async () => {
+    if (isSubmitted.value || remainingTime.value <= MEDIA_RELOAD_MIN_REMAINING_SECONDS) {
+        message.warning(t("question_media.reload_unavailable"));
+        return;
+    }
+    try {
+        const result = await ApiTest.Attempt(testId.value);
+        if (result?.data?.success && result.data.data.attemptId === attemptData.value.attemptId) {
+            // cùng cách map id như getAttemptData
+            const fresh = result.data.data.questions.map((x: any) => ({ id: x.questionId, ...x }));
+            mergeQuestionMedia([...quiz.value, currentQuestion.value], fresh);
+        }
+    } catch (error) {
+        console.log("ERROR: reload question media", error);
     }
 };
 
@@ -483,16 +534,18 @@ const isCurrentQuestionFlagged = computed(() => {
 
 //#region leave guard
 onUnmounted(() => {
+    window.removeEventListener("resize", syncMatchingHeights);
     if (timer) clearInterval(timer);
     if (autoSaver) clearInterval(autoSaver);
 });
 //#endregion
 
 onMounted(async () => {
+    const ok = await getAttemptData();
+    if (!ok) return;
+
     syncMatchingHeights();
     window.addEventListener("resize", syncMatchingHeights);
-
-    await getAttemptData();
     remainingTime.value = attemptData.value.timeRemaining * 60;
     endTime.value = dayjs().add(attemptData.value.timeRemaining * 60, "second");
 
@@ -510,14 +563,14 @@ onMounted(async () => {
         <div class="title-container title-container-header">
             <a-row class="w-100 d-flex align-items-center">
                 <a-col :span="1">
-                    <RouterLink :to="{ name: 'User_Class' }">
+                    <RouterLink :to="backRoute">
                         <i class="bx bx-chevron-left navigator-back-button"></i>
                     </RouterLink>
                 </a-col>
                 <a-col class="main-title" :span="22">
                     <span> {{ attemptData?.name }}</span> <br />
                     <span>
-                        {{ attemptData?.questionCount }}
+                        {{ t("dashboards.list_items.quiz.questions", attemptData?.questionCount ?? 0) }}
                     </span>
                 </a-col>
             </a-row>
@@ -593,6 +646,10 @@ onMounted(async () => {
                         {{ $t("create_QS.question.question") }} {{ currentQuestionIndex + 1 }}
                     </div>
                     <div :class="['learn-question']" v-html="currentQuestion.questionText"></div>
+                    <QuestionMediaView
+                        :media="currentQuestion.media"
+                        @reload="reloadQuestionMedia"
+                    />
                     <!-- <div v-else :class="['learn-question']">
                         {{ currentQuestion.questionText }}
                     </div> -->

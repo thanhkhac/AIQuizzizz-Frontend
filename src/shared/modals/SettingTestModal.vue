@@ -11,9 +11,11 @@ import Input from "../components/Common/Input.vue";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { message } from "ant-design-vue";
+import { useRouter } from "vue-router";
 dayjs.extend(utc);
 
 const { t } = useI18n();
+const router = useRouter();
 
 interface Props {
     className: string;
@@ -34,16 +36,28 @@ const openTestSettingModal = () => {
     }
 };
 
-const closeModal = async () => {
+// đã bấm "Next" thành công ít nhất 1 lần (sau đó mở lại modal từ trang thì Cancel chỉ đóng modal)
+const hasConfirmed = ref(false);
+
+// Next: validate (tiêu đề, thời gian, ...) rồi đóng modal
+const onNext = async () => {
     props.formState.startTime = range.value[0].toISOString();
     props.formState.endTime = range.value[1].toISOString();
 
     try {
-        const result = await formRef.value.validate();
-        if (result) {
-            modal_open.value = false;
-        }
+        await formRef.value.validate();
+        if (props.formState.name.trim().length === 0 || props.formState.name.length > 100) return;
+        hasConfirmed.value = true;
+        modal_open.value = false;
     } catch {}
+};
+
+// Cancel: huỷ thật sự. Lần mở đầu tiên -> rời trang về danh sách bài kiểm tra của lớp
+const onCancel = () => {
+    modal_open.value = false;
+    if (!hasConfirmed.value && props.formState.classId) {
+        router.push({ name: "User_Class_Exam", params: { id: props.formState.classId } });
+    }
 };
 
 //expose functions to main ref
@@ -89,15 +103,12 @@ const rules = {
             trigger: "change",
         },
     ],
-    title: [
-        {
-            required: true,
-            message: t("message.required"),
-            trigger: "change",
-        },
+    name: [
         {
             validator: (rule: RuleObject, value: string) => {
-                if (value?.length > 100)
+                if (!value || value.trim().length === 0)
+                    return Promise.reject(t("message.required"));
+                if (value.trim().length > 100)
                     return Promise.reject(t("message.out_of_range", { max_length: 100 }));
                 return Promise.resolve();
             },
@@ -192,17 +203,19 @@ onMounted(async () => {});
         width="100%"
         wrap-class-name="full-modal setting-modal"
         :open="modal_open"
-        @cancel="closeModal"
+        @cancel="onCancel"
     >
         <div class="modal-container">
             <div class="modal-title-container">
                 <a-row class="w-100 d-flex align-items-center">
                     <a-col :span="1">
                         <RouterLink
+                            v-if="formState.classId"
                             :to="{ name: 'User_Class_Exam', params: { id: formState.classId } }"
                         >
                             <i class="bx bx-chevron-left navigator-back-button"></i>
                         </RouterLink>
+                        <i v-else class="bx bx-chevron-left navigator-back-button"></i>
                     </a-col>
                     <a-col class="main-title" :span="23">
                         <span>{{ t("setting_test_modal.other.back") }}</span>
@@ -223,7 +236,7 @@ onMounted(async () => {});
                     class="w-100"
                     layout="vertical"
                 >
-                    <a-form-item>
+                    <a-form-item name="name">
                         <Input
                             class="question-input-item"
                             v-model="formState.name"
@@ -400,9 +413,9 @@ onMounted(async () => {});
             <a-button
                 class="main-color-btn-ghost"
                 size="large"
-                key="submit"
+                key="cancel"
                 type="ghost"
-                @click="closeModal"
+                @click="onCancel"
             >
                 {{ $t("sidebar.buttons.cancel") }}
             </a-button>
@@ -411,7 +424,7 @@ onMounted(async () => {});
                 size="large"
                 key="submit"
                 type="primary"
-                @click="closeModal"
+                @click="onNext"
             >
                 {{ $t("assign_test.buttons.next") }}
             </a-button>
@@ -469,6 +482,7 @@ onMounted(async () => {});
 }
 .switch-title {
     font-weight: 500;
+    color: var(--text-color);
 }
 .switch-sub-title {
     font-size: 14px;

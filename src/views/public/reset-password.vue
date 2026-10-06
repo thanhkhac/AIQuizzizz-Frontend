@@ -3,10 +3,12 @@ import { reactive, ref } from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
 import { notification } from "ant-design-vue";
 import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { PASSWORD_REGEX } from "@/constants/password";
 
 const router = useRouter();
+const route = useRoute();
 
 const { t } = useI18n();
 const formRef = ref();
@@ -14,7 +16,7 @@ const labelCol = { span: 24 };
 const wrapperCol = { span: 24 };
 
 const formState = reactive({
-    email: "",
+    email: typeof route.query.email === "string" ? route.query.email : "",
     resetCode: "",
     password: "",
     confirmationPassword: "",
@@ -51,7 +53,7 @@ const rules = {
             trigger: "change",
         },
         {
-            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/,
+            pattern: PASSWORD_REGEX,
             message: t("auth.validation.password"),
             trigger: "change",
         },
@@ -84,28 +86,31 @@ const showNotification = (type: NotificationType, message: string, description: 
 };
 
 const onFinish = () => {
-    formRef.value.validate().then(async () => {
-        try {
-            button_loading.value = true;
-            const result = await ApiAuthentication.ResetPassword({
-                email: formState.email,
-                resetCode: formState.resetCode,
-                newPassword: formState.password,
-            });
-            if (result.data.success) {
-                showNotification("success", "Reset password result", "Success");
-                setTimeout(() => {
-                    router.push({ name: "login" });
-                }, 1000);
-                return;
+    formRef.value
+        .validate()
+        .then(async () => {
+            try {
+                button_loading.value = true;
+                const result = await ApiAuthentication.ResetPassword({
+                    email: formState.email,
+                    resetCode: formState.resetCode,
+                    newPassword: formState.password,
+                });
+                if (result.data.success) {
+                    showNotification("success", "Reset password result", "Success");
+                    setTimeout(() => {
+                        router.push({ name: "login" });
+                    }, 1000);
+                    return;
+                }
+                showNotification("error", "Reset password result", "ERROR");
+            } catch (error) {
+                console.log(error);
+            } finally {
+                button_loading.value = false;
             }
-            showNotification("error", "Reset password result", "ERROR");
-        } catch (error) {
-            console.log(error);
-        } finally {
-            button_loading.value = false;
-        }
-    });
+        })
+        .catch(() => {}); // lỗi validate đã hiển thị inline trên form
 };
 </script>
 <template>

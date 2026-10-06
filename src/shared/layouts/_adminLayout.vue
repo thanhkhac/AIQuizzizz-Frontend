@@ -9,7 +9,7 @@ const handleSidebarUpdate = (activeItem: string) => {
 };
 </script>
 <template>
-    <Header />
+    <Header show-menu />
     <!-- <div class="d-flex"> -->
     <div class="layout-container">
         <div>

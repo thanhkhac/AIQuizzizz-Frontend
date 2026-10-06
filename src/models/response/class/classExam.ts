@@ -7,4 +7,8 @@ export interface ClassExam {
     numberOfCompletion: number;
     status: string;
     timeStart: string;
+    timeFinish?: string;
+    maxAttempt?: number;
+    userAttemptCount?: number;
+    hasInProgressAttempt?: boolean;
 }

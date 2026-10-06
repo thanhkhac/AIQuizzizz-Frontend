@@ -1,10 +1,24 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, getCurrentInstance, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-const modelValue = defineModel<string>("modelValue");
+// hỗ trợ cả v-model và v-model:value ở component cha
+const rawModelValue = defineModel<string>("modelValue");
+const rawValue = defineModel<string>("value");
+const instance = getCurrentInstance();
+const usesAlias = () => {
+    const p = instance?.vnode.props ?? {};
+    return "value" in p || "onUpdate:value" in p;
+};
+const modelValue = computed<string | undefined>({
+    get: () => (usesAlias() ? rawValue.value : rawModelValue.value),
+    set: (v) => {
+        if (usesAlias()) rawValue.value = v;
+        else rawModelValue.value = v;
+    },
+});
 const placeholder = defineModel<string>("placeholder");
 const label = defineModel<string>("label");
 const name = defineModel<string>("name");
@@ -13,14 +27,13 @@ const isRequired = defineModel<boolean>("isRequired");
 const maxLength = defineModel<number>("maxLength");
 const readonly = defineModel<boolean>("readonly");
 
-const emit = defineEmits(["update:value", "change"]);
+const emit = defineEmits(["change"]);
 
 const isTouched = ref(false); // disable is-invalid at first
 
 const onUpdate = () => {
     if (!isTouched.value) isTouched.value = true;
 
-    emit("update:value", modelValue.value);
     emit("change", modelValue.value);
 };
 

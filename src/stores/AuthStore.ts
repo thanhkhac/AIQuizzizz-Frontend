@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import apiUser from "@/api/ApiUser";
 import ApiAuthentication from "@/api/ApiAuthentication";
 import localStorageService from "@/services/LocalStorageService";
+import { useMediaStore } from "@/stores/MediaStore";
 import { useRouter } from "vue-router";
 import dayjs from "dayjs";
 
@@ -35,6 +36,7 @@ export const useAuthStore = defineStore("authStore", {
             ApiAuthentication.LogOut();
             this.user_info = "";
             localStorageService.ClearUserInfo();
+            useMediaStore().clear(); // quyền upload media theo gói của user cũ
             this.router.push("/login");
         },
 

@@ -143,7 +143,7 @@ const onRemoveTestTemplate = (testTemplateId: string) => {
                 message.error(t("message.removed_failed"));
                 return;
             }
-            message.success(t("message.removed_successylly"));
+            message.success(t("message.removed_successfully"));
             await getData();
         },
     });
@@ -175,6 +175,7 @@ const rules = {
     name: [
         {
             required: true,
+            whitespace: true, // chỉ toàn khoảng trắng cũng coi là rỗng
             message: t("message.required"),
             trigger: "change",
         },
@@ -203,10 +204,12 @@ const isUpdateLoading = ref(false);
 const onUpdateFolder = async () => {
     isUpdateLoading.value = true;
     try {
-        updateFolderFormRef.value?.validate(); //this will throw err to catch
+        await updateFolderFormRef.value?.validate(); //this will throw err to catch
+        const name = updateFolderFormState.name.trim();
+        if (!name) return; // không gửi PATCH khi tên rỗng
         let result = await ApiFolder.Update(folderId.value.toString(), {
             folderId: folderId.value,
-            name: updateFolderFormState.name,
+            name,
         });
         if (!result.data.success) {
             message.error(t("message.updated_failed"));
@@ -294,7 +297,7 @@ onMounted(async () => {
                             <Input
                                 @input="getData"
                                 v-model="pageParams.testTemplateName"
-                                :placeholder="t('class_index.other.search_class_placeholder')"
+                                :placeholder="t('folder_detail.search_placeholder')"
                             >
                                 <template #icon>
                                     <i class="bx bx-search"></i>
@@ -319,8 +322,7 @@ onMounted(async () => {
                                 <div class="quiz-item-info quiz-info-detail">
                                     <div class="quiz-item-questions">
                                         <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                        {{ template.numberOfQuestion }}
-                                        {{ $t("dashboards.list_items.quiz.questions") }}
+                                        {{ $t("dashboards.list_items.quiz.questions", template.numberOfQuestion) }}
                                     </div>
                                     <div class="quiz-item-created-by">
                                         {{ $t("class_question_set.other.created_by") }}
@@ -361,7 +363,7 @@ onMounted(async () => {
                         :pageSize="pageParams.pageSize"
                         :show-total="
                             (total: any, range: any) =>
-                                `${range[0]}-${range[1]} of ${total} ${t('folder_index.other.items')}`
+                                `${range[0]}-${range[1]} of ${total} ${t('test_template_index.other.items')}`
                         "
                         show-size-changer
                         class="crud-layout-pagination"
@@ -468,7 +470,7 @@ onMounted(async () => {
     font-size: 16px;
     border-radius: 50%;
     background: var(--main-color-theme);
-    color: var(--main-color);
+    color: var(--c-primary-text);
     margin-right: 12px;
 }
 

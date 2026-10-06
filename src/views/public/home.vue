@@ -388,7 +388,7 @@ import Header from "@/shared/components/Header.vue";
     background-color: var(--content-item-background-color);
     border: 1px solid var(--main-color);
     margin: 0 10px;
-    color: var(--main-color);
+    color: var(--c-primary-text);
     font-weight: 500;
     transition: all 0.2s ease-in-out;
 }
@@ -400,7 +400,7 @@ import Header from "@/shared/components/Header.vue";
 
 .home-content-item:nth-child(4) a:first-child {
     background: linear-gradient(97deg, #5813c1 -5.8%, #c45037 99.69%);
-    color: var(--text-color-contrast);
+    color: #fff;
     background-size: 200% 200%;
     background-position: 0% 50%;
     transition: background-position 0.3s ease-in;
@@ -578,27 +578,27 @@ import Header from "@/shared/components/Header.vue";
 
 .feature-item:nth-child(1) i {
     background: #261544;
-    color: #5c00ff;
+    color: #a78bfa;
 }
 .feature-item:nth-child(4) i {
     background-color: #183826;
-    color: #00ff70;
+    color: #4ade80;
 }
 .feature-item:nth-child(2) i {
     background-color: #432521;
-    color: #f15540;
+    color: #f87171;
 }
 .feature-item:nth-child(3) i {
     background-color: #1d2b44;
-    color: #005cff;
+    color: #60a5fa;
 }
 .feature-item:nth-child(5) i {
     background-color: #45321a;
-    color: #ff8e00;
+    color: #fb923c;
 }
 .feature-item:nth-child(6) i {
     background-color: #332244;
-    color: #7f00ff;
+    color: #c084fc;
 }
 
 .banner {
@@ -614,7 +614,7 @@ import Header from "@/shared/components/Header.vue";
 }
 .banner-item div:nth-child(1) {
     width: 400px;
-    color: var(--text-color-contrast);
+    color: #fff;
     font-size: 36px;
     font-style: normal;
     font-weight: 700;
@@ -623,7 +623,7 @@ import Header from "@/shared/components/Header.vue";
 
 .banner-item div:nth-child(2) {
     width: 550px;
-    color: var(--text-color-contrast);
+    color: #fff;
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
@@ -638,15 +638,15 @@ import Header from "@/shared/components/Header.vue";
     margin-right: 15px;
     background-color: var(--background-color-contrast);
     border-radius: 10px;
-    color: var(--main-color);
+    color: var(--c-page);
     text-decoration: none;
     font-weight: 500;
 }
 
 .banner-item a:nth-child(2) {
     background-color: transparent;
-    border: 2px solid var(--text-color-contrast);
-    color: var(--text-color-contrast);
+    border: 2px solid #fff;
+    color: #fff;
 }
 .banner-item a:nth-child(1):hover {
     opacity: 0.8;

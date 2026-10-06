@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, reactive, watch, nextTick } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed, reactive, watch, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import type ManageSubscriptionPlanResp from "../../../../src/models/response/admin/manageSubscriptionPlanResp";
 import ApiAdmin from "../../../../src/api/ApiAdmin";
-import Input from "@/shared/components/Common/Input.vue";
 import { message, Modal } from "ant-design-vue";
 import type CreateSubscription from "../../../../src/models/request/admin/createSubscription";
 import type UpdateSubscription from "../../../models/request/admin/updateSubscription";
@@ -12,6 +11,8 @@ import RevenueLineChart from "../charts/RevenueLineChart.vue";
 import SubscriberPieChart from "../charts/SubscriberPieChart.vue";
 import ClassLineChart from "../charts/ClassLineChart.vue";
 import type PlatformOverViewResp from "../../../models/response/admin/platformOverViewResp";
+import { formatPlanDuration } from "@/services/PlanDurationService";
+import { useAuthStore } from "@/stores/AuthStore";
 
 const { locale } = useI18n();
 function toFullLocaleTag(tag: string) {
@@ -35,18 +36,27 @@ onMounted(() => {
     getAllPlanData();
 });
 
-const apiData: ApiYearData[] = [];
-
 const platform_ov = ref<PlatformOverViewResp>();
 const plans = ref<ManageSubscriptionPlanResp[]>([]);
 
-const subscribersData = computed(() => [
-    { name: "New Subscribers", y: platform_ov.value?.usersHavePlan ?? 0 },
-    {
-        name: "Unsubscribers",
-        y: (platform_ov.value?.users ?? 0) - (platform_ov.value?.usersHavePlan ?? 0),
-    },
-]);
+// chỉ Administrator được tạo/sửa/xoá/bật tắt gói (Moderator chỉ xem; backend cũng chặn)
+const canManagePlan = !!useAuthStore().getUserInfo()?.roles?.includes("Administrator");
+
+// 5 năm gần nhất (gồm năm hiện tại) cho biểu đồ
+const chartYears = computed(() => {
+    const current = new Date().getFullYear();
+    return Array.from({ length: 5 }, (_, i) => current - 4 + i);
+});
+
+// dữ liệu thật: số user đã từng mua gói / còn lại là user miễn phí
+const subscribersData = computed(() => {
+    const total = platform_ov.value?.users ?? 0;
+    const subscribed = Math.min(platform_ov.value?.usersHavePlan ?? 0, total);
+    return [
+        { name: t("admin.manage_subscription.pie.subscribed"), y: subscribed },
+        { name: t("admin.manage_subscription.pie.free"), y: total - subscribed },
+    ];
+});
 
 const createPlanFormRef = ref();
 const updatePlanFormRef = ref();
@@ -59,6 +69,8 @@ const createPlanForm = reactive<CreateSubscription>({
     canLearn: false,
     canOpenTest: false,
     canCopyOrImportQuestionSet: false,
+    canUploadImage: false,
+    canUploadVideo: false,
     isActive: false,
 });
 
@@ -71,8 +83,17 @@ const updatePlanForm = reactive<UpdateSubscription>({
     canLearn: false,
     canOpenTest: false,
     canCopyOrImportQuestionSet: false,
+    canUploadImage: false,
+    canUploadVideo: false,
     isActive: true,
 });
+
+// modal rộng 50% trên desktop, gần full màn hình trên điện thoại
+const windowWidth = ref(window.innerWidth);
+const modalWidth = computed(() => (windowWidth.value <= 768 ? "94%" : "50%"));
+const onResize = () => (windowWidth.value = window.innerWidth);
+onMounted(() => window.addEventListener("resize", onResize));
+onBeforeUnmount(() => window.removeEventListener("resize", onResize));
 
 const isCreateLoading = ref(false);
 const isUpdateLoading = ref(false);
@@ -83,17 +104,17 @@ const onCreatePlan = async () => {
     try {
         await createPlanFormRef.value.validate();
         const UpdateCreateForm = { ...createPlanForm };
-        // console.log("Dữ liệu createForm:", UpdateCreateForm);
 
         let result = await ApiAdmin.CreatePlan(UpdateCreateForm);
         if (result.data.success) {
-            message.success("Create successfully.");
+            message.success(t("admin.manage_subscription.msg.create_success"));
             modal_create_subscription_open.value = false;
         }
         getAllPlanData();
     } catch (error: any) {
-        message.error("Create fail.");
-        console.log("error", error.response.data);
+        // lỗi validate form (không có response) đã hiển thị inline: không báo thất bại
+        if (error?.response) message.error(t("admin.manage_subscription.msg.create_fail"));
+        console.log("error", error?.response?.data ?? error);
     } finally {
         isCreateLoading.value = false;
     }
@@ -105,17 +126,16 @@ const onUpdatePlan = async () => {
     try {
         await updatePlanFormRef.value.validate();
         const UpdatePlanForm = { ...updatePlanForm };
-        // console.log("Dữ liệu UpdateForm:", UpdatePlanForm);
         let result = await ApiAdmin.UpdatePlan(UpdatePlanForm);
 
         if (result.data.success) {
             modal_update_subscription_open.value = false;
-            message.success("Update successfully.");
+            message.success(t("admin.manage_subscription.msg.update_success"));
         }
         getAllPlanData();
     } catch (error: any) {
-        message.error("Update fail.");
-        console.log("error", error.response.data);
+        if (error?.response) message.error(t("admin.manage_subscription.msg.update_fail"));
+        console.log("error", error?.response?.data ?? error);
     } finally {
         isUpdateLoading.value = false;
     }
@@ -126,25 +146,48 @@ const rules = {
     name: [
         {
             required: true,
-            message: "This field is required.",
+            message: t("admin.manage_subscription.msg.required"),
             trigger: "change",
         },
     ],
+    // số nguyên: price >= 0, duration >= 1 (báo lỗi inline, không tự làm tròn)
     price: [
         {
             required: true,
-            message: "This field is required.",
+            type: "number",
+            message: t("admin.manage_subscription.msg.required"),
             trigger: "change",
         },
-        { type: "number", min: 1, message: "Price must be greater than 0", trigger: "change" },
+        {
+            type: "integer",
+            message: t("admin.manage_subscription.msg.price_integer"),
+            trigger: "change",
+        },
+        {
+            type: "number",
+            min: 0,
+            message: t("admin.manage_subscription.msg.price_min"),
+            trigger: "change",
+        },
     ],
     duration: [
         {
             required: true,
-            message: "This field is required.",
+            type: "number",
+            message: t("admin.manage_subscription.msg.required"),
             trigger: "change",
         },
-        { type: "number", min: 1, message: "Duration must be greater than 0", trigger: "change" },
+        {
+            type: "integer",
+            message: t("admin.manage_subscription.msg.duration_integer"),
+            trigger: "change",
+        },
+        {
+            type: "number",
+            min: 1,
+            message: t("admin.manage_subscription.msg.duration_min"),
+            trigger: "change",
+        },
     ],
 };
 
@@ -157,6 +200,8 @@ const resetCreatePlanForm = () => {
     createPlanForm.canLearn = false;
     createPlanForm.canOpenTest = false;
     createPlanForm.canCopyOrImportQuestionSet = false;
+    createPlanForm.canUploadImage = false;
+    createPlanForm.canUploadVideo = false;
 };
 watch(modal_create_subscription_open, (val) => {
     if (val) {
@@ -178,6 +223,8 @@ function mapPlanToFeatures(plan: ManageSubscriptionPlanResp) {
         plan.canOpenTest && t(`admin.manage_subscription.plan_feature.canOpenTest`),
         plan.canCopyOrImportQuestionSet &&
             t(`admin.manage_subscription.plan_feature.canCopyOrImportQuestionSet`),
+        plan.canUploadImage && t(`admin.manage_subscription.plan_feature.canUploadImage`),
+        plan.canUploadVideo && t(`admin.manage_subscription.plan_feature.canUploadVideo`),
     ].filter(Boolean) as string[];
 }
 
@@ -186,7 +233,6 @@ const getPlanData = async (planId: string) => {
     try {
         let result = await ApiAdmin.GetPlan(planId);
         const data = result.data.data;
-        console.log(data);
         if (result.data.success) {
             Object.assign(updatePlanForm, {
                 planId: data.id,
@@ -197,6 +243,8 @@ const getPlanData = async (planId: string) => {
                 canLearn: data.canLearn,
                 canOpenTest: data.canOpenTest,
                 canCopyOrImportQuestionSet: data.canCopyOrImportQuestionSet,
+                canUploadImage: data.canUploadImage ?? false,
+                canUploadVideo: data.canUploadVideo ?? false,
                 isActive: data.isActive,
             });
         }
@@ -241,6 +289,8 @@ const updateActivePlan = async (plan: ManageSubscriptionPlanResp) => {
             canLearn: plan.canLearn,
             canOpenTest: plan.canOpenTest,
             canCopyOrImportQuestionSet: plan.canCopyOrImportQuestionSet,
+            canUploadImage: plan.canUploadImage ?? false,
+            canUploadVideo: plan.canUploadVideo ?? false,
             isActive: plan.isActive,
         });
         let result = await ApiAdmin.UpdatePlan({ ...updatePlanForm });
@@ -251,8 +301,8 @@ const updateActivePlan = async (plan: ManageSubscriptionPlanResp) => {
         }
         getAllPlanData();
     } catch (error: any) {
-        message.error("Active fail.");
-        console.log("error", error.response.data);
+        if (error?.response) message.error(t("admin.manage_subscription.msg.update_fail"));
+        console.log("error", error?.response?.data ?? error);
     } finally {
         isUpdateLoading.value = false;
     }
@@ -311,7 +361,7 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                 <span>{{ t(`admin.manage_subscription.title`) }}</span>
             </div>
 
-            <div class="title-button-container">
+            <div v-if="canManagePlan" class="title-button-container">
                 <a-button
                     type="primary"
                     class="main-color-btn"
@@ -357,21 +407,21 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
             <!-- chart -->
             <div class="chart-content">
                 <RevenueLineChart
-                    :years="[2024, 2025]"
-                    :apiData="apiData"
+                    :years="chartYears"
                     :locale="safeLocale"
-                    title="Monthly Revenue"
-                    @year-change="(y) => console.log('Parent year:', y)"
+                    :title="t('admin.manage_subscription.chart.revenue_title')"
                 />
             </div>
             <div class="chart-content">
                 <ClassLineChart
-                    :years="[2024, 2025]"
-                    :apiData="apiData"
+                    :years="chartYears"
                     :locale="safeLocale"
-                    title="Monthly New Class"
+                    :title="t('admin.manage_subscription.chart.new_class_title')"
                 />
-                <SubscriberPieChart :data="subscribersData" title="Subscribers" />
+                <SubscriberPieChart
+                    :data="subscribersData"
+                    :title="t('admin.manage_subscription.pie.title')"
+                />
             </div>
 
             <!-- plan comparison -->
@@ -393,7 +443,7 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                     <div class="plan-comparison-row">
                         <div v-for="plan in plans" :key="plan.id" class="plan-compa-content-item">
                             <div
-                                :class="{ invisible: plan.price === 0 }"
+                                :class="{ invisible: plan.price === 0 || !canManagePlan }"
                                 class="plan-comparison-card-action"
                             >
                                 <a-tooltip>
@@ -414,17 +464,21 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                                 </a-tooltip>
                             </div>
                             <h5 class="mb-2">{{ plan.name }}</h5>
-                            <div class="display-6 fw-bold mb-3">
-                                {{ formatCurrency(plan.price) }}<span class="vnd-icon">VND</span>
-                                <span class="fs-6 fw-normal">
-                                    / {{ plan.duration }} {{ plan.unit }}</span
+                            <div class="plan-price-line fw-bold mb-3">
+                                <span class="plan-price-amount"
+                                    >{{ formatCurrency(plan.price)
+                                    }}<span class="vnd-icon">VND</span></span
+                                >
+                                <span class="fs-6 fw-normal plan-duration-label">
+                                    /
+                                    {{ formatPlanDuration(Number(plan.duration), plan.unit) }}</span
                                 >
                             </div>
                             <ul class="mb-0">
                                 <li v-for="f in mapPlanToFeatures(plan)" :key="f">{{ f }}</li>
                             </ul>
                             <div
-                                :class="{ invisible: plan.price === 0 }"
+                                :class="{ invisible: plan.price === 0 || !canManagePlan }"
                                 class="d-flex justify-content-end mt-auto pt-1"
                             >
                                 <a-tooltip>
@@ -447,7 +501,7 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
     <!-- popup create subscription -->
     <a-modal
         centered
-        width="50%"
+        :width="modalWidth"
         wrap-class-name="large-modal"
         :closable="false"
         :open="modal_create_subscription_open"
@@ -481,11 +535,11 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                             :label="t('admin.manage_subscription.create_plan.name')"
                             name="name"
                         >
-                            <Input
+                            <a-input
                                 v-model:value="createPlanForm.name"
                                 :placeholder="t('admin.manage_subscription.create_plan.name')"
-                                style="width: 100%"
-                                :is-required="true"
+                                class="update_input_name"
+                                :maxlength="200"
                             />
                         </a-form-item>
 
@@ -498,12 +552,10 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                                 >
                                     <a-input-number
                                         v-model:value="createPlanForm.price"
-                                        :min="0"
                                         :placeholder="
                                             t('admin.manage_subscription.create_plan.price')
                                         "
                                         style="width: 100%"
-                                        :is-required="true"
                                         class="my-price-input"
                                     />
                                 </a-form-item>
@@ -517,12 +569,10 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                                 >
                                     <a-input-number
                                         v-model:value="createPlanForm.duration"
-                                        :min="0"
                                         :placeholder="
                                             t('admin.manage_subscription.create_plan.duration')
                                         "
                                         style="width: 100%"
-                                        :is-required="true"
                                         class="my-price-input"
                                     />
                                 </a-form-item>
@@ -573,6 +623,18 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                                         v-model:checked="createPlanForm.canCopyOrImportQuestionSet"
                                     />
                                 </div>
+                                <div class="feature-switch-item">
+                                    <span>{{
+                                        t("admin.manage_subscription.plan_feature.canUploadImage")
+                                    }}</span>
+                                    <a-switch v-model:checked="createPlanForm.canUploadImage" />
+                                </div>
+                                <div class="feature-switch-item">
+                                    <span>{{
+                                        t("admin.manage_subscription.plan_feature.canUploadVideo")
+                                    }}</span>
+                                    <a-switch v-model:checked="createPlanForm.canUploadVideo" />
+                                </div>
                             </div>
                         </a-form-item>
                     </a-form>
@@ -596,7 +658,7 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
     <!-- popup update subscription -->
     <a-modal
         centered
-        width="50%"
+        :width="modalWidth"
         wrap-class-name="large-modal"
         :closable="false"
         :open="modal_update_subscription_open"
@@ -633,6 +695,7 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                             <a-input
                                 v-model:value="updatePlanForm.name"
                                 class="update_input_name"
+                                :maxlength="200"
                             />
                         </a-form-item>
 
@@ -645,12 +708,10 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                                 >
                                     <a-input-number
                                         v-model:value="updatePlanForm.price"
-                                        :min="0"
                                         :placeholder="
                                             t('admin.manage_subscription.create_plan.price')
                                         "
                                         style="width: 100%"
-                                        :is-required="true"
                                         class="my-price-input"
                                     />
                                 </a-form-item>
@@ -664,12 +725,10 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                                 >
                                     <a-input-number
                                         v-model:value="updatePlanForm.duration"
-                                        :min="0"
                                         :placeholder="
                                             t('admin.manage_subscription.create_plan.duration')
                                         "
                                         style="width: 100%"
-                                        :is-required="true"
                                         class="my-price-input"
                                     />
                                 </a-form-item>
@@ -719,6 +778,18 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                                     <a-switch
                                         v-model:checked="updatePlanForm.canCopyOrImportQuestionSet"
                                     />
+                                </div>
+                                <div class="feature-switch-item">
+                                    <span>{{
+                                        t("admin.manage_subscription.plan_feature.canUploadImage")
+                                    }}</span>
+                                    <a-switch v-model:checked="updatePlanForm.canUploadImage" />
+                                </div>
+                                <div class="feature-switch-item">
+                                    <span>{{
+                                        t("admin.manage_subscription.plan_feature.canUploadVideo")
+                                    }}</span>
+                                    <a-switch v-model:checked="updatePlanForm.canUploadVideo" />
                                 </div>
                             </div>
                         </a-form-item>
@@ -770,13 +841,14 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
 }
 .stat-content {
     width: calc(100% - 40px);
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
     padding: 10px;
 }
 
 .stat-card {
-    width: calc(20%);
+    min-width: 0;
     background-color: var(--content-item-background-color);
     border: 1px solid var(--content-item-border-color);
     border-radius: 8px;
@@ -800,19 +872,18 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
 }
 
 .plan-comparison-row {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 20px;
-    justify-content: center;
     margin-bottom: 20px;
+    padding: 8px;
 }
 
 .plan-compa-content-item {
     display: flex;
     flex-direction: column;
-    width: calc(30%);
-    margin: 8px;
-    margin-bottom: 0px;
+    min-width: 0;
+    margin: 0;
     padding: 20px;
     background-color: var(--content-item-background-color);
     border: 1px solid var(--content-item-border-color);
@@ -837,6 +908,22 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
 }
 .plan-comparison-card-action i:hover {
     opacity: 0.6;
+}
+
+.plan-price-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    min-width: 0;
+}
+.plan-price-amount {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+.plan-duration-label {
+    overflow-wrap: anywhere;
 }
 
 .vnd-icon {
@@ -869,22 +956,50 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
 .update_input_name {
     height: 35px;
     padding: 5px 10px;
-    background-color: var(--content-item-children-background-color);
-    border: 1px solid var(--form-item-border-color);
-    color: var(--text-color-white);
+    width: 100%;
+    background-color: var(--c-surface-raised);
+    border: 1px solid var(--c-border-strong);
+    color: var(--c-text);
 }
 
 .chart-content {
     width: calc(100% - 40px);
     justify-content: space-between;
     display: flex;
+    flex-wrap: wrap;
     padding: 10px;
     gap: 20px;
 }
 
 .chart-content > div {
-    flex: 1;
+    flex: 1 1 320px;
+    min-width: 0;
     border: 1px solid var(--form-item-border-color);
     border-radius: 10px;
+}
+@media (max-width: 768px) {
+    .stat-content,
+    .chart-content {
+        width: 100%;
+        padding: 10px 0;
+    }
+    .stat-content {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100% !important;
+    }
+    .stat-card {
+        width: 100% !important;
+    }
+    .row-3-input {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .row-3-input :deep(.ant-col) {
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+    .modal-content-subs-item {
+        padding: 12px;
+    }
 }
 </style>

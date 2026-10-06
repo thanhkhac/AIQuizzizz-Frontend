@@ -1,0 +1,980 @@
+/* ==========================================================================
+   responsive.css  -  loaded AFTER main.css and theme-overrides.css
+
+   Breakpoints (same as Bootstrap 5, mobile-first thinking but written as
+   max-width overrides because the desktop layout lives in main.css / pages):
+     xl  >= 1200px : full layout, sidebar 240px
+     lg  >=  992px : sidebar auto-collapses to the 85px mini variant (< 1200px)
+     md  <   992px : sidebar becomes an off-canvas drawer opened from the header hamburger
+     sm  <   768px : single column, stacked toolbars, tables scroll horizontally
+     xs  <   576px : phone, full-width modals, >= 14px text, 44px tap targets
+   Pages keep scoped styles; the `!important` flags here are intentional so this
+   layer can win over scoped `[data-v]` selectors without touching every page.
+   ========================================================================== */
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+img,
+video,
+svg {
+    max-width: 100%;
+}
+
+.layout-container {
+    min-width: 0;
+}
+.layout-body {
+    min-width: 0;
+}
+
+/* sidebar footer: long e-mail addresses are truncated instead of overflowing */
+.sidebar-profileSection > div {
+    min-width: 0;
+    flex: 1;
+}
+.sidebar-profileSection > div > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* landing page banner image: the original 700px + 2x350px padding (content-box) spilled out of the banner */
+@media (min-width: 992px) and (max-width: 1399.98px) {
+    .banner-item-img {
+        box-sizing: border-box;
+        width: min(700px, 40vw) !important;
+        padding: 0 !important;
+    }
+}
+
+/* ------------------------------------------------------------------ < 992px: off-canvas sidebar */
+.sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar-container.drawer {
+        position: fixed !important;
+        left: 0;
+        top: 60px;
+        width: 280px !important;
+        max-width: 86vw;
+        height: calc(100vh - 60px);
+        height: calc(100dvh - 60px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 99;
+        transform: translateX(-105%);
+        visibility: hidden;
+        transition:
+            transform 0.25s ease-in-out,
+            visibility 0s linear 0.25s;
+        border-right: 1px solid var(--content-item-border-color);
+    }
+    .sidebar-container.drawer.open {
+        transform: translateX(0);
+        visibility: visible;
+        transition: transform 0.25s ease-in-out;
+        box-shadow: 8px 0 24px rgba(0, 0, 0, 0.35);
+    }
+    .sidebar-container.drawer .sidebar-viewButton {
+        display: none;
+    }
+    .sidebar-container.drawer .sidebar-listItem a {
+        min-height: 48px;
+        padding: 12px 16px;
+    }
+    .sidebar-container.drawer .sidebar-profileSection span {
+        font-size: 14px;
+    }
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 60px 0 0 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 98;
+    }
+    .layout-container > div:first-child {
+        width: 0;
+        flex: 0 0 0;
+    }
+    .layout-body {
+        width: 100%;
+    }
+
+    .page-container {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+    /* Ant Design tables scroll horizontally inside their card instead of being clipped */
+    .ant-table-content,
+    .ant-table-body {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    .ant-table-content > table,
+    .ant-table-body > table {
+        min-width: 640px;
+    }
+    /* landing page */
+    .banner {
+        flex-direction: column !important;
+        align-items: center;
+        text-align: center;
+        width: calc(100% - 32px) !important;
+    }
+    .banner-item-img {
+        display: none !important;
+    }
+    .banner-item div:nth-child(1),
+    .banner-item div:nth-child(2) {
+        width: auto !important;
+        max-width: 100%;
+    }
+    .home-content-item:nth-child(2) {
+        font-size: clamp(30px, 7vw, 60px) !important;
+    }
+    .home-content-item:nth-child(3) {
+        width: auto !important;
+        max-width: 90vw;
+    }
+    .content-item {
+        width: auto !important;
+        max-width: none !important;
+        margin: 8px !important;
+    }
+}
+
+/* ------------------------------------------------------------------ < 768px: tablet portrait + phone */
+@media (max-width: 767.98px) {
+    body {
+        font-size: 15px;
+    }
+
+    /* page header blocks */
+    .title-container {
+        margin: 10px 8px !important;
+        flex-wrap: wrap;
+        gap: 8px;
+        width: auto !important;
+    }
+    .title-container .ant-col,
+    .title-container .ant-row > .ant-col {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+    /* back-arrow column stays beside the title instead of stacking above it */
+    .title-container .ant-col-1,
+    .title-container .ant-col-2,
+    .ant-modal .ant-row > .ant-col-1 {
+        flex: 0 0 48px !important;
+        max-width: 48px !important;
+    }
+    .title-container .ant-col-22,
+    .title-container .ant-col-23,
+    .ant-modal .ant-row > .ant-col-23 {
+        flex: 1 1 0 !important;
+        max-width: none !important;
+        min-width: 0;
+    }
+    .shareable-link-container {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .share-link {
+        width: 100% !important;
+    }
+    .main-title span:nth-child(1) {
+        font-size: 22px !important;
+    }
+    .main-title span:nth-child(3),
+    .content-item-title span:nth-child(2) {
+        font-size: 14px !important;
+    }
+    .content-item {
+        padding: 10px !important;
+    }
+    .content-item-title {
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 20px !important;
+    }
+    .content-item-title > .ant-btn,
+    .content-item-title .content-item-button {
+        margin-right: 0 !important;
+    }
+    .content-item-buttons {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* filter / search bars */
+    .content-item-functions,
+    .filter-container {
+        flex-wrap: wrap !important;
+        gap: 8px;
+        margin-right: 0 !important;
+        justify-content: stretch !important;
+    }
+    .content-item-functions > *,
+    .filter-container > * {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+    .content-item-functions .ant-select,
+    .content-item-functions .ant-picker {
+        width: 100% !important;
+    }
+    [style*="width: 200px"],
+    [style*="width: 230px"],
+    [style*="width: 250px"],
+    [style*="width: 300px"],
+    [style*="width: 350px"] {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* cards in lists */
+    .quiz-item,
+    .exam-item,
+    .class-item {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-wrap: wrap;
+    }
+    .quiz-item-info,
+    .exam-item-info {
+        flex-wrap: wrap;
+        gap: 4px 12px;
+    }
+    .quiz-item-progress {
+        min-width: 0 !important;
+        width: 100%;
+        margin-left: 0 !important;
+    }
+    .quiz-item-credit,
+    .exam-item-title {
+        flex-wrap: wrap;
+    }
+    .quiz-item-title {
+        word-break: break-word;
+    }
+
+    /* Ant Design: modal / drawer / dropdown / popover fit the viewport */
+    .ant-modal,
+    .ant-modal.full-modal,
+    .medium-modal .ant-modal {
+        width: calc(100vw - 16px) !important;
+        max-width: calc(100vw - 16px) !important;
+        margin: 8px auto !important;
+        top: 8px !important;
+    }
+    .ant-modal-body {
+        padding: 12px !important;
+        max-height: calc(100dvh - 140px);
+        overflow-y: auto;
+    }
+    .ant-modal-confirm .ant-modal-body {
+        max-height: none;
+    }
+    .ant-modal-footer {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .ant-drawer-content-wrapper {
+        width: min(100vw, 400px) !important;
+        max-width: 100vw;
+    }
+    .ant-select-dropdown,
+    .ant-picker-dropdown,
+    .ant-dropdown,
+    .ant-popover,
+    .ant-tooltip {
+        max-width: calc(100vw - 16px);
+    }
+    .ant-picker-panel-container {
+        max-width: calc(100vw - 16px);
+        overflow-x: auto;
+    }
+    .ant-picker-panels {
+        flex-wrap: wrap;
+    }
+    .ant-message,
+    .ant-notification {
+        max-width: 100vw;
+    }
+
+    /* Ant Design tables: keep columns readable and scroll horizontally inside their card */
+    .ant-table-wrapper,
+    .ant-table-container,
+    .ant-spin-nested-loading,
+    .ant-spin-container {
+        max-width: 100%;
+    }
+    .ant-table-content,
+    .ant-table-body {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    .ant-table-content > table,
+    .ant-table-body > table {
+        min-width: 640px;
+    }
+    .ant-table-cell {
+        padding: 10px 8px !important;
+    }
+    .ant-pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+        row-gap: 6px;
+    }
+    .ant-pagination-total-text {
+        flex-basis: 100%;
+        text-align: center;
+        margin: 0 0 4px;
+    }
+
+    /* forms */
+    .ant-form-item-label {
+        text-align: left;
+    }
+    .ant-row {
+        row-gap: 8px;
+    }
+    .ant-form .ant-col-offset-8,
+    .ant-form .ant-col-offset-6 {
+        margin-left: 0;
+    }
+    .ant-input-number,
+    .ant-input-number-group-wrapper {
+        max-width: 100%;
+    }
+
+    /* question editor */
+    .question-container {
+        padding: 8px !important;
+        max-height: none !important;
+    }
+    .question-header {
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-start !important;
+    }
+    .question-functions {
+        flex-wrap: wrap;
+        justify-content: flex-start !important;
+        gap: 8px;
+        width: 100%;
+    }
+    .question-function-select,
+    .question-score-select {
+        width: 100% !important;
+        margin-right: 0 !important;
+    }
+    .question-body {
+        padding: 0 !important;
+    }
+    .question-body-answer {
+        flex-direction: column;
+    }
+    .option-list-container {
+        max-height: 420px;
+    }
+    .add-option {
+        max-width: 100% !important;
+    }
+    .pair-answer,
+    .ordering-answer,
+    .short-text-answer {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* learn / practice / attempt */
+    .progress-bar-container {
+        width: calc(100% - 16px) !important;
+        margin: 8px auto !important;
+    }
+    .answer-option-container.multiplechoice {
+        grid-template-columns: 1fr !important;
+    }
+    .answer-option-container.matching {
+        flex-direction: column !important;
+        gap: 12px;
+    }
+    .answer-option-matching,
+    .matching-option-container {
+        width: 100% !important;
+    }
+    .learn-question-footer {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .answer-short-text,
+    .answer-short-text .ant-input,
+    .answer-short-text textarea,
+    .answer-section-ins {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .content-test {
+        flex-direction: column !important;
+    }
+    .question-navigation-item-outer {
+        width: calc(100% / 6 - 8px);
+        min-height: 40px;
+    }
+    .comment-container {
+        max-width: 100%;
+    }
+
+    /* breadcrumb titles (24px on desktop) */
+    .breadcrumb-container li,
+    .breadcrumb-container a,
+    .title-breadcrumb-item a {
+        font-size: 18px !important;
+    }
+    .breadcrumb-container ul {
+        flex-wrap: wrap;
+    }
+    .navigator-container {
+        height: auto;
+        flex-wrap: wrap;
+    }
+    .navigator-item {
+        width: auto;
+        min-height: 40px;
+        padding: 0 12px;
+    }
+    .content-item-functions .content-item-navigators {
+        flex: 1 1 100%;
+    }
+
+    /* authentication pages keep working below 600px (see _authenticationLayout.vue) */
+    .authentication-item:nth-child(2) {
+        padding: 20px 16px !important;
+    }
+}
+
+/* ------------------------------------------------------------------ < 576px: phone */
+@media (max-width: 575.98px) {
+    .ant-btn,
+    .main-color-btn,
+    .ant-select-selector,
+    .ant-input,
+    .ant-input-affix-wrapper,
+    .ant-picker,
+    .ant-input-number {
+        min-height: 40px;
+    }
+    .ant-select-selector {
+        align-items: center;
+    }
+    .ant-btn-sm {
+        min-height: 36px;
+    }
+    input,
+    textarea,
+    select,
+    .ant-input,
+    .ant-select-selection-search-input {
+        font-size: 16px !important; /* stops iOS zoom-on-focus */
+    }
+    .ant-modal {
+        width: calc(100vw - 8px) !important;
+        max-width: calc(100vw - 8px) !important;
+        margin: 4px auto !important;
+    }
+    .content-item {
+        margin: 6px !important;
+        padding: 8px !important;
+    }
+    .ant-picker-calendar-full .ant-picker-calendar-date-value {
+        font-size: 14px;
+    }
+    .ant-tabs-tab {
+        padding: 10px 8px;
+    }
+    .ant-tabs-nav .ant-tabs-nav-wrap {
+        overflow: auto;
+    }
+    small,
+    .small,
+    .quiz-item-credit,
+    .quiz-item-progress,
+    .exam-item-info,
+    .sidebar-profileSection span {
+        font-size: 14px !important;
+    }
+    .ant-tag {
+        font-size: 14px !important;
+    }
+    .p-quiz-item-question-count,
+    .question-index,
+    .picker-label-hint,
+    .picker-drop-hint,
+    .picker-limits span,
+    .picker-progress-text,
+    .picker-hint,
+    .option-title-ins {
+        font-size: 14px !important;
+    }
+    /* tap targets */
+    .ant-pagination-item,
+    .ant-pagination-prev,
+    .ant-pagination-next,
+    .ant-pagination-jump-prev,
+    .ant-pagination-jump-next {
+        min-width: 40px;
+        height: 40px;
+        line-height: 38px;
+    }
+    .ant-pagination-item-link {
+        width: 40px;
+        height: 40px;
+    }
+    .ant-modal-close {
+        width: 40px;
+        height: 40px;
+    }
+    .ant-modal-close-x {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+    }
+    .ant-checkbox-wrapper,
+    .ant-radio-wrapper {
+        min-height: 36px;
+        align-items: center;
+    }
+}
+
+/* ------------------------------------------------------------------ very small phones (320px) */
+@media (max-width: 359.98px) {
+    .main-title span:nth-child(1) {
+        font-size: 20px !important;
+    }
+    .header-logo {
+        font-size: 20px !important;
+    }
+    .header-authentication-navigator a {
+        padding: 8px 8px !important;
+        font-size: 13px !important;
+    }
+    .ant-pagination-item,
+    .ant-pagination-prev,
+    .ant-pagination-next {
+        min-width: 32px;
+    }
+}
+
+/* ------------------------------------------------------------------ page specific tuning */
+@media (max-width: 1199.98px) {
+    /* attempt / practice test: the floating question list becomes a sticky horizontal strip */
+    .content-item.question-navigators {
+        position: sticky !important;
+        top: 60px;
+        z-index: 20;
+        width: auto !important;
+        margin: 8px !important;
+    }
+    .content-test > .d-flex {
+        flex-direction: column;
+    }
+    .content-test .content-item:not(.question-navigators) {
+        width: auto !important;
+        margin: 8px !important;
+    }
+    .content-item.question-navigators .question-navigator-container {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .content-item.question-navigators .question-navigation-item-outer {
+        flex: 0 0 44px;
+        width: 44px !important;
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    /* two-column page bodies (schedule: calendar + side panel) stack */
+    .content.d-flex {
+        flex-direction: column !important;
+    }
+    .content.d-flex > [class*="col-md-"] {
+        width: auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        flex: 0 0 auto !important;
+    }
+    /* dashboard cards: 2 per row on tablet */
+    .quiz-container .quiz-item {
+        width: calc(50% - 20px) !important;
+        max-width: none !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 150px;
+    }
+    /* admin dashboards: stat cards 2 x 2, charts stacked, plan cards 2 per row */
+    .stat-content {
+        flex-wrap: wrap;
+        gap: 12px;
+        width: auto !important;
+    }
+    .stat-card {
+        width: calc(50% - 6px) !important;
+    }
+    .chart-content {
+        flex-direction: column;
+        width: auto !important;
+    }
+    .chart-content > div {
+        min-width: 0;
+    }
+    .plan-compa-content-item {
+        width: calc(50% - 20px) !important;
+    }
+    .account-table,
+    .filter-input-item {
+        max-width: 100%;
+    }
+    .action-container {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .action-item {
+        width: calc(50% - 20px) !important;
+        flex: 1 1 220px;
+    }
+    .authentication-item:nth-child(1) {
+        display: none !important;
+    }
+    .authentication-item:nth-child(2) {
+        width: 100vw !important;
+        min-height: 100vh;
+        padding: 24px 48px !important;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+    .authentication-container {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .quiz-container .quiz-item {
+        width: 100% !important;
+        min-height: 0;
+    }
+    .plan-compa-content-item {
+        width: 100% !important;
+        margin: 8px 0 !important;
+    }
+    .stat-title {
+        padding: 12px !important;
+    }
+    .stat-title > span:nth-child(1),
+    .stat-title > span:nth-child(2) {
+        font-size: 16px !important;
+    }
+    .action-container {
+        flex-direction: column;
+    }
+    .action-item {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    .toolbar {
+        flex-wrap: wrap;
+        height: auto !important;
+    }
+    .toolbar-button {
+        min-width: 40px;
+        min-height: 40px;
+    }
+    .error-code {
+        font-size: clamp(4rem, 24vw, 12rem) !important;
+        overflow-wrap: anywhere;
+    }
+    .error-container {
+        padding: 0 16px;
+    }
+    .background,
+    .background-responsive {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    .home-content-item,
+    .content-container {
+        max-width: 100vw;
+    }
+    .home-content-item:nth-child(4),
+    .pattern {
+        width: 100% !important;
+    }
+    /* settings */
+    .ant-tabs-tab {
+        width: auto !important;
+        min-width: 88px;
+    }
+    .ant-tabs-nav-list {
+        margin-left: 0 !important;
+    }
+    .theme-container {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .theme-item {
+        flex: 1 1 140px !important;
+        margin-right: 0 !important;
+        min-width: 0;
+    }
+    .theme-illustration {
+        overflow: hidden;
+    }
+    .theme-content-item-main-color {
+        max-width: 100%;
+    }
+    .color-container {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .language-select {
+        width: 100% !important;
+    }
+    .user-image-container {
+        margin-bottom: 8px;
+    }
+    .user-image-container,
+    .user-info-container {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+    .user-info-container .ant-col {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+    }
+    /* generic Ant grid inside forms and cards collapses to one column on phones */
+    .content-item .ant-row > .ant-col-10,
+    .content-item .ant-row > .ant-col-11,
+    .content-item .ant-row > .ant-col-12 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .content-item .ant-row > .ant-col-offset-4 {
+        margin-left: 0;
+    }
+    /* sidebar-less editors (create / update question set, test template, test) */
+    .page-container .content-item-title {
+        align-items: flex-start;
+    }
+    .content-item-buttons > * {
+        flex: 1 1 auto;
+    }
+    .d-flex:has(> .form-item) {
+        flex-direction: column;
+    }
+    .search-bar {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+    .form-item,
+    .tag-container {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Reduced motion: no sliding sidebar animation */
+@media (prefers-reduced-motion: reduce) {
+    .sidebar-container.drawer,
+    .sidebar-container.drawer.open {
+        transition: none;
+    }
+}
+
+/* Round-2 QA: modal import / generate / chọn câu hỏi xếp dọc trên điện thoại + tablet nhỏ */
+@media (max-width: 991.98px) {
+    .modal-content-item {
+        flex-direction: column;
+        gap: 8px;
+        padding: 6px;
+    }
+    .upload-section,
+    .preview-section {
+        width: 100% !important;
+        max-width: 100%;
+        flex: none;
+        padding: 6px;
+        min-width: 0;
+    }
+    .preview-section .section-content {
+        height: auto !important;
+        max-height: 60vh !important;
+        max-width: 100% !important;
+        overflow-y: auto;
+        overflow-x: hidden !important;
+    }
+    .upload-section .section-title {
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 16px;
+    }
+    .upload-section .file-item {
+        max-width: 100%;
+    }
+    .section-content-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .section-content-header .header-item {
+        margin-right: 0;
+    }
+    .section-content-header > .d-flex,
+    .section-content-header .choose-filter {
+        flex: 1 1 100%;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-start !important;
+    }
+    .section-content-header .ant-select {
+        width: 100% !important;
+        min-width: 0 !important;
+        margin-right: 0 !important;
+    }
+    .section-content-header .choose-search {
+        width: 100% !important;
+    }
+    .preview-question-item {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .preview-question-item .question-item-content {
+        flex: 1 1 0;
+        min-width: 0;
+        margin: 0 6px;
+        overflow-wrap: anywhere;
+    }
+    .preview-question-item .question-item-toogle-btn {
+        flex: 0 0 auto;
+    }
+    .preview-question-item .pair-answer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+    }
+    .preview-question-item .pair-answer i {
+        align-self: center;
+        transform: rotate(90deg);
+    }
+    .preview-question-item .pair-answer-item {
+        width: 100%;
+        max-width: 100%;
+    }
+    .preview-question-item .ordering-answer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .modal-title-container .ant-row > .ant-col-1,
+    .modal-title-container .ant-row > .ant-col-2,
+    .modal-title-container .ant-row > .ant-col-4 {
+        flex: 0 0 56px;
+        max-width: 56px;
+    }
+    .modal-title-container .ant-row > .ant-col-20,
+    .modal-title-container .ant-row > .ant-col-22,
+    .modal-title-container .ant-row > .ant-col-23 {
+        flex: 1 1 0;
+        max-width: calc(100% - 56px);
+        min-width: 0;
+    }
+    .ant-modal-footer .ant-form {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .ant-modal-footer .ant-select {
+        width: 100% !important;
+    }
+    .upload-section .ant-row > .ant-col {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .preview-question-item .ordering-answer i {
+        align-self: center;
+        transform: rotate(90deg);
+        margin: 4px 0;
+    }
+}
+
+/* Round-2 QA: nút quay lại (col span 1) không đè lên tiêu đề ở tablet/phone */
+@media (max-width: 1199.98px) {
+    .title-container .ant-row > .ant-col-1,
+    .modal-title-container .ant-row > .ant-col-1 {
+        flex: 0 0 56px;
+        max-width: 56px;
+    }
+    .title-container .ant-row > .ant-col-22,
+    .title-container .ant-row > .ant-col-23,
+    .modal-title-container .ant-row > .ant-col-22,
+    .modal-title-container .ant-row > .ant-col-23 {
+        flex: 1 1 0;
+        min-width: 0;
+        max-width: calc(100% - 56px);
+    }
+}
+
+/* Round-2 QA: ô nhập / tìm kiếm trên điện thoại - placeholder không lệch, không bị cắt chân chữ; date range không bị cắt */
+@media (max-width: 767.98px) {
+    .input-item .ant-input-affix-wrapper {
+        display: flex;
+        align-items: center;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        height: 40px;
+    }
+    .input-item .ant-input-affix-wrapper > input.ant-input,
+    .input-item .ant-input-affix-wrapper .ant-input {
+        height: 100% !important;
+        padding: 0 !important;
+        line-height: 1.4 !important;
+        background: transparent !important;
+    }
+    .ant-picker-range {
+        width: 100%;
+    }
+    .ant-picker-range .ant-picker-input > input {
+        font-size: 12px !important;
+        min-width: 0;
+    }
+    .ant-picker-range .ant-picker-range-separator {
+        padding: 0 2px;
+    }
+    .ant-picker-range .ant-picker-suffix {
+        margin-inline-start: 2px;
+    }
+}
+
+/* Round-2 QA: nhóm nút ở đầu trang (vd. chi tiết thư mục) xuống dòng thay vì bị cắt */
+@media (max-width: 767.98px) {
+    .title-container .title-button-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        width: 100%;
+    }
+    .title-container .title-button-container .ant-btn {
+        margin-left: 0 !important;
+        flex: 1 1 auto;
+        max-width: 100%;
+        height: auto;
+        min-height: 40px;
+        white-space: normal;
+    }
+}

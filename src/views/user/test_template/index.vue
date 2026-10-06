@@ -197,16 +197,19 @@ onMounted(async () => {
     const sidebarActiveItem = "folder";
     emit("updateSidebar", sidebarActiveItem);
     await getData();
-    chosenTemplate.value = test_template_data.value[0];
+    // danh sách có thể rỗng -> không gán undefined (làm vỡ ShareModal :id)
+    if (test_template_data.value.length > 0) {
+        chosenTemplate.value = test_template_data.value[0];
+    }
 });
 </script>
 <template>
     <div class="page-container">
         <div class="title-container">
             <div class="main-title">
-                <span>{{ $t("folder_index.title") }}</span> <br />
+                <span>{{ $t("test_template_index.title") }}</span> <br />
                 <span>
-                    {{ $t("folder_index.sub_title") }}
+                    {{ $t("test_template_index.sub_title") }}
                 </span>
             </div>
             <div class="title-button-container">
@@ -275,8 +278,7 @@ onMounted(async () => {
                             <div class="quiz-item-info quiz-info-detail">
                                 <div class="quiz-item-questions">
                                     <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                    {{ template.numberOfQuestion }}
-                                    {{ $t("dashboards.list_items.quiz.questions") }}
+                                    {{ $t("dashboards.list_items.quiz.questions", template.numberOfQuestion) }}
                                 </div>
                                 <div class="quiz-item-created-by">
                                     {{ $t("class_question_set.other.created_by") }}
@@ -307,6 +309,15 @@ onMounted(async () => {
                             <template #description>
                                 <span> {{ $t("class_index.other.no_data_matches") }}</span>
                             </template>
+                            <a-button
+                                type="primary"
+                                class="main-color-btn"
+                                shape="round"
+                                @click="onRefirectToCreate"
+                            >
+                                {{ $t("folder_detail.buttons.create_new_template") }}
+                                <i class="bx bx-plus"></i>
+                            </a-button>
                         </a-empty>
                     </div>
                 </template>
@@ -332,8 +343,8 @@ onMounted(async () => {
     </div>
     <ShareModal
         ref="shareModalRef"
-        :id="chosenTemplate.testTemplateId"
-        :name="chosenTemplate.name"
+        :id="chosenTemplate?.testTemplateId ?? ''"
+        :name="chosenTemplate?.name ?? ''"
         :mode="'template'"
         :options="[VISIBILITY.PRIVATE]"
         :visibility="VISIBILITY.PRIVATE"
@@ -351,7 +362,7 @@ onMounted(async () => {
     font-size: 16px;
     border-radius: 50%;
     background: var(--main-color-theme);
-    color: var(--main-color);
+    color: var(--c-primary-text);
     margin-right: 12px;
 }
 

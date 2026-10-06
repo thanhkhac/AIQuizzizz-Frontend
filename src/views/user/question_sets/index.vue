@@ -32,14 +32,33 @@ const share_mode_options = computed(() =>
 const loading = ref(false);
 const quiz_data = ref<QuestionSet[]>([]);
 
+const queryToString = (value: unknown, fallback = "") =>
+    Array.isArray(value) ? String(value[0] ?? fallback) : String(value ?? fallback);
+
 const pageParams = reactive({
-    pageNumber: route.query.pageNumber || 1,
-    pageSize: route.query.pageSize || 10,
-    name: route.query.name?.toString() || "",
-    filterBy: route.query.filterBy || share_mode_options.value[0].value,
+    pageNumber: Number(queryToString(route.query.pageNumber)) || 1,
+    pageSize: Number(queryToString(route.query.pageSize)) || 10,
+    name: queryToString(route.query.name),
+    filterBy: queryToString(route.query.filterBy, share_mode_options.value[0].value),
     totalCount: 0,
-    statusFilter: false, //serve as a flag to check if pageParams is in url
 });
+
+// đồng bộ tìm kiếm/bộ lọc/phân trang lên URL bằng replace (không tạo thêm history entry) và chỉ khi URL thực sự đổi
+const syncUrlQuery = () => {
+    if (route.name !== "User_Library") return; // response về muộn khi người dùng đã rời trang
+    const query: Record<string, string> = {
+        pageNumber: String(pageParams.pageNumber),
+        pageSize: String(pageParams.pageSize),
+        name: pageParams.name,
+        filterBy: pageParams.filterBy,
+    };
+    const isSame = Object.entries(query).every(
+        ([key, value]) => queryToString(route.query[key]) === value,
+    );
+    if (isSame) return;
+    router.replace({ name: "User_Library", query });
+};
+
 const getData = async () => {
     try {
         loading.value = true;
@@ -51,33 +70,14 @@ const getData = async () => {
             pageParams.pageSize = resultData.pageSize;
             pageParams.totalCount = resultData.totalCount;
 
-            if (pageParams.statusFilter) {
-                //check if filter is active
-                if (pageParams.pageNumber > resultData.totalPages && pageParams.totalCount > 0) {
-                    pageParams.pageNumber = 1;
-
-                    router.push({
-                        name: "User_Library",
-                        query: {
-                            pageNumber: 1,
-                            pageSize: pageParams.pageSize,
-                            name: pageParams.name,
-                            filterBy: pageParams.filterBy,
-                        },
-                    });
-                } else {
-                    router.push({
-                        name: "User_Library",
-                        query: {
-                            pageNumber: pageParams.pageNumber,
-                            pageSize: pageParams.pageSize,
-                            name: pageParams.name,
-                            filterBy: pageParams.filterBy,
-                        },
-                    });
-                }
-                pageParams.statusFilter = !pageParams.statusFilter; //toggle filter status
+            // trang hiện tại vượt quá tổng số trang (vd: sau khi lọc) -> về trang 1 và tải lại
+            if (resultData.pageNumber > resultData.totalPages && resultData.totalCount > 0) {
+                pageParams.pageNumber = 1;
+                syncUrlQuery();
+                await getData();
+                return;
             }
+            syncUrlQuery();
         }
     } catch (error) {
         console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
@@ -86,37 +86,48 @@ const getData = async () => {
     }
 };
 
-//update when page change (url)
-// onUpdated(() => {
-//     if (Object.keys(route.query).length === 0) {
-//         pageParams.pageNumber = route.query.pageNumber || 1;
-//         pageParams.pageSize = route.query.pageSize || 10;
-//         pageParams.name = route.query.name?.toString() || "";
-//         pageParams.filterBy = route.query.filterBy || share_mode_options.value[0].value;
-//         pageParams.statusFilter = true;
-
-//         getData();
-//     }
-// });
-
+// Back/Forward hoặc điều hướng từ nơi khác: khôi phục trạng thái từ URL (bỏ qua nếu URL do chính trang này vừa ghi)
 watch(
-    () => Object.keys(route.query).length,
+    () =>
+        [
+            route.query.pageNumber,
+            route.query.pageSize,
+            route.query.name,
+            route.query.filterBy,
+        ].join("|"),
     () => {
-        pageParams.pageNumber = route.query.pageNumber || 1;
-        pageParams.pageSize = route.query.pageSize || 10;
-        pageParams.name = route.query.name?.toString() || "";
-        pageParams.filterBy = route.query.filterBy || share_mode_options.value[0].value;
-        pageParams.statusFilter = true;
+        if (route.name !== "User_Library") return;
+        const pageNumber = Number(queryToString(route.query.pageNumber)) || 1;
+        const pageSize = Number(queryToString(route.query.pageSize)) || 10;
+        const name = queryToString(route.query.name);
+        const filterBy = queryToString(route.query.filterBy, share_mode_options.value[0].value);
 
+        if (
+            pageNumber === Number(pageParams.pageNumber) &&
+            pageSize === Number(pageParams.pageSize) &&
+            name === pageParams.name &&
+            filterBy === pageParams.filterBy
+        ) {
+            return;
+        }
+        pageParams.pageNumber = pageNumber;
+        pageParams.pageSize = pageSize;
+        pageParams.name = name;
+        pageParams.filterBy = filterBy;
         getData();
     },
 );
+
+// đổi từ khoá / bộ lọc -> về trang 1
+const onSearchOrFilterChange = () => {
+    pageParams.pageNumber = 1;
+    getData();
+};
 
 //change when page change (pageParams)
 const onPaginationChange = (page: any, pageSize: any) => {
     pageParams.pageNumber = page;
     pageParams.pageSize = pageSize;
-    pageParams.statusFilter = true;
     getData();
 };
 //#endregion
@@ -190,7 +201,7 @@ onMounted(async () => {
                     <a-select
                         v-model:value="pageParams.filterBy"
                         style="width: 200px"
-                        @change="getData"
+                        @change="onSearchOrFilterChange"
                     >
                         <a-select-option v-for="option in share_mode_options" :value="option.value">
                             {{ option.label }}
@@ -200,7 +211,7 @@ onMounted(async () => {
                         <Input
                             v-model="pageParams.name"
                             :placeholder="t('question_sets_index.search_placeholder')"
-                            @input="getData"
+                            @input="onSearchOrFilterChange"
                         >
                             <template #icon>
                                 <i class="bx bx-search"></i>
@@ -228,8 +239,7 @@ onMounted(async () => {
                                     <div class="quiz-item-info">
                                         <div>
                                             <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                            {{ quiz.totalQuestionCount }}
-                                            {{ $t("dashboards.list_items.quiz.questions") }}
+                                            {{ $t("dashboards.list_items.quiz.questions", quiz.totalQuestionCount) }}
                                         </div>
                                         <div class="quiz-item-progress">
                                             <a-progress
@@ -363,7 +373,7 @@ onMounted(async () => {
     font-size: 16px;
     border-radius: 50%;
     background: var(--main-color-theme);
-    color: var(--main-color);
+    color: var(--c-primary-text);
     margin-right: 12px;
 }
 

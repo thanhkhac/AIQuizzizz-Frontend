@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import user_image from "@/assets/user.png";
 
-import { ref, onBeforeMount, computed, nextTick, onMounted } from "vue";
+import { ref, onBeforeMount, computed, nextTick, onMounted, watch, onBeforeUnmount } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
 import { Modal } from "ant-design-vue";
+import { useRoute } from "vue-router";
+import {
+    sidebarOpen,
+    isDrawerMode,
+    isCompact,
+    closeSidebarDrawer,
+} from "@/shared/composables/useSidebar";
 import { useI18n } from "vue-i18n";
 
 interface type_user {
@@ -32,7 +39,29 @@ const { t } = useI18n();
 
 const { activeItem } = defineProps(["activeItem"]);
 
-const isShrinkView = ref(false);
+// tablet/laptop nhỏ (< 1200px): tự thu gọn thành mini sidebar; < 992px: dùng drawer nên không thu gọn
+const isShrinkView = ref(isCompact.value && !isDrawerMode.value);
+watch([isCompact, isDrawerMode], ([compact, drawer]) => {
+    isShrinkView.value = compact && !drawer;
+});
+
+const route = useRoute();
+watch(
+    () => route.fullPath,
+    () => closeSidebarDrawer(),
+);
+const onKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") closeSidebarDrawer();
+};
+onMounted(() => window.addEventListener("keydown", onKeydown));
+onBeforeUnmount(() => {
+    window.removeEventListener("keydown", onKeydown);
+    closeSidebarDrawer();
+});
+// chạm vào một liên kết trong drawer thì đóng drawer (kể cả khi liên kết trỏ về trang hiện tại)
+const onSidebarClick = (e: MouseEvent) => {
+    if (isDrawerMode.value && (e.target as HTMLElement).closest("a")) closeSidebarDrawer();
+};
 
 const toggleSidebar = () => {
     isShrinkView.value = !isShrinkView.value;
@@ -64,11 +93,26 @@ const onSignOut = () => {
 };
 </script>
 <template>
-    <div :class="['sidebar-container', { shrink: isShrinkView }]">
+    <div
+        v-if="isDrawerMode && sidebarOpen"
+        class="sidebar-backdrop"
+        aria-hidden="true"
+        @click="closeSidebarDrawer"
+    ></div>
+    <div
+        :class="[
+            'sidebar-container',
+            { shrink: isShrinkView && !isDrawerMode, drawer: isDrawerMode, open: sidebarOpen },
+        ]"
+        :aria-hidden="isDrawerMode && !sidebarOpen ? 'true' : undefined"
+        :inert="isDrawerMode && !sidebarOpen ? true : undefined"
+        @click="onSidebarClick"
+    >
         <button
             class="sidebar-viewButton"
             type="button"
             :aria-label="isShrinkView ? 'Expand Sidebar' : 'Shrink Sidebar'"
+            :aria-expanded="!isShrinkView"
             @click="toggleSidebar"
         >
             <i class="bx bx-left-arrow-alt"></i>
@@ -119,11 +163,14 @@ const onSignOut = () => {
                     class="divider"
                     orientation="left"
                     orientation-margin="0px"
-                    style="margin-bottom: 0px; color: #fff"
+                    style="margin-bottom: 0px; color: var(--text-color)"
                 >
                     {{ $t("sidebar.others.Manage") }}
                 </a-divider>
-                <a-divider class="divider" style="margin-top: 0px; background-color: #fff" />
+                <a-divider
+                    class="divider"
+                    style="margin-top: 0px; background-color: var(--border-color-contrast)"
+                />
 
                 <li :class="['sidebar-listItem', { active: activeItem === 'settings' }]">
                     <RouterLink :to="{ name: 'User_Settings' }">

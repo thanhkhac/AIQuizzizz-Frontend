@@ -7,5 +7,7 @@ export default interface Plan {
     canLearn: boolean;
     canOpenTest: boolean;
     canCopyOrImportQuestionSet: boolean;
+    canUploadImage: boolean;
+    canUploadVideo: boolean;
     isActive: boolean;
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import type { Component } from "vue";
 
 import Profile from "@/views/user/settings/profile.vue";
@@ -30,15 +31,40 @@ const tab_component: Record<TabKey, Component> = {
     Billing,
 };
 
-const activeKey = ref(tabs.value[0].key);
+const route = useRoute();
+const router = useRouter();
+
+// tab hiện tại nằm trên URL (?tab=appearance) để reload/chia sẻ link vẫn giữ nguyên tab
+const findTabKey = (value: unknown): TabKey | undefined => {
+    if (typeof value !== "string") return undefined;
+    return tabs.value.find((x) => x.tab === value.toLowerCase())?.key;
+};
+
+const activeKey = ref<TabKey>(findTabKey(route.query.tab) ?? tabs.value[0].key);
 const emit = defineEmits(["updateSidebar"]);
+
+watch(activeKey, (key) => {
+    const tab = tabs.value.find((x) => x.key === key)?.tab;
+    if (tab && route.query.tab !== tab) {
+        router.replace({ query: { ...route.query, tab } });
+    }
+});
 
 onMounted(() => {
     const sidebarActiveItem = "settings";
     emit("updateSidebar", sidebarActiveItem);
 
+    // các trang khác (hết quyền gói...) chuyển sang tab Subscription qua sessionStorage; URL ?tab= được ưu tiên
     const session_setting_key = sessionStorage.getItem("setting_key");
-    if (session_setting_key) activeKey.value = session_setting_key as TabKey;
+    if (session_setting_key) sessionStorage.removeItem("setting_key");
+    if (!findTabKey(route.query.tab) && findTabKey(session_setting_key)) {
+        activeKey.value = findTabKey(session_setting_key)!;
+    }
+    // đồng bộ URL ngay lần đầu để luôn có ?tab=
+    const currentTab = tabs.value.find((x) => x.key === activeKey.value)?.tab;
+    if (currentTab && route.query.tab !== currentTab) {
+        router.replace({ query: { ...route.query, tab: currentTab } });
+    }
 });
 </script>
 <template>

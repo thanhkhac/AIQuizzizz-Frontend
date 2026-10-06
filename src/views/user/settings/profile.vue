@@ -26,13 +26,13 @@ const formRef = ref();
 const rules = {
     fullName: [
         {
-            required: "true",
+            required: true,
+            whitespace: true,
             message: t("message.required"),
-
             trigger: "change",
         },
         {
-            length: 250,
+            max: 250,
             message: t("message.out_of_range", { max_length: 250 }),
             trigger: "change",
         },
@@ -48,11 +48,12 @@ const onFinish = () => {
             });
 
             if (result.data.success) {
-                message.success(t("message.update_success"));
+                message.success(t("message.updated_successfully"));
                 let user_result = await ApiUser.GetUserInfo();
                 if (user_result.data.success) {
                     localStorageService.SetUserInfo(user_result.data.data);
-                    formState.fullName = user.value.fullName;
+                    user.value = authStore.getUserInfo();
+                    formState.fullName = user.value?.fullName ?? formState.fullName;
                 }
             }
         })
@@ -88,6 +89,8 @@ onMounted(() => {
                                 <Input
                                     :label="t('settings.profile.fullname_label')"
                                     :placeholder="t('settings.profile.fullname_placeholder')"
+                                    name="fullName"
+                                    :max-length="250"
                                     v-model="formState.fullName"
                                 />
                             </a-col>

@@ -15,6 +15,8 @@ import { useRoute, useRouter } from "vue-router";
 import Input from "@/shared/components/Common/Input.vue";
 import { message, Modal } from "ant-design-vue";
 import TransferQuestionData from "@/services/TransferQuestionData";
+import { mergeQuestionMedia } from "@/services/QuestionMediaService";
+import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
 import Validator from "@/services/Validator";
 
 import { useI18n } from "vue-i18n";
@@ -91,6 +93,21 @@ const getData = async () => {
     }
 };
 
+// presigned URL của media hết hạn -> lấy lại URL mới, chỉ cập nhật media (không reset trang)
+const reloadQuestionMedia = async () => {
+    try {
+        const result = await ApiTestTemplate.GetById(question_set_id.value.toString());
+        if (result?.data?.success) {
+            const fresh = result.data.data.questions.map((x: ResponseQuestion) =>
+                TransferQuestionData.transformResponseToRequest(x),
+            );
+            mergeQuestionMedia(quiz_questions.value, fresh);
+        }
+    } catch (error) {
+        console.log("ERROR: reload question media", error);
+    }
+};
+
 //preview uploaded content
 const toggleDisplayAnswer = (index: number, button: EventTarget) => {
     let $button = $(button);
@@ -135,17 +152,27 @@ const onAddToFolder = (folder: Folder) => {
         cancelText: t("sidebar.buttons.cancel"),
         centered: true,
         onOk: async () => {
-            const result = await ApiFolder.AddTestTemplate(
-                folder.folderTestId,
-                quiz.value.testTemplateId,
-            );
-            if (
-                !result.data.success &&
-                Object.keys(result.data.errors).includes(
-                    ERROR.TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER,
-                )
-            ) {
-                message.error(t("mesage.TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER"));
+            let result;
+            try {
+                result = await ApiFolder.AddTestTemplate(
+                    folder.folderTestId,
+                    quiz.value.testTemplateId,
+                );
+            } catch (error) {
+                // lỗi 400 (vd: đã có trong folder) đã được interceptor hiển thị toast
+                console.log("ERROR: AddTestTemplate", error);
+                return;
+            }
+            if (!result.data.success) {
+                if (
+                    Object.keys(result.data.errors ?? {}).includes(
+                        ERROR.TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER,
+                    )
+                ) {
+                    message.error(t("ERROR_CODE.TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER"));
+                } else {
+                    message.error(t("message.added_failed"));
+                }
                 return;
             }
             message.success(t("message.added_successfully"));
@@ -231,7 +258,7 @@ onMounted(async () => {
             <div v-else>
                 <div class="content-item-title">
                     <div>
-                        <span> Mẫu đề thi: {{ quiz.name }}</span>
+                        <span> {{ $t("folder_index.navigators.test_template") }}: {{ quiz.name }}</span>
                         <span> {{ quiz.description }}</span>
                     </div>
                     <div
@@ -352,6 +379,7 @@ onMounted(async () => {
                                 {{ question.questionText }}
                             </div>
                         </div>
+                        <QuestionMediaView :media="question.media" @reload="reloadQuestionMedia" />
                         <div
                             class="question-item-answer"
                             :id="`question-item-answer-${index}`"
