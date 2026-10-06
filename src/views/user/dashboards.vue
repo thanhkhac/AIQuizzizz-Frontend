@@ -173,8 +173,7 @@ onMounted(async () => {
                             </div>
                             <div class="result-item-description">
                                 <span class="result-item-noq">
-                                    {{ item.totalQuestionCount }}
-                                    {{ $t("dashboards.list_items.quiz.questions") }}
+                                    {{ $t("dashboards.list_items.quiz.questions", item.totalQuestionCount) }}
                                 </span>
                                 {{ $t("detail_QS.other.created_by", { username: item.createBy }) }}
                             </div>
@@ -208,8 +207,7 @@ onMounted(async () => {
                         </div>
                         <div class="quiz-item-info">
                             <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                            {{ quiz.totalQuestionCount }}
-                            {{ $t("dashboards.list_items.quiz.questions") }}
+                            {{ $t("dashboards.list_items.quiz.questions", quiz.totalQuestionCount) }}
                         </div>
                         <div class="quiz-item-progress">
                             <div>{{ $t("dashboards.list_items.quiz.learningProgress") }}</div>
@@ -265,8 +263,7 @@ onMounted(async () => {
                             </div>
                             <div class="p-quiz-item-rating">
                                 <div class="p-quiz-item-question-count">
-                                    {{ quiz.totalQuestionCount }}
-                                    {{ $t("dashboards.list_items.quiz.questions") }}
+                                    {{ $t("dashboards.list_items.quiz.questions", quiz.totalQuestionCount) }}
                                 </div>
                                 <div class="p-quiz-item-question-rate">
                                     {{ quiz.ratingAverage }}⭐️ ({{ quiz.ratingCount }}
@@ -391,7 +388,7 @@ onMounted(async () => {
     font-size: 25px !important;
     border-radius: 50%;
     background: var(--main-color-theme);
-    color: var(--main-color);
+    color: var(--c-primary-text);
 }
 
 .add-button-context {

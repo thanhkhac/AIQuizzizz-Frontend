@@ -167,7 +167,7 @@ import home_vector from "@/assets/home_vector.png";
 }
 
 .authentication-item-navigator a {
-    color: var(--main-color);
+    color: var(--c-primary-text);
     padding: 0px 8px;
     font-weight: 500;
 }

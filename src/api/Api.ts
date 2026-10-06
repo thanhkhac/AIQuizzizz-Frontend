@@ -4,19 +4,43 @@ import { useAuthStore } from "@/stores/AuthStore";
 import { notification } from "ant-design-vue";
 import { translate } from "@/services/i18n";
 import ERROR from "@/constants/errors";
-const baseURL = "https://thanhkhac.id.vn/api";
+import localStorageService from "@/services/LocalStorageService";
+import { getBannedInfo, saveBannedReason } from "@/services/LoginErrorService";
+const baseURL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 const instance = axios.create({
     baseURL,
     timeout: 300000,
-    withCredentials: true,
     headers: {
         "Content-Type": "application/json",
     },
     responseType: "json",
 });
 
+// Gắn access token vào header Authorization
+instance.interceptors.request.use((config) => {
+    const token = localStorageService.GetAccessToken();
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+// các request đăng nhập: trang login/google callback tự hiển thị lỗi (vd: lý do tài khoản bị cấm),
+// không hiển thị notification chung và không renew token
+const LOGIN_URLS = ["authentication/login", "authentication/googlelogin"];
+const normalizeUrl = (url?: string) =>
+    (url ?? "")
+        .replace(/^https?:\/\/[^/]+/i, "") // bỏ origin nếu là URL tuyệt đối
+        .replace(/^\/?api\//i, "") // bỏ prefix baseURL tương đối
+        .replace(/^\/+/, "")
+        .split("?")[0]
+        .replace(/\/+$/, "")
+        .toLowerCase();
+const isLoginRequest = (url?: string) => LOGIN_URLS.includes(normalizeUrl(url));
+
 let isRefreshing = false; //flag for global checking
+let isHandlingBanned = false; // tránh xử lý lặp khi nhiều request cùng trả ACCOUNT_BANNED
 instance.interceptors.response.use(
     //if request success run this
     (res) => {
@@ -32,12 +56,30 @@ instance.interceptors.response.use(
                 description: "No internet connection. Please check your network.",
             });
             // window.location.assign("/404");
-            return;
+            // reject để caller không nhận undefined (result.data -> TypeError)
+            return Promise.reject(error);
+        }
+
+        // lỗi đăng nhập do trang gọi tự xử lý (tránh hiển thị trùng 2 lần)
+        if (isLoginRequest(originalConfig?.url)) {
+            return Promise.reject(error);
         }
 
         //avoid loop using additional _retry
-        if (error.response && originalConfig.url !== "/Authentication/Login") {
-            const errorKeys = Object.keys(error.response.data?.errors);
+        if (error.response) {
+            const errorKeys = Object.keys(error.response.data?.errors ?? {});
+
+            // tài khoản bị khoá khi đang đăng nhập (token vẫn còn hạn): đăng xuất và chuyển về /login kèm lý do
+            if (errorKeys.includes(ERROR.ACCOUNT_BANNED)) {
+                if (!isHandlingBanned) {
+                    isHandlingBanned = true;
+                    const banned = getBannedInfo(error);
+                    if (banned) saveBannedReason(banned);
+                    localStorageService.ClearUserInfo(); // xoá cả token, không gọi API LogOut để tránh lặp 401
+                    window.location.assign("/login");
+                }
+                return Promise.reject(error);
+            }
 
             //push to not-allow if
             if (errorKeys.includes(ERROR.COMMON_FORBIDDEN)) {
@@ -50,9 +92,19 @@ instance.interceptors.response.use(
                 //  && !errorKeys.includes(ERROR.ACCOUNT_INVALID_CREDENTIALS
                 //   )
             ) {
+                // mã lỗi chưa có bản dịch -> dùng thông báo chung thay vì hiện "ERROR_CODE.xxx"
+                const codeKey = `ERROR_CODE.${errorKeys[0]}`;
+                const codeText = errorKeys[0] ? translate(codeKey) : "";
                 notification["error"]({
                     message: translate("generate_qs_modal.invalid_structure_modal.title"),
-                    description: translate(`ERROR_CODE.${errorKeys[0]}`),
+                    description:
+                        errorKeys[0] && codeText !== codeKey
+                        ? codeText
+                        : error.response.status === 413 // body bị proxy chặn (vd: upload video quá lớn)
+                          ? translate("ERROR_CODE.FILE_TOO_LARGE")
+                          : error.response.status >= 500 // 5xx không có body errors: 1 thông báo chung duy nhất
+                            ? translate("ERROR_CODE.COMMON_SERVER_INTERNAL_ERROR")
+                            : translate("ERROR_CODE.COMMON_BAD_REQUEST"),
                 });
             }
 
@@ -62,7 +114,7 @@ instance.interceptors.response.use(
             // if ((error.response.status === 401 && !originalConfig._retry)) {
             if (
                 error.response &&
-                Object.keys(error.response.data?.errors).includes(ERROR.COMMON_UNAUTHORIZED) &&
+                errorKeys.includes(ERROR.COMMON_UNAUTHORIZED) &&
                 !originalConfig._retry &&
                 !isRefreshing
             ) {
@@ -81,6 +133,8 @@ instance.interceptors.response.use(
 
                     return instance(originalConfig); //axios execute original request
                 } catch (_error) {
+                    // refresh token hết hạn/không hợp lệ -> đăng xuất
+                    useAuthStore().logOut();
                     return Promise.reject(_error);
                 } finally {
                     isRefreshing = false;
@@ -96,11 +150,8 @@ instance.interceptors.response.use(
                     }
                     case 500: {
                         //to do
+                        // thông báo đã hiển thị ở trên, không hiển thị lần 2
                         console.log("ERROR: Status code 500");
-                        notification["error"]({
-                            message: "SERVER ERROR",
-                            description: translate(`ERROR_CODE.${errorKeys[0]}`),
-                        });
                         break;
                     }
                     case 403: {

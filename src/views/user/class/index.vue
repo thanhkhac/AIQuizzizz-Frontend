@@ -166,6 +166,13 @@ const joinClassFormState = reactive({
     code: "",
 });
 
+// đóng modal tham gia lớp: xoá mã đã nhập
+const onCloseJoinModal = () => {
+    modal_join_class_open.value = false;
+    joinClassFormState.code = "";
+    joinClassFormRef.value?.resetFields?.();
+};
+
 const isJoinLoading = ref(false);
 const onJoinClass = async () => {
     isJoinLoading.value = true;
@@ -176,7 +183,7 @@ const onJoinClass = async () => {
             message.error(t("message.join_class_failed"));
             return;
         }
-        modal_join_class_open.value = false;
+        onCloseJoinModal();
         message.success(t("message.join_class_successfully"));
         await getData();
     } catch (error) {
@@ -194,6 +201,14 @@ const createClassFormState = reactive({
     name: "",
     topic: "",
 });
+
+// đóng modal tạo lớp: xoá input cũ để lần mở sau là form trống
+const onCloseCreateModal = () => {
+    modal_create_class_open.value = false;
+    createClassFormState.name = "";
+    createClassFormState.topic = "";
+    createClassFormRef.value?.resetFields?.();
+};
 
 const isCreateLoading = ref(false);
 const onCreateClass = async () => {
@@ -217,7 +232,7 @@ const onCreateClass = async () => {
             message.error(t("message.created_failed"));
             return;
         }
-        modal_create_class_open.value = false;
+        onCloseCreateModal();
         message.success(t("message.created_successfully"));
         await getData();
     } catch (error) {
@@ -359,13 +374,13 @@ onMounted(async () => {
         centered
         wrap-class-name="medium-modal"
         :open="modal_join_class_open"
-        @cancel="modal_join_class_open = false"
+        @cancel="onCloseJoinModal"
     >
         <div class="modal-container">
             <div class="modal-title-container">
                 <a-row class="w-100 d-flex align-items-center">
                     <a-col :span="4">
-                        <RouterLink @click="modal_join_class_open = false" :to="{ name: '' }">
+                        <RouterLink @click="onCloseJoinModal" :to="{ name: '' }">
                             <i class="bx bx-chevron-left navigator-back-button"></i>
                         </RouterLink>
                     </a-col>
@@ -407,13 +422,13 @@ onMounted(async () => {
         centered
         wrap-class-name="medium-modal"
         :open="modal_create_class_open"
-        @cancel="modal_create_class_open = false"
+        @cancel="onCloseCreateModal"
     >
         <div class="modal-container">
             <div class="modal-title-container">
                 <a-row class="w-100 d-flex align-items-center">
                     <a-col :span="4">
-                        <RouterLink @click="modal_create_class_open = false" :to="{ name: '' }">
+                        <RouterLink @click="onCloseCreateModal" :to="{ name: '' }">
                             <i class="bx bx-chevron-left navigator-back-button"></i>
                         </RouterLink>
                     </a-col>
@@ -512,7 +527,7 @@ onMounted(async () => {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .class-item:hover .class-item-name {
-    color: var(--main-color);
+    color: var(--c-primary-text);
     text-decoration: underline;
 }
 

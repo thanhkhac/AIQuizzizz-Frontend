@@ -7,6 +7,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import { message } from "ant-design-vue";
 import { LoadingOutlined } from "@ant-design/icons-vue";
+import { getBannedInfo, notifyLoginError, saveBannedReason } from "@/services/LoginErrorService";
 
 const google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const origin = window.location.origin;
@@ -35,8 +36,22 @@ onMounted(async () => {
         `);
         return;
     }
-    let login_result = await ApiAuthentication.GoogleLogin(formState);
-    if (login_result.data.success) {
+    let login_result;
+    try {
+        login_result = await ApiAuthentication.GoogleLogin(formState);
+    } catch (error) {
+        const banned = getBannedInfo(error);
+        if (banned) {
+            // trang login hiển thị lý do bị cấm
+            saveBannedReason(banned);
+        } else {
+            notifyLoginError(error);
+        }
+        router.push({ name: "login" });
+        return;
+    }
+
+    if (login_result?.data?.success) {
         if (!login_result.data.data.hasPassword) {
             message.success("Login successfully. Redirecting...");
             router.push({ name: "create-password" });
@@ -48,7 +63,7 @@ onMounted(async () => {
         authStore.returnURL = returnURL;
         authStore.LoginSuccessful();
     } else {
-        message.success("Login with google failed!");
+        message.error("Login with google failed!");
         router.push({ name: "login" });
     }
 });

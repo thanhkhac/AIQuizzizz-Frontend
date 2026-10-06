@@ -120,18 +120,22 @@ const getCostToGenerate = async () => {
     }
 };
 
-const fetchTreeData = async (apiCall: (file: File) => Promise<any>, shouldCloseModal: boolean) => {
+const fetchTreeData = async (
+    apiCall: (file: File) => Promise<any>,
+    shouldCloseModal: boolean,
+    file: File = props.file,
+): Promise<boolean> => {
     try {
         loading.value = true;
 
-        const result = await apiCall(props.file);
+        const result = await apiCall(file);
 
         if (!result.data.success) {
             Modal.error({
                 title: "Error",
                 content: result.data.message || t("message.failed_to_generate_file_structure"),
             });
-            return;
+            return false;
         }
 
         const envelope = typeof result.data === "string" ? JSON.parse(result.data) : result.data;
@@ -143,8 +147,10 @@ const fetchTreeData = async (apiCall: (file: File) => Promise<any>, shouldCloseM
         if (apiCall === ApiAIGenerate.GenerateDocumentStructure) {
             message.success(t("message.generated_structure_successfully"));
         }
+        return true;
     } catch (e) {
         console.error(e);
+        return false;
     } finally {
         loading.value = false;
         if (shouldCloseModal) {
@@ -159,6 +165,12 @@ const generateTreeData = () => {
 
 const getTreeData = () => {
     fetchTreeData(ApiPdf.GetPdfStructure, false);
+};
+
+// kiểm tra file với server (đọc cấu trúc PDF) trước khi coi là "đã tải lên"; true = server chấp nhận
+const loadStructure = async (file: File): Promise<boolean> => {
+    clearData();
+    return await fetchTreeData(ApiPdf.GetPdfStructure, false, file);
 };
 
 const openModal = async () => {
@@ -225,7 +237,7 @@ const clearData = () => {
 
 //#endregion
 
-defineExpose({ openModal, closeModal, clearData });
+defineExpose({ openModal, closeModal, clearData, loadStructure });
 </script>
 
 <template>

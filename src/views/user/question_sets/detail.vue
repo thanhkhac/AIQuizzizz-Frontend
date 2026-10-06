@@ -13,6 +13,8 @@ import { useRoute, useRouter } from "vue-router";
 import Input from "@/shared/components/Common/Input.vue";
 import { message, Modal } from "ant-design-vue";
 import TransferQuestionData from "@/services/TransferQuestionData";
+import { mergeQuestionMedia } from "@/services/QuestionMediaService";
+import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
 import Validator from "@/services/Validator";
 
 import { useI18n } from "vue-i18n";
@@ -66,7 +68,10 @@ const searchValue = ref("");
 const getData = async () => {
     try {
         loading.value = true;
-        if (!Validator.isValidGuid(question_set_id.value.toString())) router.push({ name: "404" });
+        if (!Validator.isValidGuid(question_set_id.value.toString())) {
+            router.push({ name: "404" });
+            return;
+        }
 
         const question_set_result = await ApiQuestionSet.GetDetailById(
             question_set_id.value.toString(),
@@ -76,8 +81,10 @@ const getData = async () => {
             question_set_id.value.toString(),
         );
 
-        if (!question_set_result.data.success || !question_result.data.success)
+        if (!question_set_result.data.success || !question_result.data.success) {
             router.push({ name: "User_Library" });
+            return;
+        }
 
         quiz.value = question_set_result.data.data;
         quiz.value.createBy = question_set_result.data.data.createdBy.fullName;
@@ -94,6 +101,18 @@ const getData = async () => {
         }
     } finally {
         loading.value = false;
+    }
+};
+
+// presigned URL của media hết hạn -> lấy lại URL mới, chỉ cập nhật media (không reset trang)
+const reloadQuestionMedia = async () => {
+    try {
+        const result = await ApiQuestionSet.GetQuestionById(question_set_id.value.toString());
+        if (result?.data?.success) {
+            mergeQuestionMedia(quiz_questions.value, result.data.data);
+        }
+    } catch (error) {
+        console.log("ERROR: reload question media", error);
     }
 };
 
@@ -214,10 +233,20 @@ const onRedirectToSearch = (tag: Tag) => {
     router.push({ name: "User_QuestionSet_Search" });
 };
 
+// bỏ thẻ HTML + chuẩn hoá khoảng trắng để tìm kiếm trên nội dung hiển thị
+const toSearchableText = (html: string | undefined | null) =>
+    (html ?? "")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/s+/g, " ")
+        .trim()
+        .toLowerCase();
+
 const onFilter = () => {
     let filtered = quiz_questions.value;
+    const keyword = toSearchableText(searchValue.value);
     filtered = quiz_questions.value.filter((x) => {
-        const matches = x.questionText.includes(searchValue.value);
+        const matches = toSearchableText(x.questionText).includes(keyword);
 
         const correctType =
             selected_type_option.value === "All" || selected_type_option.value === x.type;
@@ -227,11 +256,16 @@ const onFilter = () => {
     questions.value = filtered;
 };
 
+// các trang con của thư viện: highlight mục "Quizzes" ở sidebar
+const emit = defineEmits(["updateSidebar"]);
+
 onMounted(async () => {
+    emit("updateSidebar", "library");
     //get api quiz + check visibility to current user
     //format url
     await getData();
-    getRating();
+    // getData thất bại (không có id) thì không gọi rating -> tránh GET QuestionSet//Rating
+    if (quiz.value.id) getRating();
 });
 </script>
 <template>
@@ -385,6 +419,9 @@ onMounted(async () => {
                 <a-skeleton :loading="loading" active></a-skeleton>
                 <a-skeleton :loading="loading" active></a-skeleton>
             </div>
+            <div v-else-if="questions.length === 0" class="w-100 d-flex justify-content-center">
+                <a-empty :description="$t('detail_QS.other.no_questions_found')" />
+            </div>
             <div v-else class="preview-question-container">
                 <div class="preview-question-item" v-for="(question, index) in questions">
                     <div class="question-item-content">
@@ -399,6 +436,7 @@ onMounted(async () => {
                                 {{ question.questionText }}
                             </div>
                         </div>
+                        <QuestionMediaView :media="question.media" @reload="reloadQuestionMedia" />
                         <div
                             class="question-item-answer"
                             :id="`question-item-answer-${index}`"
@@ -628,7 +666,7 @@ onMounted(async () => {
     border-radius: 8px;
     font-size: 16px;
     font-weight: 500;
-    color: var(--main-color);
+    color: var(--c-primary-text);
     transition: all 0.2s ease-in-out;
     cursor: pointer;
 }

@@ -7,6 +7,8 @@ import type UpdateSubscription from "@/models/request/admin/updateSubscription";
 
 interface isBannedAccount {
     isBanned: boolean;
+    // lý do ban, hiển thị cho user khi đăng nhập
+    message?: string;
 }
 
 const END_POINTS = {

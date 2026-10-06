@@ -124,6 +124,7 @@ const rules = {
     folderName: [
         {
             required: true,
+            whitespace: true, // chỉ toàn khoảng trắng cũng coi là rỗng
             message: t("message.required"),
             trigger: "change",
         },
@@ -148,7 +149,10 @@ const onCreateFolder = async () => {
     isCreateLoading.value = true;
     try {
         await createFolderFormRef.value.validate(); //this will throw err to catch
-        let result = await ApiFolder.Create(createFolderFormState);
+        const folderName = createFolderFormState.folderName.trim();
+        if (!folderName) return; // không gửi POST khi tên rỗng
+        createFolderFormState.folderName = folderName;
+        let result = await ApiFolder.Create({ folderName });
         if (!result.data.success) {
             message.error(t("message.created_failed"));
             return;

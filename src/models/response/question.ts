@@ -1,3 +1,5 @@
+import type { QuestionMedia } from "@/models/response/media/questionMedia";
+
 interface MultipleChoice {
     id: string;
     text: string;
@@ -36,6 +38,8 @@ export interface ResponseQuestion {
     score: number;
     scoreGraded: number;
     correctMultipleChoiceCount: number;
+    // presigned URL ngắn hạn, không cache/persist
+    media?: QuestionMedia | null;
     questionData: {
         multipleChoice: MultipleChoice[] | null;
         matching: Matching | null;

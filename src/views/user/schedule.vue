@@ -37,6 +37,11 @@ interface TestSchedule {
     testName: string;
     classId: string;
     className: string;
+    // thời điểm thật (ISO, có offset) của bài test; dùng để gom nhóm theo ngày ĐỊA PHƯƠNG của người dùng
+    timeStart: string;
+    timeFinish?: string;
+    // ngày do server gom theo UTC (chỉ dùng làm fallback nếu thiếu timeStart)
+    date?: string;
 }
 
 interface ScheduleData {
@@ -48,14 +53,34 @@ interface ScheduleData {
 
 const data = ref<ScheduleData[]>([]);
 
+const DAY_KEY = "YYYY-MM-DD";
+
+// Gom lại toàn bộ test theo ngày địa phương (server nhóm theo ngày UTC nên không dùng được trực tiếp)
+const testsByLocalDay = computed(() => {
+    const map = new Map<string, TestSchedule[]>();
+    const seen = new Set<string>();
+    for (const group of data.value) {
+        for (const test of group.testSchedules ?? []) {
+            if (seen.has(test.testId)) continue;
+            seen.add(test.testId);
+
+            const key = dayjs(test.timeStart ?? test.date ?? group.date).format(DAY_KEY);
+            const list = map.get(key) ?? [];
+            list.push(test);
+            map.set(key, list);
+        }
+    }
+    for (const list of map.values()) {
+        list.sort((a, b) => dayjs(a.timeStart).valueOf() - dayjs(b.timeStart).valueOf());
+    }
+    return map;
+});
+
 const chosenDate = ref<Dayjs>(dayjs());
 const watchChosenDate = ref<Dayjs>(dayjs());
 
 const chosenDateTestSchedules = computed(() => {
-    return chosenDate.value
-        ? data.value.find((x) => dayjs(chosenDate.value).isSame(dayjs(x.date), "day"))
-              ?.testSchedules || []
-        : [];
+    return chosenDate.value ? testsByLocalDay.value.get(dayjs(chosenDate.value).format(DAY_KEY)) || [] : [];
 });
 
 const loading = ref(false);
@@ -87,13 +112,12 @@ const GetCalendarData = async () => {
     }
 };
 
-const getListData = (date: string) => {
-    const numberOfTest = data.value.find((x) => dayjs(date).isSame(dayjs(x.date), "day"))
-        ?.testSchedules.length;
+const getListData = (date: string | Dayjs) => {
+    const numberOfTest = testsByLocalDay.value.get(dayjs(date).format(DAY_KEY))?.length;
 
     if (!numberOfTest) return null;
 
-    return `${numberOfTest} tests`;
+    return t("schedule.tests_count", { n: numberOfTest }, numberOfTest);
 };
 
 const onRedirectToClass = (classId: string) => {
@@ -183,6 +207,22 @@ onMounted(async () => {
     </div>
 </template>
 <style scoped>
+/* .content-item mặc định rộng "100% - 60px": 2 cột bị tràn và cột phải bị cắt ở mép màn hình */
+.content-item {
+    width: auto;
+    max-width: none;
+    min-width: 0;
+}
+
+.content-item.col-md-9 {
+    flex: 3 1 0;
+}
+
+.content-item.col-md-3 {
+    flex: 1 1 0;
+    min-width: 260px;
+}
+
 .schedule-detail-title {
     font-size: 18px;
     font-weight: 500;
@@ -221,7 +261,7 @@ onMounted(async () => {
 ::v-deep(.ant-picker-calendar-date-today.ant-picker-cell-selected) {
     background: var(--content-item-children-background-color) !important;
     border-color: var(--main-color) !important;
-    color: var(--text-color-contrast) !important;
+    color: var(--text-color) !important;
 }
 
 ::v-deep(.ant-picker-calendar.ant-picker-calendar-full .ant-picker-calendar-date-today) {
@@ -229,7 +269,7 @@ onMounted(async () => {
 }
 
 ::v-deep(.ant-picker-cell-inner.ant-picker-calendar-date-today .ant-picker-calendar-date-value) {
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
 }
 ::v-deep(
     .ant-picker-calendar.ant-picker-calendar-full
@@ -237,7 +277,7 @@ onMounted(async () => {
         .ant-picker-calendar-date
         .ant-picker-calendar-date-value
 ) {
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
 }
 
 ::v-deep(.ant-picker-calendar-date-content) {
@@ -268,11 +308,26 @@ onMounted(async () => {
 
 ::v-deep(.ant-radio-button-wrapper-checked) {
     border-color: var(--main-color) !important;
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
 }
 
 ::v-deep(.ant-badge-status-text) {
     color: var(--text-color) !important;
+}
+
+@media (max-width: 575.98px) {
+    ::v-deep(.ant-picker-calendar-date-content .ant-badge) {
+        display: block;
+        white-space: nowrap;
+    }
+    ::v-deep(.ant-picker-calendar-date-content .ant-badge-status-dot) {
+        display: none;
+    }
+    ::v-deep(.ant-picker-calendar-date-content .ant-badge-status-text) {
+        margin-inline-start: 0;
+        font-size: 10px;
+        line-height: 1.2;
+    }
 }
 
 .schedule-item-container {
@@ -307,7 +362,7 @@ onMounted(async () => {
 }
 
 .schedule-item-info-test:hover {
-    color: var(--main-color);
+    color: var(--c-primary-text);
 }
 
 .schedule-item-info-class {
@@ -315,6 +370,6 @@ onMounted(async () => {
     color: var(--text-color-grey);
 }
 .exam_count {
-    color: var(--main-color);
+    color: var(--c-primary-text);
 }
 </style>

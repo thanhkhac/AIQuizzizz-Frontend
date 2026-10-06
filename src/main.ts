@@ -24,6 +24,13 @@ import "bootstrap-vue-3/dist/bootstrap-vue-3.css";
 import "boxicons/css/boxicons.min.css";
 
 /**
+ * Theme tokens + responsive overrides: phải import SAU bootstrap / bootstrap-vue-3 để thắng độ ưu tiên
+ * (xem docs/THEME-AND-RESPONSIVE.md)
+ * **/
+import "./assets/theme-overrides.css";
+import "./assets/responsive.css";
+
+/**
  * jquery
  * **/
 // @ts-ignore
@@ -126,6 +133,20 @@ if (colors.includes(storedColorClass)) {
  **/
 //please don't take my sun shine away
 import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
+
+/**
+ * Promise reject không ai bắt: lỗi API (axios) đã được interceptor hiển thị toast nên không cần
+ * văng "Uncaught (in promise)" ra console/page error; lỗi validate của ant-design form cũng vậy.
+ * Các lỗi khác vẫn được log để không che mất bug thật.
+ * **/
+window.addEventListener("unhandledrejection", (event: PromiseRejectionEvent) => {
+    const reason: any = event.reason;
+    if (reason?.isAxiosError || Array.isArray(reason?.errorFields) || reason?.code === "ERR_CANCELED") {
+        event.preventDefault();
+        return;
+    }
+    console.error("Unhandled promise rejection:", reason);
+});
 
 (async () => {
     await initLocale();

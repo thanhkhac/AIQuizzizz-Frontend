@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, reactive, nextTick, watch } from "vue";
+import { ref, onMounted, computed, reactive, nextTick, watch, h } from "vue";
 import { useI18n } from "vue-i18n";
-import Input from "@/shared/components/Common/Input.vue";
 import ApiAdmin from "../../../../src/api/ApiAdmin";
 import type ManageAccountsParams from "../../../../src/models/request/admin/manageAccountsParams";
 import type ManageAccountsResp from "../../../../src/models/response/admin/manageAccountsResp";
 import debounce from "lodash/debounce";
-import { Modal } from "ant-design-vue";
-import { useRoute } from "vue-router";
+import { message, Modal, Textarea } from "ant-design-vue";
+import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/AuthStore";
 
 const emit = defineEmits(["updateSidebar"]);
 const route = useRoute();
+const router = useRouter();
 const { t } = useI18n();
 const authStore = useAuthStore();
 const user_info = authStore.getUserInfo();
@@ -35,7 +35,7 @@ const account_role_credit_options = computed(() =>
 );
 // const selected_acc_role_option = ref(account_role_credit_options.value[0].value);
 
-const columns = [
+const columns = computed(() => [
     {
         title: "ID",
         dataIndex: "id",
@@ -46,7 +46,7 @@ const columns = [
         align: "center",
     },
     {
-        title: "Fullname",
+        title: t("admin.manage_acc.col.fullname"),
         dataIndex: "fullName",
         key: "fullName",
         sorter: (a: { fullName: string }, b: { fullName: string }) =>
@@ -55,7 +55,7 @@ const columns = [
         align: "center",
     },
     {
-        title: "Email",
+        title: t("admin.manage_acc.col.email"),
         dataIndex: "email",
         key: "email",
         sorter: (a: { email: string }, b: { email: string }) => a.email.localeCompare(b.email),
@@ -71,7 +71,7 @@ const columns = [
     //     align: "center",
     // },
     {
-        title: "Role",
+        title: t("admin.manage_acc.col.role"),
         dataIndex: "role",
         key: "role",
         sorter: (a: { role: string }, b: { role: string }) => a.role.localeCompare(b.role),
@@ -79,7 +79,7 @@ const columns = [
         align: "center",
     },
     { title: "", key: "ban", width: 120, align: "center" },
-];
+]);
 
 onMounted(() => {
     const sidebarActiveItem = "account";
@@ -96,11 +96,16 @@ async function onToggle(record: ManageAccountsResp) {
     try {
         if (!record.isBanned) {
             Modal.confirm({
-                title: "Confirm Active User",
-                content: "Are you sure you want to activate this user?",
+                title: t("admin.manage_acc.unban_title"),
+                content: t("admin.manage_acc.unban_content"),
                 centered: true,
                 onOk: async () => {
-                    await ApiAdmin.BanUser(record.id, { isBanned: false });
+                    try {
+                        await ApiAdmin.BanUser(record.id, { isBanned: false });
+                        message.success(t("admin.manage_acc.unban_success"));
+                    } catch (error) {
+                        console.log(error);
+                    }
                     await getUsersData();
                 },
                 onCancel: async () => {
@@ -108,12 +113,31 @@ async function onToggle(record: ManageAccountsResp) {
                 },
             });
         } else {
+            const banReason = ref("");
             Modal.confirm({
-                title: "Confirm Ban User",
-                content: "Are you sure you want to ban this user?",
+                title: t("admin.manage_acc.ban_title"),
+                content: () =>
+                    h("div", [
+                        h("p", t("admin.manage_acc.ban_content")),
+                        h(Textarea, {
+                            value: banReason.value,
+                            "onUpdate:value": (v: string) => (banReason.value = v),
+                            rows: 3,
+                            maxlength: 1000,
+                            placeholder: t("admin.manage_acc.ban_reason_placeholder"),
+                        }),
+                    ]),
                 centered: true,
                 onOk: async () => {
-                    await ApiAdmin.BanUser(record.id, { isBanned: true });
+                    try {
+                        await ApiAdmin.BanUser(record.id, {
+                            isBanned: true,
+                            message: banReason.value.trim() || undefined,
+                        });
+                        message.success(t("admin.manage_acc.ban_success"));
+                    } catch (error) {
+                        console.log(error);
+                    }
                     await getUsersData();
                 },
                 onCancel: async () => {
@@ -130,11 +154,16 @@ async function onPromoteToModerator(record: ManageAccountsResp) {
     try {
         // console.log("Promote uid: ", record.id);
         Modal.confirm({
-            title: "Promote User to Moderator",
-            content: "Are you sure you want to promote this user to Moderator?",
+            title: t("admin.manage_acc.promote_title"),
+            content: t("admin.manage_acc.promote_content"),
             centered: true,
             onOk: async () => {
-                await ApiAdmin.AssignRole(record.id, { role: "Moderator" });
+                try {
+                    await ApiAdmin.AssignRole(record.id, { role: "Moderator" });
+                    message.success(t("admin.manage_acc.promote_success"));
+                } catch (error) {
+                    console.log(error);
+                }
                 await getUsersData();
             },
             onCancel: async () => {
@@ -150,11 +179,16 @@ async function onDemoteToUser(record: ManageAccountsResp) {
     try {
         // console.log("Demote uid: ", record.id);
         Modal.confirm({
-            title: "Demote Moderator to User",
-            content: "Are you sure you want to demote this moderator to User?",
+            title: t("admin.manage_acc.demote_title"),
+            content: t("admin.manage_acc.demote_content"),
             centered: true,
             onOk: async () => {
-                await ApiAdmin.AssignRole(record.id, { role: "User" });
+                try {
+                    await ApiAdmin.AssignRole(record.id, { role: "User" });
+                    message.success(t("admin.manage_acc.demote_success"));
+                } catch (error) {
+                    console.log(error);
+                }
                 await getUsersData();
             },
             onCancel: async () => {
@@ -166,16 +200,45 @@ async function onDemoteToUser(record: ManageAccountsResp) {
     }
 }
 
+// bộ lọc + trang hiện tại được giữ trên URL (?pageNumber=2&role=User...) và khôi phục khi reload
+const queryNumber = (value: unknown, fallback: number) => {
+    const n = Number(Array.isArray(value) ? value[0] : value);
+    return Number.isInteger(n) && n > 0 ? n : fallback;
+};
+const queryOption = (value: unknown, allowed: string[]) => {
+    const v = Array.isArray(value) ? value[0] : value;
+    return typeof v === "string" && allowed.includes(v) ? v : allowed[0];
+};
+
 const pageParams = reactive({
-    pageNumber: route.query.pageNumber || 1,
-    pageSize: route.query.pageSize || 10,
+    pageNumber: queryNumber(route.query.pageNumber, 1),
+    pageSize: queryNumber(route.query.pageSize, 10),
     keyword: route.query.keyword?.toString() || "",
-    isBanned: route.query.isBanned || account_status_credit_options.value[0].value,
-    role: route.query.role || account_role_credit_options.value[0].value,
+    isBanned: queryOption(route.query.isBanned, optionKeysAccStatus),
+    role: queryOption(route.query.role, optionKeysAccRole),
     fieldName: "Email",
     totalCount: 0,
     statusFilter: false,
 });
+
+const syncQuery = () => {
+    router.replace({
+        query: {
+            pageNumber: String(pageParams.pageNumber),
+            pageSize: String(pageParams.pageSize),
+            ...(pageParams.keyword ? { keyword: pageParams.keyword } : {}),
+            isBanned: pageParams.isBanned,
+            role: pageParams.role,
+        },
+    });
+};
+
+// đổi bộ lọc/từ khoá thì quay về trang 1
+const onFilterChange = () => {
+    pageParams.pageNumber = 1;
+    getUsersData();
+};
+const onKeywordChange = debounce(onFilterChange, 300);
 
 //change when page change (pageParams)
 const onPaginationChange = (page: any, pageSize: any) => {
@@ -212,7 +275,7 @@ const getUsersData = async () => {
         if (mappedRole !== undefined) {
             payload.role = mappedRole;
         } else {
-            delete payload.isBanned;
+            delete payload.role;
         }
 
         let result = await ApiAdmin.GetAllUser(payload as ManageAccountsParams);
@@ -222,6 +285,7 @@ const getUsersData = async () => {
             pageParams.pageNumber = resultData.pageNumber;
             pageParams.pageSize = resultData.pageSize;
             pageParams.totalCount = resultData.totalCount;
+            syncQuery();
         }
     } catch (error) {
         console.log("ERROR: " + error);
@@ -245,23 +309,26 @@ const getUsersData = async () => {
             <div class="filter-input-item">
                 <!-- filter text input  -->
                 <div class="filter-input-full">
-                    <Input
+                    <!-- gắn trực tiếp vào pageParams.keyword nên giá trị khôi phục từ ?keyword= hiển thị đúng -->
+                    <a-input
                         class="custom-input"
                         v-model:value="pageParams.keyword"
                         :placeholder="t('admin.manage_acc.search_placeholder')"
-                        @input="getUsersData"
+                        allow-clear
+                        @input="onKeywordChange"
+                        @press-enter="onFilterChange"
                     >
-                        <template #icon>
+                        <template #prefix>
                             <i class="bx bx-search"></i>
                         </template>
-                    </Input>
+                    </a-input>
                 </div>
 
                 <!-- filter account status -->
                 <a-select
-                    style="width: calc(19%)"
+                    class="filter-select"
                     v-model:value="pageParams.isBanned"
-                    @change="getUsersData"
+                    @change="onFilterChange"
                 >
                     <a-select-option
                         v-for="option in account_status_credit_options"
@@ -274,9 +341,9 @@ const getUsersData = async () => {
 
                 <!-- filter account role -->
                 <a-select
-                    style="width: calc(19%)"
+                    class="filter-select"
                     v-model:value="pageParams.role"
-                    @change="getUsersData"
+                    @change="onFilterChange"
                 >
                     <a-select-option
                         v-for="option in account_role_credit_options"
@@ -302,7 +369,9 @@ const getUsersData = async () => {
                                 <template v-if="user_info.roles.includes('Administrator')">
                                     <!-- icon assign moderator -->
                                     <a-tooltip>
-                                        <template #title> Demote moderator to User </template>
+                                        <template #title>
+                                            {{ t("admin.manage_acc.tooltip_demote") }}
+                                        </template>
                                         <i
                                             v-if="record.role === 'Moderator'"
                                             class="bx bx-id-card"
@@ -313,7 +382,9 @@ const getUsersData = async () => {
 
                                     <!-- icon assign user -->
                                     <a-tooltip>
-                                        <template #title> Promote user to Moderator </template>
+                                        <template #title>
+                                            {{ t("admin.manage_acc.tooltip_promote") }}
+                                        </template>
                                         <i
                                             v-if="record.role === 'User'"
                                             class="bx bx-id-card"
@@ -325,7 +396,9 @@ const getUsersData = async () => {
 
                                 <!-- button ban.active user -->
                                 <a-tooltip>
-                                    <template #title> Ban/Active </template>
+                                    <template #title>
+                                        {{ t("admin.manage_acc.tooltip_ban") }}
+                                    </template>
                                     <a-switch
                                         v-if="record.role !== 'Administrator'"
                                         v-model:checked="record.isBanned"
@@ -370,15 +443,25 @@ const getUsersData = async () => {
     gap: 12px;
 }
 .filter-input-full {
-    width: 100%;
+    flex: 1 1 220px;
+    min-width: 0;
+}
+.filter-select {
+    flex: 0 0 19%;
+    min-width: 130px;
 }
 .custom-input {
     width: 100%;
-    background-color: var(--content-item-background-color);
-    border: 1px solid var(--content-item-border-color);
-    color: var(--text-color);
+    min-width: 0;
+    height: 35px;
     border-radius: 8px;
-    color: var(--text-color);
+}
+.custom-input :deep(input) {
+    min-width: 0;
+    text-overflow: ellipsis;
+}
+.custom-input :deep(i) {
+    margin-right: 6px;
 }
 .account-table {
     width: calc(100% - 70px);
@@ -404,5 +487,23 @@ const getUsersData = async () => {
 
 ::v-deep(.ant-empty-description) {
     color: var(--text-color) !important;
+}
+@media (max-width: 768px) {
+    .filter-input-item {
+        width: 100%;
+        margin: 8px 0;
+        flex-wrap: wrap;
+    }
+    .filter-input-full {
+        flex: 1 1 100%;
+    }
+    .filter-select {
+        flex: 1 1 calc(50% - 6px);
+    }
+    .account-table {
+        width: 100%;
+        margin: 8px 0;
+        overflow-x: auto;
+    }
 }
 </style>

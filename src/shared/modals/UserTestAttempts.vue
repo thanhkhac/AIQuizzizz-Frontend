@@ -7,6 +7,7 @@ import { message, Modal, type TableColumnType } from "ant-design-vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import dayjs from "dayjs";
+import { formatScore } from "@/services/QuestionValidator";
 import { at, attempt } from "lodash";
 import TEST_STATUS from "@/constants/testStatus";
 
@@ -185,6 +186,9 @@ const onRedirectToReview = (attemptId: string) => {
                             :pagination="false"
                         >
                             <template #bodyCell="{ column, record }">
+                                <template v-if="column.key === 'score'">
+                                    {{ formatScore(record.score) }}
+                                </template>
                                 <template v-if="column.key === 'timeStart'">
                                     <div class="text-nowrap">
                                         {{ dayjs(record.timeStart).format("DD/MM/YYYY HH:mm:ss") }}

@@ -242,7 +242,7 @@ body {
     font-weight: 600;
 }
 .main-title span:nth-child(3) {
-    color: #a1a1aa;
+    color: var(--c-text-muted);
     font-size: 16px;
     font-weight: 400;
 }
@@ -263,7 +263,7 @@ body {
 }
 
 .content-item-title span:nth-child(2) {
-    color: #a1a1aa;
+    color: var(--c-text-muted);
     font-size: 16px;
     font-weight: 400;
 }
@@ -318,7 +318,7 @@ Custome a-select
 }
 
 .ant-select-item-option-state {
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
 }
 
 /**
@@ -587,10 +587,10 @@ pre {
 }
 
 .ant-table-column-sorter-up.active {
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
 }
 .ant-table-column-sorter-down.active {
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
 }
 
 /* ========================================UserLayout-Children======================================== */
@@ -743,7 +743,7 @@ pre {
 }
 
 .ant-pagination-item-active {
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
     border-color: var(--main-color) !important;
 }
 
@@ -822,8 +822,9 @@ pre {
     aspect-ratio: 1/1;
     font-size: 16px;
     border-radius: 50%;
-    background: #221a32;
-    color: #7c3aed;
+    background: var(--main-color-theme, #ede9fe);
+    background: color-mix(in srgb, var(--main-color, #7c3aed) 18%, transparent);
+    color: var(--c-primary-text);
     margin-right: 12px;
 }
 
@@ -969,7 +970,7 @@ pre {
     font-size: 50px;
     display: flex;
     flex-direction: column;
-    color: var(--main-color);
+    color: var(--c-primary-text);
 }
 
 .is-dragging {
@@ -1247,7 +1248,7 @@ ol {
 
 .ant-modal-confirm-btns .ant-btn-default:hover {
     background-color: transparent;
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
     border-color: var(--main-color);
 }
 .ant-modal-close-x {
@@ -1298,7 +1299,7 @@ ol {
 /* customized pop-confirm buttons */
 .ant-popconfirm-buttons .ant-btn-default:hover {
     border-color: var(--main-color);
-    color: var(--main-color);
+    color: var(--c-primary-text);
 }
 
 .ant-popconfirm-buttons .ant-btn-primary {
@@ -1479,6 +1480,35 @@ ol {
     pointer-events: none;
 }
 
+/* nút chính bị vô hiệu hoá: chữ trắng trên nền xám nhạt không đọc được ở light mode -> dùng biến theme */
+.main-color-btn:disabled,
+.main-color-btn[disabled],
+.main-color-btn.main-color-btn-disabled,
+.main-color-btn:disabled:hover,
+.main-color-btn[disabled]:hover,
+.main-color-btn.main-color-btn-disabled:hover {
+    opacity: 1;
+    background-color: var(--background-color-selected) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color-grey) !important;
+    cursor: not-allowed;
+}
+
+.main-color-btn:disabled span,
+.main-color-btn[disabled] span,
+.main-color-btn.main-color-btn-disabled span {
+    color: var(--text-color-grey) !important;
+}
+
+.theme-light .main-color-btn:disabled,
+.theme-light .main-color-btn[disabled],
+.theme-light .main-color-btn.main-color-btn-disabled,
+.theme-light .main-color-btn:disabled span,
+.theme-light .main-color-btn[disabled] span,
+.theme-light .main-color-btn.main-color-btn-disabled span {
+    color: #5c5c5c !important;
+}
+
 .main-color-btn-ghost {
     display: flex;
     align-items: center;
@@ -1487,7 +1517,7 @@ ol {
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
     background: transparent !important;
 }
 
@@ -1702,7 +1732,7 @@ ol {
 }
 
 .sortable-chosen .matching-icon {
-    color: var(--main-color);
+    color: var(--c-primary-text);
 }
 
 .answer-option-container.matching {
@@ -1855,7 +1885,7 @@ Custom a-input-number
 }
 
 .ant-input-number-handler:hover .anticon {
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
 }
 
 .ant-input-number-affix-wrapper {
@@ -1984,7 +2014,7 @@ Custom a-switch
 
 .current-question {
     border-color: var(--main-color);
-    color: var(--main-color);
+    color: var(--c-primary-text);
 }
 
 .completed-question {
@@ -2036,7 +2066,7 @@ Custom a-switch
     border-radius: 8px;
     margin: 0px 10px;
     font-size: 16px;
-    color: var(--main-color);
+    color: var(--c-primary-text);
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -2056,7 +2086,7 @@ Custom a-switch
 
 .import-button:nth-child(2) {
     border: 2px solid transparent;
-    color: var(--text-color-contrast);
+    color: #fff; /* on the fixed purple-to-orange gradient, independent of the accent colour */
 
     background: linear-gradient(97deg, #5813c1 -5.8%, #c45037 99.69%);
     background-size: 200% 200%;
@@ -2198,46 +2228,17 @@ Custom a-switch
 }
 
 /**
-* custome vue-virtual-scroller
+* danh sách câu hỏi trong editor: danh sách thường (không ảo hoá) để chiều cao luôn khớp nội dung
 **/
-.scroller {
-    height: 100vh;
-    overflow-y: auto;
+.question-list {
     border: 1px solid var(--content-item-border-color);
     border-radius: 5px;
     padding: 0px 8px;
-
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-
-    will-change: scroll-position;
-    transform: translateZ(0);
 }
 
-.scroller::-webkit-scrollbar {
-    width: 12px;
-    background-color: transparent;
-}
-
-.scroller::-webkit-scrollbar-thumb {
-    height: 100px;
-    background-color: var(--main-color);
-    border-radius: 6px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-
-    will-change: transform;
-    transform: translateZ(0);
-
-    transition: background-color 0.2s ease;
-}
-
-.scroller::-webkit-scrollbar-thumb:hover {
-    background-color: var(--main-sub-color);
-}
-
-.scroller::-webkit-scrollbar-track {
-    background-color: transparent;
+.question-list .question-container {
+    max-height: none;
+    overflow: visible;
 }
 
 /**

@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
-const router = useRouter();
-const onRedirectToSubcription = () => {
-    sessionStorage.setItem("setting_key", "Subscription");
-    router.push({ name: "User_Settings" });
-};
 </script>
 
 <template>
@@ -19,18 +13,35 @@ const onRedirectToSubcription = () => {
                 <a href="/user/library" class="btn btn-glass px-4 py-2">
                     {{ $t("now_allowed.libraryNavigator") }}
                 </a>
-                <a @click="onRedirectToSubcription" class="btn btn-glass px-4 py-2">
-                    {{ $t("now_allowed.subscriptionNavigator") }}
-                </a>
             </div>
         </div>
     </div>
 </template>
 <style scoped>
+.error-page {
+    min-height: 100vh;
+    background: linear-gradient(50deg, #5813c1 0%, #c45037 100%);
+}
 .error-container {
     max-width: 100% !important;
 }
 .error-code {
     font-size: 6rem;
+    font-weight: 900;
+    color: #fff;
+}
+.error-message {
+    color: rgba(255, 255, 255, 0.92);
+}
+.btn-glass {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    transition: all 0.3s ease;
+}
+.btn-glass:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: #fff;
 }
 </style>

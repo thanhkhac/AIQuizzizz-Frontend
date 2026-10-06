@@ -2,6 +2,8 @@
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import Highcharts from "highcharts";
 import ApiAdmin from "@/api/ApiAdmin";
+import { useI18n } from "vue-i18n";
+import { getChartTheme, getMonthNames, observeTheme } from "./chartTheme";
 
 type ApiPoint = { month: number; revenue: number };
 
@@ -13,22 +15,16 @@ const props = defineProps<{
     background?: string;
 }>();
 
-const MONTH_NAMES = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-] as const;
+const { t, locale } = useI18n();
+const monthNames = () => getMonthNames(locale.value);
+const chartTitle = (year: number) =>
+    t("admin.manage_subscription.chart.in_year", {
+        title: props.title ?? "Monthly New Class",
+        year,
+    });
 
 const containerRef = ref<HTMLElement | null>(null);
+let stopThemeWatch: (() => void) | null = null;
 let chart: Highcharts.Chart | null = null;
 let ro: ResizeObserver | null = null;
 let yearSelected: HTMLSelectElement | null = null;
@@ -45,7 +41,7 @@ const emit = defineEmits<{
 function mapPoints(data: ApiPoint[]): Highcharts.PointOptionsType[] {
     const byMonth = new Map<number, number>();
     data.forEach((p) => byMonth.set(p.month, p.revenue));
-    return MONTH_NAMES.map((name, idx) => {
+    return monthNames().map((name, idx) => {
         const m = idx + 1;
         const val = byMonth.get(m);
         return { name, y: val ?? 0 };
@@ -60,7 +56,7 @@ function buildSeriesForYear(year: number, data: ApiPoint[]) {
     const byMonth = new Map<number, number>();
     data.forEach((p) => byMonth.set(p.month, p.revenue));
 
-    const categories = MONTH_NAMES.slice(0, limit);
+    const categories = monthNames().slice(0, limit);
     const points: Highcharts.PointOptionsType[] = categories.map((name, idx) => {
         const m = idx + 1;
         const val = byMonth.get(m);
@@ -83,11 +79,7 @@ const getNewClassData = async (year: number) => {
             chart.series[0].setData(points as any, false);
             chart.xAxis[0].setCategories(categories as any, false);
             chart.xAxis[0].setExtremes(0, categories.length - 1, false);
-            chart.setTitle(
-                { text: `${props.title ?? "Monthly New Class"} in ${year}` },
-                undefined,
-                false,
-            );
+            chart.setTitle({ text: chartTitle(year) }, undefined, false);
             chart.redraw();
         }
     } catch (err) {
@@ -106,6 +98,7 @@ function attachYearSelect(c: Highcharts.Chart) {
         yearSelected.parentElement.removeChild(yearSelected);
     }
 
+    const theme = getChartTheme();
     const select = document.createElement("select");
     yearSelected = select;
 
@@ -114,9 +107,9 @@ function attachYearSelect(c: Highcharts.Chart) {
         top: "10px",
         right: "10px",
         zIndex: "2000",
-        background: "#222",
-        color: "#fff",
-        border: "1px solid #555",
+        background: theme.controlBackground,
+        color: theme.text,
+        border: `1px solid ${theme.controlBorder}`,
         borderRadius: "10px",
         padding: "2px 6px",
     } as CSSStyleDeclaration);
@@ -148,10 +141,15 @@ function renderChart() {
 
     chart?.destroy();
 
+    const theme = getChartTheme();
+    // màn hình hẹp: chừa 1 hàng phía trên cho select năm để không đè lên tiêu đề
+    const narrow = containerRef.value.clientWidth < 520;
     chart = Highcharts.chart(containerRef.value as HTMLElement, {
+        credits: { enabled: false },
         chart: {
             type: "column",
-            backgroundColor: props.background ?? "#151518",
+            backgroundColor: props.background ?? theme.background,
+            spacingTop: narrow ? 46 : 10,
             events: {
                 load: function (this: Highcharts.Chart) {
                     attachYearSelect(this);
@@ -159,34 +157,35 @@ function renderChart() {
             },
         },
         title: {
-            text: `${props.title ?? "Monthly New Class"} in ${currentYear}`,
-            style: { color: "#fff" },
+            text: chartTitle(currentYear.value),
+            style: { color: theme.text },
+            ...({ widthAdjust: narrow ? 0 : -110 } as object), // chừa chỗ cho select năm ở góc phải (màn hình hẹp: select nằm hàng riêng phía trên)
         },
         xAxis: {
-            categories: [...MONTH_NAMES],
-            labels: { style: { color: "#fff" } },
-            lineColor: "#fff",
-            tickColor: "#fff",
+            categories: monthNames(),
+            labels: { style: { color: theme.text } },
+            lineColor: theme.text,
+            tickColor: theme.text,
             tickInterval: 1,
         },
         yAxis: {
-            title: { text: "Number of class", style: { color: "#fff" } },
+            title: { text: t("admin.manage_subscription.chart.y_class"), style: { color: theme.text } },
             labels: {
                 formatter() {
                     const n = Number(this.value);
                     const loc = props.locale || "en-US";
                     return new Intl.NumberFormat(loc).format(n);
                 },
-                style: { color: "#fff" },
+                style: { color: theme.text },
             },
-            gridLineColor: "#444",
+            gridLineColor: theme.grid,
         },
         legend: { enabled: false },
         series: [
             {
                 type: "column",
-                name: "Class",
-                color: "#00FF00",
+                name: t("admin.manage_subscription.chart.series_class"),
+                color: theme.series,
                 data: seriesData.value,
             },
         ],
@@ -194,7 +193,7 @@ function renderChart() {
             column: {
                 dataLabels: {
                     enabled: true,
-                    style: { color: "#fff" },
+                    style: { color: theme.text },
                     formatter() {
                         const value = this.y ?? 0;
                         const loc = props.locale || "en-US";
@@ -214,6 +213,17 @@ onMounted(async () => {
     await nextTick();
     renderChart();
     await getNewClassData(currentYear.value);
+    // đổi theme sáng/tối: vẽ lại biểu đồ với màu mới
+    stopThemeWatch = observeTheme(async () => {
+        renderChart();
+        await getNewClassData(currentYear.value);
+    });
+});
+
+// đổi ngôn ngữ: vẽ lại để tên tháng / tiêu đề trục đổi theo
+watch(locale, async () => {
+    renderChart();
+    await getNewClassData(currentYear.value);
 });
 
 watch(
@@ -228,6 +238,7 @@ watch(
 );
 
 onBeforeUnmount(() => {
+    stopThemeWatch?.();
     ro?.disconnect();
     chart?.destroy();
     chart = null;

@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import google_logo from "@/assets/google_logo.png";
 
-import { reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
 import ApiAuthentication from "@/api/ApiAuthentication";
 import { message } from "ant-design-vue";
 import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
 import { useI18n } from "vue-i18n";
+import {
+    getBannedInfo,
+    notifyLoginError,
+    popBannedReason,
+    formatBanReason,
+    type BannedInfo,
+} from "@/services/LoginErrorService";
 
 const google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -32,7 +39,13 @@ const rules = {
             message: t("auth.validation.required"),
             trigger: "change",
         },
+        {
+            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: t("auth.validation.email"),
+            trigger: "change",
+        },
     ],
+    // chỉ yêu cầu không để trống (không kiểm tra độ dài để không chặn mật khẩu cũ)
     password: [
         {
             required: true,
@@ -42,22 +55,34 @@ const rules = {
     ],
 };
 
-const onFinish = () => {
-    formRef.value.validate().then(async () => {
-        try {
-            button_loading.value = true;
-            let login_result = await ApiAuthentication.Login(formState);
+// tài khoản bị cấm: hiển thị lý do (do admin nhập) ngay trên form
+const bannedInfo = ref<BannedInfo | null>(null);
 
-            if (login_result.data.success) {
-                message.success("Login successfully. Redirecting...");
-                authStore.LoginSuccessful();
+const onFinish = () => {
+    formRef.value
+        .validate()
+        .then(async () => {
+            try {
+                button_loading.value = true;
+                bannedInfo.value = null;
+                let login_result = await ApiAuthentication.Login(formState);
+
+                if (login_result?.data?.success) {
+                    message.success("Login successfully. Redirecting...");
+                    authStore.LoginSuccessful();
+                }
+            } catch (error) {
+                const banned = getBannedInfo(error);
+                if (banned) {
+                    bannedInfo.value = banned;
+                } else {
+                    notifyLoginError(error);
+                }
+            } finally {
+                button_loading.value = false;
             }
-        } catch (error) {
-            console.log(error);
-        } finally {
-            button_loading.value = false;
-        }
-    });
+        })
+        .catch(() => {}); // lỗi validate đã hiển thị inline trên form
 };
 const onGoogleLogin = async () => {
     sessionStorage.setItem("returnURL", authStore.returnURL); //set before leave
@@ -66,6 +91,11 @@ const onGoogleLogin = async () => {
         .assign(`https://accounts.google.com/o/oauth2/v2/auth?client_id=${google_client_id}&redirect_uri=${origin}/google-authentication-callback&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent
 `);
 };
+
+onMounted(() => {
+    // bị cấm khi đăng nhập Google -> trang callback chuyển lý do sang đây
+    bannedInfo.value = popBannedReason();
+});
 </script>
 <template>
     <div class="authentication-item">
@@ -74,14 +104,34 @@ const onGoogleLogin = async () => {
             <span>{{ $t("auth.instructions.signIn") }}</span>
         </div>
 
+        <a-alert
+            v-if="bannedInfo"
+            class="banned-alert"
+            type="error"
+            show-icon
+            closable
+            :message="$t('ERROR_CODE.ACCOUNT_BANNED')"
+            @close="bannedInfo = null"
+        >
+            <template #description>
+                <div class="banned-alert-reason">
+                    <b>{{ $t("auth.banned.reason") }}:</b>
+                    {{ formatBanReason(bannedInfo.reason) }}
+                </div>
+                <div class="banned-alert-contact">{{ $t("auth.banned.contact") }}</div>
+            </template>
+        </a-alert>
+
         <div class="authentication-item-external-login">
             <div class="external-login external-login-google" @click="onGoogleLogin">
                 <div :style="{ backgroundImage: `url(${google_logo})` }"></div>
                 <div>Google</div>
             </div>
         </div>
-        <a-divider style="height: 1px; background-color: #d9d9d9">
-            <span style="background-color: #fff; padding: 0px 10px">OR</span>
+        <a-divider style="height: 1px; background-color: var(--c-border)">
+            <span style="background-color: var(--background-color); color: var(--c-text-muted); padding: 0px 10px">{{
+                $t("auth.others.or")
+            }}</span>
         </a-divider>
         <a-form
             class="authentication-item-form"
@@ -96,7 +146,7 @@ const onGoogleLogin = async () => {
                 <a-input
                     size="large"
                     v-model:value="formState.email"
-                    placeholder="Your email address..."
+                    :placeholder="$t('auth.inputs.emailPlaceholder')"
                 >
                     <template #addonBefore>
                         <MailOutlined />
@@ -108,7 +158,7 @@ const onGoogleLogin = async () => {
                 <a-input-password
                     size="large"
                     v-model:value="formState.password"
-                    placeholder="Mật khẩu"
+                    :placeholder="$t('auth.inputs.password')"
                 >
                     <template #addonBefore>
                         <LockOutlined />
@@ -129,7 +179,7 @@ const onGoogleLogin = async () => {
             </a-form-item>
         </a-form>
         <div class="authentication-item-navigator">
-            {{ $t("auth.navigators.signUp_signIn_ins") }}
+            {{ $t("auth.navigators.signIn_signUp_ins") }}
             <RouterLink :to="{ name: 'register' }">
                 {{ $t("auth.navigators.signUp_link") }}
             </RouterLink>
@@ -141,3 +191,20 @@ const onGoogleLogin = async () => {
         </div>
     </div>
 </template>
+<style scoped>
+.banned-alert {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.banned-alert-reason {
+    white-space: pre-line;
+    word-break: break-word;
+}
+
+.banned-alert-contact {
+    margin-top: 4px;
+    font-size: 12px;
+    opacity: 0.8;
+}
+</style>

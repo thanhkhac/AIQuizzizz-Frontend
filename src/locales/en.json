@@ -1,9 +1,14 @@
 {
+    "404": {
+        "errorMessage": "Not Found!",
+        "errorDescription": "Sorry, the site you're trying to access can't be found",
+        "homePageNavigator": "Back to home page"
+    },
     "auth": {
         "greetings": {
             "signIn": "Welcome back!",
             "signUp": "Create Account",
-            "forgotPassword": "Forgot your password ?",
+            "forgotPassword": "Forgot your password?",
             "resetPassword": "You're finally here 😄. Let's reset your password !",
             "verify_email": "The verification email has been sent.",
             "create_password": "Welcome to AIQuizizz!"
@@ -14,6 +19,7 @@
             "forgotPassword": "Don't worry we got you 😉. Enter your email address and we will send you instructions to reset your password.",
             "resetPassword": "Enter a new password below to change your password.",
             "verify_email": "We have sent an OTP to your email {email}. Please check your inbox 📬",
+            "verify_email_no_address": "Enter the email you registered with and the verification code we sent you.",
             "send_email_result": "Email sent successfully!",
             "create_password": "This step offers an alternative way to log in to our system. Feel free to skip this step if it doesn't apply to you."
         },
@@ -21,13 +27,14 @@
             "username": "Username",
             "fullName": "Full Name",
             "email": "Email",
-            "emailPlaceholder": "name@example.com",
+            "emailPlaceholder": "name{'@'}example.com",
             "password": "Password",
             "confirmPassword": "Confirm password",
             "code": "OTP",
             "code_placeholder": "Code sent with email",
             "new_password": "New password",
-            "new_password_confirmation": "Confirm new password"
+            "new_password_confirmation": "Confirm new password",
+            "code_numeric_placeholder": "6-digit code"
         },
         "buttons": {
             "signIn": "Sign In",
@@ -40,10 +47,10 @@
         },
         "navigators": {
             "signUp_signIn_ins": "Already have an account?",
-            "signIn_signUp_ins": "Don't have an account ?",
-            "forgot_signIn_ins": "Remember it ?",
-            "reset_signIn_ins": "You're done yet ?",
-            "signIn_forgot_link": "Forgot your password ?",
+            "signIn_signUp_ins": "Don't have an account?",
+            "forgot_signIn_ins": "Remember it?",
+            "reset_signIn_ins": "Are you done yet?",
+            "signIn_forgot_link": "Forgot your password?",
             "signIn_link": "Sign In",
             "signUp_link": "Sign Up",
             "back_signIn_link": "Back to Sign In",
@@ -57,8 +64,23 @@
             "required": "This field is required",
             "out_of_range": "Limit: {max_length} characters",
             "email": "This field requires correct email format",
-            "password": "Password must be at least 6 characters(1 upper, 1 lower, 1 number, 1 special character).",
-            "confirm_password": "Confirm password must match with password"
+            "password": "Password must be at least 8 characters and contain at least 1 letter and 1 number.",
+            "confirm_password": "Confirm password must match with password",
+            "same_password": "The new password must be different from the current password"
+        },
+        "banned": {
+            "reason": "Reason",
+            "no_reason": "No reason was provided.",
+            "auto_strikes": "Your account was automatically banned for {count} community-guideline violations (nudity/violence) within {days} days.",
+            "contact": "If you think this is a mistake, please contact the administrator."
+        },
+        "verify": {
+            "send_success_title": "Email sent successfully!",
+            "resend_success_desc": "We have sent a new verification code to your inbox.",
+            "verified_title": "Email verified",
+            "verified_desc": "Your email has been verified. Redirecting to sign in...",
+            "failed_title": "Verification failed",
+            "failed_desc": "Something went wrong. Please try again."
         }
     },
     "homepage": {
@@ -74,7 +96,6 @@
                 "explore": "Explore Quizzes"
             }
         },
-
         "categories": {
             "sub_title": "Categories",
             "moto": {
@@ -150,15 +171,10 @@
             }
         }
     },
-    "404": {
-        "errorMessage": "Not Found!",
-        "errorDescription": "Sorry, the site you're trying to access can't be found",
-        "homePageNavigator": "Back to home page"
-    },
     "now_allowed": {
         "main_msg": "Access Denied!",
         "errorMessage": "The resource or feature you're trying to access is not available!",
-        "errorDescription": "Please request access from the resource owner or upgrade your plan subscription.",
+        "errorDescription": "You do not have permission to view this content. Please ask the owner to share it with you.",
         "libraryNavigator": "Back to your library",
         "subscriptionNavigator": "Upgrade your plan subscription"
     },
@@ -184,6 +200,12 @@
         },
         "others": {
             "Manage": "Manage"
+        },
+        "admin": {
+            "account": "Account management",
+            "subscription": "Subscription management",
+            "system_settings": "System settings",
+            "switch_to_user": "Switch to user"
         }
     },
     "dashboards": {
@@ -207,7 +229,7 @@
         },
         "list_items": {
             "quiz": {
-                "questions": "questions",
+                "questions": "{n} question | {n} questions",
                 "learningProgress": "Learning progress"
             },
             "schedule": {
@@ -229,12 +251,12 @@
             "All": "All",
             "CreatedByMe": "Created by me",
             "ShareWithMe": "Shared with me",
-            "createdBy": "Create by {user}"
+            "createdBy": "Created by {user}"
         },
         "sections": {
             "quiz": {
                 "title": "Quizzes",
-                "sub_title": "Browse and access all you quizzes"
+                "sub_title": "Browse and access all your quizzes"
             }
         },
         "empty_description": "We couldn't find any results with your keywords.",
@@ -253,7 +275,6 @@
     "create_QS": {
         "title": "Create New Quiz",
         "sub_title": "Add questions, set answers and configure quiz settings",
-
         "quiz": {
             "title": "Quiz Title",
             "description": "Description",
@@ -284,19 +305,19 @@
         },
         "question": {
             "question": "Question",
+            "score": "Score",
             "text": "Question text",
             "text_placeholder": "Enter question text",
             "explain_text": "Explain text (optional)",
-            "explain_text_placeholder": "Enter explaination",
+            "explain_text_placeholder": "Enter explanation",
             "answer_option": "Answer options",
             "answer_option_placeholder": "Enter option text",
             "answer_text": "Answer text",
             "answer_text_placeholder": "Enter answer text",
-
             "multiple_choice_ins": "Choose at least one correct option",
             "matching_ins": "Each option is a correct pair",
             "ordering_ins": "Fill these options in the correct order",
-            "short_text_ins": "These might be correct answers base on user input",
+            "short_text_ins": "These might be correct answers based on user input",
             "short_text_valid_answer": "Valid answers"
         },
         "error_msg": {
@@ -311,7 +332,24 @@
         "modal": {
             "invalid": {
                 "title": "Cannot perform this action!",
-                "content": "There are errors at questions: "
+                "content": "There are errors at questions: ",
+                "question_reason": "Question {number}: {reasons}",
+                "reasons": {
+                    "blank_question": "question text is blank",
+                    "question_too_long": "question text is too long (max 5000 characters)",
+                    "explain_too_long": "explanation is too long (max 5000 characters)",
+                    "invalid_score": "score must be between 0 and 999",
+                    "too_few_options": "at least 2 options are required",
+                    "blank_option": "an option is blank",
+                    "option_too_long": "an option is too long (max 1000 characters)",
+                    "no_correct_answer": "no correct answer is selected",
+                    "duplicate_options": "duplicate options",
+                    "too_few_pairs": "at least 2 pairs are required",
+                    "blank_pair": "a pair has a blank side",
+                    "too_few_items": "at least 2 items are required",
+                    "blank_item": "an item is blank",
+                    "blank_short_answer": "the answer is blank"
+                }
             },
             "valid": {
                 "title": "Create new question set!",
@@ -368,7 +406,7 @@
         "profile": {
             "title": "Profile Information",
             "sub_title": "Update your profile information and public details",
-            "fullname_label": "FullName",
+            "fullname_label": "Full name",
             "fullname_placeholder": "Enter your full name",
             "email_label": "Email",
             "email_placeholder": "Enter your email",
@@ -423,7 +461,7 @@
             "title": "Subscription Plan",
             "sub_title": "Manage your subscription and billing details",
             "plan": {
-                "title": "Plan comparation",
+                "title": "Plan comparison",
                 "sub_title": "Compare available subscription plans",
                 "popular": "Popular",
                 "learn": "Learn",
@@ -437,16 +475,41 @@
                 "day_singular": "day",
                 "day_plural": "days",
                 "hour_plural": "hours",
-                "hour_singular": "hour"
+                "hour_singular": "hour",
+                "copy_import": "Copy/import question sets",
+                "upload_image": "Upload images",
+                "upload_video": "Upload videos",
+                "valid_until": "Valid until {date}"
             },
             "buttons": {
-                "Change_plan": "Change plan"
+                "Change_plan": "Change plan",
+                "current_plan": "Current plan"
+            },
+            "current": {
+                "label": "Your current plan",
+                "free_plan": "No active plan",
+                "no_expiry": "No expiry date"
+            },
+            "confirm": {
+                "title": "Are you sure you want to perform this action?",
+                "content": "This will cost you {price}đ for purchasing this plan."
             }
         },
         "billing": {
             "title": "Billing and transaction",
             "sub_title": "Observe your transaction history and upgrade your plan.",
             "transaction_count": "Transactions",
+            "col": {
+                "no": "No.",
+                "date": "Date",
+                "plan": "Plan",
+                "amount": "Amount",
+                "status": "Status"
+            },
+            "status": {
+                "paid": "Paid",
+                "topup": "Deposit"
+            },
             "bank": {
                 "name": "Account name",
                 "number": "Bank account number",
@@ -454,7 +517,7 @@
             },
             "deposit": {
                 "title": "Top up",
-                "content": "Top up into AIQuiz to convert to AIQuiz Points and use"
+                "content": "Top up into AIQuizizz to convert to AIQuizizz Points and use"
             },
             "qr": {
                 "title": "Create payment QR Code",
@@ -473,20 +536,25 @@
                 "close_btn": "Close"
             },
             "err": {
-                "number_only": "Please enter only integers",
-                "greater_than_5000": "Amount must be greater than to 5000 VND"
+                "number_only": "Please enter a whole number (digits only)",
+                "greater_than_5000": "Amount must be at least 5,000 VND",
+                "required": "Please enter an amount",
+                "too_large": "Amount must be at most 2,000,000,000 VND",
+                "qr_failed": "Failed to create the QR code."
             },
             "note": {
                 "title": "Important Note",
                 "content1": "Please keep the transfer content intact to avoid not receiving AIQuizizz points.",
                 "content2": "After transferring money, please wait at least 1 minute for the system to process.",
                 "contact": "Contact support"
-            }
+            },
+            "points": "AIQuizizz Points",
+            "amount_placeholder": "Amount (VND)"
         }
     },
     "share_modal": {
         "title": "Share ",
-        "sub_title": "Share t his quiz with students, colleagues, or on social media",
+        "sub_title": "Share this quiz with students, colleagues, or on social media",
         "mode": {
             "quiz": "Quiz",
             "folder": "Folder",
@@ -508,11 +576,11 @@
         },
         "permission": {
             "Editable": {
-                "mode": "edit",
+                "mode": "Can edit",
                 "explain": "Organise, add and edit"
             },
             "ViewOnly": {
-                "mode": "view",
+                "mode": "Can view",
                 "explain": "View only"
             },
             "Owner": {
@@ -552,7 +620,8 @@
             "library": "Library",
             "created_by": "Created by {username}",
             "reviews": "reviews",
-            "questions": "Questions ({number})"
+            "questions": "Questions ({number})",
+            "no_questions_found": "No questions found"
         },
         "modal": {
             "delete_title": "Are you sure to delete this question set?",
@@ -610,7 +679,7 @@
             "dont_know": "Don't know?",
             "submit": "Submit",
             "comment": "Comments",
-            "explaination": "Explaination",
+            "explaination": "Explanation",
             "next_question": "Next question",
             "cancel": "Cancel",
             "send_comment": "Comment",
@@ -625,7 +694,7 @@
             "total_set_progress": "Total set progress: ",
             "total_question": "Total question: ",
             "preview_modal_title": "Questions completed in this session",
-            "preview_modal_continues_ins": "Press button to continues",
+            "preview_modal_continues_ins": "Press the button to continue",
             "complete_modal_congratulation": "Nice work! You've completed it!",
             "complete_modal_ins": "Try another round to practice difficult questions, or test your knowledge!"
         }
@@ -688,7 +757,16 @@
             "completions": "completions",
             "assigned": "Assigned",
             "ago": " ago",
-            "start_in": "Start in "
+            "start_in": "Start in ",
+            "assigned_just_now": "Assigned just now",
+            "questions_n": "{n} question | {n} questions",
+            "completions_n": "{n} completion | {n} completions",
+            "unit_minute": "{n} minute | {n} minutes",
+            "unit_hour": "{n} hour | {n} hours",
+            "unit_day": "{n} day | {n} days",
+            "unit_week": "{n} week | {n} weeks",
+            "unit_month": "{n} month | {n} months",
+            "unit_year": "{n} year | {n} years"
         },
         "modal": {
             "delete_title": "Are you sure to delete this test from class?",
@@ -709,7 +787,8 @@
             "history_test": "History test",
             "delete_class": "Delete class",
             "reset_code": " Reset code",
-            "move_out_class": "Move out class"
+            "move_out_class": "Move out class",
+            "confirm_leave_class": "Leave"
         },
         "other": {
             "search_placeholder": "Search class member...",
@@ -721,7 +800,9 @@
             "title": "Danger Zone",
             "sub_title": "Irreversible actions for your class",
             "warning": "Delete class",
-            "warning_explain": "Once you delete your class, there is no going back. All your data will be permanently removed"
+            "warning_explain": "Once you delete your class, there is no going back. All your data will be permanently removed",
+            "leave_title": "Leave this class?",
+            "leave_explain": "You will lose access to this class's tests and results. You can only rejoin with a new invitation."
         },
         "modal": {
             "title": "Invite members",
@@ -791,7 +872,8 @@
         "modal": {
             "create_title": "Create new folder",
             "create_folder_name_label": "Folder name",
-            "create_folder_name_placeholder": "New folder name"
+            "create_folder_name_placeholder": "New folder name",
+            "choose_folder_title": "Choose folder"
         },
         "other": {
             "search_class_placeholder": "Search folder by name...",
@@ -801,11 +883,14 @@
         }
     },
     "test_template_index": {
+        "title": "Test templates",
+        "sub_title": "Manage your reusable test templates and organize them into folders.",
         "other": {
             "items": "templates"
         }
     },
     "folder_detail": {
+        "search_placeholder": "Search by name...",
         "title": "Folder Detail",
         "modal": {
             "create_title": "Update folder",
@@ -881,6 +966,12 @@
         "buttons": {
             "choose_from_folder": "Choose from folder",
             "next": "Next"
+        },
+        "modal": {
+            "valid": {
+                "title": "Create new test!",
+                "content": "Make sure to review your contents before proceeding."
+            }
         }
     },
     "update_test": {
@@ -941,7 +1032,8 @@
     "schedule": {
         "title": "Exam Schedule",
         "current_date": "Date: {date}",
-        "count_exam": "Exam schedule: "
+        "count_exam": "Exam schedule: ",
+        "tests_count": "{n} test | {n} tests"
     },
     "import_qs_modal": {
         "title": "Import Questions",
@@ -989,7 +1081,7 @@
             "language": "Language",
             "maximum_question": "Maximum questions",
             "question_types": "Question types",
-            "enable_explaination": "Enable explaination",
+            "enable_explaination": "Enable explanation",
             "reference_name": "Reference name",
             "reference_name_placeholder": "Enter document title for citation"
         },
@@ -997,7 +1089,8 @@
             "generate": "✨ Generate"
         },
         "other": {
-            "ai_warning": "AI can make mistakes. Please check carefully the important info."
+            "ai_warning": "AI can make mistakes. Please check carefully the important info.",
+            "upload_hint": "Upload a PDF document. AI will analyze its structure so you can choose which sections to generate questions from."
         }
     },
     "generate_file_structure": {
@@ -1023,7 +1116,9 @@
         "select_folder": "Select folder",
         "folder": "Folder: {name}",
         "select_template": "Select template",
-        "choose_question": "Choose question"
+        "choose_question": "Choose question",
+        "import_confirm_title": "Import selected questions?",
+        "import_confirm_content": "{number} question(s) will be added to your test."
     },
     "exam_result": {
         "test_name": "Test name : {name}",
@@ -1064,6 +1159,38 @@
             "review": "Review"
         }
     },
+    "question_media": {
+        "label": "Image / video",
+        "one_media_hint": "one image or one video per question",
+        "upload_image": "Upload image",
+        "upload_video": "Upload video",
+        "drop_hint": "or drag & drop a file here",
+        "image_limit": "Image: up to {max} MB",
+        "video_limit": "Video: up to {max} MB, {seconds} seconds",
+        "uploading": "Uploading... {percent}%",
+        "processing": "Processing...",
+        "processing_video": "Processing video, this may take a few minutes. You can keep editing other questions.",
+        "upload_success": "Media uploaded successfully",
+        "replace": "Replace",
+        "remove": "Remove",
+        "remove_confirm": "Remove the media from this question?",
+        "attached": "Media attached",
+        "plan_not_allowed": "Your current plan does not allow attaching images or videos to questions. Upgrade your plan to use this feature.",
+        "loading_permission": "Checking media permissions...",
+        "permission_failed": "Could not load media permissions.",
+        "retry": "Retry",
+        "wait_for_upload": "Please wait until all media uploads have finished.",
+        "image_alt": "Question image",
+        "expired": "This media could not be loaded (the link may have expired).",
+        "reload": "Reload",
+        "refresh_page": "Please refresh the page to load it again.",
+        "preview_expired_editor": "The media is still attached to the question; the preview link has expired.",
+        "reload_unavailable": "Cannot reload media right now. Please refresh the page.",
+        "error": {
+            "too_large": "The file exceeds the allowed size ({max} MB)",
+            "too_long": "The video exceeds the allowed duration ({max} seconds)"
+        }
+    },
     "ERROR_CODE": {
         "COMMON_FORBIDDEN": "Forbidden",
         "COMMON_SERVER_INTERNAL_ERROR": "Internal server error",
@@ -1074,7 +1201,6 @@
         "COMMON_TIMEOUT_ERROR": "Request timed out",
         "COMMON_UNAUTHORIZED": "User not authenticated",
         "COMMON_INVALID_MODEL": "Invalid model data",
-
         "FIELD_NAME_NOT_FOUND": "Field name not found",
         "IDENTITY_DUPLICATE_EMAIL": "Duplicate email detected",
         "NUMBER_OF_QUESTION_EXCEED_LIMIT": "Number of questions exceeded the allowed limit",
@@ -1091,11 +1217,11 @@
         "ACCOUNT_INVALID_VERIFICATION_CODE": "Invalid verification code",
         "ACCOUNT_LOCKED_OUT": "Account is locked out",
         "ACCOUNT_WRONG_PASSWORD": "Wrong password",
+        "ACCOUNT_NEW_PASSWORD_SAME_AS_CURRENT": "The new password must be different from the current password",
         "EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY": "Too many failed verification attempts",
         "EMAIL_VERIFICATION_REQUEST_TOO_MANY": "Too many verification requests",
         "PASSWORD_RESET_CODE_FAILED_TOO_MANY": "Too many failed reset code attempts",
         "PASSWORD_RESET_REQUEST_TOO_MANY": "Too many reset requests",
-
         "IDENTITY_DEFAULT_ERROR": "An identity error occurred",
         "IDENTITY_CONCURRENCY_FAILURE": "Concurrency failure occurred",
         "IDENTITY_PASSWORD_MISMATCH": "Password mismatch",
@@ -1117,7 +1243,6 @@
         "IDENTITY_PASSWORD_REQUIRES_DIGIT": "Password requires a digit",
         "IDENTITY_PASSWORD_REQUIRES_LOWER": "Password requires a lowercase letter",
         "IDENTITY_PASSWORD_REQUIRES_UPPER": "Password requires an uppercase letter",
-
         "CLASS_NOTFOUND": "Class not found",
         "CLASS_ALREADY_EXISTS": "Class already exists",
         "CLASS_CODE_NOT_FOUND": "Class code not found",
@@ -1128,21 +1253,18 @@
         "PERMISSION_NOT_FOUND": "Permission not found",
         "NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS": "Lecturer or owner not found in class",
         "NOT_FOUND_USER_IN_CLASS": "User not found in class",
-
         "QUESTION_SET_ALREADY_IN_CLASS": "Question set already in class",
         "QUESTION_SET_NOT_FOUND": "Question set not found",
         "QUESTION_SET_NOT_FOUND_IN_CLASS": "Question set not found in class",
         "INVALID_QUESTION_TYPE": "Invalid question type",
         "QUESTION_NOT_FOUND_TO_DELETE": "Question not found to delete",
         "USER_NOT_ACCESS_TO_QUESTION_SET": "User does not have access to this question set",
-
         "PLAN_REQUIRE_PLAN": "Plan required!",
         "INSUFFICIENT_BALANCE": "Insufficient balance!",
         "PLAN_NOT_FOUND": "Plan not found",
         "FOLDER_NOT_FOUND": "Folder not found",
         "FOLDER_ALREADY_EXISTS": "Folder already exists",
         "USER_NOT_HAVE_PERMISSION_IN_FOLDER": "User does not have permission in this folder",
-
         "TEST_IS_OVERDUE": "Test overdue!",
         "MAX_ATTEMPT_IN_THIS_TEST": "Maximum attempt reached in this test.",
         "TEST_NOT_FOUND": "Test not found",
@@ -1156,30 +1278,39 @@
         "ATTEMPT_ALREADY_SUBMIT": "Attempt already submitted",
         "ATTEMPT_NOT_FOUND": "Attempt not found",
         "NOT_SUBMITTED_CAN_NOT_VIEW": "Cannot view because it is not submitted",
-
         "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER": "Test template already exists in this folder.",
-
         "FILE_NOT_FOUND": "File not found",
         "INVALID_FILE_FORMAT": "Invalid file format",
         "ERROR_FORMAT_FILE": "Error in file format",
         "FILE_UPLOAD_FAILED": "File upload failed",
         "FILE_URI_NOTFOUND": "File URI not found",
-
         "QUESTION_CAN_NOT_COMMENT": "Cannot comment on this question",
         "USER_NOT_HAVE_PERMISSION_IN_COMMENT": "User does not have permission in this comment",
         "COMMENT_NOT_FOUND": "Comment not found",
         "USER_NOT_HAVE_PERMISSION": "User does not have permission",
-
         "PAYMENT_TRANSACTION_EXISTED": "Payment transaction already exists",
         "PAYMENT_IN_PROGRESS": "Payment is in progress",
         "GENERATE_CONTENT_FAILED": "Failed to generate content",
         "AI_FILE_TOO_LARGE": "AI file is too large",
         "NO_STRUCTURE_FOUND": "No structure found",
-
         "FILE_EMPTY": "File is empty",
         "FILE_TOO_LARGE": "File is too large",
         "PDF_PAGE_LIMIT_EXCEEDED": "PDF page limit exceeded",
-        "INVALID_FILE_TYPE": "Invalid file type"
+        "INVALID_FILE_TYPE": "Invalid file type",
+        "PLAN_NOT_ALLOW_UPLOAD_IMAGE": "Your current plan does not allow uploading images",
+        "PLAN_NOT_ALLOW_UPLOAD_VIDEO": "Your current plan does not allow uploading videos",
+        "MEDIA_INVALID_FILE": "Invalid or corrupted media file",
+        "MEDIA_UNSUPPORTED_TYPE": "Unsupported file type. Images: JPG, PNG, WEBP, GIF, BMP, HEIC/HEIF, TIFF. Videos: MP4, MOV, WEBM, MKV, AVI, MPEG, 3GP",
+        "MEDIA_FILE_TOO_LARGE": "The file exceeds the allowed size",
+        "MEDIA_VIDEO_TOO_LONG": "The video exceeds the allowed duration",
+        "MEDIA_PROCESS_FAILED": "Could not process the media file, please try again",
+        "MEDIA_NOT_FOUND": "Media not found (it may have been removed)",
+        "MEDIA_VIOLATED": "This media violates our content policy and cannot be used",
+        "NOT_HAVE_PERMISSION_TO_ADD_QUESTION_SET": "You do not have permission to add question sets to this class",
+        "OWNER_CAN_NOT_MOVE_OUT_CLASS": "The class owner cannot leave the class",
+        "STUDENT_CAN_REVIEW_THIS_TEST": "You are not allowed to review this attempt",
+        "TEST_TEMPLATE_NOT_FOUND_IN_FOLDER": "Test template not found in this folder",
+        "USER_NOTFOUND": "User not found"
     },
     "message": {
         "added_successfully": "Add successfully!",
@@ -1205,14 +1336,11 @@
         "uploaded_failed": "Upload failed",
         "auto_save_failed": "Auto save failed",
         "time_up": "Time's up",
-
         "join_class_successfully": "Joined class successfully!",
         "join_class_failed": "Joined class failed!",
         "created_new_invitation": "Created new invitation code!",
-
         "change_password_successfully": "Change password successfully!",
         "change_password_failed": "Change password failed!",
-
         "invalid_title": "Invalid title",
         "invalid_question": "Invalid question",
         "invalid_description": "Invalid description",
@@ -1220,7 +1348,6 @@
         "invalid_tag_content": "Invalid tag content",
         "limit_question": "Limit: {number} questions",
         "minimum_question": "Minimum {number} questions",
-
         "required": "This field is required",
         "out_of_range": "Limit {max_length} characters",
         "have_no_answer": "Question {index} must have at least one correct answer",
@@ -1228,26 +1355,26 @@
         "maximum_options": "Each question must have at most 10 options",
         "maximum_tag": "Limit {tag} tags",
         "duplicate_tag": "Duplicate tag",
-
         "invalid_time_range": "Start time and end time must be at least {time_limit} minutes (time limit) apart and start time must be after current time.",
-
         "imported_question": "Imported {number} questions.",
-
         "invalid_reference": "Please enter a reference for the document citation.",
         "file_support_only": "Only {fileTypes} files are supported.",
         "minimun_question_type": "At least one question type must be selected.",
-
         "failed_to_generate_file_structure": "Failed to generate file structure.",
         "failed_to_get_cost": "Failed to calculate cost to generate file structure.",
-
         "generated_structure_successfully": "File structure generated successfully!",
         "generated_question_successfully": "Questions generated successfully!",
         "generated_question_failed": "Failed to generate question."
     },
     "admin": {
         "manage_acc": {
-            "title": "Manage Accounts",
+            "title": "Account management",
             "search_placeholder": "Search email ...",
+            "col": {
+                "fullname": "Full name",
+                "email": "Email",
+                "role": "Role"
+            },
             "acc_status": {
                 "all": "All",
                 "ban": "Ban",
@@ -1258,18 +1385,34 @@
                 "Administrator": "Administrator",
                 "Moderator": "Moderator",
                 "User": "User"
-            }
+            },
+            "ban_title": "Confirm Ban User",
+            "ban_content": "Are you sure you want to ban this user? The reason is shown to the user when they try to log in.",
+            "ban_reason_placeholder": "Ban reason (optional)",
+            "unban_title": "Confirm Active User",
+            "unban_content": "Are you sure you want to activate this user?",
+            "ban_success": "User banned successfully!",
+            "unban_success": "User activated successfully!",
+            "promote_title": "Promote user to Moderator",
+            "promote_content": "Are you sure you want to promote this user to Moderator?",
+            "promote_success": "User promoted to Moderator!",
+            "demote_title": "Demote Moderator to User",
+            "demote_content": "Are you sure you want to demote this moderator to User?",
+            "demote_success": "Moderator demoted to User!",
+            "tooltip_promote": "Promote user to Moderator",
+            "tooltip_demote": "Demote Moderator to User",
+            "tooltip_ban": "Ban/Active"
         },
         "manage_subscription": {
-            "title": "Manage Subscriptions",
+            "title": "Subscription management",
             "create_new_sub": "Create New Subscription",
             "stat_card": {
-                "total_subs": "Total Subscripbers",
-                "monthly_rev": "Monthly Revenue",
-                "new_subs": "New Subscribers",
-                "class": "Total Class"
+                "total_subs": "Total users",
+                "monthly_rev": "Total revenue",
+                "new_subs": "Users with a plan",
+                "class": "Total classes"
             },
-            "plan_comparison": "Plan Comparison",
+            "plan_comparison": "Plan comparison",
             "plan_comparison_content": "Compare available subscription plans",
             "modal": {
                 "title_create": "Create New Subscription",
@@ -1283,10 +1426,12 @@
             "plan_feature": {
                 "canLearn": "Learning",
                 "canOpenTest": "Access tests",
-                "canCopyOrImportQuestionSet": "Copy or import question sets"
+                "canCopyOrImportQuestionSet": "Copy or import question sets",
+                "canUploadImage": "Upload images to questions",
+                "canUploadVideo": "Upload videos to questions"
             },
             "create_plan": {
-                "name": "Subscriptions Name",
+                "name": "Plan name",
                 "price": "Price",
                 "duration": "Duration",
                 "unit": "Unit",
@@ -1295,8 +1440,50 @@
             "btn": {
                 "create": "Create",
                 "save": "Save"
+            },
+            "pie": {
+                "title": "Subscribers",
+                "subscribed": "Users with a plan",
+                "free": "Free users"
+            },
+            "chart": {
+                "revenue_title": "Monthly revenue",
+                "new_class_title": "Monthly new classes",
+                "y_revenue": "Revenue (VND thousands)",
+                "y_class": "Number of classes",
+                "series_revenue": "Revenue",
+                "series_class": "Classes",
+                "in_year": "{title} in {year}"
+            },
+            "msg": {
+                "create_success": "Created successfully.",
+                "create_fail": "Create failed.",
+                "update_success": "Updated successfully.",
+                "update_fail": "Update failed.",
+                "required": "This field is required.",
+                "price_min": "Price must be 0 or greater",
+                "price_integer": "Price must be a whole number",
+                "duration_min": "Duration must be at least 1",
+                "duration_integer": "Duration must be a whole number"
             }
         },
-        "manage_class": {}
+        "manage_class": {},
+        "system_settings": {
+            "title": "System settings",
+            "input_cost": "Input Cost Per Million Tokens",
+            "output_cost": "Output Cost Per Million Tokens",
+            "max_input_token": "Max Input Token",
+            "max_output_token": "Max Output Token",
+            "fixed_fee": "Fixed System Fee",
+            "update_success": "Updated successfully.",
+            "update_fail": "Update failed.",
+            "err": {
+                "required": "This field is required.",
+                "integer": "Please enter a whole number",
+                "min": "Value must be at least {min}",
+                "max": "Value must be at most {max}"
+            },
+            "read_only": "Only administrators can change system settings."
+        }
     }
 }

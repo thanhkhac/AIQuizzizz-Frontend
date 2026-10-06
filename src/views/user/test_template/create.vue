@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import {
+    buildInvalidQuestionContent,
+    isQuestionBlank,
+    validateQuestions,
+} from "@/services/QuestionValidator";
 import ApiTestTemplate from "@/api/ApiTestTemplate";
 
 import { ref, reactive, onMounted, onUnmounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
+import { hasPendingUploads, toQuestionPayload } from "@/services/QuestionMediaService";
 
 import dayjs from "dayjs";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
@@ -93,6 +99,8 @@ const createQuestionTemplate = (): RequestQuestion => ({
     matchingPairs: ChangeQuestionType.defaultMatchingPairs(),
     orderingItems: ChangeQuestionType.defaultOrderingItems(),
     shortAnswer: "",
+    mediaId: null,
+    media: null,
 });
 
 const onHandleChangeQuestionType = (question: RequestQuestion) => {
@@ -108,11 +116,12 @@ const onAddQuestion = () => {
     formState.questions = [...formState.questions, createQuestionTemplate()];
 
     nextTick(() => {
-        scrollerRef.value?.forceUpdate?.();
         nextTick(() => {
-            const lastIndex = formState.questions.length;
             requestAnimationFrame(() => {
-                scrollerRef.value?.scrollToItem(lastIndex);
+                scrollerRef.value?.lastElementChild?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
             });
         });
     });
@@ -149,84 +158,13 @@ const onFinish = () => {
         return;
     }
 
-    const validation: RequestQuestion[][] = [
-        //invalid question text
-        formState.questions.filter((x) => {
-            const questionText = x.questionText
-                .replace(/^<p>/, "") //replace <p> at the start
-                .replace(/<\/p>$/, "") //replace </p> at the end
-                .trim();
-
-            return 0 === questionText.length || questionText.length >= 5000;
-        }),
-
-        //invalid explain text
-        formState.questions.filter((x) => {
-            const explainText = x.explainText
-                ? x.explainText
-                      .replace(/^<p>/, "")
-                      .replace(/<\/p>$/, "")
-                      .trim()
-                : "";
-
-            return explainText.length >= 5000;
-        }),
-
-        //invalid multiplechoice
-        formState.questions.filter(
-            (x) =>
-                x.type === QUESTION_TYPE.MULTIPLE_CHOICE &&
-                (x.multipleChoices.some(
-                    (x) => x.text.trim().length === 0 || x.text.trim().length > 1000,
-                ) ||
-                    x.multipleChoices.filter((x) => x.isAnswer).length === 0 ||
-                    x.multipleChoices.length < 2),
-        ),
-
-        //invalid matching
-        formState.questions.filter(
-            (x) =>
-                x.type === QUESTION_TYPE.MATCHING &&
-                (x.matchingPairs.some(
-                    (x) => x.leftItem.trim().length === 0 || x.leftItem.trim().length > 1000,
-                ) ||
-                    x.matchingPairs.some(
-                        (x) => x.rightItem.trim().length === 0 || x.rightItem.trim().length > 1000,
-                    ) ||
-                    x.matchingPairs.length < 2),
-        ),
-
-        //invalid ordering
-        formState.questions.filter(
-            (x) =>
-                x.type === QUESTION_TYPE.ORDERING &&
-                (x.orderingItems.some(
-                    (x) => x.text.trim().length === 0 || x.text.trim().length > 1000,
-                ) ||
-                    x.orderingItems.length < 2),
-        ),
-
-        //invalid short text
-        formState.questions.filter(
-            (x) =>
-                x.type === QUESTION_TYPE.SHORT_TEXT &&
-                (x.shortAnswer.trim().length === 0 || x.shortAnswer.trim().length > 1000),
-        ),
-    ];
-
-    validation.forEach((x) => {
-        if (x.length > 0) {
-            isInvalid = true;
-            x.forEach((y) => invalidQuestion.add(y));
-        }
-    });
-
-    let indexes = Array.from(invalidQuestion).map((x) => formState.questions.indexOf(x) + 1);
+    const issues = validateQuestions(formState.questions);
+    isInvalid = issues.length > 0;
 
     if (isInvalid) {
         Modal.error({
             title: t("create_QS.modal.invalid.title"),
-            content: t("create_QS.modal.invalid.content") + indexes.sort().join(", "),
+            content: buildInvalidQuestionContent(issues, t("create_QS.modal.invalid.content")),
             okText: t("sidebar.buttons.ok"),
             cancelText: t("sidebar.buttons.cancel"),
         });
@@ -236,6 +174,11 @@ const onFinish = () => {
 };
 
 const showModalConfirmation = () => {
+    // file media đang upload/xử lý thì chưa có mediaId -> không cho lưu
+    if (hasPendingUploads()) {
+        message.warning(t("question_media.wait_for_upload"));
+        return;
+    }
     Modal.confirm({
         title: t("create_template.modal.valid.title"),
         content: t("create_QS.modal.valid.content"),
@@ -249,7 +192,10 @@ const showModalConfirmation = () => {
                 x.id.startsWith("new_") ? { questionId: null, ...x } : x,
             );
 
-            let result = await ApiTestTemplate.Create(formState);
+            let result = await ApiTestTemplate.Create({
+                ...formState,
+                questions: formState.questions.map(toQuestionPayload),
+            });
             if (result.data.success) {
                 message.success(t("message.created_successfully"));
                 isDataValid.value = false;
@@ -287,10 +233,15 @@ const openGenerateAIModal = () => {
 
 //use for both modal import event
 const onModalImport = (selected: RequestQuestion[]) => {
+    if (selected.length === 0) return;
+    // bỏ câu hỏi mặc định còn trống (chưa nhập gì) trước khi thêm câu hỏi import
+    formState.questions = formState.questions.filter(
+        (q) => !(String(q.id).startsWith("new_") && isQuestionBlank(q)),
+    );
     formState.questions.unshift(
         ...selected.map((item, i) => ({
             ...item,
-            id: `new_${formState.questions.length + i}`,
+            id: `new_${Date.now()}_${i}`,
             questionId: null,
             orderingItems: item.orderingItems?.map((x, index) => ({
                 ...x,
@@ -300,11 +251,12 @@ const onModalImport = (selected: RequestQuestion[]) => {
     );
 
     nextTick(() => {
-        scrollerRef.value?.forceUpdate?.();
         nextTick(() => {
-            const lastIndex = formState.questions.length;
             requestAnimationFrame(() => {
-                scrollerRef.value?.scrollToItem(lastIndex);
+                scrollerRef.value?.firstElementChild?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
             });
         });
     });
@@ -342,15 +294,7 @@ onUnmounted(() => {
 });
 //#endregion
 
-// @ts-ignore
-import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
 const scrollerRef = ref<any>(null);
-
-const handleScroll = () => {
-    nextTick(() => {
-        scrollerRef.value?.forceUpdate?.();
-    });
-};
 
 onMounted(() => {
     formState.questions.push(createQuestionTemplate());
@@ -438,33 +382,23 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-                    <DynamicScroller
-                        ref="scrollerRef"
-                        class="scroller"
-                        key-field="id"
-                        :items="formState.questions"
-                        :min-item-size="650"
-                        :buffer="800"
-                        :prerender="10"
-                        @scroll="handleScroll"
-                    >
-                        <template
-                            #default="{ item, index }: { item: RequestQuestion; index: number }"
+                    <div ref="scrollerRef" class="question-list">
+                        <div
+                            v-for="(item, index) in formState.questions"
+                            :key="item.id"
+                            class="question-list-item"
+                            v-memo="[item, index, item.type]"
                         >
-                            <DynamicScrollerItem :item="item" :key="item.id">
-                                <component
-                                    :is="componentMap[item.type]"
-                                    :question="item"
-                                    :index="
-                                        formState.questions.findIndex((q) => q.id === item.id) + 1
-                                    "
-                                    :displayScore="false"
-                                    @deleteQuestion="onRemoveQuestion(index)"
-                                    @changeQuestionType="onHandleChangeQuestionType(item)"
-                                />
-                            </DynamicScrollerItem>
-                        </template>
-                    </DynamicScroller>
+                            <component
+                                :is="componentMap[item.type]"
+                                :question="item"
+                                :index="index + 1"
+                                :displayScore="true"
+                                @deleteQuestion="onRemoveQuestion(index)"
+                                @changeQuestionType="onHandleChangeQuestionType(item)"
+                            />
+                        </div>
+                    </div>
                     <div class="add-question-btn" @click="onAddQuestion">
                         <i class="bx bx-plus"></i>
                         {{ $t("create_QS.buttons.add_question") }}

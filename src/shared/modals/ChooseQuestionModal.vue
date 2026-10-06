@@ -13,6 +13,8 @@ import { useRoute } from "vue-router";
 
 import { Modal } from "ant-design-vue";
 import Input from "@/shared/components/Common/Input.vue";
+import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
+import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 
 const route = useRoute();
 
@@ -45,6 +47,22 @@ const getData = async () => {
     }
 };
 
+// presigned URL của media hết hạn -> lấy URL mới, chỉ cập nhật media (giữ lựa chọn/bộ lọc hiện tại)
+const reloadQuestionMedia = async () => {
+    try {
+        if (!props.testTemplateId) return;
+        const result = await ApiTestTemplate.GetById(props.testTemplateId);
+        if (result?.data?.success) {
+            mergeQuestionMedia(
+                [...(test_template_data.value?.questions ?? []), ...question_data.value],
+                result.data.data.questions,
+            );
+        }
+    } catch (error) {
+        console.log("ERROR: reload question media", error);
+    }
+};
+
 //#region filter
 const QUESTION_FORMAT = {
     HTML: "HTML",
@@ -61,6 +79,8 @@ const searchValue = ref("");
 
 const onFilter = () => {
     importModalState.checkedList = [];
+    importModalState.checkAll = false;
+    importModalState.indeterminate = false;
     let filtered = test_template_data.value?.questions;
     const search = searchValue.value.trim().toLowerCase();
 
@@ -85,9 +105,12 @@ const importModalState = reactive({
     checkedList: [] as ResponseQuestion[],
 });
 
+// @change của a-checkbox: event.target.checked là trạng thái của chính checkbox (click vào label/span vẫn đúng)
 const onCheckAll = (event: any) => {
+    const checked = !!event?.target?.checked;
     Object.assign(importModalState, {
-        checkedList: event.target.checked ? question_data.value : [],
+        checkAll: checked,
+        checkedList: checked ? [...(question_data.value ?? [])] : [],
         indeterminate: false,
     });
 };
@@ -95,8 +118,10 @@ const onCheckAll = (event: any) => {
 watch(
     () => importModalState.checkedList,
     (val) => {
-        importModalState.indeterminate = !!val.length && val.length < question_data.value!.length; //change to uploadedList when it done
-        importModalState.checkAll = val.length === question_data.value?.length;
+        const total = question_data.value?.length ?? 0;
+        importModalState.indeterminate = !!val.length && val.length < total;
+        // rỗng thì KHÔNG được coi là "đã chọn hết"
+        importModalState.checkAll = val.length > 0 && val.length === total;
     },
 );
 
@@ -146,10 +171,17 @@ defineExpose({
 });
 
 const handleModalImport = () => {
+    // không cho import khi chưa chọn câu hỏi nào
+    if (importModalState.checkedList.length === 0) return;
+
     Modal.confirm({
-        title: "Are your sure? ",
-        content: "Import: " + importModalState.checkedList.length + "?",
-        okText: "Confirm",
+        title: t("create_test_modals.import_confirm_title"),
+        content: t("create_test_modals.import_confirm_content", {
+            number: importModalState.checkedList.length,
+        }),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
+        centered: true,
         onOk: () => {
             const selectedQuestions = question_data.value?.filter((question) =>
                 importModalState.checkedList.includes(question),
@@ -193,8 +225,8 @@ const handleModalImport = () => {
                                     'header-item',
                                     importModalState.checkAll ? 'check-all' : '',
                                 ]"
-                                @click="onCheckAll"
-                                v-model:checked="importModalState.checkAll"
+                                :checked="importModalState.checkAll"
+                                @change="onCheckAll"
                                 :indeterminate="importModalState.indeterminate"
                             >
                                 {{
@@ -207,7 +239,7 @@ const handleModalImport = () => {
                                 Selected:
                                 {{ importModalState.checkedList.length }}
                             </div> -->
-                            <div class="d-flex flex-fill align-items-center justify-content-end">
+                            <div class="choose-filter d-flex flex-fill align-items-center justify-content-end">
                                 <a-select
                                     size="large"
                                     class="me-3"
@@ -224,7 +256,7 @@ const handleModalImport = () => {
                                         {{ option.label }}
                                     </a-select-option>
                                 </a-select>
-                                <div style="width: 250px">
+                                <div class="choose-search" style="width: 250px">
                                     <Input
                                         @input="onFilter"
                                         v-model="searchValue"
@@ -261,6 +293,11 @@ const handleModalImport = () => {
                                             <div v-else class="question-text">
                                                 {{ question.questionText }}
                                             </div>
+                                            <QuestionMediaView
+                                                :media="question.media"
+                                                compact
+                                                @reload="reloadQuestionMedia"
+                                            />
                                             <div
                                                 class="question-item-answer"
                                                 :id="`question-item-answer-${index}`"
@@ -338,9 +375,7 @@ const handleModalImport = () => {
                                                                 )"
                                                             >
                                                                 <span
-                                                                    >#{{
-                                                                        option.correctOrder
-                                                                    }}</span
+                                                                    >#{{ index + 1 }}</span
                                                                 >
                                                                 -
                                                                 {{ option.text }}
@@ -397,6 +432,7 @@ const handleModalImport = () => {
                 size="large"
                 key="submit"
                 type="primary"
+                :disabled="importModalState.checkedList.length === 0"
                 @click="handleModalImport"
             >
                 {{ $t("import_qs_modal.buttons.import") }}

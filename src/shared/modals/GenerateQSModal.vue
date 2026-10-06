@@ -272,6 +272,23 @@ const onFileChange = async (file: File) => {
             return;
         }
         files.value = [];
+        generateByAIModalState.documentStructureJson = null;
+        generateByAIModalState.selectedPartJson = null;
+
+        // chỉ coi file là đã tải lên sau khi server chấp nhận (đọc được cấu trúc PDF)
+        let accepted = false;
+        try {
+            loading.value = true;
+            accepted = !!(await generateFileStructureRef.value?.loadStructure(file));
+        } finally {
+            loading.value = false;
+        }
+        if (!accepted) {
+            // file lỗi (400 INVALID_FILE_FORMAT...): toast lỗi đã hiển thị ở interceptor, không giữ file
+            generateFileStructureRef.value?.clearData();
+            return;
+        }
+
         message.success(t("message.uploaded_successfully", { name: file.name }));
         files.value.push(file);
 
@@ -342,7 +359,8 @@ watch(
     (val) => {
         generateModalState.indeterminate =
             !!val.length && val.length < generatedQuestions.value.length; //change to uploadedList when it done
-        generateModalState.checkAll = val.length === generatedQuestions.value.length;
+        generateModalState.checkAll =
+            val.length > 0 && val.length === generatedQuestions.value.length;
     },
 );
 
@@ -440,7 +458,7 @@ onMounted(() => {});
                                     {{ $t("import_qs_modal.upload_area.title") }}
                                 </div>
                                 <div class="customized-file-upload-hint">
-                                    {{ $t("import_qs_modal.upload_area.content") }}
+                                    {{ $t("generate_qs_modal.other.upload_hint") }}
                                     <br />
                                     {{ $t("import_qs_modal.upload_area.sub_content") }}
                                 </div>
@@ -800,7 +818,7 @@ onMounted(() => {});
     resize: none;
 }
 .generate-modal-info {
-    color: var(--main-color) !important;
+    color: var(--c-primary-text) !important;
 }
 
 .file-structure {

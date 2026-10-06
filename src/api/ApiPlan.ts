@@ -4,6 +4,7 @@ import type HistoryPayment from "@/models/request/plan/historyPayment";
 const END_POINTS = {
     GET_ALL: "Plan",
     BUY_PLAN: "Plan/{planId}/Buy",
+    CURRENT_PLAN: "Plan/CurrentPlan",
     History_Payment: "Payment/History",
     QR_CODE: "Payment/QrCode",
 };
@@ -17,6 +18,10 @@ class ApiPlan {
         });
     };
 
+    CurrentPlan = async () => {
+        return await Api.get(END_POINTS.CURRENT_PLAN);
+    };
+
     BuyPlan = async (planId: string) => {
         const url = END_POINTS.BUY_PLAN.replace("{planId}", planId);
         return await Api.post(url);
@@ -26,7 +31,7 @@ class ApiPlan {
         return await Api.get(END_POINTS.History_Payment, { params: payload });
     };
 
-    QrCodeGenerate = async (amount: string) => {
+    QrCodeGenerate = async (amount: string | number) => {
         return await Api.post(END_POINTS.QR_CODE, null, { params: { amount } });
     };
 }

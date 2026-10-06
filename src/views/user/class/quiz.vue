@@ -13,7 +13,6 @@ import { message, Modal } from "ant-design-vue";
 import Input from "@/shared/components/Common/Input.vue";
 import { useI18n } from "vue-i18n";
 import Validator from "@/services/Validator";
-import ERROR from "@/constants/errors";
 
 const route = useRoute();
 const router = useRouter();
@@ -42,7 +41,7 @@ const userRoleInClass = ref<string>("");
 const loading = ref(false);
 const getPermission = async () => {
     try {
-        const result = await ApiClass.GetUserPermission(classData.value.classId);
+        const result = await ApiClass.GetUserPermission(classId.value.toString());
         if (result.data.success) {
             userRoleInClass.value = result.data.data;
         }
@@ -50,29 +49,28 @@ const getPermission = async () => {
         console.log(error);
     }
 };
-const getClassData = async () => {
+/** @returns false nếu không tải được lớp (đã chuyển hướng) -> không gọi tiếp các API khác */
+const getClassData = async (): Promise<boolean> => {
     try {
-        if (!Validator.isValidGuid(classId.value.toString())) {
-            router.push({ name: "404" });
-            return;
+        if (!classId.value || !Validator.isValidGuid(classId.value.toString())) {
+            router.replace({ name: "404" });
+            return false;
         }
-        if (!classId.value) router.push({ name: "404" });
 
         let result = await ApiClass.GetById(classId.value.toString());
-        if (!result.data.success) router.push({ name: "404" });
+        if (!result.data.success) {
+            router.replace({ name: "User_Class" });
+            return false;
+        }
 
         classData.value = result.data.data;
         updateClassFormState.name = classData.value.name;
         updateClassFormState.topic = classData.value.topic;
+        return true;
     } catch (error: any) {
-        const errorKeys = Object.keys(error.response.data.errors);
-        if (
-            errorKeys.includes(ERROR.NOT_FOUND_STUDENT_IN_CLASS) ||
-            errorKeys.includes(ERROR.NOT_FOUND_USER_IN_CLASS)
-        ) {
-            router.push({ name: "User_Class" });
-            return;
-        }
+        // Lớp đã bị xoá / không có quyền / lỗi khác: toast đã do interceptor hiển thị, về danh sách lớp
+        router.replace({ name: "User_Class" });
+        return false;
     }
 };
 
@@ -177,7 +175,7 @@ const onDeleteQSFromClass = (questionSetId: string) => {
                 questionSetId,
             );
             if (!result.data.success) {
-                message.success(t("message.removed_failed"));
+                message.error(t("message.removed_failed"));
                 return;
             }
             message.success(t("message.removed_successfully"));
@@ -222,6 +220,13 @@ const updateClassFormState = reactive({
     topic: classData.value.topic,
 });
 
+// đóng modal sửa lớp mà không lưu: trả input về dữ liệu hiện tại của lớp
+const onCloseUpdateModal = () => {
+    modal_update_open.value = false;
+    updateClassFormState.name = classData.value.name;
+    updateClassFormState.topic = classData.value.topic;
+};
+
 const isUpdateLoading = ref(false);
 const onUpdateClass = async () => {
     isUpdateLoading.value = true;
@@ -251,7 +256,7 @@ onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
 
-    await getClassData();
+    if (!(await getClassData())) return;
     await getPermission();
     await getData();
 });
@@ -354,8 +359,7 @@ onMounted(async () => {
                                 <div class="quiz-item-info quiz-info-detail">
                                     <div class="quiz-item-questions">
                                         <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                        {{ exam.totalQuestionCount }}
-                                        {{ $t("dashboards.list_items.quiz.questions") }}
+                                        {{ $t("dashboards.list_items.quiz.questions", exam.totalQuestionCount) }}
                                     </div>
                                     <div class="quiz-item-created-by">
                                         {{ $t("class_question_set.other.created_by") }}
@@ -423,13 +427,13 @@ onMounted(async () => {
         centered
         wrap-class-name="medium-modal"
         :open="modal_update_open"
-        @cancel="modal_update_open = false"
+        @cancel="onCloseUpdateModal"
     >
         <div class="modal-container">
             <div class="modal-title-container">
                 <a-row class="w-100 d-flex align-items-center">
                     <a-col :span="4">
-                        <RouterLink @click="modal_update_open = false" :to="{ name: '' }">
+                        <RouterLink @click="onCloseUpdateModal" :to="{ name: '' }">
                             <i class="bx bx-chevron-left navigator-back-button"></i>
                         </RouterLink>
                     </a-col>
@@ -504,7 +508,7 @@ onMounted(async () => {
     font-size: 16px;
     border-radius: 50%;
     background: var(--main-color-theme);
-    color: var(--main-color);
+    color: var(--c-primary-text);
     margin-right: 12px;
 }
 </style>

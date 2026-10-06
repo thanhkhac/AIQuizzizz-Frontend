@@ -88,12 +88,27 @@ const onFileChange = async (file: File) => {
             return;
         }
 
+        // reset kết quả cũ; file chỉ được coi là "đã tải lên" sau khi server kiểm tra hợp lệ
         files.value = [];
-        message.success(t("message.uploaded_successfully", { name: file.name }));
-        files.value.push(file);
+        question_data.value = [];
+        uploadedQuestions.value = [];
+        uploadedInvalidQuestions.value = [];
+        importModalState.checkedList = [];
 
-        const result = await ApiTestTemplate.ImportFile(files.value[0]);
-        if (result.data.success) {
+        let result;
+        try {
+            result = await ApiTestTemplate.ImportFile(file);
+        } catch (error) {
+            // file hỏng/sai định dạng (400 INVALID_FILE_FORMAT...): toast lỗi đã hiển thị ở interceptor,
+            // không giữ file lỗi trong danh sách
+            files.value = [];
+            console.log("ERROR: import file", error);
+            return;
+        }
+
+        if (result?.data?.success) {
+            files.value.push(file);
+            message.success(t("message.uploaded_successfully", { name: file.name }));
             question_data.value = [
                 ...result.data.data.validQuestions,
                 ...result.data.data.invalidQuestions,
@@ -106,6 +121,9 @@ const onFileChange = async (file: File) => {
 
             uploadedInvalidQuestions.value = result.data.data.invalidQuestions;
             importModalState.checkedList = []; //reset checked list
+        } else {
+            files.value = [];
+            message.error(t("message.uploaded_failed"));
         }
 
         return;
@@ -199,7 +217,7 @@ watch(
     (val) => {
         importModalState.indeterminate =
             !!val.length && val.length < uploadedQuestions.value!.length; //change to uploadedList when it done
-        importModalState.checkAll = val.length === uploadedQuestions.value?.length;
+        importModalState.checkAll = val.length > 0 && val.length === uploadedQuestions.value?.length;
     },
 );
 

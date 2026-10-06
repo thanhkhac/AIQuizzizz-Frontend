@@ -1,3 +1,5 @@
+import type { QuestionMedia } from "@/models/response/media/questionMedia";
+
 interface MultipleChoice {
     id: string;
     text: string;
@@ -27,4 +29,8 @@ export interface RequestQuestion {
     matchingPairs: MatchingPair[];
     orderingItems: OrderingItem[];
     shortAnswer: string;
+    // id media đã upload (gửi lên API), null = không có media
+    mediaId?: string | null;
+    // chỉ dùng để preview (presigned URL ngắn hạn), không cần gửi lên API
+    media?: QuestionMedia | null;
 }

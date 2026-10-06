@@ -17,6 +17,7 @@ import ERROR from "@/constants/errors";
 import { useRoute, useRouter } from "vue-router";
 import type ClassStudentPageParams from "@/models/request/class/classStudentPageParams";
 import Validator from "@/services/Validator";
+import { copyToClipboard } from "@/services/ClipboardService";
 
 const route = useRoute();
 const router = useRouter();
@@ -84,35 +85,34 @@ const code_limit_time = computed(() =>
     })),
 );
 
-const getClassData = async () => {
+/** @returns false nếu không tải được lớp (đã chuyển hướng) -> không gọi tiếp các API khác */
+const getClassData = async (): Promise<boolean> => {
     try {
-        if (!Validator.isValidGuid(classId.value.toString())) {
-            router.push({ name: "404" });
-            return;
+        if (!classId.value || !Validator.isValidGuid(classId.value.toString())) {
+            router.replace({ name: "404" });
+            return false;
         }
-        if (!classId.value) router.push({ name: "404" });
 
         let result = await ApiClass.GetById(classId.value.toString());
-        if (!result.data.success) router.push({ name: "404" });
+        if (!result.data.success) {
+            router.replace({ name: "User_Class" });
+            return false;
+        }
 
         classData.value = result.data.data;
         updateClassFormState.name = classData.value.name;
         updateClassFormState.topic = classData.value.topic;
+        return true;
     } catch (error: any) {
-        const errorKeys = Object.keys(error.response.data.errors);
-        if (
-            errorKeys.includes(ERROR.NOT_FOUND_STUDENT_IN_CLASS) ||
-            errorKeys.includes(ERROR.NOT_FOUND_USER_IN_CLASS)
-        ) {
-            router.push({ name: "User_Class" });
-            return;
-        }
+        // Lớp đã bị xoá / không có quyền / lỗi khác: toast đã do interceptor hiển thị, về danh sách lớp
+        router.replace({ name: "User_Class" });
+        return false;
     }
 };
 const userRoleInClass = ref<string>("");
 const getPermission = async () => {
     try {
-        const result = await ApiClass.GetUserPermission(classData.value.classId);
+        const result = await ApiClass.GetUserPermission(classId.value.toString());
         if (result.data.success) {
             userRoleInClass.value = result.data.data;
         }
@@ -266,21 +266,18 @@ const onResetInvitation = async () => {
     }
 };
 
-const onCopyInvitationCode = (mode: string) => {
+const onCopyInvitationCode = async (mode: string) => {
     if (!invitationFormState.code) return;
     let content = invitationFormState.code;
 
     if (mode === "link") {
         content = inivitationLink.value;
     }
-    navigator.clipboard
-        .writeText(content)
-        .then(() => {
-            message.success(t("message.copied"));
-        })
-        .catch(() => {
-            message.error(t("message.copied_failed"));
-        });
+    if (await copyToClipboard(content)) {
+        message.success(t("message.copied"));
+    } else {
+        message.error(t("message.copied_failed"));
+    }
 };
 
 //#endregion
@@ -354,18 +351,18 @@ const onOpenConfirmDeleteClass = () => {
 
 const onOpenConfirmLeaveClass = () => {
     Modal.confirm({
-        title: t("class_member.danger_zone.warning"),
-        content: h("div", { style: "color: red" }, t("class_member.danger_zone.warning_explain")),
+        title: t("class_member.danger_zone.leave_title"),
+        content: h("div", { style: "color: red" }, t("class_member.danger_zone.leave_explain")),
         centered: true,
-        okText: t("sidebar.buttons.ok"),
+        okText: t("class_member.buttons.confirm_leave_class"),
         cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
-            let result = await ApiClass.Delete(classId.value.toString());
+            let result = await ApiClass.MoveOut(classId.value.toString());
             if (!result.data.success) {
                 message.error(t("message.deleted_failed"));
                 return;
             }
-            message.success(t("message.deleted_successfully"));
+            message.success(t("message.removed_successfully"));
             router.push({ name: "User_Class" });
         },
     });
@@ -403,6 +400,13 @@ const updateClassFormState = reactive({
     topic: classData.value.topic,
 });
 
+// đóng modal sửa lớp mà không lưu: trả input về dữ liệu hiện tại của lớp
+const onCloseUpdateModal = () => {
+    modal_update_open.value = false;
+    updateClassFormState.name = classData.value.name;
+    updateClassFormState.topic = classData.value.topic;
+};
+
 const isUpdateLoading = ref(false);
 const onUpdateClass = async () => {
     isUpdateLoading.value = true;
@@ -432,7 +436,7 @@ onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
 
-    await getClassData();
+    if (!(await getClassData())) return;
     await getPermission();
     await getData();
 });
@@ -685,13 +689,13 @@ onMounted(async () => {
         centered
         wrap-class-name="medium-modal"
         :open="modal_update_open"
-        @cancel="modal_update_open = false"
+        @cancel="onCloseUpdateModal"
     >
         <div class="modal-container">
             <div class="modal-title-container">
                 <a-row class="w-100 d-flex align-items-center">
                     <a-col :span="4">
-                        <RouterLink @click="modal_update_open = false" :to="{ name: '' }">
+                        <RouterLink @click="onCloseUpdateModal" :to="{ name: '' }">
                             <i class="bx bx-chevron-left navigator-back-button"></i>
                         </RouterLink>
                     </a-col>
@@ -762,7 +766,11 @@ onMounted(async () => {
                 </a-row>
             </div>
             <div class="modal-invitation-body">
-                <a-qrcode :value="invitationFormState.code" class="invitation-body-qrcode" />
+                <a-qrcode
+                    v-if="invitationFormState.code"
+                    :value="invitationFormState.code"
+                    class="invitation-body-qrcode"
+                />
                 <a-form layout="vertical" class="invitation-body-link">
                     <a-form-item :label="t('class_member.modal.class_code_label')">
                         <div class="invitation-code-container">
@@ -796,7 +804,6 @@ onMounted(async () => {
                     <a-select
                         v-model:value="invitationFormState.expiredTime"
                         style="width: 200px"
-                        @change="getData"
                     >
                         <a-select-option v-for="option in code_limit_time" :value="option.value">
                             {{ option.label }}
@@ -863,6 +870,22 @@ onMounted(async () => {
 .invitation-body-link {
     flex: 1;
     margin-left: 20px;
+    min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+    .modal-invitation-body {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .invitation-body-link {
+        margin-left: 0;
+        margin-top: 12px;
+        width: 100%;
+    }
+    .invitation-body-qrcode {
+        align-self: center;
+    }
 }
 ::v-deep(.ant-qrcode) {
     background-color: #fff !important;
@@ -890,7 +913,8 @@ onMounted(async () => {
 .user-image {
     width: 40px;
     height: 40px;
-    background-color: var(--background-color-contrast);
+    background-color: var(--form-item-background-color);
+    border: 1px solid var(--form-item-border-color);
     border-radius: 50%;
     margin-right: 10px;
     object-fit: contain;

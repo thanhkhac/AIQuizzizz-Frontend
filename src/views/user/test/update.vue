@@ -5,6 +5,7 @@ import ApiTest from "@/api/ApiTest";
 import { ref, reactive, onMounted, onUnmounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { message, Modal } from "ant-design-vue";
+import { hasPendingUploads, toQuestionPayload } from "@/services/QuestionMediaService";
 
 import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 
@@ -109,20 +110,21 @@ const rules = {
 //#region init data
 const loading = ref(false);
 const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
-const getData = async () => {
+/** @returns true nếu tải được test để sửa; false nếu đã chuyển hướng (404 / not-allowed) */
+const getData = async (): Promise<boolean> => {
     try {
         loading.value = true;
         if (!Validator.isValidGuid(formState.testId)) {
             isDataValid.value = false;
-            router.push({ name: "404" });
-            return;
+            router.replace({ name: "404" });
+            return false;
         }
 
         const result = await ApiTest.GetById(formState.testId, true);
         if (!result.data.success) {
             isDataValid.value = false;
-            router.push({ name: "404" });
-            return;
+            router.replace({ name: "404" });
+            return false;
         }
 
         formState.classId = result.data.data.classId;
@@ -142,13 +144,16 @@ const getData = async () => {
         formState.createUpdateQuestions = result.data.data.questions.map((x: ResponseQuestion) =>
             TransferQuestionData.transformResponseToRequest(x),
         );
-        //clear redundant
+        return true;
     } catch (error: any) {
-        if (error.response.data.success === false) {
-            isDataValid.value = false;
-            router.push({ name: "404" });
-            return;
-        }
+        isDataValid.value = false;
+        const errorKeys = Object.keys(error?.response?.data?.errors ?? {});
+        router.replace({
+            name: errorKeys.includes(ERROR.USER_NOT_HAVE_PERMISSION_IN_TEST)
+                ? "not-allowed"
+                : "404",
+        });
+        return false;
     } finally {
         loading.value = false;
     }
@@ -168,6 +173,8 @@ const createQuestionTemplate = (): RequestQuestion => ({
     matchingPairs: ChangeQuestionType.defaultMatchingPairs(),
     orderingItems: ChangeQuestionType.defaultOrderingItems(),
     shortAnswer: "",
+    mediaId: null,
+    media: null,
 });
 
 const onHandleChangeQuestionType = (question: RequestQuestion) => {
@@ -186,11 +193,12 @@ const onAddQuestion = () => {
     ];
 
     nextTick(() => {
-        scrollerRef.value?.forceUpdate?.();
         nextTick(() => {
-            const lastIndex = formState.createUpdateQuestions.length;
             requestAnimationFrame(() => {
-                scrollerRef.value?.scrollToItem(lastIndex);
+                scrollerRef.value?.lastElementChild?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
             });
         });
     });
@@ -227,86 +235,13 @@ const onFinish = async () => {
         return;
     }
 
-    const validation: RequestQuestion[][] = [
-        //invalid question text
-        formState.createUpdateQuestions.filter((x) => {
-            const questionText = x.questionText
-                .replace(/^<p>/, "") //replace <p> at the start
-                .replace(/<\/p>$/, "") //replace </p> at the end
-                .trim();
-
-            return 0 === questionText.length || questionText.length >= 5000;
-        }),
-
-        //invalid explain text
-        formState.createUpdateQuestions.filter((x) => {
-            const explainText = x.explainText
-                ? x.explainText
-                      .replace(/^<p>/, "")
-                      .replace(/<\/p>$/, "")
-                      .trim()
-                : ""; // fallback to empty string
-
-            return explainText.length >= 5000;
-        }),
-
-        //invalid multiplechoice
-        formState.createUpdateQuestions.filter(
-            (x) =>
-                x.type === QUESTION_TYPE.MULTIPLE_CHOICE &&
-                (x.multipleChoices.some(
-                    (x) => x.text.trim().length === 0 || x.text.trim().length > 1000,
-                ) ||
-                    x.multipleChoices.filter((x) => x.isAnswer).length === 0 ||
-                    x.multipleChoices.length < 2),
-        ),
-
-        //invalid matching
-        formState.createUpdateQuestions.filter(
-            (x) =>
-                x.type === QUESTION_TYPE.MATCHING &&
-                (x.matchingPairs.some(
-                    (x) => x.leftItem.trim().length === 0 || x.leftItem.trim().length > 1000,
-                ) ||
-                    x.matchingPairs.some(
-                        (x) => x.rightItem.trim().length === 0 || x.rightItem.trim().length > 1000,
-                    ) ||
-                    x.matchingPairs.length < 2),
-        ),
-
-        //invalid ordering
-        formState.createUpdateQuestions.filter(
-            (x) =>
-                x.type === QUESTION_TYPE.ORDERING &&
-                (x.orderingItems.some(
-                    (x) => x.text.trim().length === 0 || x.text.trim().length > 1000,
-                ) ||
-                    x.orderingItems.length < 2),
-        ),
-
-        //invalid short text
-        formState.createUpdateQuestions.filter(
-            (x) =>
-                x.type === QUESTION_TYPE.SHORT_TEXT &&
-                (x.shortAnswer.trim().length === 0 || x.shortAnswer.trim().length > 1000),
-        ),
-    ];
-
-    validation.forEach((x) => {
-        if (x.length > 0) {
-            isInvalid = true;
-            x.forEach((y) => invalidQuestion.add(y));
-        }
-    });
-
-    let indexes = Array.from(invalidQuestion).map(
-        (x) => formState.createUpdateQuestions.indexOf(x) + 1,
-    );
+    const issues = validateQuestions(formState.createUpdateQuestions);
+    isInvalid = issues.length > 0;
 
     if (isInvalid) {
         Modal.error({
             title: t("update_test.modal.invalid.title"),
-            content: t("update_test.modal.invalid.content") + indexes.sort().join(", "),
+            content: buildInvalidQuestionContent(issues, t("update_test.modal.invalid.content")),
             okText: t("sidebar.buttons.ok"),
             cancelText: t("sidebar.buttons.cancel"),
         });
@@ -316,6 +251,11 @@ const onFinish = async () => {
 };
 
 const showModalConfirmation = () => {
+    // file media đang upload/xử lý thì chưa có mediaId -> không cho lưu
+    if (hasPendingUploads()) {
+        message.warning(t("question_media.wait_for_upload"));
+        return;
+    }
     Modal.confirm({
         title: t("update_test.modal.valid.title"),
         content: t("update_test.modal.valid.content"),
@@ -332,7 +272,7 @@ const showModalConfirmation = () => {
                 ...formState,
                 createUpdateQuestions: formState.createUpdateQuestions.map((x) => ({
                     questionId: x.id.startsWith("new_") ? null : x.id,
-                    ...x,
+                    ...toQuestionPayload(x),
                 })),
             });
 
@@ -368,8 +308,12 @@ const onSwitchToTestTemplate = () => {
     openTestTemplateModal();
 };
 
-const onOpenFolder = (folder: Folder) => {
+const onOpenFolder = async (folder: Folder) => {
     chosenFolder.value = folder;
+
+    // chờ prop `folder` của modal con cập nhật rồi mới mở (như trang tạo test)
+    await nextTick();
+
     folderModalRef.value?.closeModal();
     openFolderTestTemplateModal();
 };
@@ -423,6 +367,9 @@ const onOpenTestTemplate = async (testTemplateId: string, folder: Folder | null)
 import ChooseQuestionModal from "@/shared/modals/ChooseQuestionModal.vue";
 import TransferQuestionData from "@/services/TransferQuestionData";
 import Validator from "@/services/Validator";
+import { buildInvalidQuestionContent, validateQuestions } from "@/services/QuestionValidator";
+import { canManageClass } from "@/services/ClassPermissionService";
+import ERROR from "@/constants/errors";
 const questionModalRef = ref<InstanceType<typeof ChooseQuestionModal> | null>(null);
 const openQuestionModal = () => {
     questionModalRef.value?.openModal();
@@ -453,11 +400,12 @@ const onModalImport = (selected: ResponseQuestion[]) => {
     formState.createUpdateQuestions = [...formState.createUpdateQuestions, ...importQuestions];
 
     nextTick(() => {
-        scrollerRef.value?.forceUpdate?.();
         nextTick(() => {
-            const lastIndex = formState.createUpdateQuestions.length;
             requestAnimationFrame(() => {
-                scrollerRef.value?.scrollToItem(lastIndex);
+                scrollerRef.value?.lastElementChild?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
             });
         });
     });
@@ -494,18 +442,20 @@ onUnmounted(() => {
 });
 //#endregion
 
-// @ts-ignore
-import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
 const scrollerRef = ref<any>(null);
 
-const handleScroll = () => {
-    nextTick(() => {
-        scrollerRef.value?.forceUpdate?.();
-    });
-};
-
+const pageReady = ref(false);
 onMounted(async () => {
-    await getData();
+    if (!(await getData())) return;
+
+    // học viên không được sửa test: kiểm tra quyền (theo lớp của test) trước khi render editor
+    if (!(await canManageClass(formState.classId))) {
+        isDataValid.value = false; //bỏ leave guard
+        router.replace({ name: "not-allowed" });
+        return;
+    }
+    pageReady.value = true;
+
     await getClassData();
     window.addEventListener("beforeunload", handleBeforeUnload);
 
@@ -514,7 +464,7 @@ onMounted(async () => {
 });
 </script>
 <template>
-    <div class="page-container">
+    <div v-if="pageReady" class="page-container">
         <div class="title-container">
             <a-row class="w-100 d-flex align-items-center">
                 <a-col :span="1">
@@ -573,36 +523,23 @@ onMounted(async () => {
                         <a-skeleton :loading="loading" active></a-skeleton>
                         <a-skeleton :loading="loading" active></a-skeleton>
                     </div>
-                    <DynamicScroller
-                        v-else
-                        ref="scrollerRef"
-                        class="scroller"
-                        key-field="id"
-                        :items="formState.createUpdateQuestions"
-                        :min-item-size="650"
-                        :buffer="800"
-                        :prerender="10"
-                        @scroll="handleScroll"
-                    >
-                        <template
-                            #default="{ item, index }: { item: RequestQuestion; index: number }"
+                    <div v-else ref="scrollerRef" class="question-list">
+                        <div
+                            v-for="(item, index) in formState.createUpdateQuestions"
+                            :key="item.id"
+                            class="question-list-item"
+                            v-memo="[item, index, item.type]"
                         >
-                            <DynamicScrollerItem :item="item" :key="item.id">
-                                <component
-                                    :is="componentMap[item.type]"
-                                    :question="item"
-                                    :index="
-                                        formState.createUpdateQuestions.findIndex(
-                                            (q) => q.id === item.id,
-                                        ) + 1
-                                    "
-                                    :displayScore="true"
-                                    @deleteQuestion="onRemoveQuestion(index)"
-                                    @changeQuestionType="onHandleChangeQuestionType(item)"
-                                />
-                            </DynamicScrollerItem>
-                        </template>
-                    </DynamicScroller>
+                            <component
+                                :is="componentMap[item.type]"
+                                :question="item"
+                                :index="index + 1"
+                                :displayScore="true"
+                                @deleteQuestion="onRemoveQuestion(index)"
+                                @changeQuestionType="onHandleChangeQuestionType(item)"
+                            />
+                        </div>
+                    </div>
                     <div class="add-question-btn" @click="onAddQuestion">
                         <i class="bx bx-plus"></i>
                         {{ $t("create_QS.buttons.add_question") }}
@@ -613,6 +550,7 @@ onMounted(async () => {
     </div>
 
     <SettingTestModal
+        v-if="pageReady"
         ref="settingModalRef"
         :form-ref="formRef"
         :class-name="classData?.name!"
@@ -660,6 +598,7 @@ onMounted(async () => {
 .import-button:nth-child(2) {
     background: transparent;
     border: 2px solid var(--main-color);
+    color: var(--text-color);
     cursor: default;
 }
 </style>

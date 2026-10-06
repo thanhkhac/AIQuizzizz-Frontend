@@ -7,7 +7,6 @@ import CLASS_EXAM_STATUS from "@/constants/classExamStatus";
 import type ClassExamPageParams from "@/models/request/class/classExamPageParams";
 import type { Class } from "@/models/response/class/class";
 import type { ClassExam } from "@/models/response/class/classExam";
-import ERROR from "@/constants/errors";
 
 import { ref, onMounted, reactive, computed, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -56,7 +55,7 @@ const userRoleInClass = ref<string>("");
 const loading = ref<boolean>(false);
 const getPermission = async () => {
     try {
-        const result = await ApiClass.GetUserPermission(classData.value.classId);
+        const result = await ApiClass.GetUserPermission(classId.value.toString());
         if (result.data.success) {
             userRoleInClass.value = result.data.data;
         }
@@ -65,29 +64,28 @@ const getPermission = async () => {
     }
 };
 
-const getClassData = async () => {
+/** @returns false nếu không tải được lớp (đã chuyển hướng) -> không gọi tiếp các API khác */
+const getClassData = async (): Promise<boolean> => {
     try {
-        if (!Validator.isValidGuid(classId.value.toString())) {
-            router.push({ name: "404" });
-            return;
+        if (!classId.value || !Validator.isValidGuid(classId.value.toString())) {
+            router.replace({ name: "404" });
+            return false;
         }
-        if (!classId.value) router.push({ name: "404" });
 
         let result = await ApiClass.GetById(classId.value.toString());
-        if (!result.data.success) router.push({ name: "404" });
+        if (!result.data.success) {
+            router.replace({ name: "User_Class" });
+            return false;
+        }
 
         classData.value = result.data.data;
         updateClassFormState.name = classData.value.name;
         updateClassFormState.topic = classData.value.topic;
+        return true;
     } catch (error: any) {
-        const errorKeys = Object.keys(error.response.data.errors);
-        if (
-            errorKeys.includes(ERROR.NOT_FOUND_STUDENT_IN_CLASS) ||
-            errorKeys.includes(ERROR.NOT_FOUND_USER_IN_CLASS)
-        ) {
-            router.push({ name: "User_Class" });
-            return;
-        }
+        // Lớp đã bị xoá / không có quyền / lỗi khác: toast đã do interceptor hiển thị, về danh sách lớp
+        router.replace({ name: "User_Class" });
+        return false;
     }
 };
 
@@ -180,22 +178,42 @@ const onPaginationChange = (page: any, pageSize: any) => {
     getData();
 };
 
-const getFormattedRelativeTime = (hoursAgo: number) => {
-    if (hoursAgo < 24) {
-        return `${hoursAgo} ${hoursAgo !== 1 ? t("settings.subscription.plan.hour_plural") : t("settings.subscription.plan.hour_singular")} ${t("class_exam.other.ago")}`;
-    } else if (hoursAgo < 24 * 7) {
-        const days = Math.floor(hoursAgo / 24);
-        return `${days} ${days !== 1 ? t("settings.subscription.plan.day_plural") : t("settings.subscription.plan.day_singular")} ${t("class_exam.other.ago")}`;
-    } else if (hoursAgo < 24 * 30) {
-        const weeks = Math.floor(hoursAgo / (24 * 7));
-        return `${weeks} ${weeks !== 1 ? t("settings.subscription.plan.week_plural") : t("settings.subscription.plan.week_singular")} ${t("class_exam.other.ago")}`;
-    } else if (hoursAgo < 24 * 365) {
-        const months = Math.floor(hoursAgo / (24 * 30));
-        return `${months} ${months !== 1 ? t("settings.subscription.plan.month_plural") : t("settings.subscription.plan.month_singular")} ${t("class_exam.other.ago")}`;
-    } else {
-        const years = Math.floor(hoursAgo / (24 * 365));
-        return `${years} ${years !== 1 ? t("settings.subscription.plan.year_plural") : t("settings.subscription.plan.year_singular")} ${t("class_exam.other.ago")}`;
+// Khoảng thời gian (số phút, >= 0) -> "x phút/giờ/ngày/tuần/tháng/năm" với số ít/số nhiều theo i18n
+const formatDuration = (minutes: number) => {
+    const units: [string, number][] = [
+        ["year", 60 * 24 * 365],
+        ["month", 60 * 24 * 30],
+        ["week", 60 * 24 * 7],
+        ["day", 60 * 24],
+        ["hour", 60],
+        ["minute", 1],
+    ];
+    for (const [unit, size] of units) {
+        if (minutes >= size) {
+            const n = Math.floor(minutes / size);
+            return t(`class_exam.other.unit_${unit}`, { n }, n);
+        }
     }
+    return t("class_exam.other.unit_minute", { n: 0 }, 0);
+};
+
+const getAssignedText = (exam: ClassExam) => {
+    const minutes = dayjs().diff(dayjs(exam.timeStart), "minute");
+    if (minutes < 1) return t("class_exam.other.assigned_just_now");
+    return `${t("class_exam.other.assigned")} ${formatDuration(minutes)}${t("class_exam.other.ago")}`;
+};
+
+const getStartInText = (exam: ClassExam) => {
+    const minutes = Math.max(1, dayjs(exam.timeStart).diff(dayjs(), "minute"));
+    return `${t("class_exam.other.start_in")}${formatDuration(minutes)}`;
+};
+
+const isStarted = (exam: ClassExam) => !dayjs(exam.timeStart).isAfter(dayjs());
+
+// Ẩn nút làm bài khi đã hết lượt (trừ khi đang có lượt làm dở để tiếp tục)
+const canAttempt = (exam: ClassExam) => {
+    if (!exam.maxAttempt || exam.userAttemptCount === undefined) return true;
+    return exam.hasInProgressAttempt === true || exam.userAttemptCount < exam.maxAttempt;
 };
 
 const getTagColor = (status: string) => {
@@ -237,7 +255,11 @@ const onDeleteTest = (testId: string) => {
 };
 
 const onRedirectToAttempt = (testId: string) => {
-    router.push({ name: "User_Test_Attempt", params: { id: testId } });
+    router.push({
+        name: "User_Test_Attempt",
+        params: { id: testId },
+        query: { classId: classId.value },
+    });
 };
 
 const onRedirectToResult = (testId: string) => {
@@ -319,6 +341,13 @@ const updateClassFormState = reactive({
     topic: classData.value.topic,
 });
 
+// đóng modal sửa lớp mà không lưu: trả input về dữ liệu hiện tại của lớp
+const onCloseUpdateModal = () => {
+    modal_update_open.value = false;
+    updateClassFormState.name = classData.value.name;
+    updateClassFormState.topic = classData.value.topic;
+};
+
 const isUpdateLoading = ref(false);
 const onUpdateClass = async () => {
     isUpdateLoading.value = true;
@@ -348,7 +377,7 @@ onMounted(async () => {
     const sidebarActiveItem = "class";
     emit("updateSidebar", sidebarActiveItem);
 
-    await getClassData();
+    if (!(await getClassData())) return;
     await getPermission();
     await getData();
 });
@@ -464,14 +493,13 @@ onMounted(async () => {
                                 <div class="exam-item-info exam-item-date">
                                     <div>
                                         <i class="bx bx-calendar"></i>
-                                        {{ dayjs(exam.timeStart).format("DD/MM/YYYY HH:mm A") }}
+                                        {{ dayjs(exam.timeStart).format("DD/MM/YYYY HH:mm") }}
                                     </div>
                                 </div>
                                 <div class="exam-item-info exam-info-detail">
                                     <div class="exam-item-questions">
                                         <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                        {{ exam.numberOfQuestions }}
-                                        {{ $t("dashboards.list_items.quiz.questions") }}
+                                        {{ t("class_exam.other.questions_n", { n: exam.numberOfQuestions ?? 0 }, exam.numberOfQuestions ?? 0) }}
                                     </div>
                                     <div class="exam-item-time">
                                         <i class="bx bx-time-five"></i>
@@ -479,27 +507,25 @@ onMounted(async () => {
                                         {{ $t("class_exam.other.min") }}
                                     </div>
                                     <span class="exam-item-assigned completion">
-                                        {{ exam.numberOfCompletion }}
-                                        {{ $t("class_exam.other.completions") }}
+                                        {{
+                                            t(
+                                                "class_exam.other.completions_n",
+                                                { n: exam.numberOfCompletion ?? 0 },
+                                                exam.numberOfCompletion ?? 0,
+                                            )
+                                        }}
                                     </span>
-                                    <span v-if="exam.relativeTime >= 0" class="exam-item-assigned">
-                                        {{ $t("class_exam.other.assigned") }}
-                                        {{ getFormattedRelativeTime(exam.relativeTime) }}
+                                    <span v-if="isStarted(exam)" class="exam-item-assigned">
+                                        {{ getAssignedText(exam) }}
                                     </span>
                                     <span v-else class="exam-item-assigned">
-                                        {{ $t("class_exam.other.start_in") }}
-                                        {{ exam.relativeTime * -1 }}
-                                        {{
-                                            exam.relativeTime * -1 > 0
-                                                ? $t("settings.subscription.plan.hour_plural")
-                                                : $t("settings.subscription.plan.hour_singular")
-                                        }}
+                                        {{ getStartInText(exam) }}
                                     </span>
                                 </div>
                             </div>
                             <div class="exam-item-actions">
                                 <a-button
-                                    v-if="exam.status === CLASS_EXAM_STATUS.ACTIVE"
+                                    v-if="userRoleInClass === CLASS_STUDENT_POSITION.STUDENT && exam.status === CLASS_EXAM_STATUS.ACTIVE && canAttempt(exam)"
                                     type="primary"
                                     class="main-color-btn"
                                     @click="onRedirectToAttempt(exam.testId)"
@@ -583,13 +609,13 @@ onMounted(async () => {
         centered
         wrap-class-name="medium-modal"
         :open="modal_update_open"
-        @cancel="modal_update_open = false"
+        @cancel="onCloseUpdateModal"
     >
         <div class="modal-container">
             <div class="modal-title-container">
                 <a-row class="w-100 d-flex align-items-center">
                     <a-col :span="4">
-                        <RouterLink @click="modal_update_open = false" :to="{ name: '' }">
+                        <RouterLink @click="onCloseUpdateModal" :to="{ name: '' }">
                             <i class="bx bx-chevron-left navigator-back-button"></i>
                         </RouterLink>
                     </a-col>
@@ -684,7 +710,7 @@ onMounted(async () => {
     font-size: 16px;
     border-radius: 50%;
     background: var(--main-color-theme);
-    color: var(--main-color);
+    color: var(--c-primary-text);
     margin-right: 12px;
 }
 
@@ -706,7 +732,7 @@ onMounted(async () => {
 
 .exam-item-date {
     font-size: 14px;
-    color: var(--main-color);
+    color: var(--c-primary-text);
     font-weight: 500;
 }
 .exam-info-detail {

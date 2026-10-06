@@ -216,8 +216,7 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
                                     <div class="quiz-item-info quiz-info-detail">
                                         <div class="quiz-item-questions">
                                             <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                            {{ template.numberOfQuestion }}
-                                            {{ $t("dashboards.list_items.quiz.questions") }}
+                                            {{ $t("dashboards.list_items.quiz.questions", template.numberOfQuestion) }}
                                         </div>
                                         <div class="quiz-item-created-by">
                                             {{ $t("class_question_set.other.created_by") }}
@@ -282,7 +281,7 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
     font-size: 16px;
     border-radius: 50%;
     background: var(--main-color-theme);
-    color: var(--main-color);
+    color: var(--c-primary-text);
     margin-right: 12px;
 }
 </style>

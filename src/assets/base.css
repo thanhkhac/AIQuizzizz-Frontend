@@ -23,7 +23,7 @@
 
     --text-color: #fff;
     --text-color-sub-white: #ccc;
-    --text-color-contrast: #000;
+    --text-color-contrast: var(--c-on-primary);
 
     --text-color-grey: #757575;
     --text-color-white: #fff;
@@ -105,7 +105,7 @@
 
     --text-color: #fff;
     --text-color-sub-white: #fff;
-    --text-color-contrast: #fff;
+    --text-color-contrast: var(--c-on-primary);
 
     --background-sub-color1: #ac63e6;
     --background-sub-color2: #c45037;
@@ -140,7 +140,7 @@
 
     --text-color: #3f3f3f;
     --text-color-sub-white: #333;
-    --text-color-contrast: #fff;
+    --text-color-contrast: var(--c-on-primary);
 
     --background-sub-color1: #fff;
     --background-sub-color2: #fff;
@@ -240,3 +240,104 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+/* ==========================================================================
+   Semantic colour tokens  (see docs/THEME-AND-RESPONSIVE.md)
+   Every token below is defined for BOTH themes and every accent colour and is
+   checked by tools/theme-audit (WCAG AA: 4.5:1 text, 3:1 large text / icons).
+   Prefer these over the legacy names above in new code.
+   ========================================================================== */
+:root,
+.theme-dark {
+    --c-page: #000; /* page background */
+    --c-surface: #151518; /* cards / panels (content-item) */
+    --c-surface-raised: #1f1f20; /* inputs, dropdowns, popovers, modals */
+    --c-border: #27272a;
+    --c-border-strong: #424242; /* input borders */
+    --c-text: #fff;
+    --c-text-muted: #a1a1aa; /* secondary text, >= 4.5:1 on page / surface / raised */
+    --c-placeholder: #8e8e98;
+    --c-disabled-text: #9a9aa4;
+    --c-success: #19e580;
+    --c-success-text: #4ade80;
+    --c-danger: #e74c3c;
+    --c-danger-text: #f87171;
+    --c-warning: #f39c12;
+    --c-warning-text: #fbbf24;
+    --c-on-status: #0b0b0f; /* text on solid success / warning / info colours */
+    --c-on-danger: #fff;
+    --c-solid-danger: #c52225; /* solid red background that carries white text */
+    --c-focus-ring: rgba(167, 139, 250, 0.55);
+    --c-primary: var(--main-color);
+    --c-primary-hover: var(--main-sub-color);
+    --c-primary-text: #a78bfa; /* accent colour used AS TEXT / icon colour on a surface */
+    --brand-gradient-text: linear-gradient(97deg, #a78bfa 0%, #fb923c 100%); /* gradient used for text (logo, hero) */
+
+    --text-color-grey: var(--c-text-muted);
+    color-scheme: dark;
+}
+
+.theme-light {
+    --c-page: #e5e7eb;
+    --c-surface: #f8f8fa;
+    --c-surface-raised: #fff;
+    --c-border: #d4d4d8;
+    --c-border-strong: #a1a1aa;
+    --c-text: #27272a;
+    --c-text-muted: #52525b;
+    --c-placeholder: #6b6b75;
+    --c-disabled-text: #5f5f68;
+    --c-success: #15803d;
+    --c-success-text: #166534;
+    --c-danger: #c81e3a;
+    --c-danger-text: #b91c1c;
+    --c-warning: #b45309;
+    --c-warning-text: #92400e;
+    --c-on-status: #0b0b0f;
+    --c-on-danger: #fff;
+    --c-solid-danger: #c52225;
+    --c-focus-ring: rgba(109, 40, 217, 0.45);
+    --c-primary-text: #6d28d9;
+    --brand-gradient-text: linear-gradient(97deg, #5813c1 0%, #b3361f 100%);
+
+    --text-color-grey: var(--c-text-muted);
+    --category-1st-color: #1d4ed8;
+    --category-2st-color: #15803d;
+    --category-3st-color: #7e22ce;
+    --category-4st-color: #be185d;
+    --category-5st-color: #b45309;
+    --category-6st-color: #b91c1c;
+    --correct-answer-color: #166534;
+    --incorrect-answer-color: #b91c1c;
+    --skipped-answer-color: #92400e;
+    color-scheme: light;
+}
+
+/* on-primary = text/icon colour that sits on --main-color (readable for every accent) */
+:root {
+    --c-on-primary: #fff;
+}
+.purple {
+    --c-on-primary: #fff;
+}
+.blue,
+.green,
+.red,
+.amber,
+.pink {
+    --c-on-primary: #0b0b0f;
+}
+
+/* accent used as text: lighter on dark, darker on light */
+.theme-dark.purple { --c-primary-text: #a78bfa; --c-focus-ring: rgba(167, 139, 250, 0.55); }
+.theme-dark.blue { --c-primary-text: #60a5fa; --c-focus-ring: rgba(96, 165, 250, 0.55); }
+.theme-dark.green { --c-primary-text: #4ade80; --c-focus-ring: rgba(74, 222, 128, 0.5); }
+.theme-dark.red { --c-primary-text: #f87171; --c-focus-ring: rgba(248, 113, 113, 0.55); }
+.theme-dark.amber { --c-primary-text: #fbbf24; --c-focus-ring: rgba(251, 191, 36, 0.55); }
+.theme-dark.pink { --c-primary-text: #f472b6; --c-focus-ring: rgba(244, 114, 182, 0.55); }
+.theme-light.purple { --c-primary-text: #6d28d9; --c-focus-ring: rgba(109, 40, 217, 0.45); }
+.theme-light.blue { --c-primary-text: #1d4ed8; --c-focus-ring: rgba(29, 78, 216, 0.45); }
+.theme-light.green { --c-primary-text: #166534; --c-focus-ring: rgba(22, 101, 52, 0.45); }
+.theme-light.red { --c-primary-text: #b91c1c; --c-focus-ring: rgba(185, 28, 28, 0.45); }
+.theme-light.amber { --c-primary-text: #92400e; --c-focus-ring: rgba(146, 64, 14, 0.45); }
+.theme-light.pink { --c-primary-text: #be185d; --c-focus-ring: rgba(190, 24, 93, 0.45); }

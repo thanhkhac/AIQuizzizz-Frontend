@@ -33,6 +33,8 @@ class TranferQuestionData {
             matchingPairs: matchingPairs,
             orderingItems: responseQuestion.questionData.ordering || [],
             shortAnswer: responseQuestion.questionData.shortText || "",
+            mediaId: responseQuestion.media?.id ?? null,
+            media: responseQuestion.media ?? null,
         };
     }
 
@@ -70,6 +72,7 @@ class TranferQuestionData {
             scoreGraded: requestQuestion.score,
             correctMultipleChoiceCount: requestQuestion.multipleChoices.filter((x) => x.isAnswer)
                 .length,
+            media: requestQuestion.media ?? null,
             questionData: {
                 multipleChoice:
                     requestQuestion.multipleChoices.length > 0

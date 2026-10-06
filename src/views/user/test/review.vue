@@ -9,12 +9,15 @@ import ERROR from "@/constants/errors";
 import Validator from "@/services/Validator";
 import TransferQuestionData from "@/services/TransferQuestionData";
 import TransferUserAnswerData from "@/services/TransferUserAnswerData";
+import { mergeQuestionMedia } from "@/services/QuestionMediaService";
+import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
 
 import { ref, onMounted, computed } from "vue";
 
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import dayjs from "dayjs";
+import { formatScore } from "@/services/QuestionValidator";
 
 const route = useRoute();
 const router = useRouter();
@@ -49,27 +52,48 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 };
 
 //calculate user answer
+// Backend ẩn đáp án (còn lượt làm / không cho xem đáp án): isAnswer, matches, correctOrder, shortText = null
+const isAnswerHidden = (question: any): boolean => {
+    const data = question?.questionData ?? {};
+    switch (question?.type) {
+        case QUESTION_TYPE.MULTIPLE_CHOICE:
+            return !(data.multipleChoice ?? []).some(
+                (x: any) => x.isAnswer !== null && x.isAnswer !== undefined,
+            );
+        case QUESTION_TYPE.MATCHING:
+            return !data.matching?.matches;
+        case QUESTION_TYPE.ORDERING:
+            return !(data.ordering ?? []).some(
+                (x: any) => x.correctOrder !== null && x.correctOrder !== undefined,
+            );
+        case QUESTION_TYPE.SHORT_TEXT:
+            return data.shortText === null || data.shortText === undefined;
+        default:
+            return false;
+    }
+};
+
 const getUserAnswerMultipleChoice = (questionId: string, userData: any[]) => {
     if (!userData) return [];
     const question = questionData.value.find((x: any) => x.id === questionId);
     if (!question) return [];
 
     const result =
-        question.questionData.multipleChoice
+        (question.questionData?.multipleChoice ?? [])
             .filter((x: any) => userData.includes(x.id))
             .map((x: any) => ({
                 id: x.id,
                 text: x.text,
-                isCorrect: x.isAnswer,
+                isCorrect: x.isAnswer ?? null,
             })) ?? [];
 
     return result;
 };
 
 const getMatchingOption = (matchingData: any) => {
-    if (!matchingData) return;
+    if (!matchingData?.matches) return [];
 
-    const matchingPairs = matchingData.matches?.map((x: any) => ({
+    const matchingPairs = matchingData.matches.map((x: any) => ({
         leftItem: matchingData.leftItems.find((l: any) => l.id === x.leftId)?.text,
         rightItem: matchingData.rightItems.find((r: any) => r.id === x.rightId)?.text,
     }));
@@ -82,9 +106,9 @@ const getUserAnswerMatching = (questionId: string, userData: any) => {
     const question = questionData.value.find((x: any) => x.id === questionId);
     if (!question) return [];
 
-    const matches = question.questionData.matching.matches;
-    const leftItems = question.questionData.matching.leftItems;
-    const rightItems = question.questionData.matching.rightItems;
+    const matches = question.questionData?.matching?.matches ?? null;
+    const leftItems = question.questionData?.matching?.leftItems ?? [];
+    const rightItems = question.questionData?.matching?.rightItems ?? [];
 
     const result =
         userData.map((x: any) => ({
@@ -92,7 +116,9 @@ const getUserAnswerMatching = (questionId: string, userData: any) => {
             rightId: x.rightId,
             leftItem: leftItems.find((l: any) => l.id === x.leftId)?.text,
             rightItem: rightItems.find((r: any) => r.id === x.rightId)?.text,
-            isCorrect: matches.some((m: any) => m.leftId === x.leftId && m.rightId === x.rightId),
+            isCorrect: matches
+                ? matches.some((m: any) => m.leftId === x.leftId && m.rightId === x.rightId)
+                : null,
         })) ?? [];
 
     return result;
@@ -103,13 +129,15 @@ const getUserAnswerOrdering = (questionId: string, userData: any) => {
     const question = questionData.value.find((x: any) => x.id === questionId);
     if (!question) return [];
 
-    const ordering = question.questionData.ordering;
+    const ordering = question.questionData?.ordering ?? [];
     const result =
         userData.map((x: any) => ({
             itemId: x.itemId,
             order: x.order,
             text: ordering.find((o: any) => o.id === x.itemId)?.text,
-            isCorrect: ordering.some((o: any) => o.id === x.itemId && o.correctOrder === x.order),
+            isCorrect: isAnswerHidden(question)
+                ? null
+                : ordering.some((o: any) => o.id === x.itemId && o.correctOrder === x.order),
         })) ?? [];
 
     return result;
@@ -148,11 +176,11 @@ const getData = async () => {
             reviewData.value = result.data.data;
         }
     } catch (error: any) {
-        if (Object.keys(error.response.data.errors).includes(ERROR.STUDENT_CAN_REVIEW_THIS_TEST)) {
+        if (Object.keys(error?.response?.data?.errors ?? {}).includes(ERROR.STUDENT_CAN_REVIEW_THIS_TEST)) {
             router.push({ name: "User_Class" });
             return;
         }
-        if (error.response && !error.response.data.success) {
+        if (error?.response && !error.response.data?.success) {
             router.push({ name: "404" });
         }
     } finally {
@@ -186,6 +214,23 @@ onMounted(async () => {
     await getData();
     questionData.value = reviewData.value.questions;
 });
+
+// trả về bản copy đã sắp theo thứ tự đúng (không mutate dữ liệu gốc khi render)
+type OrderingOption = { id: string; text: string; correctOrder: number };
+const sortByCorrectOrder = (list?: OrderingOption[] | null): OrderingOption[] =>
+    [...(list ?? [])].sort((a, b) => a.correctOrder - b.correctOrder);
+
+// presigned URL của media hết hạn -> lấy URL mới, chỉ cập nhật media (không reset trang)
+const reloadQuestionMedia = async () => {
+    try {
+        const result = await ApiTest.GetAttemptReview(attemptId.value);
+        if (result?.data?.success) {
+            mergeQuestionMedia(questionData.value, result.data.data.questions);
+        }
+    } catch (error) {
+        console.log("ERROR: reload question media", error);
+    }
+};
 </script>
 <template>
     <div class="page-container">
@@ -213,13 +258,13 @@ onMounted(async () => {
                         <div class="d-flex justify-content-between">
                             <span> StartTime:</span>
                             <span>
-                                {{ dayjs(reviewData.timeStart).format("DD/MM/YYYY HH:mm:ss A") }}
+                                {{ dayjs(reviewData.timeStart).format("DD/MM/YYYY HH:mm:ss") }}
                             </span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span> EndTime:</span>
                             <span>
-                                {{ dayjs(reviewData.timeEnd).format("DD/MM/YYYY HH:mm:ss A") }}
+                                {{ dayjs(reviewData.timeEnd).format("DD/MM/YYYY HH:mm:ss") }}
                             </span>
                         </div>
                     </a-col>
@@ -229,7 +274,7 @@ onMounted(async () => {
                         <div class="d-flex justify-content-between">
                             <span>Score:</span>
                             <span>
-                                {{ reviewData.score }}
+                                {{ formatScore(reviewData.score) }}
                             </span>
                         </div>
                     </a-col>
@@ -271,10 +316,11 @@ onMounted(async () => {
                         <div class="d-flex align-items-center">
                             <div class="question-text" v-html="question.questionText"></div>
                         </div>
+                        <QuestionMediaView :media="question.media" @reload="reloadQuestionMedia" />
                         <div class="question-item-answer" :id="`question-item-answer-${index}`">
                             <template v-if="question.type === QUESTION_TYPE.MULTIPLE_CHOICE">
                                 <div class="question-data">
-                                    <div class="question-data-option">
+                                    <div v-if="!isAnswerHidden(question)" class="question-data-option">
                                         <div>Options:</div>
                                         <ul>
                                             <li
@@ -295,9 +341,11 @@ onMounted(async () => {
                                                     question.userAnswerDataDto?.multipleChoice,
                                                 )"
                                                 :class="[
-                                                    option.isCorrect
-                                                        ? 'result-correct'
-                                                        : 'result-incorrect',
+                                                    option.isCorrect === null
+                                                        ? ''
+                                                        : option.isCorrect
+                                                          ? 'result-correct'
+                                                          : 'result-incorrect',
                                                 ]"
                                             >
                                                 {{ option.text }}
@@ -309,7 +357,7 @@ onMounted(async () => {
                             </template>
                             <template v-if="question.type === QUESTION_TYPE.MATCHING">
                                 <div class="question-data">
-                                    <div class="question-data-option">
+                                    <div v-if="!isAnswerHidden(question)" class="question-data-option">
                                         <div>Options:</div>
                                         <div
                                             class="pair-answer"
@@ -332,8 +380,11 @@ onMounted(async () => {
                                             <div
                                                 :class="[
                                                     'pair-answer',
-                                                    !option.isCorrect
+                                                    option.isCorrect === false
                                                         ? 'pair-answer-incorrect'
+                                                        : '',
+                                                    option.isCorrect === null
+                                                        ? 'pair-answer-neutral'
                                                         : '',
                                                 ]"
                                                 v-for="option in getUserAnswerMatching(
@@ -356,19 +407,14 @@ onMounted(async () => {
                             </template>
                             <template v-if="question.type === QUESTION_TYPE.ORDERING">
                                 <div class="question-data">
-                                    <div class="question-data-option">
+                                    <div v-if="!isAnswerHidden(question)" class="question-data-option">
                                         <div>Options:</div>
                                         <div class="ordering-answer">
                                             <div class="ordering-answer-item">
                                                 <div
                                                     class="ordering-answer-item"
-                                                    v-for="(
-                                                        option, index
-                                                    ) in question.questionData.ordering?.sort(
-                                                        (
-                                                            a: { correctOrder: number },
-                                                            b: { correctOrder: number },
-                                                        ) => a.correctOrder - b.correctOrder,
+                                                    v-for="(option, index) in sortByCorrectOrder(
+                                                        question.questionData.ordering,
                                                     )"
                                                 >
                                                     <span class="result-correct"
@@ -394,13 +440,17 @@ onMounted(async () => {
                                                     )"
                                                     :class="[
                                                         'ordering-answer-item',
-                                                        option.isCorrect
-                                                            ? 'result-correct'
-                                                            : 'result-incorrect',
+                                                        option.isCorrect === null
+                                                            ? ''
+                                                            : option.isCorrect
+                                                              ? 'result-correct'
+                                                              : 'result-incorrect',
                                                     ]"
                                                 >
-                                                    <span>#{{ index + 1 }}</span>
-                                                    -
+                                                    <span v-if="option.isCorrect !== null"
+                                                        >#{{ index + 1 }} -</span
+                                                    >
+                                                    <span v-else>{{ index + 1 }}.</span>
                                                     {{ option.text }}
                                                 </div>
                                             </div>
@@ -411,7 +461,7 @@ onMounted(async () => {
                             </template>
                             <template v-if="question.type === QUESTION_TYPE.SHORT_TEXT">
                                 <div class="question-data">
-                                    <div class="question-data-option">
+                                    <div v-if="!isAnswerHidden(question)" class="question-data-option">
                                         <div>Option:</div>
                                         <div class="short-text-answer">
                                             {{ question.questionData.shortText }}
@@ -420,7 +470,7 @@ onMounted(async () => {
                                     <div class="question-data-option">
                                         <div>User answer:</div>
                                         <div
-                                            v-if="question.questionDataDto?.shortText"
+                                            v-if="question.userAnswerDataDto?.shortText"
                                             class="short-text-answer"
                                         >
                                             {{ question.userAnswerDataDto?.shortText }}
@@ -430,14 +480,14 @@ onMounted(async () => {
                                 </div>
                             </template>
                         </div>
-                        <div>
+                        <div v-if="!isAnswerHidden(question)">
                             Score:
                             <span
                                 :class="[
-                                    question.score > 0 ? 'result-correct' : 'result-incorrect',
+                                    Number(question.score) > 0 ? 'result-correct' : 'result-incorrect',
                                 ]"
                             >
-                                {{ question.score }}
+                                {{ formatScore(question.score) }}
                             </span>
                         </div>
                     </div>
@@ -493,5 +543,29 @@ onMounted(async () => {
 
 .pair-answer-incorrect i {
     color: var(--incorrect-answer-color);
+}
+
+@media (max-width: 767.98px) {
+    .question-data {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .question-data-option {
+        margin-right: 0;
+        min-width: 0;
+        max-width: 100%;
+    }
+    .ordering-answer {
+        flex-wrap: wrap;
+    }
+}
+
+/* đáp án đang bị ẩn: hiển thị trung tính, không tô xanh/đỏ */
+.pair-answer-neutral .pair-answer-item {
+    border-color: var(--content-item-border-color);
+}
+
+.pair-answer-neutral i {
+    color: var(--text-color-grey);
 }
 </style>

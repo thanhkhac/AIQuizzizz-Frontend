@@ -17,6 +17,8 @@ import { Modal } from "ant-design-vue";
 import Highcharts from "highcharts";
 import { useRouter, useRoute } from "vue-router";
 import Validator from "@/services/Validator";
+import { mergeQuestionMedia } from "@/services/QuestionMediaService";
+import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
 import ShuffleQuestionData from "@/services/ShuffleQuestionData";
 
 const route = useRoute();
@@ -147,6 +149,10 @@ const questionSetId = ref<string>(route.params.id.toString());
 const loading = ref(false);
 const isAllowed = ref(true);
 const quizTypes = ref<string[]>([]);
+// số câu hỏi theo từng loại (API QuestionSet/{id}/Types)
+const quizTypeCounts = ref<Record<string, number>>({});
+
+const loadFailed = ref(false);
 
 const getQuizTypes = async () => {
     try {
@@ -158,10 +164,16 @@ const getQuizTypes = async () => {
         const result = await ApiQuestionSet.GetQuizTypes(questionSetId.value.toString());
         if (result.data.success) {
             quizTypes.value = result.data.data.map((x: any) => x.type);
+            quizTypeCounts.value = Object.fromEntries(
+                result.data.data.map((x: any) => [x.type, Number(x.count) || 0]),
+            );
             settingFormState.questionTypes = result.data.data.map((x: any) => x.type);
         }
     } catch (error) {
         console.error(error);
+        // bộ câu hỏi không tồn tại / không có quyền -> về 404 (không mở modal cài đặt trên trang rỗng)
+        loadFailed.value = true;
+        router.push({ name: "404" });
     } finally {
         loading.value = false;
     }
@@ -172,6 +184,18 @@ watch(quizTypes, (newValue) => {
         settingFormState.numberOfQuestion = newValue.length;
     }
 });
+
+// presigned URL của media hết hạn -> lấy URL mới, chỉ cập nhật media (giữ nguyên bài đang làm)
+const reloadQuestionMedia = async () => {
+    try {
+        const result = await ApiQuestionSet.GetQuestionById(questionSetId.value.toString());
+        if (result?.data?.success) {
+            mergeQuestionMedia([...quiz.value.questions, currentQuestion.value], result.data.data);
+        }
+    } catch (error) {
+        console.log("ERROR: reload question media", error);
+    }
+};
 
 const getQuizData = async () => {
     if (!Validator.isValidGuid(questionSetId.value.toString())) {
@@ -204,7 +228,7 @@ const getQuizData = async () => {
 
         onLoadCurrentQuestion(0);
     } catch (error: any) {
-        const errorKeys = Object.keys(error.response.data.errors);
+        const errorKeys = Object.keys(error?.response?.data?.errors ?? {});
         if (errorKeys.includes(ERROR.PLAN_REQUIRE_PLAN)) {
             isAllowed.value = false;
             router.back();
@@ -983,13 +1007,21 @@ const processTextWithHtmlTag = (string: string) => {
     return result;
 };
 
-watch(
-    () => settingFormState.numberOfQuestion,
-    () => {
-        if (quiz.value.totalQuestionCount <= 0) return;
+// tối đa = tổng số câu của các loại ĐANG ĐƯỢC CHỌN (fallback: tổng số câu của bộ nếu chưa có số liệu theo loại)
+const maxSelectableQuestions = computed(() => {
+    const counts = quizTypeCounts.value;
+    if (Object.keys(counts).length === 0) return quiz.value.totalQuestionCount;
+    return settingFormState.questionTypes.reduce((sum, type) => sum + (counts[type] ?? 0), 0);
+});
 
-        if (settingFormState.numberOfQuestion > quiz.value.totalQuestionCount) {
-            settingFormState.numberOfQuestion = quiz.value.totalQuestionCount;
+watch(
+    [() => settingFormState.numberOfQuestion, maxSelectableQuestions],
+    () => {
+        const max = maxSelectableQuestions.value;
+        if (max <= 0) return;
+
+        if (settingFormState.numberOfQuestion > max) {
+            settingFormState.numberOfQuestion = max;
         } else if (settingFormState.numberOfQuestion < 1) {
             settingFormState.numberOfQuestion = 1;
         }
@@ -1006,6 +1038,7 @@ onMounted(async () => {
         settingFormState.questionTypes = JSON.parse(session_settings).questionTypes;
     }
     await getQuizTypes();
+    if (loadFailed.value) return;
     await getQuizData();
 
     openSettingModal();
@@ -1185,6 +1218,10 @@ onMounted(async () => {
                         <div v-else class="learn-question text">
                             {{ processTextWithHtmlTag(currentQuestion.questionText) }}
                         </div>
+                        <QuestionMediaView
+                            :media="currentQuestion.media"
+                            @reload="reloadQuestionMedia"
+                        />
                         <!-- <div
                             :class="[
                                 'learn-question',
@@ -1606,7 +1643,7 @@ onMounted(async () => {
                     <div>
                         {{
                             $t("practice_test.setting_modal.max_question", {
-                                length: quiz.totalQuestionCount,
+                                length: maxSelectableQuestions,
                             })
                         }}
                     </div>
@@ -1615,7 +1652,7 @@ onMounted(async () => {
                         id="inputNumber"
                         v-model:value="settingFormState.numberOfQuestion"
                         :min="1"
-                        :max="quiz.totalQuestionCount"
+                        :max="maxSelectableQuestions"
                         :precision="0"
                     />
                 </div>
@@ -1816,7 +1853,7 @@ onMounted(async () => {
 .result-button-title {
     font-size: 20px;
     font-weight: 500;
-    color: var(--main-color);
+    color: var(--c-primary-text);
     transition: all 0.2s ease-in-out;
 }
 

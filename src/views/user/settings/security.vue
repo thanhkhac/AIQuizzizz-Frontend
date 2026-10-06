@@ -8,6 +8,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
 import { useAuthStore } from "@/stores/AuthStore";
 
 import { useI18n } from "vue-i18n";
+import { PASSWORD_REGEX } from "@/constants/password";
 const { t } = useI18n();
 
 const authStore = useAuthStore();
@@ -34,8 +35,16 @@ const rules = {
             trigger: "change",
         },
         {
-            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
+            pattern: PASSWORD_REGEX,
             message: t("auth.validation.password"),
+            trigger: "change",
+        },
+        {
+            // mật khẩu mới phải khác mật khẩu hiện tại (backend cũng kiểm tra: ACCOUNT_NEW_PASSWORD_SAME_AS_CURRENT)
+            validator: (rule: any, value: string) =>
+                value && value === changePasswordFormState.currentPassword
+                    ? Promise.reject(t("auth.validation.same_password"))
+                    : Promise.resolve(),
             trigger: "change",
         },
     ],
@@ -74,17 +83,23 @@ const showModalConfirmation = () => {
         okText: t("sidebar.buttons.ok"),
         cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
-            const result = await ApiAuthentication.ChangePassword({
-                currentPassword: changePasswordFormState.currentPassword,
-                newPassword: changePasswordFormState.newPassword,
-            });
+            try {
+                const result = await ApiAuthentication.ChangePassword({
+                    currentPassword: changePasswordFormState.currentPassword,
+                    newPassword: changePasswordFormState.newPassword,
+                });
 
-            if (result.data.success) {
-                message.success(t("message.change_password_successfully"));
-                authStore.logOut();
-                return;
+                if (result.data.success) {
+                    message.success(t("message.change_password_successfully"));
+                    authStore.logOut();
+                    return;
+                }
+                message.error(t("message.change_password_failed"));
+            } catch (error) {
+                // lỗi API (vd: sai mật khẩu hiện tại) đã được interceptor hiển thị bằng notification đã dịch;
+                // không ném lại để modal xác nhận được đóng và không bị unhandled rejection
+                console.log(error);
             }
-            message.success(t("message.change_password_failed"));
         },
     });
 };

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import user_image from "@/assets/user.png";
+import { copyToClipboard } from "@/services/ClipboardService";
 
 import ApiUser from "@/api/ApiUser";
 import ApiQuestionSet from "@/api/ApiQuestionSet";
@@ -333,15 +334,11 @@ const getPublicShareUrl = () => {
     return origin + `/user/question-set/${props.id}`;
 };
 
-const onCopyPublicShareUrl = () => {
-    navigator.clipboard
-        .writeText(getPublicShareUrl())
-        .then(() => {
-            message.success(t("message.copied"));
-        })
-        .catch(() => {
-            message.error(t("message.copied_failed"));
-        });
+const onCopyPublicShareUrl = async () => {
+    const success = await copyToClipboard(getPublicShareUrl());
+
+    if (success) message.success(t("message.copied"));
+    else message.error(t("message.copied_failed"));
 };
 //#endregion
 
@@ -652,6 +649,7 @@ onMounted(() => {
 }
 
 .shareable-link-container {
+    margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
     align-items: start;
@@ -766,7 +764,7 @@ onMounted(() => {
 .people-access-img {
     width: 40px;
     height: 40px;
-    background-color: var(--text-color-white);
+    background-color: var(--c-surface-raised);
     border-radius: 50%;
     margin-right: 10px;
     padding: 5px;

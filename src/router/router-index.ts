@@ -8,7 +8,7 @@ const indexRoutes = [
     {
         path: "/",
         name: "home",
-        component: import("../views/public/home.vue"),
+        component: () => import("../views/public/home.vue"),
         meta: {
             title: "AI generated quiz & learning tools",
             description:
@@ -18,7 +18,7 @@ const indexRoutes = [
     {
         path: "/404",
         name: "404",
-        component: import("@/views/public/404.vue"),
+        component: () => import("@/views/public/404.vue"),
         meta: { title: "404" },
     },
     {
@@ -101,80 +101,42 @@ const router = createRouter({
     routes,
 });
 
+const isAdminOrModerator = () => {
+    const roles: string[] = useAuthStore().getUserInfo()?.roles ?? [];
+    return roles.includes("Administrator") || roles.includes("Moderator");
+};
+
 //check claim before redirect
-router.beforeEach(async (to, from, next) => {
+// Mỗi lần điều hướng chỉ gọi next() đúng một lần, và mọi chặn quyền đều xử lý ở đây (không gọi API trước khi chặn)
+router.beforeEach((to, from, next) => {
     //meta-title
     document.title = "AIQuizizz | " + to.meta.title;
 
+    const isLoggedIn = useAuthStore().checkUser();
+
     //check authentication + returnURL
-    if (!useAuthStore().checkUser() && !publicRoutes.includes(to.name as string)) {
+    if (!isLoggedIn && !publicRoutes.includes(to.name as string)) {
         useAuthStore().returnURL = to.fullPath;
         useAuthStore().logOut();
         next({ name: "login" });
         return;
     }
 
-    //test redirect
-    // authRoutes.includes(to.name?.toString() ?? "")
+    //đã đăng nhập mà vào trang login/register/callback -> về trang chính theo vai trò
     if (
-        (to.name === "login" || to.name === "google-authentication-callback") &&
-        useAuthStore().checkUser()
+        (to.name === "login" || to.name === "register" || to.name === "google-authentication-callback") &&
+        isLoggedIn
     ) {
-        // if (useAuthStore().user_info.claims.includes("Admin_Dashboard_View")) {
-        if (
-            useAuthStore().getUserInfo().roles.includes("Administrator") ||
-            useAuthStore().getUserInfo().roles.includes("Moderator")
-        ) {
-            next({ name: "Admin_Manager_Account" });
-        } else {
-            next({ name: "/" });
-        }
+        next(isAdminOrModerator() ? { name: "Admin_Manager_Account" } : { name: "User_Dashboard" });
         return;
     }
 
-    //default admin routes
-    const adminClaimRoutes = {
-        Admin_User_View: "Admin_User_Create",
-        Admin_User_Create: "Admin_User_Create",
-        Admin_User_Update: "Admin_User_Update",
-        Admin_Dashboards_View: "Admin_Dashboards_View",
-        Admin_Manager_Account: "Admin_Manager_Account",
-        Admin_Manager_Class: "Admin_Manager_Class",
-        Admin_Manager_Subscription: "Admin_Manager_Subscription",
-    };
-
-    //type for ts only
-    type AdminRouteName =
-        | "Admin_User_View"
-        | "Admin_User_Create"
-        | "Admin_User_Update"
-        | "Admin_Dashboards_View"
-        | "Admin_Manager_Account"
-        | "Admin_Manager_Class"
-        | "Admin_Manager_Subscription";
-
-    //function to check to.name is one of admin routes
-    const isAdminRouteName = (name: any): name is AdminRouteName => {
-        return name in adminClaimRoutes;
-    };
-
-    //filter check claim
-    if (isAdminRouteName(to.name)) {
-        // const claimKey = adminClaimRoutes[to.name];
-
-        // if (useAuthStore().getUserInfo().claims[claimKey] === "1") {
-        //     next();
-        // }
-
-        if (
-            useAuthStore().getUserInfo().roles.includes("Administrator") ||
-            useAuthStore().getUserInfo().roles.includes("Moderator")
-        ) {
-            next();
-        }
+    //mọi route dưới /admin (kể cả Admin_System_Settings) chỉ dành cho Administrator/Moderator
+    if ((to.path === "/admin" || to.path.startsWith("/admin/")) && !isAdminOrModerator()) {
         next({ name: "404" });
         return;
     }
+
     next();
 });
 

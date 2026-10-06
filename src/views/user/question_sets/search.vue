@@ -199,7 +199,11 @@ const onRedirectToDetail = (questionSetId: string) => {
     router.push({ name: "User_QuestionSet_Detail", params: { id: questionSetId } });
 };
 
+// các trang con của thư viện: highlight mục "Quizzes" ở sidebar
+const emit = defineEmits(["updateSidebar"]);
+
 onMounted(async () => {
+    emit("updateSidebar", "library");
     document.addEventListener("click", handleMouseClickOutside);
     getSessionSelectedTag();
     await getData();
@@ -324,7 +328,7 @@ onMounted(async () => {
                 <div class="content-item-title">
                     <div>
                         <span>
-                            {{ $t("search_QS.other.result_title", { number: quiz_data.length }) }}
+                            {{ $t("search_QS.other.result_title", { number: pageParams.totalCount }) }}
                         </span>
                     </div>
                 </div>
@@ -352,8 +356,7 @@ onMounted(async () => {
                                 <div class="quiz-item-info quiz-info-detail">
                                     <div class="quiz-item-questions">
                                         <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                        {{ item.totalQuestionCount }}
-                                        {{ $t("dashboards.list_items.quiz.questions") }}
+                                        {{ $t("dashboards.list_items.quiz.questions", item.totalQuestionCount) }}
                                     </div>
                                     <div class="quiz-item-created-by">
                                         {{ $t("class_question_set.other.created_by") }}
@@ -530,8 +533,9 @@ onMounted(async () => {
     aspect-ratio: 1/1;
     font-size: 16px;
     border-radius: 50%;
-    background: #221a32;
-    color: #7c3aed;
+    background: var(--main-color-theme, #ede9fe);
+    background: color-mix(in srgb, var(--main-color, #7c3aed) 18%, transparent);
+    color: var(--c-primary-text);
     margin-right: 12px;
 }
 </style>

@@ -1,0 +1,9 @@
+{
+  "T": {
+    "email": "teacher@example.com",
+    "password": "change-me"
+  },
+  "qsId": "<question-set-id>",
+  "clId": "<class-id>",
+  "testId": "<test-id>"
+}
