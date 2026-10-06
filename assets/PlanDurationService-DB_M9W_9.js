@@ -1,0 +1,1 @@
+import{Z as n}from"./index-Ae-eauxP.js";const a={day:"day",week:"week",month:"month",year:"year",hour:"hour"},u=(r,e)=>{const t=a[(e??"").toLowerCase()];if(!t)return`${r}`;const o=Number(r)===1?"singular":"plural";return`${r} ${n(`settings.subscription.plan.${t}_${o}`)}`};export{u as f};
