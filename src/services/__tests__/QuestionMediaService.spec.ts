@@ -75,7 +75,16 @@ describe("mergeQuestionMedia", () => {
 describe("toQuestionPayload", () => {
     it("bỏ media preview, giữ mediaId", () => {
         const payload = toQuestionPayload({ id: "1", mediaId: "m1", media: media("m1", "u") });
-        expect(payload).toEqual({ id: "1", mediaId: "m1" });
+        expect(payload).toEqual({ id: "1", mediaId: "m1", textFormat: "Html" });
+    });
+
+    it("luôn gửi textFormat chuẩn hoá (Markdown không bị đổi thành Html)", () => {
+        expect(toQuestionPayload({ id: "1", textFormat: "Markdown" }).textFormat).toBe("Markdown");
+        expect(toQuestionPayload({ id: "1", textFormat: "MarkDown" }).textFormat).toBe("Markdown");
+        expect(toQuestionPayload({ id: "1", textFormat: "PlainText" }).textFormat).toBe("PlainText");
+        expect(toQuestionPayload({ id: "1", textFormat: "HTML" }).textFormat).toBe("Html");
+        expect(toQuestionPayload({ id: "1" }).textFormat).toBe("Html");
+        expect(toQuestionPayload({ id: "1", textFormat: "weird" }).textFormat).toBe("Html");
     });
 });
 

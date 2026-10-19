@@ -15,6 +15,8 @@ import { message, Modal } from "ant-design-vue";
 import TransferQuestionData from "@/services/TransferQuestionData";
 import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
+import RichContent from "@/shared/components/Common/RichContent.vue";
+import FlashcardBack from "@/shared/components/Flashcard/FlashcardBack.vue";
 import Validator from "@/services/Validator";
 
 import { useI18n } from "vue-i18n";
@@ -53,6 +55,7 @@ const optionKeys = [
     QUESTION_TYPE.MATCHING,
     QUESTION_TYPE.ORDERING,
     QUESTION_TYPE.SHORT_TEXT,
+    QUESTION_TYPE.LANGUAGE_FLASHCARD,
 ];
 
 const question_type_options = computed(() =>
@@ -428,13 +431,17 @@ onMounted(async () => {
                         <div class="d-flex pb-2">
                             <div class="question-index">{{ index + 1 }}</div>
                             <div
-                                v-if="question.questionHTML"
-                                class="question-html"
-                                v-html="question.questionHTML"
-                            ></div>
-                            <div v-else class="question-text">
+                                v-if="question.type === QUESTION_TYPE.LANGUAGE_FLASHCARD"
+                                class="question-html flashcard-front"
+                            >
                                 {{ question.questionText }}
                             </div>
+                            <RichContent
+                                v-else
+                                class="question-html"
+                                :content="question.questionHTML || question.questionText"
+                                :format="question.textFormat"
+                            />
                         </div>
                         <QuestionMediaView :media="question.media" @reload="reloadQuestionMedia" />
                         <div
@@ -446,7 +453,11 @@ onMounted(async () => {
                                 <div class="multiple-choice-answer">
                                     <ul>
                                         <li v-for="option in question.multipleChoices">
-                                            {{ option.text }}
+                                            <RichContent
+                                                :content="option.text"
+                                                :format="question.textFormat"
+                                                inline
+                                            />
                                             <span class="text-success" v-if="option.isAnswer">
                                                 ({{ option.isAnswer }})
                                             </span>
@@ -457,11 +468,19 @@ onMounted(async () => {
                             <template v-if="question.type === QUESTION_TYPE.MATCHING">
                                 <div class="pair-answer" v-for="option in question.matchingPairs">
                                     <span class="pair-answer-item">
-                                        {{ option.leftItem }}
+                                        <RichContent
+                                            :content="option.leftItem"
+                                            :format="question.textFormat"
+                                            inline
+                                        />
                                     </span>
                                     <i class="bx bx-right-arrow-alt"></i>
                                     <span class="pair-answer-item">
-                                        {{ option.rightItem }}
+                                        <RichContent
+                                            :content="option.rightItem"
+                                            :format="question.textFormat"
+                                            inline
+                                        />
                                     </span>
                                 </div>
                             </template>
@@ -469,7 +488,11 @@ onMounted(async () => {
                                 <div class="ordering-answer">
                                     <div class="ordering-answer-item">
                                         <div v-for="option in question.orderingItems">
-                                            {{ option.text }}
+                                            <RichContent
+                                                :content="option.text"
+                                                :format="question.textFormat"
+                                                inline
+                                            />
                                         </div>
                                     </div>
                                     <i class="bx bx-right-arrow-alt"></i>
@@ -481,15 +504,26 @@ onMounted(async () => {
                                             )"
                                         >
                                             <span>#{{ index + 1 }}</span> -
-                                            {{ option.text }}
+                                            <RichContent
+                                                :content="option.text"
+                                                :format="question.textFormat"
+                                                inline
+                                            />
                                         </div>
                                     </div>
                                 </div>
                             </template>
+                            <template v-if="question.type === QUESTION_TYPE.LANGUAGE_FLASHCARD">
+                                <FlashcardBack :card="question.flashcard" show-source />
+                            </template>
                             <template v-if="question.type === QUESTION_TYPE.SHORT_TEXT">
                                 <span>Answer:</span>
                                 <div class="short-text-answer">
-                                    {{ question.shortAnswer }}
+                                    <RichContent
+                                        :content="question.shortAnswer"
+                                        :format="question.textFormat"
+                                        inline
+                                    />
                                 </div>
                             </template>
                         </div>
@@ -551,6 +585,12 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.flashcard-front {
+    font-weight: 600;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 .content-item {
     margin-left: 30px;
 }

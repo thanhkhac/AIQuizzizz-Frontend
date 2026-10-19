@@ -370,9 +370,18 @@ svg {
         width: 100%;
     }
     .question-function-select,
-    .question-score-select {
+    .question-score-select,
+    .question-mode-switch {
         width: 100% !important;
         margin-right: 0 !important;
+    }
+    .question-mode-switch .ant-radio-group {
+        display: flex;
+        width: 100%;
+    }
+    .question-mode-switch .ant-radio-button-wrapper {
+        flex: 1;
+        text-align: center;
     }
     .question-body {
         padding: 0 !important;

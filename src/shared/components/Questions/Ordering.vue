@@ -13,8 +13,10 @@ import { QuestionCircleOutlined } from "@ant-design/icons-vue";
 
 import TextArea from "../Common/TextArea.vue";
 
-//@ts-ignore
-import InputEditor from "../Common/InputEditor.vue";
+import ContentEditor from "../Common/ContentEditor.vue";
+import ContentModeSwitch from "../Common/ContentModeSwitch.vue";
+import OptionPreview from "../Common/OptionPreview.vue";
+import { isMarkdownFormat, plainTextOf } from "@/services/ContentModeService";
 import QuestionMediaPicker from "../Media/QuestionMediaPicker.vue";
 
 import QUESTION_TYPE from "@/constants/questionTypes";
@@ -23,6 +25,8 @@ interface Props {
     question: RequestQuestion;
     index: number;
     displayScore: boolean;
+    // chỉ trang tạo/sửa bộ câu hỏi mới cho chọn LanguageFlashcard (test / đề mẫu chưa hỗ trợ)
+    allowFlashcard?: boolean;
 }
 
 const { t } = useI18n();
@@ -30,6 +34,9 @@ const { t } = useI18n();
 const props = defineProps<Props>();
 
 const questionData = shallowRef(props.question);
+
+// Markdown: nội dung / giải thích / đáp án xếp dọc, full chiều rộng để có chỗ cho khung xem trước
+const isMarkdown = computed(() => isMarkdownFormat(props.question.textFormat));
 
 const optionKeys = [
     QUESTION_TYPE.MULTIPLE_CHOICE,
@@ -39,7 +46,7 @@ const optionKeys = [
 ];
 
 const options = computed(() =>
-    optionKeys.map((key) => ({
+    (props.allowFlashcard ? [...optionKeys, QUESTION_TYPE.LANGUAGE_FLASHCARD] : optionKeys).map((key) => ({
         label: t(`create_QS.type.${key}`),
         value: key,
     })),
@@ -75,7 +82,7 @@ const { validateInfos } = Form.useForm(props.question, {
         { required: true, message: t("create_QS.error_msg.required"), trigger: "change" },
         {
             validator: (_rule: string, value: string) => {
-                const plainText = value.replace(/<[^>]+>/g, ""); //editor return as html in <p></p>
+                const plainText = plainTextOf(value, props.question.textFormat); //rich text: editor return as html in <p></p>
                 if (!plainText) return Promise.reject(t("create_QS.error_msg.required"));
                 if (plainText.length > 5000) {
                     return Promise.reject(
@@ -90,7 +97,7 @@ const { validateInfos } = Form.useForm(props.question, {
     explainText: [
         {
             validator: (_rule: string, value: string) => {
-                const plainText = value.replace(/<[^>]+>/g, "");
+                const plainText = plainTextOf(value, props.question.textFormat);
                 if (plainText.length > 5000) {
                     return Promise.reject(
                         t("create_QS.error_msg.out_of_range", { max_length: 5000 }),
@@ -130,6 +137,7 @@ const checkEnoughOption = () => {
                             @blur="questionData.score = normalizeScore(questionData.score)"
                         />
                     </div>
+                    <ContentModeSwitch class="question-mode-switch" :question="props.question" />
                     <div class="question-function-select">
                         <a-select
                             v-model:value="questionData.type"
@@ -153,7 +161,8 @@ const checkEnoughOption = () => {
             </div>
             <div class="question-body">
                 <div class="question-description">
-                    <InputEditor
+                    <ContentEditor
+                        :format="questionData.textFormat"
                         class="question-description-item"
                         v-model="questionData.questionText"
                         v-model:validateStatus="validateInfos.questionText.validateStatus"
@@ -161,14 +170,14 @@ const checkEnoughOption = () => {
                         :name="'questionText'"
                         :label="t('create_QS.question.text')"
                         :placeholder="t('create_QS.question.text_placeholder')"
-                        :html="questionData.questionHTML"
                         :is-required="true"
                     />
                 </div>
                 <QuestionMediaPicker :question="props.question" />
-                <div class="question-body-answer">
-                    <InputEditor
-                        style="max-width: 500px"
+                <div class="question-body-answer" :class="{ 'is-markdown': isMarkdown }">
+                    <ContentEditor
+                        :format="questionData.textFormat"
+                        :style="isMarkdown ? undefined : { maxWidth: '500px' }"
                         class="explain-section question-description-item"
                         v-model="questionData.explainText"
                         v-model:validateStatus="validateInfos.explainText.validateStatus"
@@ -218,6 +227,7 @@ const checkEnoughOption = () => {
                                                 :isRequired="true"
                                                 :maxLength="1000"
                                             />
+                                            <OptionPreview :text="option.text" :format="props.question.textFormat" />
                                         </div>
                                         <i
                                             class="bx bx-minus-circle"
@@ -238,6 +248,13 @@ const checkEnoughOption = () => {
     </a-form>
 </template>
 <style scoped>
+.question-body-answer.is-markdown {
+    flex-direction: column;
+}
+.question-body-answer.is-markdown .option-section {
+    margin-left: 0;
+}
+
 .option-section {
     flex: 1;
     margin-left: 20px;

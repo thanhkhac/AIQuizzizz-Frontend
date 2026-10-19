@@ -1,5 +1,8 @@
 import { reactive, ref, toRaw } from "vue";
 import type { QuestionMedia, QuestionMediaType } from "@/models/response/media/questionMedia";
+import type { Flashcard } from "@/models/flashcard";
+import { normalizeTextFormat } from "@/services/RichContentService";
+import { toFlashcardPayload } from "@/services/FlashcardService";
 
 // phải khớp với danh sách content-type backend chấp nhận (UploadMediaCommand)
 export const IMAGE_MIME_TYPES = [
@@ -191,10 +194,21 @@ export const mergeQuestionMedia = (
     });
 };
 
-/** Bỏ object `media` (chỉ dùng để preview) khỏi payload gửi lên, giữ lại mediaId */
-export const toQuestionPayload = <T extends { media?: unknown }>(question: T): Omit<T, "media"> => {
+/**
+ * Bỏ object `media` (chỉ dùng để preview) khỏi payload gửi lên, giữ lại mediaId.
+ * `textFormat` luôn được gửi (PlainText | Html | Markdown, mặc định Html) để backend lưu đúng chế độ nội dung.
+ * LanguageFlashcard: textFormat luôn PlainText, `flashcard` được cắt khoảng trắng (giữ nguyên lang / source / lookup / v);
+ * các loại khác không gửi `flashcard`.
+ */
+export const toQuestionPayload = <T extends object>(
+    question: T & { media?: unknown; textFormat?: string; type?: string; flashcard?: Flashcard | null },
+): Omit<T, "media"> & { textFormat: string } => {
     const payload = { ...question };
     delete payload.media;
-    return payload;
+    if (question.type === "LanguageFlashcard") {
+        return { ...payload, textFormat: "PlainText", flashcard: toFlashcardPayload(question.flashcard) };
+    }
+    delete payload.flashcard;
+    return { ...payload, textFormat: normalizeTextFormat(question.textFormat) ?? "Html" };
 };
 //#endregion

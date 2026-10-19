@@ -11,6 +11,7 @@ import TransferQuestionData from "@/services/TransferQuestionData";
 import TransferUserAnswerData from "@/services/TransferUserAnswerData";
 import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
+import RichContent from "@/shared/components/Common/RichContent.vue";
 
 import { ref, onMounted, computed } from "vue";
 
@@ -314,7 +315,11 @@ const reloadQuestionMedia = async () => {
                     </div>
                     <div class="question-item-content">
                         <div class="d-flex align-items-center">
-                            <div class="question-text" v-html="question.questionText"></div>
+                            <RichContent
+                                class="question-text"
+                                :content="question.questionText"
+                                :format="question.textFormat"
+                            />
                         </div>
                         <QuestionMediaView :media="question.media" @reload="reloadQuestionMedia" />
                         <div class="question-item-answer" :id="`question-item-answer-${index}`">
@@ -328,7 +333,11 @@ const reloadQuestionMedia = async () => {
                                                     .multipleChoice"
                                                 :class="[option.isAnswer ? 'result-correct' : '']"
                                             >
-                                                {{ option.text }}
+                                                <RichContent
+                                                    :content="option.text"
+                                                    :format="question.textFormat"
+                                                    inline
+                                                />
                                             </li>
                                         </ul>
                                     </div>
@@ -348,7 +357,11 @@ const reloadQuestionMedia = async () => {
                                                           : 'result-incorrect',
                                                 ]"
                                             >
-                                                {{ option.text }}
+                                                <RichContent
+                                                    :content="option.text"
+                                                    :format="question.textFormat"
+                                                    inline
+                                                />
                                             </li>
                                         </ul>
                                         <div v-else class="result-skipped">No answer</div>
@@ -366,11 +379,19 @@ const reloadQuestionMedia = async () => {
                                             )"
                                         >
                                             <span class="pair-answer-item">
-                                                {{ option.leftItem }}
+                                                <RichContent
+                                                    :content="option.leftItem"
+                                                    :format="question.textFormat"
+                                                    inline
+                                                />
                                             </span>
                                             <i class="bx bx-right-arrow-alt"></i>
                                             <span class="pair-answer-item">
-                                                {{ option.rightItem }}
+                                                <RichContent
+                                                    :content="option.rightItem"
+                                                    :format="question.textFormat"
+                                                    inline
+                                                />
                                             </span>
                                         </div>
                                     </div>
@@ -393,11 +414,19 @@ const reloadQuestionMedia = async () => {
                                                 )"
                                             >
                                                 <span class="pair-answer-item">
-                                                    {{ option.leftItem }}
+                                                    <RichContent
+                                                        :content="option.leftItem"
+                                                        :format="question.textFormat"
+                                                        inline
+                                                    />
                                                 </span>
                                                 <i class="bx bx-right-arrow-alt"></i>
                                                 <span class="pair-answer-item">
-                                                    {{ option.rightItem }}
+                                                    <RichContent
+                                                        :content="option.rightItem"
+                                                        :format="question.textFormat"
+                                                        inline
+                                                    />
                                                 </span>
                                             </div>
                                         </template>
@@ -421,7 +450,11 @@ const reloadQuestionMedia = async () => {
                                                         >#{{ index + 1 }}</span
                                                     >
                                                     -
-                                                    {{ option.text }}
+                                                    <RichContent
+                                                        :content="option.text"
+                                                        :format="question.textFormat"
+                                                        inline
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -451,7 +484,11 @@ const reloadQuestionMedia = async () => {
                                                         >#{{ index + 1 }} -</span
                                                     >
                                                     <span v-else>{{ index + 1 }}.</span>
-                                                    {{ option.text }}
+                                                    <RichContent
+                                                        :content="option.text"
+                                                        :format="question.textFormat"
+                                                        inline
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -464,7 +501,11 @@ const reloadQuestionMedia = async () => {
                                     <div v-if="!isAnswerHidden(question)" class="question-data-option">
                                         <div>Option:</div>
                                         <div class="short-text-answer">
-                                            {{ question.questionData.shortText }}
+                                            <RichContent
+                                                :content="question.questionData.shortText"
+                                                :format="question.textFormat"
+                                                inline
+                                            />
                                         </div>
                                     </div>
                                     <div class="question-data-option">
@@ -473,7 +514,11 @@ const reloadQuestionMedia = async () => {
                                             v-if="question.userAnswerDataDto?.shortText"
                                             class="short-text-answer"
                                         >
-                                            {{ question.userAnswerDataDto?.shortText }}
+                                            <RichContent
+                                                :content="question.userAnswerDataDto?.shortText"
+                                                format="PlainText"
+                                                inline
+                                            />
                                         </div>
                                         <div v-else class="result-skipped">No answer</div>
                                     </div>

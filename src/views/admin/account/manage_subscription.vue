@@ -443,7 +443,7 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                     <div class="plan-comparison-row">
                         <div v-for="plan in plans" :key="plan.id" class="plan-compa-content-item">
                             <div
-                                :class="{ invisible: plan.price === 0 || !canManagePlan }"
+                                :class="{ invisible: !canManagePlan }"
                                 class="plan-comparison-card-action"
                             >
                                 <a-tooltip>
@@ -454,7 +454,8 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                                         @click="onEditPlan(plan)"
                                     ></i>
                                 </a-tooltip>
-                                <a-tooltip>
+                                <!-- gói miễn phí (giá 0) cho phép sửa (vd. quyền upload ảnh/video) nhưng không cho xoá -->
+                                <a-tooltip v-if="plan.price !== 0">
                                     <template #title> Delete Plan </template>
                                     <i
                                         class="bx bx-trash"
