@@ -123,10 +123,10 @@ onMounted(() => {
         </a-alert>
 
         <div class="authentication-item-external-login">
-            <div class="external-login external-login-google" @click="onGoogleLogin">
-                <div :style="{ backgroundImage: `url(${google_logo})` }"></div>
-                <div>Google</div>
-            </div>
+            <button type="button" class="external-login external-login-google" @click="onGoogleLogin">
+                <span class="external-login-icon" :style="{ backgroundImage: `url(${google_logo})` }" aria-hidden="true"></span>
+                <span>{{ $t("auth.buttons.continueWithGoogle") }}</span>
+            </button>
         </div>
         <a-divider style="height: 1px; background-color: var(--c-border)">
             <span style="background-color: var(--background-color); color: var(--c-text-muted); padding: 0px 10px">{{
@@ -148,7 +148,7 @@ onMounted(() => {
                     v-model:value="formState.email"
                     :placeholder="$t('auth.inputs.emailPlaceholder')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <MailOutlined />
                     </template>
                 </a-input>
@@ -160,7 +160,7 @@ onMounted(() => {
                     v-model:value="formState.password"
                     :placeholder="$t('auth.inputs.password')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <LockOutlined />
                     </template>
                 </a-input-password>

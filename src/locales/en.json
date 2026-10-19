@@ -43,7 +43,8 @@
             "resetPassword": "Reset Password",
             "resend": "Re-send",
             "create": "Create",
-            "verify": "Verify"
+            "verify": "Verify",
+            "continueWithGoogle": "Continue with Google"
         },
         "navigators": {
             "signUp_signIn_ins": "Already have an account?",

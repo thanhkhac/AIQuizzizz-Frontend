@@ -90,7 +90,7 @@ const onFinish = () => {
                     v-model:value="formState.email"
                     :placeholder="$t('auth.inputs.email')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <MailOutlined />
                     </template>
                 </a-input>
