@@ -125,11 +125,11 @@ const onGoogleRegister = async () => {
             <span>{{ $t("auth.instructions.signUp") }}</span>
         </div>
 
-        <div class="authentication-item-external-login" @click="onGoogleRegister">
-            <div class="external-login external-login-google">
-                <div :style="{ backgroundImage: `url(${google_logo})` }"></div>
-                <div>Google</div>
-            </div>
+        <div class="authentication-item-external-login">
+            <button type="button" class="external-login external-login-google" @click="onGoogleRegister">
+                <span class="external-login-icon" :style="{ backgroundImage: `url(${google_logo})` }" aria-hidden="true"></span>
+                <span>{{ $t("auth.buttons.continueWithGoogle") }}</span>
+            </button>
         </div>
         <a-divider style="height: 1px; background-color: var(--c-border)">
             <span style="background-color: var(--background-color); color: var(--c-text-muted); padding: 0px 10px">{{
@@ -151,7 +151,7 @@ const onGoogleRegister = async () => {
                     v-model:value="formState.email"
                     :placeholder="$t('auth.inputs.email')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <MailOutlined />
                     </template>
                 </a-input>
@@ -163,7 +163,7 @@ const onGoogleRegister = async () => {
                     v-model:value="formState.password"
                     :placeholder="$t('auth.inputs.password')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <LockOutlined />
                     </template>
                 </a-input-password>
@@ -175,7 +175,7 @@ const onGoogleRegister = async () => {
                     v-model:value="formState.confirmationPassword"
                     :placeholder="$t('auth.inputs.confirmPassword')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <LockOutlined />
                     </template>
                 </a-input-password>

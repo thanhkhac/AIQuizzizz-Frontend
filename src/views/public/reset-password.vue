@@ -2,7 +2,7 @@
 import { reactive, ref } from "vue";
 import ApiAuthentication from "@/api/ApiAuthentication";
 import { notification } from "ant-design-vue";
-import { LockOutlined, MailOutlined } from "@ant-design/icons-vue";
+import { LockOutlined, MailOutlined, SafetyOutlined } from "@ant-design/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { PASSWORD_REGEX } from "@/constants/password";
@@ -135,7 +135,7 @@ const onFinish = () => {
                     v-model:value="formState.email"
                     :placeholder="$t('auth.inputs.email')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <MailOutlined />
                     </template>
                 </a-input>
@@ -148,8 +148,8 @@ const onFinish = () => {
                     v-model:value="formState.resetCode"
                     :placeholder="$t('auth.inputs.code_placeholder')"
                 >
-                    <template #addonBefore>
-                        <MailOutlined />
+                    <template #prefix>
+                        <SafetyOutlined />
                     </template>
                 </a-input>
             </a-form-item>
@@ -161,7 +161,7 @@ const onFinish = () => {
                     v-model:value="formState.password"
                     :placeholder="$t('auth.inputs.password')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <LockOutlined />
                     </template>
                 </a-input-password>
@@ -173,7 +173,7 @@ const onFinish = () => {
                     v-model:value="formState.confirmationPassword"
                     :placeholder="$t('auth.inputs.confirmPassword')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <LockOutlined />
                     </template>
                 </a-input-password>

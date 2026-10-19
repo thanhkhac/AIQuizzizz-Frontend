@@ -149,7 +149,7 @@ const onFinish = () => {
                     v-model:value="formState.email"
                     :placeholder="$t('auth.inputs.email')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <MailOutlined />
                     </template>
                 </a-input>
@@ -164,7 +164,7 @@ const onFinish = () => {
                     autocomplete="one-time-code"
                     :maxlength="10"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <LockOutlined />
                     </template>
                 </a-input>
@@ -211,7 +211,7 @@ const onFinish = () => {
                     v-model:value="resentFormState.email"
                     :placeholder="$t('auth.inputs.email')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <MailOutlined />
                     </template>
                 </a-input>

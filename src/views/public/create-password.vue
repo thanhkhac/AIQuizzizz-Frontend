@@ -111,7 +111,7 @@ const onFinish = () => {
                     v-model:value="formState.email"
                     :placeholder="$t('auth.inputs.email')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <MailOutlined />
                     </template>
                 </a-input>
@@ -124,7 +124,7 @@ const onFinish = () => {
                     v-model:value="formState.password"
                     :placeholder="$t('auth.inputs.password')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <LockOutlined />
                     </template>
                 </a-input-password>
@@ -136,7 +136,7 @@ const onFinish = () => {
                     v-model:value="formState.confirmationPassword"
                     :placeholder="$t('auth.inputs.confirmPassword')"
                 >
-                    <template #addonBefore>
+                    <template #prefix>
                         <LockOutlined />
                     </template>
                 </a-input-password>

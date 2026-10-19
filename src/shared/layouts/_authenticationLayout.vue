@@ -82,6 +82,7 @@ import home_vector from "@/assets/home_vector.png";
 
 .authentication-item:nth-child(2) > * {
     width: 100%;
+    max-width: 440px; /* màn rộng: không kéo ô nhập dài vô tận */
 }
 
 .authentication-item-title {
@@ -107,41 +108,77 @@ import home_vector from "@/assets/home_vector.png";
     display: flex;
     justify-content: space-between;
 }
+/* Nút đăng nhập Google: là <button> thật, nền "nổi" của theme (không trong suốt nên không lẫn với nền trang), viền đậm,
+   hover/focus theo màu nhấn. Dùng chung token --c-* của theme sáng/tối. */
 .external-login {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 12px;
+    min-height: 44px;
     padding: 8px 20px;
     margin: 15px 0px;
     border-radius: 8px;
-    border: 1px solid var(--main-color);
-    font-size: 18px;
-    font-weight: 400;
+    border: 1px solid var(--c-border-strong);
+    background-color: var(--c-surface-raised);
+    color: var(--c-text);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition:
+        background-color 0.2s,
+        border-color 0.2s,
+        box-shadow 0.2s;
 }
 .external-login:hover {
-    background-color: var(--main-color-theme);
+    border-color: var(--main-color);
+    background-color: var(--c-surface);
 }
-
-.external-login div:nth-child(1) {
-    margin-right: 20px;
+.external-login:focus-visible {
+    outline: none;
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 2px var(--c-focus-ring);
+}
+.external-login-icon {
+    flex: 0 0 auto;
     width: 20px;
     height: 20px;
     background-size: cover;
     background-repeat: no-repeat;
 }
 
-/* .external-login-google div:nth-child(1) {
-    background-image: url("src/assets/google_logo.png");
-}
-.external-login-facebook div:nth-child(1) {
-    background-image: url("src/assets/facebook_logo.png");
-} */
-
 .authentication-item-form button {
     margin: 10px 0px;
+}
+
+/* Khoảng cách giữa các ô: thông báo lỗi không dính vào nhãn của ô kế tiếp */
+.authentication-item-form .ant-form-item {
+    margin-bottom: 20px;
+}
+.authentication-item-form .ant-form-item-with-help {
+    margin-bottom: 14px;
+}
+.authentication-item-form .ant-form-item-explain {
+    min-height: 22px;
+    padding-top: 4px;
+}
+
+/* Icon đặt trong ô nhập (slot prefix) thay vì addon: email và mật khẩu cùng cấu trúc nên luôn cùng màu nền / viền */
+.authentication-item-form .ant-input-affix-wrapper {
+    border-radius: 8px;
+    padding-inline: 12px;
+}
+.authentication-item-form .ant-input-prefix {
+    margin-inline-end: 10px;
+}
+.authentication-item-form .ant-input-prefix .anticon {
+    font-size: 16px;
+    color: var(--c-text-muted);
+}
+.authentication-item-form .ant-input-affix-wrapper-focused .ant-input-prefix .anticon {
+    color: var(--c-primary-text);
 }
 
 .authentication-item-form label {

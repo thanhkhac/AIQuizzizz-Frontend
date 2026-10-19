@@ -43,7 +43,8 @@
             "resetPassword": "Đặt lại mật khẩu",
             "resend": "Gửi lại",
             "create": "Tạo",
-            "verify": "Xác minh"
+            "verify": "Xác minh",
+            "continueWithGoogle": "Tiếp tục với Google"
         },
         "navigators": {
             "signUp_signIn_ins": "Đã có tài khoản?",

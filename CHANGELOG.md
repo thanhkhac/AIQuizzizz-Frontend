@@ -6,6 +6,11 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Fixed — Giao diện đăng nhập / đăng ký / quên mật khẩu / đặt lại mật khẩu / xác minh email
+- **Ô nhập khác màu nhau**: icon (email, khoá) trước đây là "addon" của Ant Design nên giữ màu mặc định (nền xám nhạt, viền sáng) ở cả chế độ tối và khác với ô mật khẩu. Nay icon nằm trong ô (slot `prefix`), email và mật khẩu cùng một cấu trúc nên cùng màu nền / viền / chiều cao / màu icon ở sáng và tối (đã đo bằng computed style).
+- **Nút Google**: trước đây là `div` trong suốt viền tím nên lẫn với nền trang. Nay là `<button>` thật dùng nền "nổi" của theme (`--c-surface-raised`), viền đậm, hover / focus theo màu nhấn, chữ "Tiếp tục với Google" (khoá i18n `auth.buttons.continueWithGoogle`), bàn phím dùng được.
+- Form tối đa 440px (không kéo ô nhập dài vô tận trên màn rộng); thông báo lỗi validate không còn dính vào nhãn của ô kế tiếp; ô OTP ở trang đặt lại mật khẩu dùng icon khiên thay vì icon thư.
+
 ### Added — Loại câu hỏi mới `LanguageFlashcard` (thẻ ghi nhớ ngôn ngữ)
 - **Mô hình**: mặt trước = `questionText` (chữ thuần, `textFormat` luôn `PlainText`), mặt sau = `flashcard` (`v`, `back.meanings[]` gồm `pos` / `definition` / `translation` / `examples` / `synonyms`, `back.phonetic`, `back.audioUrl`, `lang`, `source`, `lookup`). `models/flashcard.ts` (interface `Flashcard`...), `RequestQuestion.flashcard`, `ResponseQuestion.originalType` + `questionData.flashcard`, `QUESTION_TYPE.LANGUAGE_FLASHCARD`, `CLASSIC_QUESTION_TYPES` (4 loại dùng được ở bài kiểm tra / đề mẫu / sinh bằng AI).
 - **Editor**: `shared/components/Questions/LanguageFlashcard.vue` (cùng khung với 4 editor cũ, không có công tắc Rich text / Markdown, không có ảnh / video, không có giải thích). Mặt trước là ô chữ thuần; mặt sau gồm phiên âm, danh sách nghĩa (thêm / xoá, tối đa 5; mỗi nghĩa có từ loại, định nghĩa, bản dịch, tối đa 3 ví dụ). Chỉ-đọc: nút nghe (`audioUrl`), từ đồng nghĩa, nguồn (tiêu đề + link `target="_blank" rel="noopener noreferrer"`, câu chứa từ, thời điểm lưu), cặp ngôn ngữ, trạng thái tra từ điển (found / not_found / error / skipped). `lang` / `source` / `lookup` / `v` và từ đồng nghĩa do extension ghi được giữ nguyên khi sửa + lưu lại. Link âm thanh / nguồn đã lưu mà không phải https có nút xoá để vẫn lưu được.
