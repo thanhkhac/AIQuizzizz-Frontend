@@ -31,6 +31,9 @@ const userData = reactive({
 });
 const qrSrc = ref<string>("");
 
+// Ẩn tạm phần Nạp tiền (thông tin ngân hàng + QR). Bật lại bằng cách đổi thành true
+const SHOW_DEPOSIT = false;
+
 // số tiền nạp: chỉ nhận số nguyên >= 5000 (backend nhận int)
 const MIN_TOP_UP_AMOUNT = 5000;
 const MAX_TOP_UP_AMOUNT = 2000000000;
@@ -244,7 +247,8 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="content-item">
+        <!-- Nạp tiền: ẩn tạm (đặt SHOW_DEPOSIT = true để hiện lại) -->
+        <div v-if="SHOW_DEPOSIT" class="content-item">
             <div class="content-item-title">
                 <div class="w-50">
                     <span>{{ $t("settings.billing.deposit.title") }}</span>

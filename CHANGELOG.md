@@ -6,6 +6,10 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Changed — Trang Settings
+- **Gộp tab**: Hồ sơ + Bảo mật + Giao diện thành một tab **Tài khoản** (`settings/account.vue`, ba thẻ xếp dọc). Tab còn lại: Gói đăng ký, Giao dịch. Link cũ `?tab=profile|security|appearance` và khoá `setting_key` cũ vẫn trỏ đúng tab Tài khoản.
+- **Ẩn tạm phần Nạp tiền** (thông tin ngân hàng + QR + ghi chú) ở tab Giao dịch bằng cờ `SHOW_DEPOSIT = false` trong `billing.vue`; số dư và lịch sử giao dịch vẫn hiển thị. Đổi cờ thành `true` để hiện lại; code và modal QR được giữ nguyên.
+
 ### Fixed — Căn lề trang Library / Dashboards / Folder / Test template
 - **Thẳng hàng**: bỏ các "con số tay" gây lệch (`margin-right: 50px`, `width: calc(100% - 50px)`, ô tìm kiếm `95%` + `margin-left`). Nút tạo, hàng lọc/tìm kiếm và danh sách trong thẻ nay cùng chạm mép phải của thẻ; ô tìm kiếm của Dashboards cùng bề rộng và lề với các khối bên dưới; lưới quiz của Dashboards dùng CSS grid nên lấp đầy đúng chiều ngang thay vì chừa trống bên phải.
 - **Thanh công cụ dùng chung** (`.content-item-functions`): nút chuyển, ô lọc, ô tìm kiếm đều cao 40px, căn giữa dọc, cách đều 12px (trước đây 32 / 35 / 40px và lệch nhau 3-7px).

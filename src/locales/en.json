@@ -404,9 +404,7 @@
         "title": "Settings",
         "sub_title": "Manage your account settings and preferences",
         "tabs": {
-            "profile": "Profile",
-            "security": "Security",
-            "appearance": "Appearance",
+            "account": "Account",
             "subscription": "Subscription",
             "billing": "Billing"
         },

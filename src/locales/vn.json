@@ -404,9 +404,7 @@
         "title": "Cài đặt",
         "sub_title": "Quản lý cài đặt tài khoản và tùy chọn của bạn",
         "tabs": {
-            "profile": "Hồ sơ",
-            "security": "Bảo mật",
-            "appearance": "Giao diện",
+            "account": "Tài khoản",
             "subscription": "Gói đăng ký",
             "billing": "Giao dịch"
         },
