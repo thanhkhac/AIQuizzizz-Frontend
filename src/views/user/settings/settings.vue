@@ -3,30 +3,24 @@ import { onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { Component } from "vue";
 
-import Profile from "@/views/user/settings/profile.vue";
-import Security from "@/views/user/settings/security.vue";
-import Appearance from "@/views/user/settings/appearance.vue";
+import Account from "@/views/user/settings/account.vue";
 import Subscription from "@/views/user/settings/subscription.vue";
 import Billing from "@/views/user/settings/billing.vue";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
-type TabKey = "Profile" | "Security" | "Appearance" | "Subscription" | "Billing";
+type TabKey = "Account" | "Subscription" | "Billing";
 
 const tabs = ref<{ key: TabKey; tab: string }[]>([
-    { key: "Profile", tab: "profile" },
-    { key: "Security", tab: "security" },
-    { key: "Appearance", tab: "appearance" },
+    { key: "Account", tab: "account" },
     { key: "Subscription", tab: "subscription" },
     { key: "Billing", tab: "billing" },
 ]);
 
 //record = dictionary
 const tab_component: Record<TabKey, Component> = {
-    Profile,
-    Security,
-    Appearance,
+    Account,
     Subscription,
     Billing,
 };
@@ -35,9 +29,13 @@ const route = useRoute();
 const router = useRouter();
 
 // tab hiện tại nằm trên URL (?tab=appearance) để reload/chia sẻ link vẫn giữ nguyên tab
+// Hồ sơ / Bảo mật / Giao diện đã gộp vào tab Tài khoản: link cũ (?tab=security ...) và khoá cũ trong sessionStorage vẫn trỏ đúng tab
+const LEGACY_TABS: Record<string, string> = { profile: "account", security: "account", appearance: "account" };
 const findTabKey = (value: unknown): TabKey | undefined => {
     if (typeof value !== "string") return undefined;
-    return tabs.value.find((x) => x.tab === value.toLowerCase())?.key;
+    const name = value.toLowerCase();
+    const target = LEGACY_TABS[name] ?? name;
+    return tabs.value.find((x) => x.tab === target)?.key;
 };
 
 const activeKey = ref<TabKey>(findTabKey(route.query.tab) ?? tabs.value[0].key);

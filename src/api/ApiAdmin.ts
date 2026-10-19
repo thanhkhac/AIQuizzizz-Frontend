@@ -26,8 +26,6 @@ const END_POINTS = {
 
     // statistic
     PLATFORM_OVERVIEW: "/Plan/PlatformOverview",
-    REVENUE: "/Plan/Revenue",
-    NEW_CLASS: "/Plan/NumberOfNewClass",
 
     // system settings
     SYSTEM_SETTINGS: "/SystemSetting",
@@ -80,12 +78,6 @@ class ApiAdmin {
         return await Api.get(END_POINTS.PLATFORM_OVERVIEW);
     };
 
-    MonthlyRevenue = async (year: number) => {
-        return await Api.get(END_POINTS.REVENUE, { params: { year } });
-    };
-    MonthlyNewClass = async (year: number) => {
-        return await Api.get(END_POINTS.NEW_CLASS, { params: { year } });
-    };
 
     // system settings
     SystemSettings = async () => {

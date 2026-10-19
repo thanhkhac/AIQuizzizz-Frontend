@@ -6,21 +6,9 @@ import ApiAdmin from "../../../../src/api/ApiAdmin";
 import { message, Modal } from "ant-design-vue";
 import type CreateSubscription from "../../../../src/models/request/admin/createSubscription";
 import type UpdateSubscription from "../../../models/request/admin/updateSubscription";
-import Highcharts from "highcharts";
-import RevenueLineChart from "../charts/RevenueLineChart.vue";
-import SubscriberPieChart from "../charts/SubscriberPieChart.vue";
-import ClassLineChart from "../charts/ClassLineChart.vue";
 import type PlatformOverViewResp from "../../../models/response/admin/platformOverViewResp";
 import { formatPlanDuration } from "@/services/PlanDurationService";
 import { useAuthStore } from "@/stores/AuthStore";
-
-const { locale } = useI18n();
-function toFullLocaleTag(tag: string) {
-    if (tag === "en") return "en-US";
-    if (tag === "vi") return "vi-VN";
-    return "en-US";
-}
-const safeLocale = toFullLocaleTag(locale.value);
 
 const emit = defineEmits(["updateSidebar"]);
 
@@ -41,22 +29,6 @@ const plans = ref<ManageSubscriptionPlanResp[]>([]);
 
 // chỉ Administrator được tạo/sửa/xoá/bật tắt gói (Moderator chỉ xem; backend cũng chặn)
 const canManagePlan = !!useAuthStore().getUserInfo()?.roles?.includes("Administrator");
-
-// 5 năm gần nhất (gồm năm hiện tại) cho biểu đồ
-const chartYears = computed(() => {
-    const current = new Date().getFullYear();
-    return Array.from({ length: 5 }, (_, i) => current - 4 + i);
-});
-
-// dữ liệu thật: số user đã từng mua gói / còn lại là user miễn phí
-const subscribersData = computed(() => {
-    const total = platform_ov.value?.users ?? 0;
-    const subscribed = Math.min(platform_ov.value?.usersHavePlan ?? 0, total);
-    return [
-        { name: t("admin.manage_subscription.pie.subscribed"), y: subscribed },
-        { name: t("admin.manage_subscription.pie.free"), y: total - subscribed },
-    ];
-});
 
 const createPlanFormRef = ref();
 const updatePlanFormRef = ref();
@@ -402,26 +374,6 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
                         <span> {{ platform_ov?.classes }}</span>
                     </div>
                 </div>
-            </div>
-
-            <!-- chart -->
-            <div class="chart-content">
-                <RevenueLineChart
-                    :years="chartYears"
-                    :locale="safeLocale"
-                    :title="t('admin.manage_subscription.chart.revenue_title')"
-                />
-            </div>
-            <div class="chart-content">
-                <ClassLineChart
-                    :years="chartYears"
-                    :locale="safeLocale"
-                    :title="t('admin.manage_subscription.chart.new_class_title')"
-                />
-                <SubscriberPieChart
-                    :data="subscribersData"
-                    :title="t('admin.manage_subscription.pie.title')"
-                />
             </div>
 
             <!-- plan comparison -->
@@ -963,24 +915,8 @@ const onDeletePlan = (plan: ManageSubscriptionPlanResp) => {
     color: var(--c-text);
 }
 
-.chart-content {
-    width: calc(100% - 40px);
-    justify-content: space-between;
-    display: flex;
-    flex-wrap: wrap;
-    padding: 10px;
-    gap: 20px;
-}
-
-.chart-content > div {
-    flex: 1 1 320px;
-    min-width: 0;
-    border: 1px solid var(--form-item-border-color);
-    border-radius: 10px;
-}
 @media (max-width: 768px) {
-    .stat-content,
-    .chart-content {
+    .stat-content {
         width: 100%;
         padding: 10px 0;
     }

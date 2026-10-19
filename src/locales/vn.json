@@ -404,9 +404,7 @@
         "title": "Cài đặt",
         "sub_title": "Quản lý cài đặt tài khoản và tùy chọn của bạn",
         "tabs": {
-            "profile": "Hồ sơ",
-            "security": "Bảo mật",
-            "appearance": "Giao diện",
+            "account": "Tài khoản",
             "subscription": "Gói đăng ký",
             "billing": "Giao dịch"
         },
@@ -1507,20 +1505,6 @@
             "btn": {
                 "create": "Tạo",
                 "save": "Lưu"
-            },
-            "pie": {
-                "title": "Người đăng ký",
-                "subscribed": "Đã mua gói",
-                "free": "Người dùng miễn phí"
-            },
-            "chart": {
-                "revenue_title": "Doanh thu theo tháng",
-                "new_class_title": "Lớp học mới theo tháng",
-                "y_revenue": "Doanh thu (nghìn VND)",
-                "y_class": "Số lớp học",
-                "series_revenue": "Doanh thu",
-                "series_class": "Lớp học",
-                "in_year": "{title} năm {year}"
             },
             "msg": {
                 "create_success": "Tạo thành công.",

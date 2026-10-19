@@ -301,22 +301,25 @@ onMounted(async () => {
 }
 
 .quiz-container {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    padding: 10px 0;
     color: var(--text-color);
 }
 
 .quiz-item {
     background-color: var(--content-item-children-background-color);
-    margin: 10px;
+    margin: 0;
+    box-sizing: border-box;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: start;
-    width: calc(100% / 3 - 50px);
-    max-width: calc(100% / 3 - 50px);
+    width: 100%;
+    max-width: none;
     height: 200px;
     max-height: 200px;
     cursor: pointer;
@@ -406,8 +409,10 @@ onMounted(async () => {
 }
 
 .search-bar {
-    width: 95%;
-    margin-left: 10px;
+    /* cùng bề rộng và lề với các khối .content-item bên dưới (width calc(100% - 60px), margin 8px) */
+    width: calc(100% - 60px);
+    max-width: calc(100% - 60px);
+    margin: 8px 8px 0;
 }
 
 .search-result-container {

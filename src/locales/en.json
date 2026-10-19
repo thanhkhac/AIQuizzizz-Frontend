@@ -404,9 +404,7 @@
         "title": "Settings",
         "sub_title": "Manage your account settings and preferences",
         "tabs": {
-            "profile": "Profile",
-            "security": "Security",
-            "appearance": "Appearance",
+            "account": "Account",
             "subscription": "Subscription",
             "billing": "Billing"
         },
@@ -1507,20 +1505,6 @@
             "btn": {
                 "create": "Create",
                 "save": "Save"
-            },
-            "pie": {
-                "title": "Subscribers",
-                "subscribed": "Users with a plan",
-                "free": "Free users"
-            },
-            "chart": {
-                "revenue_title": "Monthly revenue",
-                "new_class_title": "Monthly new classes",
-                "y_revenue": "Revenue (VND thousands)",
-                "y_class": "Number of classes",
-                "series_revenue": "Revenue",
-                "series_class": "Classes",
-                "in_year": "{title} in {year}"
             },
             "msg": {
                 "create_success": "Created successfully.",
