@@ -669,11 +669,30 @@ pre {
     cursor: pointer;
 }
 
+/* Thanh công cụ phía trên danh sách (nút chuyển, ô lọc, ô tìm kiếm): mọi điều khiển cao 40px, căn giữa dọc, cách đều nhau */
 .content-item-functions {
     margin: 10px 0px;
     display: flex;
     align-items: center;
     justify-content: end;
+    gap: 12px;
+}
+.content-item-functions .ant-select {
+    margin-right: 0 !important;
+}
+.content-item-functions .ant-select .ant-select-selector {
+    height: 40px !important;
+    align-items: center;
+}
+.content-item-functions .ant-select .ant-select-selection-item,
+.content-item-functions .ant-select .ant-select-selection-placeholder {
+    line-height: 38px !important;
+}
+.content-item-functions .ant-input-affix-wrapper {
+    height: 40px !important; /* Input.vue đặt .input { height: 35px } trong scoped style */
+}
+.content-item-functions .filter-container {
+    gap: 12px;
 }
 
 .content-item-navigators {
@@ -682,35 +701,32 @@ pre {
     display: flex;
 }
 
+/* Nút chuyển kiểu "segmented": khung có padding đều 3px, các mục bo góc nhỏ hơn khung (khung 8px - viền 1px - padding 3px = 4px, dùng 5px để trông liền),
+   nên mục đang chọn nằm gọn trong khung, không còn lớp nền phía sau chìa ra ở mép. */
 .navigator-container {
+    display: inline-flex;
+    gap: 2px;
+    box-sizing: border-box;
     height: 40px;
+    padding: 3px;
     border-radius: 8px;
     background-color: var(--content-item-children-background-color);
     border: 1px solid var(--content-item-border-color);
-    display: flex;
 }
 
 .navigator-item {
     color: var(--text-color);
     text-decoration: none;
     height: 100%;
-    width: 100px;
+    min-width: 100px;
+    padding: 0 14px;
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 14px !important;
-    margin: 0px 2px;
+    margin: 0;
     transition: all 0.2s ease-in-out;
-}
-
-.navigator-item:first-child {
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-}
-
-.navigator-item:last-child {
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
 }
 
 .navigator-item:hover {

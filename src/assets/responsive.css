@@ -639,13 +639,6 @@ svg {
     .stat-card {
         width: calc(50% - 6px) !important;
     }
-    .chart-content {
-        flex-direction: column;
-        width: auto !important;
-    }
-    .chart-content > div {
-        min-width: 0;
-    }
     .plan-compa-content-item {
         width: calc(50% - 20px) !important;
     }

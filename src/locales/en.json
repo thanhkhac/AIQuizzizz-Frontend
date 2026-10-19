@@ -1508,20 +1508,6 @@
                 "create": "Create",
                 "save": "Save"
             },
-            "pie": {
-                "title": "Subscribers",
-                "subscribed": "Users with a plan",
-                "free": "Free users"
-            },
-            "chart": {
-                "revenue_title": "Monthly revenue",
-                "new_class_title": "Monthly new classes",
-                "y_revenue": "Revenue (VND thousands)",
-                "y_class": "Number of classes",
-                "series_revenue": "Revenue",
-                "series_class": "Classes",
-                "in_year": "{title} in {year}"
-            },
             "msg": {
                 "create_success": "Created successfully.",
                 "create_fail": "Create failed.",

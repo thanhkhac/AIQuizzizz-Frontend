@@ -349,13 +349,6 @@ onMounted(async () => {
     margin-right: 36px;
 }
 
-.content-item-functions {
-    margin: 10px 0px;
-    display: flex;
-    align-items: end;
-    justify-content: end;
-}
-
 .filter-container {
     display: flex;
     justify-content: end;

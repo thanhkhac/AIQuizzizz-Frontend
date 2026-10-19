@@ -6,6 +6,14 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Fixed — Căn lề trang Library / Dashboards / Folder / Test template
+- **Thẳng hàng**: bỏ các "con số tay" gây lệch (`margin-right: 50px`, `width: calc(100% - 50px)`, ô tìm kiếm `95%` + `margin-left`). Nút tạo, hàng lọc/tìm kiếm và danh sách trong thẻ nay cùng chạm mép phải của thẻ; ô tìm kiếm của Dashboards cùng bề rộng và lề với các khối bên dưới; lưới quiz của Dashboards dùng CSS grid nên lấp đầy đúng chiều ngang thay vì chừa trống bên phải.
+- **Thanh công cụ dùng chung** (`.content-item-functions`): nút chuyển, ô lọc, ô tìm kiếm đều cao 40px, căn giữa dọc, cách đều 12px (trước đây 32 / 35 / 40px và lệch nhau 3-7px).
+- **Nút chuyển Folder / Test template**: lớp nền phía sau chìa ra ở mép do mục đang chọn bị thụt 2px và bo góc lệch với khung. Nay khung có padding đều 3px, các mục bo góc nhỏ hơn khung nên mục đang chọn nằm gọn bên trong.
+
+### Removed — Báo cáo / biểu đồ ở trang quản lý gói (admin)
+- Bỏ 3 biểu đồ: doanh thu theo tháng của một năm, số lớp mới theo tháng, tỉ lệ người dùng có gói / miễn phí (`RevenueLineChart`, `ClassLineChart`, `SubscriberPieChart`, `chartTheme`), cùng `ApiAdmin.MonthlyRevenue` / `MonthlyNewClass`, CSS và chuỗi i18n tương ứng. 4 thẻ số liệu tổng (người dùng, doanh thu, người dùng có gói, lớp) và `highcharts` (còn dùng ở biểu đồ kết quả luyện tập) được giữ lại.
+
 ### Fixed — Giao diện đăng nhập / đăng ký / quên mật khẩu / đặt lại mật khẩu / xác minh email
 - **Ô nhập khác màu nhau**: icon (email, khoá) trước đây là "addon" của Ant Design nên giữ màu mặc định (nền xám nhạt, viền sáng) ở cả chế độ tối và khác với ô mật khẩu. Nay icon nằm trong ô (slot `prefix`), email và mật khẩu cùng một cấu trúc nên cùng màu nền / viền / chiều cao / màu icon ở sáng và tối (đã đo bằng computed style).
 - **Nút Google**: trước đây là `div` trong suốt viền tím nên lẫn với nền trang. Nay là `<button>` thật dùng nền "nổi" của theme (`--c-surface-raised`), viền đậm, hover / focus theo màu nhấn, chữ "Tiếp tục với Google" (khoá i18n `auth.buttons.continueWithGoogle`), bàn phím dùng được.
