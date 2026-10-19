@@ -88,9 +88,12 @@ const componentMap = {
 
 //#region logic edit question
 import ChangeQuestionType from "@/services/ChangeQuestionType";
-const createQuestionTemplate = (): RequestQuestion => ({
+import { defaultNewQuestionFormat } from "@/services/ContentModeService";
+// câu hỏi mới mặc định là Rich text, trừ khi cả danh sách hiện tại đều là Markdown
+const createQuestionTemplate = (existing: RequestQuestion[] = []): RequestQuestion => ({
     id: "new_" + Date.now().toString(),
     type: "MultipleChoice",
+    textFormat: defaultNewQuestionFormat(existing),
     questionText: "",
     questionHTML: "",
     explainText: "",
@@ -113,7 +116,7 @@ const onAddQuestion = () => {
         return;
     }
 
-    formState.questions = [...formState.questions, createQuestionTemplate()];
+    formState.questions = [...formState.questions, createQuestionTemplate(formState.questions)];
 
     nextTick(() => {
         nextTick(() => {
@@ -297,7 +300,7 @@ onUnmounted(() => {
 const scrollerRef = ref<any>(null);
 
 onMounted(() => {
-    formState.questions.push(createQuestionTemplate());
+    formState.questions.push(createQuestionTemplate(formState.questions));
     // intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
     window.addEventListener("beforeunload", handleBeforeUnload);
 });

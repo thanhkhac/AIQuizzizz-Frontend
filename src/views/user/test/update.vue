@@ -162,9 +162,12 @@ const getData = async (): Promise<boolean> => {
 
 //#region crud question
 import ChangeQuestionType from "@/services/ChangeQuestionType";
-const createQuestionTemplate = (): RequestQuestion => ({
+import { defaultNewQuestionFormat } from "@/services/ContentModeService";
+// câu hỏi mới mặc định là Rich text, trừ khi cả danh sách hiện tại đều là Markdown
+const createQuestionTemplate = (existing: RequestQuestion[] = []): RequestQuestion => ({
     id: "new_" + Date.now().toString(),
     type: "MultipleChoice",
+    textFormat: defaultNewQuestionFormat(existing),
     questionText: "",
     questionHTML: "",
     explainText: "",
@@ -189,7 +192,7 @@ const onAddQuestion = () => {
 
     formState.createUpdateQuestions = [
         ...formState.createUpdateQuestions,
-        createQuestionTemplate(),
+        createQuestionTemplate(formState.createUpdateQuestions),
     ];
 
     nextTick(() => {

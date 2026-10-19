@@ -64,7 +64,7 @@ const accent_color = computed(() => [
 ]);
 
 const color_active = ref(accent_color.value[0].class);
-const theme_active = ref(themes.value[0].class);
+const theme_active = ref("theme-light");
 
 const media = window.matchMedia("(prefers-color-scheme: dark)");
 const isSystemDark = ref(media.matches);
@@ -72,7 +72,7 @@ const isSystemDark = ref(media.matches);
 const getTheme = () => {
     const stored = localStorage.getItem(THEME);
     const validTheme = themes.value.map((x) => x.class);
-    return validTheme.includes(stored || "") ? stored! : themes.value[0].class;
+    return validTheme.includes(stored || "") ? stored! : "theme-light";
 };
 
 const getAccentColor = () => {
@@ -88,7 +88,7 @@ const applyTheme = (themeClass: string) => {
     if (themeClass === "theme-system") {
         targetClass = isSystemDark.value ? "theme-dark" : "theme-light";
     } else {
-        targetClass = themes.value.find((x) => x.class === themeClass)?.class || "theme-dark";
+        targetClass = themes.value.find((x) => x.class === themeClass)?.class || "theme-light";
     }
     document.documentElement.classList.add(targetClass);
 };

@@ -1,5 +1,9 @@
 import type { RequestQuestion } from "@/models/request/question";
 import type { ResponseQuestion } from "@/models/response/question";
+import { normalizeTextFormat } from "@/services/RichContentService";
+
+/** Editor chỉ có Rich text (Html) hoặc Markdown; PlainText cũ được giữ nguyên để backend không coi là câu hỏi đã đổi */
+const editorTextFormat = (format?: string | null): string => normalizeTextFormat(format) ?? "Html";
 
 class TranferQuestionData {
     transformResponseToRequest(responseQuestion: ResponseQuestion): RequestQuestion {
@@ -25,6 +29,8 @@ class TranferQuestionData {
         return {
             id: responseQuestion.id,
             type: responseQuestion.type,
+            // giữ nguyên chế độ nội dung để trang sửa không biến Markdown thành HTML khi lưu
+            textFormat: editorTextFormat(responseQuestion.textFormat),
             questionText: responseQuestion.questionText,
             questionHTML: responseQuestion.questionText,
             explainText: responseQuestion.explainText,
@@ -65,7 +71,7 @@ class TranferQuestionData {
             id: requestQuestion.id,
             type: requestQuestion.type,
             questionSetId: questionSetId,
-            textFormat: "HTML",
+            textFormat: editorTextFormat(requestQuestion.textFormat),
             questionText: requestQuestion.questionText,
             explainText: requestQuestion.explainText,
             score: requestQuestion.score,

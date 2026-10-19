@@ -1159,6 +1159,26 @@
             "review": "Xem chi tiết"
         }
     },
+    "rich_content": {
+        "copy": "Sao chép",
+        "copied": "Đã sao chép",
+        "copy_failed": "Không thể sao chép đoạn code",
+        "mode": {
+            "label": "Chế độ nội dung",
+            "rich": "Rich text",
+            "markdown": "Markdown",
+            "tab_edit": "Soạn thảo",
+            "tab_preview": "Xem trước",
+            "preview": "Xem trước",
+            "nothing_to_preview": "Chưa có nội dung để xem trước",
+            "switch_to_markdown_title": "Chuyển sang Markdown?",
+            "switch_to_markdown_content": "Nội dung câu hỏi và phần giải thích sẽ được chuyển sang Markdown. Một số định dạng (ví dụ gạch chân) có thể bị mất.",
+            "switch_to_rich_title": "Chuyển sang Rich text?",
+            "switch_to_rich_content": "Markdown của nội dung câu hỏi và phần giải thích sẽ được chuyển đổi rồi nạp vào trình soạn thảo rich text. Bảng và các thành phần chỉ có trong Markdown có thể bị mất.",
+            "markdown_hint": "Markdown: **đậm**, *nghiêng*, `code`, khối code kèm ngôn ngữ, danh sách, bảng. Đáp án dùng Markdown inline.",
+            "option_preview": "Xem trước"
+        }
+    },
     "question_media": {
         "label": "Ảnh / video",
         "one_media_hint": "mỗi câu hỏi một ảnh hoặc một video",

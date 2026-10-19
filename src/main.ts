@@ -117,7 +117,7 @@ async function initLocale(): Promise<void> {
 
 const colors = ["purple", "blue", "green", "red", "amber", "pink"];
 
-const storedThemeClass = localStorage.getItem("theme") || "theme-dark";
+const storedThemeClass = localStorage.getItem("theme") || "theme-light";
 const isDarkSystem = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 const systemThemeClass = isDarkSystem ? "theme-dark" : "theme-light";

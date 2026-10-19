@@ -7,7 +7,6 @@ import type UserAnswerDTO from "@/models/response/test/userAnswerDTO";
 import type { UserAnswerData } from "@/models/response/test/userAnswer";
 import type UserAnswerSubmit from "@/models/response/test/userAnswer";
 import QUESTION_TYPE from "@/constants/questionTypes";
-import QUESTION_FORMAT from "@/constants/questionTextFormat";
 
 import TransferUserAnswerData from "@/services/TransferUserAnswerData";
 
@@ -17,6 +16,7 @@ import { HolderOutlined } from "@ant-design/icons-vue";
 import Validator from "@/services/Validator";
 import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
+import RichContent from "@/shared/components/Common/RichContent.vue";
 
 import { useI18n } from "vue-i18n";
 import { Modal, message } from "ant-design-vue";
@@ -645,14 +645,15 @@ onMounted(async () => {
                     <div class="question-info-index">
                         {{ $t("create_QS.question.question") }} {{ currentQuestionIndex + 1 }}
                     </div>
-                    <div :class="['learn-question']" v-html="currentQuestion.questionText"></div>
+                    <RichContent
+                        class="learn-question"
+                        :content="currentQuestion.questionText"
+                        :format="currentQuestion.textFormat"
+                    />
                     <QuestionMediaView
                         :media="currentQuestion.media"
                         @reload="reloadQuestionMedia"
                     />
-                    <!-- <div v-else :class="['learn-question']">
-                        {{ currentQuestion.questionText }}
-                    </div> -->
                     <div class="section answer-section">
                         <div class="d-flex align-items-center">
                             <div class="answer-section-ins">
@@ -677,7 +678,11 @@ onMounted(async () => {
                                         :class="['answer-option answer-option-multiplechoice']"
                                     >
                                         <div class="answer-option-content">
-                                            {{ option.text }}
+                                            <RichContent
+                                                :content="option.text"
+                                                :format="currentQuestion.textFormat"
+                                                inline
+                                            />
                                         </div>
                                     </a-checkbox>
                                 </template>
@@ -709,7 +714,11 @@ onMounted(async () => {
                                                         <HolderOutlined />
                                                     </div>
                                                     <div class="answer-option-content">
-                                                        {{ option.text }}
+                                                        <RichContent
+                                                            :content="option.text"
+                                                            :format="currentQuestion.textFormat"
+                                                            inline
+                                                        />
                                                     </div>
                                                 </div>
                                                 <i :class="['bx bxs-label matching-icon']"></i>
@@ -740,7 +749,11 @@ onMounted(async () => {
                                                     ]"
                                                 >
                                                     <div class="answer-option-content">
-                                                        {{ option.text }}
+                                                        <RichContent
+                                                            :content="option.text"
+                                                            :format="currentQuestion.textFormat"
+                                                            inline
+                                                        />
                                                     </div>
                                                     <div class="answer-option-order">
                                                         <HolderOutlined />
@@ -767,7 +780,11 @@ onMounted(async () => {
                                                 {{ index + 1 }}
                                             </div>
                                             <div class="answer-option-content">
-                                                {{ option.text }}
+                                                <RichContent
+                                                    :content="option.text"
+                                                    :format="currentQuestion.textFormat"
+                                                    inline
+                                                />
                                             </div>
                                         </div>
                                     </template>

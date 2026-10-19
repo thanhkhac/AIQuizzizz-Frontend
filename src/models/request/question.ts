@@ -21,6 +21,8 @@ interface OrderingItem {
 export interface RequestQuestion {
     id: string;
     type: "MultipleChoice" | "Matching" | "Ordering" | "ShortText";
+    // "PlainText" | "Html" | "Markdown". Không có (dữ liệu import / client cũ) = Html. Gửi lên API để lưu đúng chế độ nội dung
+    textFormat?: string;
     questionText: string;
     questionHTML: string;
     explainText: string;

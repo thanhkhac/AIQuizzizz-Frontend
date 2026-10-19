@@ -136,9 +136,12 @@ const rules = {
 
 //#region crud question
 import ChangeQuestionType from "@/services/ChangeQuestionType";
-const createQuestionTemplate = (): RequestQuestion => ({
+import { defaultNewQuestionFormat } from "@/services/ContentModeService";
+// câu hỏi mới mặc định là Rich text, trừ khi cả danh sách hiện tại đều là Markdown
+const createQuestionTemplate = (existing: RequestQuestion[] = []): RequestQuestion => ({
     id: "new_" + Date.now().toString(),
     type: "MultipleChoice",
+    textFormat: defaultNewQuestionFormat(existing),
     questionText: "",
     questionHTML: "",
     explainText: "",
@@ -161,7 +164,7 @@ const onAddQuestion = () => {
         return;
     }
 
-    formState.questions = [...formState.questions, createQuestionTemplate()];
+    formState.questions = [...formState.questions, createQuestionTemplate(formState.questions)];
     nextTick(() => {
         nextTick(() => {
             requestAnimationFrame(() => {
@@ -413,7 +416,7 @@ onMounted(async () => {
     pageReady.value = true;
 
     getClassData();
-    formState.questions.push(createQuestionTemplate());
+    formState.questions.push(createQuestionTemplate(formState.questions));
     window.addEventListener("beforeunload", handleBeforeUnload);
     await nextTick();
     openSettingModal();

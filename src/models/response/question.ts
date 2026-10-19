@@ -32,6 +32,7 @@ export interface ResponseQuestion {
     id: string;
     type: "MultipleChoice" | "Matching" | "Ordering" | "ShortText";
     questionSetId: string;
+    // "PlainText" | "Html" | "Markdown" (dữ liệu cũ có thể thiếu hoặc viết hoa/thường khác)
     textFormat: string;
     questionText: string;
     explainText: string;

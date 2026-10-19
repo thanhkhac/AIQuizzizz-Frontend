@@ -4,7 +4,6 @@ import type { ResponseQuestion } from "@/models/response/question";
 import type { Comment } from "@/models/response/comment/comment";
 import type CommentPageParams from "@/models/request/comment/commentPageParams";
 import ERROR from "@/constants/errors";
-import QUESTION_FORMAT from "@/constants/questionTextFormat";
 
 import { ref, computed, onMounted, nextTick, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -19,6 +18,7 @@ import { message } from "ant-design-vue";
 import Validator from "@/services/Validator";
 import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
+import RichContent from "@/shared/components/Common/RichContent.vue";
 import dayjs from "dayjs";
 
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
@@ -718,43 +718,6 @@ const onRedirectToTest = () => {
 const onRedirectToLibrary = () => {
     router.push({ name: "User_Library" });
 };
-const isHTMLContent = (str: string) => {
-    if (!str) return false;
-
-    // remove content inside backticks
-    let processedStr = str?.replace(/`[^`]*`/g, "");
-
-    // remove p tag only
-    processedStr = processedStr
-        .trim()
-        .replace(/^<p>/i, "")
-        .replace(/<\/p>$/i, "");
-
-    // check if contains htlm tags
-    // const htmlTagPattern = /<[^>]+>/gi;
-    // return htmlTagPattern.test(processedStr);
-
-    //only count as html if contains allowed tags
-    return (
-        (processedStr.includes("<pre>") && processedStr.includes("</pre>")) ||
-        (processedStr.includes("<code>") && processedStr.includes("</code>")) ||
-        (processedStr.includes("<strong>") && processedStr.includes("</strong>")) ||
-        (processedStr.includes("<i>") && processedStr.includes("</i>")) ||
-        (processedStr.includes("<u>") && processedStr.includes("</u>")) ||
-        (processedStr.includes("<ul>") && processedStr.includes("</ul>")) ||
-        (processedStr.includes("<ol>") && processedStr.includes("</ol>")) ||
-        (processedStr.includes("<li>") && processedStr.includes("</li>"))
-    );
-};
-
-const processTextWithHtmlTag = (string: string) => {
-    if (!string) return "";
-    const stringWithoutP = string.replace(/^<p>/i, "").replace(/<\/p>$/i, "");
-    const result = stringWithoutP.replace("<", "'<").replace(">", ">'");
-
-    return result;
-};
-
 onMounted(async () => {
     await getQuizData();
 
@@ -818,28 +781,15 @@ onMounted(async () => {
                 </template>
                 <template v-else>
                     <div class="section question-section">
-                        <div
-                            v-if="isHTMLContent(currentQuestion.questionText)"
+                        <RichContent
                             class="learn-question html"
-                            v-html="currentQuestion.questionText"
-                        ></div>
-                        <div v-else class="learn-question text">
-                            {{ processTextWithHtmlTag(currentQuestion.questionText) }}
-                        </div>
+                            :content="currentQuestion.questionText"
+                            :format="currentQuestion.textFormat"
+                        />
                         <QuestionMediaView
                             :media="currentQuestion.media"
                             @reload="reloadQuestionMedia"
                         />
-                        <!-- <div
-                                :class="[
-                                    'learn-question',
-                                    currentQuestion.textFormat === QUESTION_FORMAT.HTML
-                                        ? 'd-none'
-                                        : '',
-                                ]"
-                            >
-                                {{ currentQuestion.questionText }}
-                            </div> -->
                         <div class="section answer-section">
                             <div v-if="isCurrentSessionReLearn" class="relearn-ins">
                                 {{ $t("learn_QS.instructions.re_learn_ins") }}
@@ -893,7 +843,11 @@ onMounted(async () => {
                                             ]"
                                         >
                                             <div class="answer-option-content">
-                                                {{ option.text }}
+                                                <RichContent
+                                                    :content="option.text"
+                                                    :format="currentQuestion.textFormat"
+                                                    inline
+                                                />
                                             </div>
 
                                             <i
@@ -946,7 +900,11 @@ onMounted(async () => {
                                                             <HolderOutlined />
                                                         </div>
                                                         <div class="answer-option-content">
-                                                            {{ option.text }}
+                                                            <RichContent
+                                                                :content="option.text"
+                                                                :format="currentQuestion.textFormat"
+                                                                inline
+                                                            />
                                                         </div>
                                                     </div>
                                                     <i
@@ -1001,7 +959,11 @@ onMounted(async () => {
                                                         ]"
                                                     >
                                                         <div class="answer-option-content">
-                                                            {{ option.text }}
+                                                            <RichContent
+                                                                :content="option.text"
+                                                                :format="currentQuestion.textFormat"
+                                                                inline
+                                                            />
                                                         </div>
                                                         <div class="answer-option-order">
                                                             <HolderOutlined />
@@ -1037,7 +999,11 @@ onMounted(async () => {
                                                     {{ index + 1 }}
                                                 </div>
                                                 <div class="answer-option-content">
-                                                    {{ option.text }}
+                                                    <RichContent
+                                                        :content="option.text"
+                                                        :format="currentQuestion.textFormat"
+                                                        inline
+                                                    />
                                                 </div>
                                                 <div
                                                     :class="[
@@ -1092,7 +1058,11 @@ onMounted(async () => {
                                         >
                                             {{ $t("learn_QS.instructions.short_text_answer") }}
                                             <span>
-                                                {{ currentQuestion.questionData.shortText }}
+                                                <RichContent
+                                                    :content="currentQuestion.questionData.shortText"
+                                                    :format="currentQuestion.textFormat"
+                                                    inline
+                                                />
                                             </span>
                                         </div>
                                     </div>
@@ -1154,14 +1124,11 @@ onMounted(async () => {
                 class="explain-modal explain-modal-up"
                 :class="{ show: explainModalOpen }"
             >
-                <div
-                    v-if="isHTMLContent(currentQuestion.explainText)"
+                <RichContent
                     class="learn-question-explain html"
-                    v-html="currentQuestion.explainText"
-                ></div>
-                <div v-else class="learn-question-explain text">
-                    {{ processTextWithHtmlTag(currentQuestion.explainText) }}
-                </div>
+                    :content="currentQuestion.explainText"
+                    :format="currentQuestion.textFormat"
+                />
                 <a-button
                     :class="['main-color-btn close-modal-btn']"
                     type="primary"
@@ -1231,7 +1198,7 @@ onMounted(async () => {
                                                 </a-popconfirm>
                                             </div>
                                         </div>
-                                        <div class="comment-content">{{ comment.content }}</div>
+                                        <div class="comment-content" v-text="comment.content"></div>
                                         <div class="comment-reply">
                                             <div
                                                 class="comment-reply-btn"
@@ -1306,9 +1273,7 @@ onMounted(async () => {
                                                                 </a-popconfirm>
                                                             </div>
                                                         </div>
-                                                        <div class="comment-content">
-                                                            {{ childComment.content }}
-                                                        </div>
+                                                        <div class="comment-content" v-text="childComment.content"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1442,14 +1407,11 @@ onMounted(async () => {
             <div class="preview-question-container">
                 <div class="preview-question-item" v-for="(question, index) in completed">
                     <div class="question-item-content">
-                        <div
-                            v-if="question.textFormat === QUESTION_FORMAT.HTML"
+                        <RichContent
                             class="question-html"
-                            v-html="question.questionText"
-                        ></div>
-                        <div v-else class="question-text">
-                            {{ question.questionText }}
-                        </div>
+                            :content="question.questionText"
+                            :format="question.textFormat"
+                        />
                         <QuestionMediaView
                             :media="question.media"
                             compact
@@ -1460,7 +1422,11 @@ onMounted(async () => {
                                 <div class="multiple-choice-answer">
                                     <ul>
                                         <li v-for="option in question.questionData.multipleChoice">
-                                            {{ option.text }}
+                                            <RichContent
+                                                :content="option.text"
+                                                :format="question.textFormat"
+                                                inline
+                                            />
                                             <span class="text-success" v-if="option.isAnswer">
                                                 ({{ option.isAnswer }})
                                             </span>
@@ -1474,19 +1440,27 @@ onMounted(async () => {
                                     v-for="option in question.questionData.matching?.matches"
                                 >
                                     <span class="pair-answer-item">
-                                        {{
-                                            question.questionData.matching?.leftItems.find(
-                                                (x) => x.id === option.leftId,
-                                            )?.text
-                                        }}
+                                        <RichContent
+                                            :content="
+                                                question.questionData.matching?.leftItems.find(
+                                                    (x) => x.id === option.leftId,
+                                                )?.text
+                                            "
+                                            :format="question.textFormat"
+                                            inline
+                                        />
                                     </span>
                                     <i class="bx bx-right-arrow-alt"></i>
                                     <span class="pair-answer-item">
-                                        {{
-                                            question.questionData.matching?.rightItems.find(
-                                                (x) => x.id === option.rightId,
-                                            )?.text
-                                        }}
+                                        <RichContent
+                                            :content="
+                                                question.questionData.matching?.rightItems.find(
+                                                    (x) => x.id === option.rightId,
+                                                )?.text
+                                            "
+                                            :format="question.textFormat"
+                                            inline
+                                        />
                                     </span>
                                 </div>
                             </template>
@@ -1494,7 +1468,11 @@ onMounted(async () => {
                                 <div class="ordering-answer">
                                     <div class="ordering-answer-item">
                                         <div v-for="option in question.questionData.ordering">
-                                            {{ option.text }}
+                                            <RichContent
+                                                :content="option.text"
+                                                :format="question.textFormat"
+                                                inline
+                                            />
                                         </div>
                                     </div>
                                     <i class="bx bx-right-arrow-alt"></i>
@@ -1508,7 +1486,11 @@ onMounted(async () => {
                                             )"
                                         >
                                             <span>#{{ option.correctOrder + 1 }}</span> -
-                                            {{ option.text }}
+                                            <RichContent
+                                                :content="option.text"
+                                                :format="question.textFormat"
+                                                inline
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -1516,7 +1498,11 @@ onMounted(async () => {
                             <template v-if="question.type === QUESTION_TYPE.SHORT_TEXT">
                                 <span>Answer:</span>
                                 <div class="short-text-answer">
-                                    {{ question.questionData.shortText }}
+                                    <RichContent
+                                        :content="question.questionData.shortText"
+                                        :format="question.textFormat"
+                                        inline
+                                    />
                                 </div>
                             </template>
                         </div>

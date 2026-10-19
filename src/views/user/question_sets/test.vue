@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import ApiQuestionSet from "@/api/ApiQuestionSet";
-import QUESTION_FORMAT from "@/constants/questionTextFormat";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import type { ResponseQuestion } from "@/models/response/question";
 import ERROR from "@/constants/errors";
@@ -19,6 +18,7 @@ import { useRouter, useRoute } from "vue-router";
 import Validator from "@/services/Validator";
 import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
+import RichContent from "@/shared/components/Common/RichContent.vue";
 import ShuffleQuestionData from "@/services/ShuffleQuestionData";
 
 const route = useRoute();
@@ -970,43 +970,6 @@ const onRedirectToSubcription = () => {
     router.push({ name: "User_Settings" });
 };
 
-const isHTMLContent = (str: string) => {
-    if (!str) return false;
-
-    // remove content inside backticks
-    let processedStr = str?.replace(/`[^`]*`/g, "");
-
-    // remove p tag only
-    processedStr = processedStr
-        .trim()
-        .replace(/^<p>/i, "")
-        .replace(/<\/p>$/i, "");
-
-    // check if contains htlm tags
-    // const htmlTagPattern = /<[^>]+>/gi;
-    // return htmlTagPattern.test(processedStr);
-
-    //only count as html if contains allowed tags
-    return (
-        (processedStr.includes("<pre>") && processedStr.includes("</pre>")) ||
-        (processedStr.includes("<code>") && processedStr.includes("</code>")) ||
-        (processedStr.includes("<strong>") && processedStr.includes("</strong>")) ||
-        (processedStr.includes("<i>") && processedStr.includes("</i>")) ||
-        (processedStr.includes("<u>") && processedStr.includes("</u>")) ||
-        (processedStr.includes("<ul>") && processedStr.includes("</ul>")) ||
-        (processedStr.includes("<ol>") && processedStr.includes("</ol>")) ||
-        (processedStr.includes("<li>") && processedStr.includes("</li>"))
-    );
-};
-
-const processTextWithHtmlTag = (string: string) => {
-    if (!string) return "";
-    const stringWithoutP = string.replace(/^<p>/i, "").replace(/<\/p>$/i, "");
-    const result = stringWithoutP.replace("<", "'<").replace(">", ">'");
-
-    return result;
-};
-
 // tối đa = tổng số câu của các loại ĐANG ĐƯỢC CHỌN (fallback: tổng số câu của bộ nếu chưa có số liệu theo loại)
 const maxSelectableQuestions = computed(() => {
     const counts = quizTypeCounts.value;
@@ -1210,26 +1173,15 @@ onMounted(async () => {
                         <div class="question-info-index">
                             {{ $t("create_QS.question.question") }} {{ currentQuestionIndex + 1 }}
                         </div>
-                        <div
-                            v-if="isHTMLContent(currentQuestion.questionText)"
+                        <RichContent
                             class="learn-question html"
-                            v-html="currentQuestion.questionText"
-                        ></div>
-                        <div v-else class="learn-question text">
-                            {{ processTextWithHtmlTag(currentQuestion.questionText) }}
-                        </div>
+                            :content="currentQuestion.questionText"
+                            :format="currentQuestion.textFormat"
+                        />
                         <QuestionMediaView
                             :media="currentQuestion.media"
                             @reload="reloadQuestionMedia"
                         />
-                        <!-- <div
-                            :class="[
-                                'learn-question',
-                                currentQuestion.textFormat === QUESTION_FORMAT.HTML ? 'd-none' : '',
-                            ]"
-                        >
-                            {{ currentQuestion.questionText }}
-                        </div> -->
                         <div class="section answer-section">
                             <div class="d-flex align-items-center">
                                 <div class="answer-section-ins">
@@ -1282,7 +1234,11 @@ onMounted(async () => {
                                             ]"
                                         >
                                             <div class="answer-option-content">
-                                                {{ option.text }}
+                                                <RichContent
+                                                    :content="option.text"
+                                                    :format="currentQuestion.textFormat"
+                                                    inline
+                                                />
                                             </div>
 
                                             <i
@@ -1343,7 +1299,11 @@ onMounted(async () => {
                                                             <HolderOutlined />
                                                         </div>
                                                         <div class="answer-option-content">
-                                                            {{ option.text }}
+                                                            <RichContent
+                                                                :content="option.text"
+                                                                :format="currentQuestion.textFormat"
+                                                                inline
+                                                            />
                                                         </div>
                                                     </div>
                                                     <i
@@ -1406,7 +1366,11 @@ onMounted(async () => {
                                                         ]"
                                                     >
                                                         <div class="answer-option-content">
-                                                            {{ option.text }}
+                                                            <RichContent
+                                                                :content="option.text"
+                                                                :format="currentQuestion.textFormat"
+                                                                inline
+                                                            />
                                                         </div>
                                                         <div class="answer-option-order">
                                                             <HolderOutlined />
@@ -1443,7 +1407,11 @@ onMounted(async () => {
                                                     {{ index + 1 }}
                                                 </div>
                                                 <div class="answer-option-content">
-                                                    {{ option.text }}
+                                                    <RichContent
+                                                        :content="option.text"
+                                                        :format="currentQuestion.textFormat"
+                                                        inline
+                                                    />
                                                 </div>
                                                 <div
                                                     :class="[
@@ -1495,7 +1463,13 @@ onMounted(async () => {
                                             class="short-text-correct-answer"
                                         >
                                             Correct answer:
-                                            <span> {{ getShortTextCorrectAnswer }} </span>
+                                            <span>
+                                                <RichContent
+                                                    :content="getShortTextCorrectAnswer"
+                                                    :format="currentQuestion.textFormat"
+                                                    inline
+                                                />
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -1556,14 +1530,11 @@ onMounted(async () => {
                     class="explain-modal explain-modal-up"
                     :class="{ show: explainModalOpen }"
                 >
-                    <div
-                        v-if="isHTMLContent(currentQuestion.explainText)"
+                    <RichContent
                         class="learn-question-explain html"
-                        v-html="currentQuestion.explainText"
-                    ></div>
-                    <div v-else class="learn-question-explain text">
-                        {{ processTextWithHtmlTag(currentQuestion.explainText) }}
-                    </div>
+                        :content="currentQuestion.explainText"
+                        :format="currentQuestion.textFormat"
+                    />
                     <a-button
                         :class="['main-color-btn close-modal-btn']"
                         type="primary"

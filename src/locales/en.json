@@ -1159,6 +1159,26 @@
             "review": "Review"
         }
     },
+    "rich_content": {
+        "copy": "Copy",
+        "copied": "Copied",
+        "copy_failed": "Could not copy the code",
+        "mode": {
+            "label": "Content mode",
+            "rich": "Rich text",
+            "markdown": "Markdown",
+            "tab_edit": "Edit",
+            "tab_preview": "Preview",
+            "preview": "Preview",
+            "nothing_to_preview": "Nothing to preview yet",
+            "switch_to_markdown_title": "Switch to Markdown?",
+            "switch_to_markdown_content": "The question text and the explanation will be converted to Markdown. Some formatting (for example underline) may be lost.",
+            "switch_to_rich_title": "Switch to Rich text?",
+            "switch_to_rich_content": "The Markdown of the question text and the explanation will be converted and loaded into the rich text editor. Tables and other Markdown-only elements may be lost.",
+            "markdown_hint": "Markdown: **bold**, *italic*, `code`, fenced code blocks with a language, lists, tables. Answer options use inline Markdown.",
+            "option_preview": "Preview"
+        }
+    },
     "question_media": {
         "label": "Image / video",
         "one_media_hint": "one image or one video per question",

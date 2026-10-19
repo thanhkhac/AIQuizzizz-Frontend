@@ -6,6 +6,24 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Added — Chế độ nội dung Markdown cho câu hỏi
+- **Hiển thị**: component dùng chung `shared/components/Common/RichContent.vue` (`content`, `format`: PlainText | Html | Markdown, `inline`) thay toàn bộ `v-html` / `isHTMLContent` / `processTextWithHtmlTag` rải rác ở `detail`, `learn`, `test` (luyện tập), `attempt`, `review`, `test_template/detail`, `ChooseQuestionModal`, preview của `ImportQSModal` / `GenerateQSModal`. Nội dung câu hỏi, giải thích và cả đáp án / item ghép cặp / sắp xếp đều đi qua component (đáp án của câu Markdown render inline markdown, ví dụ "`a`" hiện thành code).
+- **Markdown**: `markdown-it` (`html:false` — HTML thô không bao giờ thành phần tử, `breaks:true`, `linkify` chỉ cho URL tường minh để "Program.py", "System.IO" không thành link), code block có tên ngôn ngữ + nút Sao chép (`ClipboardService`), bảng cuộn ngang, danh sách, trích dẫn, code inline. Ảnh trong markdown bị tắt (hiện thành link chữ, không tải tài nguyên ngoài). Link mở tab mới với `rel="noopener noreferrer"`.
+- **Bảo mật**: mọi HTML (Markdown, Html cũ) đều qua `DOMPurify` (cấm script, iframe, form, img, style, svg, thuộc tính `on*`, `javascript:`). Kết quả render được memo theo (nội dung, định dạng, tuỳ chọn).
+- **Syntax highlight**: `highlight.js` chỉ đăng ký csharp, java, javascript, typescript, sql, json, yaml, bash, xml/html, css, python, go, dockerfile, kotlin, plaintext và được tải động (chunk riêng ~79 kB, không nằm trong bundle chính). Bảng màu riêng bằng biến CSS `--rc-*` cho theme sáng/tối (tương phản >= 4.5:1), `pre` monospace 14px, `overflow-x:auto` cho code và bảng.
+- **Dữ liệu cũ**: `Html` dùng heuristic cũ (chỉ coi là HTML khi có thẻ hợp lệ, còn lại hiện như text); `PlainText` hiện như text pre-wrap, NGOẠI TRỪ nội dung bắt đầu bằng thẻ block của TipTap (`<p>`, `<pre>`, `<ul>`...) vì test / template cũ lưu nhầm nhãn PlainText cho HTML của editor.
+- **Editor**: 4 editor câu hỏi có công tắc "Rich text | Markdown" theo từng câu (`ContentModeSwitch`). Markdown: textarea monospace (autosize) cho nội dung + giải thích kèm xem trước trực tiếp (>= 992px cạnh nhau, nhỏ hơn xếp dọc, < 576px chuyển Soạn thảo / Xem trước), ô đáp án giữ input text và hiện dòng xem trước inline. Đổi chế độ chuyển nội dung (HTML -> Markdown best-effort: p, br, strong, em, s, code, pre, ul/ol, a, blockquote, h1-h6, hr; Markdown -> HTML đã sanitize) và có hộp xác nhận khi đã có nội dung. Câu mới mặc định Rich text trừ khi cả danh sách là Markdown.
+- **Lưu / tải**: `RequestQuestion.textFormat`; `transformResponseToRequest` giữ nguyên định dạng, `toQuestionPayload` luôn gửi `textFormat` (mặc định Html) nên sửa câu Markdown không bị lưu thành HTML. `QuestionValidator`: Markdown kiểm tra rỗng / giới hạn 5000 ký tự trên văn bản thô.
+- **i18n**: khoá `rich_content.*` (en, vn).
+- **Test**: `RichContentService.spec.ts` (code fence, inline code, bảng, vector XSS, inline mode, Html cũ, PlainText), `ContentModeService.spec.ts` (chuyển đổi chế độ), `QuestionValidator.spec.ts`, `QuestionMediaService.spec.ts` (payload `textFormat`).
+- **Phụ thuộc mới**: `markdown-it`, `dompurify`, `highlight.js`, `@types/markdown-it` (dev).
+
+### Fixed
+- `ChooseQuestionModal` so sánh `textFormat` với "HTML" nên không bao giờ render HTML (luôn hiện thẻ thô); nay dùng `RichContent`.
+- Xuống dòng trong nội dung dạng text không còn bị gộp (pre-wrap).
+- `.question-item-content` thêm `min-width:0` để code block / bảng dài cuộn bên trong thẻ thay vì làm rộng thẻ.
+
+
 ### Fixed — QA vòng 2 (đợt sửa lỗi giao diện admin / xác thực)
 - **D1**: `formatBanReason` (`LoginErrorService.ts`) — lý do rỗng (và chuỗi mặc định tiếng Việt cũ) hiển thị `auth.banned.no_reason`; mã `AUTO_BAN_STRIKES:n:d` được dịch vi/en; lý do tự do giữ nguyên. Dùng ở `login.vue` (cả luồng ban từ lời gọi API khác qua `Api.ts`).
 - **D2**: `system_setting.vue` bỏ `:min`/`:precision` của `a-input-number` (nguyên nhân gây tự làm tròn/kẹp về 1) — giá trị 0, -5, 1.5 báo lỗi inline và chặn Lưu.
@@ -101,6 +119,10 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
   (bảng biến, breakpoint, cách chạy).
 
 ### Sửa lỗi
+
+- **Bình luận bị gộp thành một dòng** (`learn.vue`, `main.css`): các lần xuống dòng người dùng gõ vẫn được lưu nhưng khi hiển thị bị trình duyệt gộp lại. `.comment-content` nay có `white-space: pre-wrap` (+ `overflow-wrap: anywhere`), và nội dung bình luận/trả lời render bằng `v-text` để không lộ khoảng trắng thừa của template.
+
+- **Admin không sửa được gói miễn phí (AIQuizzizz Plus)**: nút sửa/xoá của thẻ gói bị ẩn khi `price === 0` nên không cấu hình được quyền upload ảnh/video cho gói miễn phí. Nay gói giá 0 hiện nút **sửa**; nút **xoá** và công tắc Active/Inactive vẫn ẩn để không lỡ xoá/tắt gói miễn phí mặc định.
 
 - **QA vòng cuối**: trang sửa bài kiểm tra chọn template từ folder ra danh sách rỗng (thiếu `await nextTick()` như trang tạo); tiêu đề xác nhận sửa test template ghi "Tạo mới"; luyện thi với bộ câu hỏi đã xoá không chuyển 404; form gói báo hai lỗi mâu thuẫn cho số lẻ; trang Subscription hiển thị người chưa mua gói là đang dùng gói miễn phí (nay hiển thị "Chưa có gói"); modal Import/AI ở 768px vẫn hai cột bị tràn (nay xếp dọc dưới 992px).
 

@@ -14,6 +14,7 @@ import { useRoute } from "vue-router";
 import { Modal } from "ant-design-vue";
 import Input from "@/shared/components/Common/Input.vue";
 import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
+import RichContent from "@/shared/components/Common/RichContent.vue";
 import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 
 const route = useRoute();
@@ -64,11 +65,6 @@ const reloadQuestionMedia = async () => {
 };
 
 //#region filter
-const QUESTION_FORMAT = {
-    HTML: "HTML",
-    PLAIN_TEXT: "PlainText",
-};
-
 const questionTypeOptions = Object.values(QUESTION_TYPE).map((questionType) => ({
     label: t(`create_QS.type.${questionType}`),
     value: questionType,
@@ -285,14 +281,11 @@ const handleModalImport = () => {
                                         <a-checkbox :value="question"></a-checkbox>
 
                                         <div class="question-item-content">
-                                            <div
-                                                v-if="question.textFormat === QUESTION_FORMAT.HTML"
+                                            <RichContent
                                                 class="question-html"
-                                                v-html="question.questionText"
-                                            ></div>
-                                            <div v-else class="question-text">
-                                                {{ question.questionText }}
-                                            </div>
+                                                :content="question.questionText"
+                                                :format="question.textFormat"
+                                            />
                                             <QuestionMediaView
                                                 :media="question.media"
                                                 compact
@@ -314,7 +307,11 @@ const handleModalImport = () => {
                                                                 v-for="option in question
                                                                     .questionData.multipleChoice"
                                                             >
-                                                                {{ option.text }}
+                                                                <RichContent
+                                                                    :content="option.text"
+                                                                    :format="question.textFormat"
+                                                                    inline
+                                                                />
                                                                 <span
                                                                     class="text-success"
                                                                     v-if="option.isAnswer"
@@ -334,19 +331,27 @@ const handleModalImport = () => {
                                                             .matching?.matches"
                                                     >
                                                         <span class="pair-answer-item">
-                                                            {{
-                                                                question.questionData.matching?.leftItems.find(
-                                                                    (x) => x.id === option.leftId,
-                                                                )?.text
-                                                            }}
+                                                            <RichContent
+                                                                :content="
+                                                                    question.questionData.matching?.leftItems.find(
+                                                                        (x) => x.id === option.leftId,
+                                                                    )?.text
+                                                                "
+                                                                :format="question.textFormat"
+                                                                inline
+                                                            />
                                                         </span>
                                                         <i class="bx bx-right-arrow-alt"></i>
                                                         <span class="pair-answer-item">
-                                                            {{
-                                                                question.questionData.matching?.rightItems.find(
-                                                                    (x) => x.id === option.rightId,
-                                                                )?.text
-                                                            }}
+                                                            <RichContent
+                                                                :content="
+                                                                    question.questionData.matching?.rightItems.find(
+                                                                        (x) => x.id === option.rightId,
+                                                                    )?.text
+                                                                "
+                                                                :format="question.textFormat"
+                                                                inline
+                                                            />
                                                         </span>
                                                     </div>
                                                 </template>
@@ -359,7 +364,11 @@ const handleModalImport = () => {
                                                                 v-for="option in question
                                                                     .questionData.ordering"
                                                             >
-                                                                {{ option.text }}
+                                                                <RichContent
+                                                                    :content="option.text"
+                                                                    :format="question.textFormat"
+                                                                    inline
+                                                                />
                                                             </div>
                                                         </div>
                                                         <i class="bx bx-right-arrow-alt"></i>
@@ -378,7 +387,11 @@ const handleModalImport = () => {
                                                                     >#{{ index + 1 }}</span
                                                                 >
                                                                 -
-                                                                {{ option.text }}
+                                                                <RichContent
+                                                                    :content="option.text"
+                                                                    :format="question.textFormat"
+                                                                    inline
+                                                                />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -389,7 +402,11 @@ const handleModalImport = () => {
                                                     "
                                                 >
                                                     <div class="short-text-answer">
-                                                        {{ question.questionData.shortText }}
+                                                        <RichContent
+                                                            :content="question.questionData.shortText"
+                                                            :format="question.textFormat"
+                                                            inline
+                                                        />
                                                     </div>
                                                 </template>
                                             </div>

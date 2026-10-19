@@ -1061,6 +1061,7 @@ pre {
 
 .question-item-content {
     margin: 0px 10px;
+    min-width: 0; /* code block / bảng dài cuộn bên trong khung thay vì làm rộng cả thẻ */
 }
 
 .question-item-toogle-btn {
@@ -1640,6 +1641,9 @@ ol {
     margin: 5px 0px;
     max-width: 400px;
     word-wrap: break-word;
+    /* giữ nguyên các lần xuống dòng người dùng gõ trong bình luận, chữ dài vẫn tự ngắt */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .comment-form {
@@ -2505,3 +2509,69 @@ ant-select-tree */
 }
 
 /* ========================================QuestionSet detail and siblings====================================================== */
+
+/**
+* Quiz Details (tạo/sửa bộ câu hỏi): Description và #Tag là hai cột cân đối, cùng điểm bắt đầu và cùng chiều cao
+**/
+.quiz-details {
+    height: auto;
+}
+.qd-row {
+    --qd-field-gap: 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4px 24px;
+    align-items: start;
+    margin-top: 14px; /* tách khỏi ô tiêu đề phía trên */
+}
+.qd-row > .form-item.qd-tags {
+    padding: 0;
+    min-width: 0;
+}
+/* nhãn #Tag giống nhãn của Ant form item (cùng cỡ chữ/khoảng cách) */
+.qd-tags > label {
+    display: block;
+    padding: 0 0 8px;
+    font-size: 14px;
+    line-height: 22px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+.qd-tags .tag-container {
+    height: 110px;
+    max-height: none;
+    margin-bottom: var(--qd-field-gap);
+    align-content: flex-start;
+    overflow-y: auto;
+}
+.qd-tags .tag-inputter {
+    align-items: flex-start;
+}
+.qd-tags .tag-inputter .search-bar {
+    flex: 1;
+    min-width: 0;
+}
+.qd-tags .tag-inputter-button {
+    flex: none;
+    margin-left: 10px;
+}
+/* ô Description cao bằng cả cột Tag (khung chip + khoảng cách + ô nhập) */
+.qd-description textarea.ant-input {
+    height: var(--qd-desc-height, 170px);
+    min-height: var(--qd-desc-height, 170px);
+    resize: vertical;
+}
+@media (max-width: 991.98px) {
+    .qd-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .qd-description textarea.ant-input {
+        height: 120px;
+        min-height: 120px;
+    }
+    .qd-tags .tag-container {
+        height: auto;
+        min-height: 64px;
+        max-height: 140px;
+    }
+}

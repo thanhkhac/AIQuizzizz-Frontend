@@ -10,6 +10,7 @@ import { Modal, message } from "ant-design-vue";
 import { InboxOutlined, LoadingOutlined, ExclamationCircleFilled } from "@ant-design/icons-vue";
 
 import TextArea from "../components/Common/TextArea.vue";
+import RichContent from "../components/Common/RichContent.vue";
 
 import { useI18n } from "vue-i18n";
 
@@ -615,14 +616,11 @@ onMounted(() => {});
                                     >
                                         <a-checkbox :value="question"></a-checkbox>
                                         <div class="question-item-content">
-                                            <div
-                                                v-if="question.questionHTML"
+                                            <RichContent
                                                 class="question-html"
-                                                v-html="question.questionHTML"
-                                            ></div>
-                                            <div v-else class="question-text">
-                                                {{ question.questionText }}
-                                            </div>
+                                                :content="question.questionHTML || question.questionText"
+                                                :format="question.textFormat || 'PlainText'"
+                                            />
                                             <div
                                                 class="question-item-answer"
                                                 :id="`question-item-answer-${index}`"
@@ -638,7 +636,11 @@ onMounted(() => {});
                                                             <li
                                                                 v-for="option in question.multipleChoices"
                                                             >
-                                                                {{ option.text }}
+                                                                <RichContent
+                                                                    :content="option.text"
+                                                                    :format="question.textFormat || 'PlainText'"
+                                                                    inline
+                                                                />
                                                                 <span
                                                                     class="result-correct"
                                                                     v-if="option.isAnswer"
@@ -657,11 +659,19 @@ onMounted(() => {});
                                                         v-for="option in question.matchingPairs"
                                                     >
                                                         <span class="pair-answer-item">
-                                                            {{ option.leftItem }}
+                                                            <RichContent
+                                                                :content="option.leftItem"
+                                                                :format="question.textFormat || 'PlainText'"
+                                                                inline
+                                                            />
                                                         </span>
                                                         <i class="bx bx-right-arrow-alt"></i>
                                                         <span class="pair-answer-item">
-                                                            {{ option.rightItem }}
+                                                            <RichContent
+                                                                :content="option.rightItem"
+                                                                :format="question.textFormat || 'PlainText'"
+                                                                inline
+                                                            />
                                                         </span>
                                                     </div>
                                                 </template>
@@ -673,7 +683,11 @@ onMounted(() => {});
                                                             <div
                                                                 v-for="option in question.orderingItems"
                                                             >
-                                                                {{ option.text }}
+                                                                <RichContent
+                                                                    :content="option.text"
+                                                                    :format="question.textFormat || 'PlainText'"
+                                                                    inline
+                                                                />
                                                             </div>
                                                         </div>
                                                         <i class="bx bx-right-arrow-alt"></i>
@@ -686,7 +700,11 @@ onMounted(() => {});
                                                             >
                                                                 <span>#{{ index + 1 }}</span>
                                                                 -
-                                                                {{ option.text }}
+                                                                <RichContent
+                                                                    :content="option.text"
+                                                                    :format="question.textFormat || 'PlainText'"
+                                                                    inline
+                                                                />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -698,7 +716,11 @@ onMounted(() => {});
                                                 >
                                                     <span>Answer:</span>
                                                     <div class="short-text-answer">
-                                                        {{ question.shortAnswer }}
+                                                        <RichContent
+                                                            :content="question.shortAnswer"
+                                                            :format="question.textFormat || 'PlainText'"
+                                                            inline
+                                                        />
                                                     </div>
                                                 </template>
                                             </div>

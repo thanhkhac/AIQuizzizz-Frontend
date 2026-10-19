@@ -2,6 +2,7 @@ import { h, type VNode } from "vue";
 import type { RequestQuestion } from "@/models/request/question";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import { translate } from "@/services/i18n";
+import { isMarkdownFormat } from "@/services/ContentModeService";
 
 export interface QuestionIssue {
     /** Số thứ tự câu hỏi (bắt đầu từ 1) */
@@ -16,6 +17,10 @@ const stripParagraph = (html: string | undefined | null) =>
         .replace(/<\/p>$/, "") //replace </p> at the end
         .trim();
 
+// Markdown: kiểm tra trên chính văn bản markdown (không có <p> bao quanh); Rich text/PlainText: bỏ <p> ngoài cùng
+const contentText = (text: string | undefined | null, format?: string | null) =>
+    isMarkdownFormat(format) ? (text ?? "").trim() : stripParagraph(text);
+
 const reason = (key: string) => translate(`create_QS.modal.invalid.reasons.${key}`);
 
 /**
@@ -28,11 +33,15 @@ export const validateQuestions = (questions: RequestQuestion[]): QuestionIssue[]
     questions.forEach((question, position) => {
         const reasons: string[] = [];
 
-        const questionText = stripParagraph(question.questionText);
-        if (questionText.length === 0) reasons.push(reason("blank_question"));
-        else if (questionText.length >= 5000) reasons.push(reason("question_too_long"));
+        const markdown = isMarkdownFormat(question.textFormat);
+        // giới hạn backend: tối đa 5000 ký tự (Markdown tính trên văn bản thô)
+        const maxLength = markdown ? 5000 : 4999;
 
-        if (stripParagraph(question.explainText).length >= 5000)
+        const questionText = contentText(question.questionText, question.textFormat);
+        if (questionText.length === 0) reasons.push(reason("blank_question"));
+        else if (questionText.length > maxLength) reasons.push(reason("question_too_long"));
+
+        if (contentText(question.explainText, question.textFormat).length > maxLength)
             reasons.push(reason("explain_too_long"));
 
         const score = Number(question.score);
@@ -48,8 +57,8 @@ export const validateQuestions = (questions: RequestQuestion[]): QuestionIssue[]
                 if (options.filter((x) => x.isAnswer).length === 0)
                     reasons.push(reason("no_correct_answer"));
 
-                // trùng nội dung (không phân biệt hoa thường, đã trim); bỏ qua ô trống vì đã báo riêng
-                const nonBlank = texts.filter((x) => x.length > 0).map((x) => x.toLowerCase());
+                // trùng nội dung đúng từng ký tự (đã trim, PHÂN BIỆT hoa thường: `a` khác `A`); bỏ qua ô trống vì đã báo riêng
+                const nonBlank = texts.filter((x) => x.length > 0);
                 if (new Set(nonBlank).size !== nonBlank.length)
                     reasons.push(reason("duplicate_options"));
                 break;
@@ -123,8 +132,8 @@ export const normalizeScore = (value: unknown): number => {
 
 /** Câu hỏi mặc định chưa được nhập gì (nội dung, đáp án, giải thích, media đều trống) */
 export const isQuestionBlank = (question: RequestQuestion): boolean => {
-    if (stripParagraph(question.questionText).length > 0) return false;
-    if (stripParagraph(question.explainText).length > 0) return false;
+    if (contentText(question.questionText, question.textFormat).length > 0) return false;
+    if (contentText(question.explainText, question.textFormat).length > 0) return false;
     if (question.mediaId || question.media) return false;
 
     switch (question.type) {

@@ -171,9 +171,12 @@ const getSearchTagData = async () => {
 
 //#region logic edit question
 import ChangeQuestionType from "@/services/ChangeQuestionType";
-const createQuestionTemplate = (): RequestQuestion => ({
+import { defaultNewQuestionFormat } from "@/services/ContentModeService";
+// câu hỏi mới mặc định là Rich text, trừ khi cả danh sách hiện tại đều là Markdown
+const createQuestionTemplate = (existing: RequestQuestion[] = []): RequestQuestion => ({
     id: "new_" + Date.now().toString(),
     type: "MultipleChoice",
+    textFormat: defaultNewQuestionFormat(existing),
     questionText: "",
     questionHTML: "",
     explainText: "",
@@ -196,7 +199,7 @@ const onAddQuestion = async () => {
         return;
     }
 
-    formState.questions = [...formState.questions, createQuestionTemplate()];
+    formState.questions = [...formState.questions, createQuestionTemplate(formState.questions)];
 
     nextTick(() => {
         nextTick(() => {
@@ -395,7 +398,7 @@ const emit = defineEmits(["updateSidebar"]);
 onMounted(() => {
     emit("updateSidebar", "library");
     document.addEventListener("click", handleMouseClickOutside);
-    formState.questions.push(createQuestionTemplate());
+    formState.questions.push(createQuestionTemplate(formState.questions));
     // intervalId.value = setInterval(saveDraft, 60_000); //save each 60s
     window.addEventListener("beforeunload", handleBeforeUnload);
 });
@@ -423,7 +426,7 @@ onUnmounted(() => {
         </div>
         <div class="content">
             <a-form layout="vertical" v-model="formState" :rules="rules" ref="formRef">
-                <div style="height: 500px" class="content-item">
+                <div class="content-item quiz-details">
                     <div class="content-item-title">
                         <div>
                             <span>{{ $t("create_QS.quiz.question_detail_title") }}</span>
@@ -438,15 +441,15 @@ onUnmounted(() => {
                         :label="t('create_QS.quiz.title')"
                         :max-length="100"
                     />
-                    <div class="d-flex">
+                    <div class="qd-row">
                         <TextArea
-                            class="question-input-item"
+                            class="question-input-item qd-description"
                             v-model="formState.description"
                             :placeholder="t('create_QS.other.description_placeholder')"
                             :max-length="250"
                             :label="t('create_QS.quiz.description')"
                         />
-                        <div class="form-item">
+                        <div class="form-item qd-tags">
                             <label>{{ $t("create_QS.quiz.tag") }}</label>
                             <div class="tag-container">
                                 <div
