@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RequestQuestion } from "@/models/request/question";
 
-import QUESTION_TYPE from "@/constants/questionTypes";
+import QUESTION_TYPE, { CLASSIC_QUESTION_TYPES } from "@/constants/questionTypes";
 import QUESTION_DIFFICULTY from "@/constants/questiondifficulties";
 import SUPPORTED_LOCALES from "@/constants/languages";
 
@@ -82,7 +82,7 @@ const handleModalImport = () => {
 //#endregion
 
 //#region init data
-const questionTypeOptions = Object.values(QUESTION_TYPE).map((questionType) => ({
+const questionTypeOptions = CLASSIC_QUESTION_TYPES.map((questionType) => ({
     label: t(`create_QS.type.${questionType}`),
     value: questionType,
 }));

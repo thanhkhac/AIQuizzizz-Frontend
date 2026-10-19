@@ -28,6 +28,7 @@ import MultipleChoice from "@/shared/components/Questions/MultipleChoice.vue";
 import Matching from "@/shared/components/Questions/Matching.vue";
 import Ordering from "@/shared/components/Questions/Ordering.vue";
 import ShortText from "@/shared/components/Questions/ShortText.vue";
+import LanguageFlashcard from "@/shared/components/Questions/LanguageFlashcard.vue";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -184,6 +185,7 @@ const componentMap = {
     Matching,
     Ordering,
     ShortText,
+    LanguageFlashcard,
 };
 //#endregion
 
@@ -673,6 +675,7 @@ onMounted(async () => {
                                 :question="item"
                                 :index="index + 1"
                                 :displayScore="true"
+                                :allowFlashcard="true"
                                 @deleteQuestion="onRemoveQuestion(index)"
                                 @changeQuestionType="onHandleChangeQuestionType(item)"
                             />

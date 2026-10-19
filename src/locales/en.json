@@ -301,6 +301,7 @@
             "Matching": "Matching",
             "Ordering": "Ordering",
             "ShortText": "Short text",
+            "LanguageFlashcard": "Language flashcard",
             "All": "All"
         },
         "question": {
@@ -348,7 +349,12 @@
                     "blank_pair": "a pair has a blank side",
                     "too_few_items": "at least 2 items are required",
                     "blank_item": "an item is blank",
-                    "blank_short_answer": "the answer is blank"
+                    "blank_short_answer": "the answer is blank",
+                    "flashcard_too_many_meanings": "a card can have at most 5 meanings",
+                    "flashcard_blank_meaning": "each meaning needs a definition or a translation",
+                    "flashcard_too_many_examples": "a meaning can have at most 3 examples",
+                    "flashcard_text_too_long": "a flashcard text is too long (max 1000 characters)",
+                    "flashcard_invalid_url": "audio and source links must start with https://"
                 }
             },
             "valid": {
@@ -1157,6 +1163,46 @@
         },
         "buttons": {
             "review": "Review"
+        }
+    },
+    "flashcard": {
+        "front_label": "Front (word or phrase)",
+        "front_placeholder": "Enter the word or phrase",
+        "back_title": "Back of the card",
+        "back_ins": "optional, a card without meanings is saved as a draft",
+        "card_back": "Back of the card",
+        "phonetic": "Phonetic",
+        "phonetic_placeholder": "/phonetic/",
+        "meanings": "Meanings",
+        "meaning_number": "Meaning {number}",
+        "no_meanings": "No meanings yet",
+        "no_meanings_ins": "No meanings yet. Add one below, or leave it empty to keep this card as a draft.",
+        "add_meaning": "Add meaning",
+        "remove_meaning": "Remove meaning",
+        "max_meanings": "At most {max} meanings per card",
+        "pos": "Part of speech",
+        "pos_placeholder": "Part of speech (noun, verb...)",
+        "definition": "Definition",
+        "definition_placeholder": "Enter the definition",
+        "translation": "Translation",
+        "translation_placeholder": "Enter the translation",
+        "examples": "Examples",
+        "example_placeholder": "Enter an example sentence",
+        "add_example": "Add example",
+        "remove_example": "Remove example",
+        "synonyms": "Synonyms",
+        "play_audio": "Listen",
+        "audio_error": "Could not play the audio",
+        "remove_invalid_audio": "Remove invalid audio link",
+        "remove_invalid_source": "Remove invalid source link",
+        "source": "Source",
+        "context": "Context",
+        "lookup": "Dictionary lookup",
+        "lookup_status": {
+            "found": "Found",
+            "not_found": "Not found",
+            "error": "Error",
+            "skipped": "Skipped"
         }
     },
     "rich_content": {

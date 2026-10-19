@@ -19,6 +19,7 @@ import Validator from "@/services/Validator";
 import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
 import RichContent from "@/shared/components/Common/RichContent.vue";
+import FlashcardAnswerCard from "@/shared/components/Flashcard/FlashcardAnswerCard.vue";
 import dayjs from "dayjs";
 
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
@@ -1068,6 +1069,10 @@ onMounted(async () => {
                                     </div>
                                 </div>
                             </template>
+                            <FlashcardAnswerCard
+                                v-if="currentQuestionIsSubmitted"
+                                :question="currentQuestion"
+                            />
                         </div>
                     </div>
                     <div class="learn-question-footer">

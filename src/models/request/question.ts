@@ -1,4 +1,7 @@
 import type { QuestionMedia } from "@/models/response/media/questionMedia";
+import type { Flashcard } from "@/models/flashcard";
+
+export type { Flashcard } from "@/models/flashcard";
 
 interface MultipleChoice {
     id: string;
@@ -20,7 +23,7 @@ interface OrderingItem {
 
 export interface RequestQuestion {
     id: string;
-    type: "MultipleChoice" | "Matching" | "Ordering" | "ShortText";
+    type: "MultipleChoice" | "Matching" | "Ordering" | "ShortText" | "LanguageFlashcard";
     // "PlainText" | "Html" | "Markdown". Không có (dữ liệu import / client cũ) = Html. Gửi lên API để lưu đúng chế độ nội dung
     textFormat?: string;
     questionText: string;
@@ -31,6 +34,8 @@ export interface RequestQuestion {
     matchingPairs: MatchingPair[];
     orderingItems: OrderingItem[];
     shortAnswer: string;
+    // chỉ có với type = LanguageFlashcard (mặt sau thẻ; mặt trước là questionText, luôn PlainText)
+    flashcard?: Flashcard | null;
     // id media đã upload (gửi lên API), null = không có media
     mediaId?: string | null;
     // chỉ dùng để preview (presigned URL ngắn hạn), không cần gửi lên API

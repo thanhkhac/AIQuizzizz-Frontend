@@ -506,7 +506,7 @@ onMounted(async () => {
                             v-memo="[item, index, item.type]"
                         >
                             <component
-                                :is="componentMap[item.type]"
+                                :is="componentMap[item.type as keyof typeof componentMap]"
                                 :question="item"
                                 :index="index + 1"
                                 :displayScore="true"

@@ -19,6 +19,7 @@ import Validator from "@/services/Validator";
 import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
 import RichContent from "@/shared/components/Common/RichContent.vue";
+import FlashcardAnswerCard from "@/shared/components/Flashcard/FlashcardAnswerCard.vue";
 import ShuffleQuestionData from "@/services/ShuffleQuestionData";
 
 const route = useRoute();
@@ -1474,6 +1475,7 @@ onMounted(async () => {
                                     </div>
                                 </div>
                             </template>
+                            <FlashcardAnswerCard v-if="isSubmitted" :question="currentQuestion" />
                         </div>
                         <div class="learn-question-footer">
                             <a-button

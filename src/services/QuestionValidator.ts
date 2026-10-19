@@ -3,6 +3,7 @@ import type { RequestQuestion } from "@/models/request/question";
 import QUESTION_TYPE from "@/constants/questionTypes";
 import { translate } from "@/services/i18n";
 import { isMarkdownFormat } from "@/services/ContentModeService";
+import { FLASHCARD_LIMITS, isFlashcardBackBlank, validateFlashcardBack } from "@/services/FlashcardService";
 
 export interface QuestionIssue {
     /** Số thứ tự câu hỏi (bắt đầu từ 1) */
@@ -37,11 +38,17 @@ export const validateQuestions = (questions: RequestQuestion[]): QuestionIssue[]
         // giới hạn backend: tối đa 5000 ký tự (Markdown tính trên văn bản thô)
         const maxLength = markdown ? 5000 : 4999;
 
-        const questionText = contentText(question.questionText, question.textFormat);
+        // thẻ ngôn ngữ: mặt trước luôn là chữ thuần (không có <p> bao quanh), giới hạn 5000 ký tự
+        const isFlashcard = question.type === QUESTION_TYPE.LANGUAGE_FLASHCARD;
+        const questionText = isFlashcard
+            ? (question.questionText ?? "").trim()
+            : contentText(question.questionText, question.textFormat);
         if (questionText.length === 0) reasons.push(reason("blank_question"));
-        else if (questionText.length > maxLength) reasons.push(reason("question_too_long"));
+        else if (questionText.length > (isFlashcard ? FLASHCARD_LIMITS.maxFrontLength : maxLength))
+            reasons.push(reason("question_too_long"));
 
-        if (contentText(question.explainText, question.textFormat).length > maxLength)
+        // thẻ ngôn ngữ không có giải thích (không hiện ở editor)
+        if (!isFlashcard && contentText(question.explainText, question.textFormat).length > maxLength)
             reasons.push(reason("explain_too_long"));
 
         const score = Number(question.score);
@@ -95,6 +102,11 @@ export const validateQuestions = (questions: RequestQuestion[]): QuestionIssue[]
                 else if (answer.length > 1000) reasons.push(reason("option_too_long"));
                 break;
             }
+            case QUESTION_TYPE.LANGUAGE_FLASHCARD: {
+                // thẻ không có nghĩa nào vẫn hợp lệ (thẻ nháp)
+                validateFlashcardBack(question.flashcard).forEach((key) => reasons.push(reason(key)));
+                break;
+            }
         }
 
         if (reasons.length > 0) issues.push({ index: position + 1, reasons });
@@ -133,7 +145,8 @@ export const normalizeScore = (value: unknown): number => {
 /** Câu hỏi mặc định chưa được nhập gì (nội dung, đáp án, giải thích, media đều trống) */
 export const isQuestionBlank = (question: RequestQuestion): boolean => {
     if (contentText(question.questionText, question.textFormat).length > 0) return false;
-    if (contentText(question.explainText, question.textFormat).length > 0) return false;
+    const hasExplain = contentText(question.explainText, question.textFormat).length > 0;
+    if (hasExplain && question.type !== QUESTION_TYPE.LANGUAGE_FLASHCARD) return false;
     if (question.mediaId || question.media) return false;
 
     switch (question.type) {
@@ -147,6 +160,8 @@ export const isQuestionBlank = (question: RequestQuestion): boolean => {
             return (question.orderingItems ?? []).every((x) => (x.text ?? "").trim().length === 0);
         case QUESTION_TYPE.SHORT_TEXT:
             return (question.shortAnswer ?? "").trim().length === 0;
+        case QUESTION_TYPE.LANGUAGE_FLASHCARD:
+            return isFlashcardBackBlank(question.flashcard) && !question.flashcard?.source;
         default:
             return false;
     }

@@ -23,6 +23,7 @@ import MultipleChoice from "@/shared/components/Questions/MultipleChoice.vue";
 import Matching from "@/shared/components/Questions/Matching.vue";
 import Ordering from "@/shared/components/Questions/Ordering.vue";
 import ShortText from "@/shared/components/Questions/ShortText.vue";
+import LanguageFlashcard from "@/shared/components/Questions/LanguageFlashcard.vue";
 
 interface FormState {
     name: string;
@@ -93,6 +94,7 @@ const componentMap = {
     Matching,
     Ordering,
     ShortText,
+    LanguageFlashcard,
 };
 
 //#region tag
@@ -565,6 +567,7 @@ onUnmounted(() => {
                                 :question="item"
                                 :index="index + 1"
                                 :displayScore="true"
+                                :allowFlashcard="true"
                                 :key="item.id"
                                 @deleteQuestion="onRemoveQuestion(index)"
                                 @changeQuestionType="onHandleChangeQuestionType(item)"

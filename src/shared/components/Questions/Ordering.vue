@@ -25,6 +25,8 @@ interface Props {
     question: RequestQuestion;
     index: number;
     displayScore: boolean;
+    // chỉ trang tạo/sửa bộ câu hỏi mới cho chọn LanguageFlashcard (test / đề mẫu chưa hỗ trợ)
+    allowFlashcard?: boolean;
 }
 
 const { t } = useI18n();
@@ -44,7 +46,7 @@ const optionKeys = [
 ];
 
 const options = computed(() =>
-    optionKeys.map((key) => ({
+    (props.allowFlashcard ? [...optionKeys, QUESTION_TYPE.LANGUAGE_FLASHCARD] : optionKeys).map((key) => ({
         label: t(`create_QS.type.${key}`),
         value: key,
     })),

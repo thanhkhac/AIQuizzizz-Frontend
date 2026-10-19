@@ -1,9 +1,15 @@
 import type { RequestQuestion } from "@/models/request/question";
 import type { ResponseQuestion } from "@/models/response/question";
 import { normalizeTextFormat } from "@/services/RichContentService";
+import QUESTION_TYPE from "@/constants/questionTypes";
+import { normalizeFlashcard } from "@/services/FlashcardService";
 
 /** Editor chỉ có Rich text (Html) hoặc Markdown; PlainText cũ được giữ nguyên để backend không coi là câu hỏi đã đổi */
 const editorTextFormat = (format?: string | null): string => normalizeTextFormat(format) ?? "Html";
+
+// thẻ LanguageFlashcard: mặt trước luôn là chữ thuần
+const questionTextFormat = (type: string, format?: string | null): string =>
+    type === QUESTION_TYPE.LANGUAGE_FLASHCARD ? "PlainText" : editorTextFormat(format);
 
 class TranferQuestionData {
     transformResponseToRequest(responseQuestion: ResponseQuestion): RequestQuestion {
@@ -30,7 +36,7 @@ class TranferQuestionData {
             id: responseQuestion.id,
             type: responseQuestion.type,
             // giữ nguyên chế độ nội dung để trang sửa không biến Markdown thành HTML khi lưu
-            textFormat: editorTextFormat(responseQuestion.textFormat),
+            textFormat: questionTextFormat(responseQuestion.type, responseQuestion.textFormat),
             questionText: responseQuestion.questionText,
             questionHTML: responseQuestion.questionText,
             explainText: responseQuestion.explainText,
@@ -39,6 +45,11 @@ class TranferQuestionData {
             matchingPairs: matchingPairs,
             orderingItems: responseQuestion.questionData.ordering || [],
             shortAnswer: responseQuestion.questionData.shortText || "",
+            // giữ nguyên lang / source / lookup / v của extension để sửa + lưu lại không làm mất dữ liệu
+            flashcard:
+                responseQuestion.type === QUESTION_TYPE.LANGUAGE_FLASHCARD
+                    ? normalizeFlashcard(responseQuestion.questionData.flashcard)
+                    : null,
             mediaId: responseQuestion.media?.id ?? null,
             media: responseQuestion.media ?? null,
         };
@@ -71,7 +82,7 @@ class TranferQuestionData {
             id: requestQuestion.id,
             type: requestQuestion.type,
             questionSetId: questionSetId,
-            textFormat: editorTextFormat(requestQuestion.textFormat),
+            textFormat: questionTextFormat(requestQuestion.type, requestQuestion.textFormat),
             questionText: requestQuestion.questionText,
             explainText: requestQuestion.explainText,
             score: requestQuestion.score,
@@ -95,6 +106,7 @@ class TranferQuestionData {
                 ordering:
                     requestQuestion.orderingItems.length > 0 ? requestQuestion.orderingItems : null,
                 shortText: requestQuestion.shortAnswer,
+                flashcard: requestQuestion.flashcard ?? null,
             },
         };
     }

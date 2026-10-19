@@ -301,6 +301,7 @@
             "Matching": "Ghép đôi",
             "Ordering": "Sắp xếp",
             "ShortText": "Tự luận ngắn",
+            "LanguageFlashcard": "Thẻ ghi nhớ ngôn ngữ",
             "All": "Tất cả"
         },
         "question": {
@@ -348,7 +349,12 @@
                     "blank_pair": "có cặp để trống một vế",
                     "too_few_items": "cần ít nhất 2 mục",
                     "blank_item": "có mục để trống",
-                    "blank_short_answer": "đáp án đang để trống"
+                    "blank_short_answer": "đáp án đang để trống",
+                    "flashcard_too_many_meanings": "mỗi thẻ có tối đa 5 nghĩa",
+                    "flashcard_blank_meaning": "mỗi nghĩa cần có định nghĩa hoặc bản dịch",
+                    "flashcard_too_many_examples": "mỗi nghĩa có tối đa 3 ví dụ",
+                    "flashcard_text_too_long": "nội dung thẻ quá dài (tối đa 1000 ký tự)",
+                    "flashcard_invalid_url": "liên kết âm thanh và nguồn phải bắt đầu bằng https://"
                 }
             },
             "valid": {
@@ -1157,6 +1163,46 @@
         },
         "buttons": {
             "review": "Xem chi tiết"
+        }
+    },
+    "flashcard": {
+        "front_label": "Mặt trước (từ hoặc cụm từ)",
+        "front_placeholder": "Nhập từ hoặc cụm từ",
+        "back_title": "Mặt sau của thẻ",
+        "back_ins": "không bắt buộc, thẻ chưa có nghĩa được lưu như thẻ nháp",
+        "card_back": "Mặt sau của thẻ",
+        "phonetic": "Phiên âm",
+        "phonetic_placeholder": "/phiên âm/",
+        "meanings": "Các nghĩa",
+        "meaning_number": "Nghĩa {number}",
+        "no_meanings": "Chưa có nghĩa nào",
+        "no_meanings_ins": "Chưa có nghĩa nào. Thêm nghĩa bên dưới, hoặc để trống để giữ thẻ này như thẻ nháp.",
+        "add_meaning": "Thêm nghĩa",
+        "remove_meaning": "Xoá nghĩa",
+        "max_meanings": "Mỗi thẻ có tối đa {max} nghĩa",
+        "pos": "Từ loại",
+        "pos_placeholder": "Từ loại (danh từ, động từ...)",
+        "definition": "Định nghĩa",
+        "definition_placeholder": "Nhập định nghĩa",
+        "translation": "Bản dịch",
+        "translation_placeholder": "Nhập bản dịch",
+        "examples": "Ví dụ",
+        "example_placeholder": "Nhập câu ví dụ",
+        "add_example": "Thêm ví dụ",
+        "remove_example": "Xoá ví dụ",
+        "synonyms": "Từ đồng nghĩa",
+        "play_audio": "Nghe phát âm",
+        "audio_error": "Không phát được âm thanh",
+        "remove_invalid_audio": "Xoá liên kết âm thanh không hợp lệ",
+        "remove_invalid_source": "Xoá liên kết nguồn không hợp lệ",
+        "source": "Nguồn",
+        "context": "Ngữ cảnh",
+        "lookup": "Tra từ điển",
+        "lookup_status": {
+            "found": "Đã tìm thấy",
+            "not_found": "Không tìm thấy",
+            "error": "Lỗi",
+            "skipped": "Bỏ qua"
         }
     },
     "rich_content": {

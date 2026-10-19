@@ -16,6 +16,7 @@ import TransferQuestionData from "@/services/TransferQuestionData";
 import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
 import RichContent from "@/shared/components/Common/RichContent.vue";
+import FlashcardBack from "@/shared/components/Flashcard/FlashcardBack.vue";
 import Validator from "@/services/Validator";
 
 import { useI18n } from "vue-i18n";
@@ -54,6 +55,7 @@ const optionKeys = [
     QUESTION_TYPE.MATCHING,
     QUESTION_TYPE.ORDERING,
     QUESTION_TYPE.SHORT_TEXT,
+    QUESTION_TYPE.LANGUAGE_FLASHCARD,
 ];
 
 const question_type_options = computed(() =>
@@ -428,7 +430,14 @@ onMounted(async () => {
                     <div class="question-item-content">
                         <div class="d-flex pb-2">
                             <div class="question-index">{{ index + 1 }}</div>
+                            <div
+                                v-if="question.type === QUESTION_TYPE.LANGUAGE_FLASHCARD"
+                                class="question-html flashcard-front"
+                            >
+                                {{ question.questionText }}
+                            </div>
                             <RichContent
+                                v-else
                                 class="question-html"
                                 :content="question.questionHTML || question.questionText"
                                 :format="question.textFormat"
@@ -504,6 +513,9 @@ onMounted(async () => {
                                     </div>
                                 </div>
                             </template>
+                            <template v-if="question.type === QUESTION_TYPE.LANGUAGE_FLASHCARD">
+                                <FlashcardBack :card="question.flashcard" show-source />
+                            </template>
                             <template v-if="question.type === QUESTION_TYPE.SHORT_TEXT">
                                 <span>Answer:</span>
                                 <div class="short-text-answer">
@@ -573,6 +585,12 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.flashcard-front {
+    font-weight: 600;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 .content-item {
     margin-left: 30px;
 }

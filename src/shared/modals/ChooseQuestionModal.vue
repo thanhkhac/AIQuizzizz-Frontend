@@ -5,7 +5,7 @@ import type { Folder } from "@/models/response/folder/folder";
 import type { ResponseQuestion } from "@/models/response/question";
 import type { TestTemplateWithQuestion } from "@/models/response/testTemplate/testTemplateWithQuestion";
 
-import QUESTION_TYPE from "@/constants/questionTypes";
+import QUESTION_TYPE, { CLASSIC_QUESTION_TYPES } from "@/constants/questionTypes";
 
 import { ref, reactive, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -65,7 +65,7 @@ const reloadQuestionMedia = async () => {
 };
 
 //#region filter
-const questionTypeOptions = Object.values(QUESTION_TYPE).map((questionType) => ({
+const questionTypeOptions = CLASSIC_QUESTION_TYPES.map((questionType) => ({
     label: t(`create_QS.type.${questionType}`),
     value: questionType,
 }));
