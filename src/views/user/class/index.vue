@@ -10,6 +10,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import Input from "@/shared/components/Common/Input.vue";
 import { message } from "ant-design-vue";
+import { getPlaceholderCount, rememberPlaceholderCount } from "@/services/PlaceholderCountService";
 
 const route = useRoute();
 const router = useRouter();
@@ -47,7 +48,10 @@ interface ClassData {
     owner: string;
 }
 const class_data = ref<ClassData[]>([]);
-const loading = ref(false);
+// true ngay từ đầu: khung giữ chỗ hiện từ lần render đầu tiên, không nháy trạng thái "không có dữ liệu"
+const loading = ref(true);
+// số khung giữ chỗ = số lớp lần tải trước -> danh sách không co giãn khi dữ liệu về
+const placeholderCount = ref(getPlaceholderCount("class_list", 3, 12));
 const getData = async () => {
     try {
         loading.value = true;
@@ -55,6 +59,7 @@ const getData = async () => {
         if (result.data.success) {
             let resultData = result.data.data;
             class_data.value = resultData.items;
+            rememberPlaceholderCount("class_list", resultData.items.length);
             pageParams.pageNumber = resultData.pageNumber;
             pageParams.pageSize = resultData.pageSize;
             pageParams.totalCount = resultData.totalCount;
@@ -90,6 +95,11 @@ const getData = async () => {
     } catch (error) {
         console.log("ERROR: GETALLBYLIMIT class: " + error);
     } finally {
+        placeholderCount.value = getPlaceholderCount(
+            "class_list",
+            3,
+            Number(pageParams.pageSize) || 12,
+        );
         loading.value = false;
     }
 };
@@ -318,11 +328,21 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <template v-if="loading" class="class-container">
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
-                </template>
+                <div v-if="loading" class="class-container">
+                    <div
+                        v-for="n in placeholderCount"
+                        :key="`placeholder-${n}`"
+                        class="class-item item-placeholder"
+                    ></div>
+                    <!-- lần trước không có lớp nào: giữ chỗ bằng đúng khối "không có dữ liệu" (ẩn) -->
+                    <div
+                        v-if="placeholderCount === 0"
+                        class="w-100 m-2 d-flex justify-content-center"
+                        style="visibility: hidden"
+                    >
+                        <a-empty />
+                    </div>
+                </div>
                 <div v-else class="class-container">
                     <template v-if="class_data.length > 0">
                         <div

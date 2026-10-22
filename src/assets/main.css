@@ -2610,3 +2610,11 @@ ant-select-tree */
         animation-duration: 0s;
     }
 }
+
+/* Khung giữ chỗ khi chờ dữ liệu: dùng cùng class với thẻ thật (giữ đúng kích thước), chỉ để trống và mờ, không bấm được */
+.item-placeholder {
+    opacity: 0.55;
+    box-shadow: none !important;
+    cursor: default !important;
+    pointer-events: none;
+}
