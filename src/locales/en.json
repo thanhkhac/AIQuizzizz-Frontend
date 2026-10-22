@@ -401,7 +401,18 @@
             "email_placeholder": "Enter your email",
             "bio_label": "Bio",
             "bio_placeholder": "Enter your bio",
-            "save_change": "Save changes"
+            "save_change": "Save changes",
+            "avatar": {
+                "change": "Change photo",
+                "checking": "Checking...",
+                "delete": "Remove photo",
+                "cancel": "Cancel",
+                "delete_confirm": "Remove your profile photo and use the default one?",
+                "updated": "Profile photo updated",
+                "deleted": "Profile photo removed",
+                "not_image": "Please choose an image file",
+                "hint": "Photos are cropped square and checked automatically. Nudity / violence is rejected and counts as 1 violation."
+            }
         },
         "security": {
             "title": "Account Security",
@@ -1364,7 +1375,10 @@
         "USER_NOTFOUND": "User not found",
         "QUESTION_SET_ALREADY_EXISTS_IN_FOLDER": "This question set is already in the folder.",
         "QUESTION_SET_NOT_FOUND_IN_FOLDER": "This question set is not in the folder.",
-        "SOURCE_QUESTION_NOT_FOUND": "The source question was deleted or you can no longer view its question set."
+        "SOURCE_QUESTION_NOT_FOUND": "The source question was deleted or you can no longer view its question set.",
+        "AVATAR_VIOLATED": "This profile photo violates the community guidelines (nudity / violence), so it was rejected and counted as 1 violation. 3 violations within 90 days will automatically ban your account.",
+        "AVATAR_MODERATION_FAILED": "The photo could not be checked right now, please try again later.",
+        "AVATAR_NOT_FOUND": "Profile photo not found"
     },
     "message": {
         "added_successfully": "Add successfully!",

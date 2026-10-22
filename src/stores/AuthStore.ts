@@ -51,11 +51,21 @@ export const useAuthStore = defineStore("authStore", {
         },
 
         getUserInfo() {
+            // đọc state để computed/watch ở component tự cập nhật khi thông tin đổi (setUserInfo / refreshUserInfo)
+            void this.user_info;
             return this.checkUser() ? localStorageService.GetUserInfo().value : null;
         },
 
         setUserInfo(value: object) {
             localStorageService.SetUserInfo(value);
+            this.user_info = localStorageService.GetUserInfo();
+        },
+
+        /** Lấy lại hồ sơ từ server (vd sau khi đổi tên / ảnh đại diện) và cập nhật mọi nơi đang hiển thị */
+        async refreshUserInfo() {
+            const result = await apiUser.GetUserInfo();
+            if (result.data.success) this.setUserInfo(result.data.data);
+            return this.getUserInfo();
         },
     },
 });

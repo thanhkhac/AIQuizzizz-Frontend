@@ -18,11 +18,19 @@ Nếu ảnh bị phát hiện vi phạm:
 > [!WARNING]
 > Câu hỏi bị xóa do vi phạm không thể khôi phục. Hãy kiểm tra kỹ ảnh trước khi tải lên.
 
+## Ảnh đại diện
+
+Ảnh đại diện được kiểm tra **ngay khi tải lên**, trước khi được dùng:
+
+1. Ảnh hợp lệ được đặt làm ảnh đại diện.
+2. Ảnh vi phạm bị từ chối và xóa ngay, ảnh đại diện cũ (nếu có) được giữ nguyên. Tài khoản bị ghi nhận **1 vi phạm** và bạn nhận email cảnh báo.
+3. Nếu hệ thống tạm thời không kiểm tra được ảnh, ảnh không được dùng và **không** bị tính vi phạm. Bạn có thể thử lại sau.
+
 ## Cách tính vi phạm
 
 | Quy tắc | Giá trị |
 | --- | --- |
-| Mỗi ảnh vi phạm | Ghi nhận 1 vi phạm |
+| Mỗi ảnh vi phạm (ảnh câu hỏi hoặc ảnh đại diện) | Ghi nhận 1 vi phạm |
 | Thời gian hiệu lực của một vi phạm | 90 ngày kể từ khi bị ghi nhận |
 | Số vi phạm còn hiệu lực để bị khóa tự động | 3 |
 

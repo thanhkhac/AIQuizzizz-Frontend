@@ -14,6 +14,19 @@ Trong phần **Thông tin hồ sơ** (*Profile Information*):
 
 Ô **Email** chỉ để xem, bạn không thể đổi email tại đây.
 
+## Ảnh đại diện
+
+Ảnh đại diện nằm bên trái phần **Thông tin hồ sơ** (*Profile Information*). Ảnh hiện ở thanh bên trái, cạnh bình luận của bạn, trong danh sách thành viên lớp và trong trang quản lý tài khoản của quản trị viên.
+
+1. Bấm **Đổi ảnh** (*Change photo*) rồi chọn một tệp ảnh (JPG, PNG, WebP, GIF, HEIC...).
+2. Chờ vài giây trong lúc nút hiện **Đang kiểm duyệt...** (*Checking...*). Ảnh được cắt thành hình vuông ở giữa và thu nhỏ trước khi gửi.
+3. Khi thấy thông báo **Đã cập nhật ảnh đại diện**, ảnh mới hiện ngay ở mọi nơi.
+
+Để quay về ảnh mặc định, bấm **Xoá ảnh** (*Remove photo*) rồi xác nhận.
+
+> [!WARNING]
+> Ảnh đại diện được kiểm duyệt ngay khi tải lên. Ảnh có nội dung khỏa thân hoặc bạo lực bị từ chối và tài khoản bị ghi nhận **1 vi phạm**, giống ảnh trong câu hỏi. Xem [Kiểm duyệt nội dung](/guide/policy/moderation).
+
 ## Đổi mật khẩu
 
 Trong phần **Bảo mật tài khoản** (*Account Security*):

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import user_image from "@/assets/user.png";
+import UserAvatar from "@/shared/components/Common/UserAvatar.vue";
 
-import { ref, onBeforeMount, watch, onMounted, onBeforeUnmount } from "vue";
+import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
 import { Modal } from "ant-design-vue";
 import { useRoute } from "vue-router";
@@ -45,11 +45,8 @@ const toggleSidebar = () => {
 };
 
 const authStore = useAuthStore();
-const user = ref<any>({});
-
-onBeforeMount(async () => {
-    user.value = await authStore.getUserInfo();
-});
+// computed: tự cập nhật khi đổi tên / ảnh đại diện ở trang Cài đặt
+const user = computed<any>(() => authStore.getUserInfo() ?? {});
 
 const onSignOut = () => {
     Modal.confirm({
@@ -184,7 +181,7 @@ const onSignOut = () => {
                 </li>
             </ul>
             <div class="sidebar-profileSection">
-                <img :src="user_image" />
+                <UserAvatar :avatar-id="user?.avatarId" :size="60" :alt="user?.fullName" />
                 <div>
                     <span>{{ user.fullName }}</span>
                     <span class="sign-out-btn" @click="onSignOut">
