@@ -43,6 +43,14 @@ export interface ResponseQuestion {
     explainText: string;
     score: number;
     scoreGraded: number;
+    /** phiên bản nội dung (câu trong bộ câu hỏi) */
+    version?: number;
+    // chỉ có ở câu hỏi trong bài test: câu gốc trong bộ câu hỏi + phiên bản lúc chép / hiện tại
+    sourceQuestionId?: string | null;
+    sourceVersion?: number | null;
+    latestSourceVersion?: number | null;
+    sourceQuestionSetId?: string | null;
+    sourceQuestionSetName?: string | null;
     correctMultipleChoiceCount: number;
     // presigned URL ngắn hạn, không cache/persist
     media?: QuestionMedia | null;

@@ -5,7 +5,6 @@ import { copyToClipboard } from "@/services/ClipboardService";
 import ApiUser from "@/api/ApiUser";
 import ApiQuestionSet from "@/api/ApiQuestionSet";
 import ApiClass from "@/api/ApiClass";
-import ApiTestTemplate from "@/api/ApiTestTemplate";
 import ApiFolder from "@/api/ApiFolder";
 
 import { ref, computed, onMounted, watch } from "vue";
@@ -60,7 +59,7 @@ interface SharedClass {
 type Props = {
     id: string;
     name: string;
-    mode: string; //quiz //folder //template
+    mode: string; //quiz //folder
     visibility: string;
     options: any;
 };
@@ -159,10 +158,6 @@ const getSharedUser = async () => {
             result = await ApiQuestionSet.GetSharedUser(props.id);
             break;
         }
-        case "template": {
-            result = await ApiTestTemplate.GetSharedUser(props.id);
-            break;
-        }
         case "folder": {
             result = await ApiFolder.GetSharedUser(props.id);
             break;
@@ -230,10 +225,6 @@ const updateSharedUsers = async ({
                 ...sharingFormState.value,
                 visibilityMode: selected_visibility_option.value,
             });
-            break;
-        }
-        case "template": {
-            result = await ApiTestTemplate.UpdateSharedUser(sharingFormState.value);
             break;
         }
         case "folder": {

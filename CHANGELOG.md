@@ -6,6 +6,13 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Changed — Bỏ mẫu đề thi; thư mục chứa bộ câu hỏi; "Cập nhật theo bản gốc"
+- **Bỏ mẫu đề thi**: xoá trang `views/user/test_template/*`, route `User_TestTemplate*`, `ApiTestTemplate`, model, tab "Mẫu đề thi" ở trang Thư mục, chế độ `template` của `ShareModal`, khoá i18n / mã lỗi liên quan. Nhập Excel (`ImportQSModal`) gọi `ApiTest.ImportFile` (`/Test/ImportFile`).
+- **Thư mục chứa bộ câu hỏi**: trang chi tiết thư mục liệt kê bộ câu hỏi (Xem / gỡ khỏi thư mục), nút **Thêm bộ câu hỏi** mở danh sách bộ của mình / được chia sẻ (`ChooseQuestionSetModal` có `hide-folder-tab`, `action-label`). Trang chi tiết bộ câu hỏi có nút **Thêm vào thư mục** (chủ sở hữu / người có quyền sửa; dùng lại `ShareToFolder`). `ApiFolder`: `GetAllQuestionSetByLimit`, `AddQuestionSet`, `DeleteQuestionSet`.
+- **Tạo / sửa bài kiểm tra**: **Chọn từ thư mục** -> tab Thư mục (thư mục -> bộ câu hỏi, `ChooseFolderQuestionSetModal`) hoặc tab **Bộ câu hỏi** (`ChooseQuestionSetModal`) -> `ChooseQuestionModal` lấy câu của bộ qua `GET QuestionSet/{id}/Questions` (bỏ thẻ ghi nhớ).
+- **Trang sửa bài kiểm tra**: câu có câu gốc đã có bản mới hiện nhãn vàng "Câu gốc trong bộ … đã có bản mới (bài đang dùng vX, bản gốc hiện là vY)" + nút **Cập nhật theo bản gốc** (xác nhận -> `ApiTest.SyncWithSource`, lưu ngay, giữ điểm, thay câu trong form).
+- Hướng dẫn sử dụng: bỏ trang Mẫu đề thi, nhóm "Thư mục"; cập nhật trang Thư mục, Giao bài kiểm tra (bản sao + phiên bản + Cập nhật theo bản gốc), Chia sẻ & quyền xem (Thêm vào thư mục), FAQ và các trang còn nhắc mẫu đề thi.
+
 ### Added — Trang Hướng dẫn sử dụng (`/guide`, public)
 - **Bố cục** theo thiết kế Figma (trang WEB, node 29-173 / 30-220 / 30-354): header (logo, ô tìm kiếm `Ctrl K`, nút Đăng nhập / Vào ứng dụng), cây mục lục bên trái (nhóm mở/đóng, mục đang xem được tô), nội dung Markdown ở giữa, cột "Trên trang này" bên phải (>= 1200px, tô mục đang đọc theo vị trí cuộn), Trước / Tiếp theo, "Trang này có hữu ích không?" (chỉ lưu ở trình duyệt). < 768px: thanh "Mục lục" mở drawer bên trái (kèm ô tìm kiếm). Light / dark theo token `--c-*`.
 - **Nội dung**: 27 trang tiếng Việt trong `src/guide/vn/<nhóm>/<trang>.md`, cây mục lục khai báo một chỗ ở `src/guide/manifest.ts` (9 nhóm: Bắt đầu, Bộ câu hỏi, Học & luyện tập, Lớp học, Thư mục & mẫu đề thi, Lịch kiểm tra, Cài đặt tài khoản, Quy định nội dung, Câu hỏi thường gặp). Không mô tả các chức năng đang tắt (Tạo bằng AI, đăng nhập Google, Nạp tiền). Khung trang dùng cùng ngôn ngữ với nội dung (`GUIDE_LOCALE`), khoá i18n `guide.*` có cả vi / en.

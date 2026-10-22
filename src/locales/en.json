@@ -384,22 +384,6 @@
             }
         }
     },
-    "create_template": {
-        "title": "Create new test template",
-        "modal": {
-            "valid": {
-                "title": "Create new test template"
-            }
-        }
-    },
-    "update_template": {
-        "title": "Update test template: {name}",
-        "modal": {
-            "valid": {
-                "title": "Update test template"
-            }
-        }
-    },
     "settings": {
         "title": "Settings",
         "sub_title": "Manage your account settings and preferences",
@@ -619,7 +603,8 @@
             "learn": "Learn",
             "test": "Test",
             "assign_to_class": "Assign to class",
-            "download": "Download"
+            "download": "Download",
+            "add_to_folder": "Add to folder"
         },
         "other": {
             "library": "Library",
@@ -631,7 +616,10 @@
         "modal": {
             "delete_title": "Are you sure to delete this question set?",
             "delete_content": "This action is irreversible, every related data will be erased forever. Careful!",
-            "rate_title": "Rate this question set"
+            "rate_title": "Rate this question set",
+            "add_to_folder_title": "Add question set to folder?",
+            "add_to_folder_content": "Members of folder {folder_name} will be able to view {name} and use its questions to build tests.",
+            "add_to_folder_success": "Added to folder {folder_name}"
         }
     },
     "search_QS": {
@@ -872,7 +860,7 @@
         },
         "navigators": {
             "folder": "Folder",
-            "test_template": "Test template"
+            "question_set": "Question sets"
         },
         "modal": {
             "create_title": "Create new folder",
@@ -887,31 +875,31 @@
             "pages": " / pages"
         }
     },
-    "test_template_index": {
-        "title": "Test templates",
-        "sub_title": "Manage your reusable test templates and organize them into folders.",
-        "other": {
-            "items": "templates"
-        }
-    },
     "folder_detail": {
         "search_placeholder": "Search by name...",
         "title": "Folder Detail",
         "modal": {
             "create_title": "Update folder",
-            "delete_template_warning": "Are you sure to remove this test template?",
-            "delete_template_ins": "Please double check the important information.",
-            "delete_folder_warning": "Are you sure to delete this folder?"
+            "delete_folder_warning": "Are you sure to delete this folder?",
+            "remove_question_set_warning": "Remove this question set from the folder?",
+            "remove_question_set_ins": "The question set stays in the library; it is only removed from this folder."
         },
         "buttons": {
-            "create_new_template": "Create new test template",
-            "share_folder": "Share folder"
+            "share_folder": "Share folder",
+            "add_question_set": "Add question set",
+            "add": "Add to folder"
         },
         "danger_zone": {
             "title": "Danger Zone",
             "sub_title": "Irreversible actions for your folder",
             "warning": "Delete folder",
             "warning_explain": "Once you delete your folder, there is no going back. All your data will be permanently removed"
+        },
+        "message": {
+            "question_set_added": "Question set added to the folder"
+        },
+        "other": {
+            "items": "question sets"
         }
     },
     "question_sets_search": {
@@ -991,6 +979,13 @@
                 "title": "Update test!",
                 "content": "Make sure to review your contents before proceeding."
             }
+        },
+        "source": {
+            "newer": "The source question in {name} has a newer version (this test uses v{current}, the source is now v{latest}).",
+            "sync": "Update from source",
+            "sync_confirm_title": "Update this question from its source?",
+            "sync_confirm_content": "The question will be replaced by the latest content of its source question and saved immediately. Its score in this test is kept; unsaved changes to this question will be lost.",
+            "synced": "Question updated from its source"
         }
     },
     "setting_test_modal": {
@@ -1021,17 +1016,6 @@
         },
         "other": {
             "back": "Back"
-        }
-    },
-    "detail_test_template": {
-        "buttons": {
-            "add_to_folder": "Add to folder"
-        },
-        "modal": {
-            "delete_title": "Are you sure to delete this test template?",
-            "delete_content": "This action is irreversible, every related data will be erased forever. Careful!",
-            "add_to_folder_title": "Add test template to folder",
-            "add_to_folder_content": "Add test template '{name}' into folder '{folder_name}'"
         }
     },
     "schedule": {
@@ -1120,10 +1104,10 @@
     "create_test_modals": {
         "select_folder": "Select folder",
         "folder": "Folder: {name}",
-        "select_template": "Select template",
         "choose_question": "Choose question",
         "import_confirm_title": "Import selected questions?",
-        "import_confirm_content": "{number} question(s) will be added to your test."
+        "import_confirm_content": "{number} question(s) will be added to your test.",
+        "select_question_set": "Select question set"
     },
     "exam_result": {
         "test_name": "Test name : {name}",
@@ -1336,14 +1320,11 @@
         "NOT_YET_TIME_TO_OPEN_TEST": "Not yet time to open the test",
         "STUDENT_CAN_NOT_REVIEW_THIS_TEST": "Student cannot review this test",
         "TEST_ALREADY_OPEN": "Test is already open",
-        "TEST_TEMPLATE_NOT_FOUND": "Test template not found",
-        "USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE": "User does not have permission in this test template",
         "USER_NOT_HAVE_PERMISSION_IN_TEST": "User does not have permission in this test",
         "ERROR_ATTEMPT_USER": "Error with user attempt",
         "ATTEMPT_ALREADY_SUBMIT": "Attempt already submitted",
         "ATTEMPT_NOT_FOUND": "Attempt not found",
         "NOT_SUBMITTED_CAN_NOT_VIEW": "Cannot view because it is not submitted",
-        "TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER": "Test template already exists in this folder.",
         "FILE_NOT_FOUND": "File not found",
         "INVALID_FILE_FORMAT": "Invalid file format",
         "ERROR_FORMAT_FILE": "Error in file format",
@@ -1374,8 +1355,10 @@
         "NOT_HAVE_PERMISSION_TO_ADD_QUESTION_SET": "You do not have permission to add question sets to this class",
         "OWNER_CAN_NOT_MOVE_OUT_CLASS": "The class owner cannot leave the class",
         "STUDENT_CAN_REVIEW_THIS_TEST": "You are not allowed to review this attempt",
-        "TEST_TEMPLATE_NOT_FOUND_IN_FOLDER": "Test template not found in this folder",
-        "USER_NOTFOUND": "User not found"
+        "USER_NOTFOUND": "User not found",
+        "QUESTION_SET_ALREADY_EXISTS_IN_FOLDER": "This question set is already in the folder.",
+        "QUESTION_SET_NOT_FOUND_IN_FOLDER": "This question set is not in the folder.",
+        "SOURCE_QUESTION_NOT_FOUND": "The source question was deleted or you can no longer view its question set."
     },
     "message": {
         "added_successfully": "Add successfully!",

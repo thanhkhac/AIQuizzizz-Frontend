@@ -1,18 +1,17 @@
 import Api from "@/api/Api";
 
 import type FolderPageParams from "@/models/request/folder/folderPageParams";
-import type FolderTestTemplatePageParams from "@/models/request/folder/testTemplatePageParams";
+import type FolderQuestionSetPageParams from "@/models/request/folder/folderQuestionSetPageParams";
 
 const END_POINTS = {
     GET_ALL_BY_LIMIT: "Folder",
     CREATE: "Folder",
     UPDATE: "Folder/{FolderId}",
-    GET_ALL_TEST_TEMPLATE_BY_LIMIT: "Folder/{FolderId}/TestTemplates",
-    DELETE_TEST_TEMPLATE: "Folder/{FolderId}/TestTemplate/{TestTemplateId}",
+    GET_ALL_QUESTION_SET_BY_LIMIT: "Folder/{FolderId}/QuestionSets",
+    QUESTION_SET_IN_FOLDER: "Folder/{FolderId}/QuestionSet/{QuestionSetId}",
     DELETE_FOLDER: "Folder/{FolderId}",
     GET_SHARING: "Folder/{FolderId}/Sharing",
     UPDATE_SHARING: "Folder/{FolderId}/Sharing",
-    ADD_TEMPLATE_TO_FOLDER: "Folder/{FolderId}/TestTemplate/{TestTemplateId}",
 };
 
 class ApiFolder {
@@ -36,24 +35,29 @@ class ApiFolder {
         return await Api.patch(url, formState);
     };
 
-    GetAllTestTemplateByLimit = async (
-        folderId: string,
-        pageParams: FolderTestTemplatePageParams,
-    ) => {
-        const url = END_POINTS.GET_ALL_TEST_TEMPLATE_BY_LIMIT.replace("{FolderId}", folderId);
+    GetAllQuestionSetByLimit = async (folderId: string, pageParams: FolderQuestionSetPageParams) => {
+        const url = END_POINTS.GET_ALL_QUESTION_SET_BY_LIMIT.replace("{FolderId}", folderId);
         return await Api.get(url, {
             params: {
                 pageNumber: pageParams.pageNumber <= 0 ? 1 : pageParams.pageNumber,
                 pageSize: Math.max(5, Math.min(pageParams.pageSize || 5, 100)),
-                testTemplateName: pageParams.testTemplateName || "",
+                questionSetName: pageParams.questionSetName || "",
             },
         });
     };
 
-    DeleteTestTemplate = async (folderId: string, testTemplateId: string) => {
-        const url = END_POINTS.DELETE_TEST_TEMPLATE.replace("{FolderId}", folderId).replace(
-            "{TestTemplateId}",
-            testTemplateId,
+    AddQuestionSet = async (folderId: string, questionSetId: string) => {
+        const url = END_POINTS.QUESTION_SET_IN_FOLDER.replace("{FolderId}", folderId).replace(
+            "{QuestionSetId}",
+            questionSetId,
+        );
+        return await Api.post(url);
+    };
+
+    DeleteQuestionSet = async (folderId: string, questionSetId: string) => {
+        const url = END_POINTS.QUESTION_SET_IN_FOLDER.replace("{FolderId}", folderId).replace(
+            "{QuestionSetId}",
+            questionSetId,
         );
         return await Api.delete(url);
     };
@@ -69,16 +73,8 @@ class ApiFolder {
     };
 
     UpdateSharedUser = async (formState: any) => {
-        const url = END_POINTS.GET_SHARING.replace("{FolderId}", formState.id);
+        const url = END_POINTS.UPDATE_SHARING.replace("{FolderId}", formState.id);
         return await Api.patch(url, formState);
-    };
-
-    AddTestTemplate = async (folderId: string, testTemplateId: string) => {
-        const url = END_POINTS.ADD_TEMPLATE_TO_FOLDER.replace("{FolderId}", folderId).replace(
-            "{TestTemplateId}",
-            testTemplateId,
-        );
-        return await Api.post(url);
     };
 }
 

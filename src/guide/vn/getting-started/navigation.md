@@ -11,7 +11,7 @@ Sau khi đăng nhập, mọi trang làm việc đều có thanh tiêu đề ở 
 | --- | --- |
 | **Bảng điều khiển** (*Dashboards*) | Trang chính: ô tìm kiếm nhanh, bộ câu hỏi gần đây, bộ câu hỏi phổ biến. |
 | **Thư viện quiz** (*Quizzes*) | Danh sách bộ câu hỏi bạn tạo hoặc được chia sẻ. |
-| **Thư mục** (*Folder*) | Quản lý thư mục và mẫu đề thi. |
+| **Thư mục** (*Folder*) | Quản lý thư mục chứa bộ câu hỏi. |
 | **Lịch thi** (*Exam schedule*) | Xem các bài kiểm tra theo ngày. |
 | **Lớp học** (*Class*) | Tạo, tham gia và quản lý lớp học. |
 | **Cài đặt** (*Settings*) | Nằm dưới nhóm **Quản lý** (*Manage*): tài khoản, gói đăng ký, giao dịch. |

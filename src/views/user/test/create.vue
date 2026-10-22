@@ -34,7 +34,7 @@ const route = useRoute();
 const router = useRouter();
 
 //#region  check class
-const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
+const isDataValid = ref(true); //to mark whether the test is valid to remove guard
 const classData = ref<Class>();
 const getClassData = async () => {
     if (!Validator.isValidGuid(formState.classId)) {
@@ -264,10 +264,10 @@ const openFolderModal = () => {
     folderModalRef.value?.openModal();
 };
 
-const onSwitchToTestTemplate = async () => {
+const onSwitchToQuestionSet = async () => {
     chosenFolder.value = null;
     folderModalRef.value?.closeModal();
-    openTestTemplateModal();
+    openQuestionSetModal();
 };
 
 const onOpenFolder = async (folder: Folder) => {
@@ -276,21 +276,21 @@ const onOpenFolder = async (folder: Folder) => {
     await nextTick();
 
     folderModalRef.value?.closeModal();
-    openFolderTestTemplateModal();
+    openFolderQuestionSetModal();
 };
 
 //#endregion
 
-//#region choose test template from folder modals
+//#region choose question set from folder modals
 const chosenFolder = ref<Folder | null>(null);
-const chosenTestTemplateId = ref("");
+const chosenQuestionSetId = ref("");
 
-import ChooseFolderTestTemplateModal from "@/shared/modals/ChooseFolderTestTemplateModal.vue";
-const folderTestTemplateModalRef = ref<InstanceType<typeof ChooseFolderTestTemplateModal> | null>(
+import ChooseFolderQuestionSetModal from "@/shared/modals/ChooseFolderQuestionSetModal.vue";
+const folderQuestionSetModalRef = ref<InstanceType<typeof ChooseFolderQuestionSetModal> | null>(
     null,
 );
-const openFolderTestTemplateModal = () => {
-    folderTestTemplateModalRef.value?.openModal();
+const openFolderQuestionSetModal = () => {
+    folderQuestionSetModalRef.value?.openModal();
 };
 
 const onBackToFolderModal = () => {
@@ -300,23 +300,23 @@ const onBackToFolderModal = () => {
 
 //#endregion
 
-//#region choose from test template modal
-import ChooseTestTemplateModal from "@/shared/modals/ChooseTestTemplateModal.vue";
-const testTemplateModalRef = ref<InstanceType<typeof ChooseTestTemplateModal> | null>(null);
-const openTestTemplateModal = () => {
-    testTemplateModalRef.value?.openModal();
+//#region choose from question set modal
+import ChooseQuestionSetModal from "@/shared/modals/ChooseQuestionSetModal.vue";
+const questionSetModalRef = ref<InstanceType<typeof ChooseQuestionSetModal> | null>(null);
+const openQuestionSetModal = () => {
+    questionSetModalRef.value?.openModal();
 };
 
 const onSwitchToFolder = () => {
     chosenFolder.value = null;
-    testTemplateModalRef.value?.closeModal();
+    questionSetModalRef.value?.closeModal();
     openFolderModal();
 };
 
 //use for both case
-const onOpenTestTemplate = async (testTemplateId: string, folder: Folder | null) => {
-    chosenTestTemplateId.value = testTemplateId;
-    testTemplateModalRef.value?.closeModal();
+const onOpenQuestionSet = async (questionSetId: string, folder: Folder | null) => {
+    chosenQuestionSetId.value = questionSetId;
+    questionSetModalRef.value?.closeModal();
     chosenFolder.value = folder;
     await nextTick();
     openQuestionModal();
@@ -324,7 +324,7 @@ const onOpenTestTemplate = async (testTemplateId: string, folder: Folder | null)
 
 //#endregion
 
-//#region choose question from test template
+//#region choose question from question set
 import ChooseQuestionModal from "@/shared/modals/ChooseQuestionModal.vue";
 import TransferQuestionData from "@/services/TransferQuestionData";
 import Validator from "@/services/Validator";
@@ -339,14 +339,14 @@ const openQuestionModal = () => {
     questionModalRef.value?.openModal();
 };
 
-const onBackToFolderTestTemplate = async (folder: Folder) => {
+const onBackToFolderQuestionSet = async (folder: Folder) => {
     chosenFolder.value = folder;
     await nextTick();
-    openFolderTestTemplateModal();
+    openFolderQuestionSetModal();
 };
 
-const onBackToTestTemplate = () => {
-    openTestTemplateModal();
+const onBackToQuestionSet = () => {
+    openQuestionSetModal();
 };
 
 //#endregion
@@ -510,26 +510,26 @@ onMounted(async () => {
     />
     <ChooseFolderModal
         ref="folderModalRef"
-        @switch-to-test-template="onSwitchToTestTemplate"
+        @switch-to-question-set="onSwitchToQuestionSet"
         @open-folder="onOpenFolder"
     />
-    <ChooseFolderTestTemplateModal
-        ref="folderTestTemplateModalRef"
+    <ChooseFolderQuestionSetModal
+        ref="folderQuestionSetModalRef"
         :folder="chosenFolder"
         @back-to-folder-modal="onBackToFolderModal"
-        @open-test-template="onOpenTestTemplate"
+        @open-question-set="onOpenQuestionSet"
     />
-    <ChooseTestTemplateModal
-        ref="testTemplateModalRef"
+    <ChooseQuestionSetModal
+        ref="questionSetModalRef"
         @switch-to-folder="onSwitchToFolder"
-        @open-test-template="onOpenTestTemplate"
+        @open-question-set="onOpenQuestionSet"
     />
     <ChooseQuestionModal
         ref="questionModalRef"
-        :test-template-id="chosenTestTemplateId"
+        :question-set-id="chosenQuestionSetId"
         :folder="chosenFolder"
-        @back-to-folder-test-template-modal="onBackToFolderTestTemplate"
-        @back-to-test-template-modal="onBackToTestTemplate"
+        @back-to-folder-question-set-modal="onBackToFolderQuestionSet"
+        @back-to-question-set-modal="onBackToQuestionSet"
         @import="onModalImport"
     />
 </template>

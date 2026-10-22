@@ -44,7 +44,7 @@ Liên kết xem ảnh/video có thời hạn. Nếu thấy thông báo **Không 
 
 Nếu ảnh bị xác định là vi phạm tiêu chuẩn cộng đồng (khỏa thân hoặc bạo lực):
 
-- Ảnh bị gỡ và mọi câu hỏi dùng ảnh đó bị xóa, kể cả trong bài kiểm tra và mẫu đề thi.
+- Ảnh bị gỡ và mọi câu hỏi dùng ảnh đó bị xóa, kể cả bản sao trong bài kiểm tra.
 - Tài khoản của bạn bị ghi nhận một vi phạm và bạn nhận email cảnh báo.
 - Khi số vi phạm còn hiệu lực đạt ngưỡng, tài khoản bị khóa tự động.
 
