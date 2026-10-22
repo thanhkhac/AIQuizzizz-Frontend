@@ -210,10 +210,6 @@ onMounted(() => {
                                 {{ $t("settings.profile.avatar.delete_short") }}
                             </button>
                         </div>
-                        <p class="avatar-hint">
-                            <i class="bx bx-shield-quarter"></i>
-                            <span>{{ $t("settings.profile.avatar.hint") }}</span>
-                        </p>
                     </a-col>
                     <a-col :span="20" class="user-info-container">
                         <a-row>
@@ -411,22 +407,5 @@ onMounted(() => {
 .avatar-btn-danger:not(:disabled):hover {
     border-color: var(--c-danger);
     background: color-mix(in srgb, var(--c-danger) 10%, transparent);
-}
-
-.avatar-hint {
-    display: flex;
-    gap: 6px;
-    max-width: 200px;
-    margin: 12px 0 0;
-    font-size: 12px;
-    line-height: 1.45;
-    color: var(--c-text-muted);
-}
-
-.avatar-hint i {
-    flex-shrink: 0;
-    margin-top: 1px;
-    font-size: 15px;
-    color: var(--c-primary-text);
 }
 </style>
