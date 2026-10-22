@@ -7,6 +7,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 ## [Unreleased] - 2026-10-02
 
 ### Changed — Giao diện mượt hơn
+- **Skeleton chờ dữ liệu bớt nhức mắt**: bỏ `active` ở mọi `<a-skeleton>` (sọc xám đứng yên, không chạy ánh sáng). Trong `main.css`, `.ant-skeleton` ẩn trong 300ms đầu rồi mờ dần vào: dữ liệu về nhanh (thường 50–100ms) thì không thấy sọc nháy nữa. Sửa luôn thuộc tính hỏng `activeactive:loading` ở `learn.vue`.
 - **Thanh tiến độ không còn chạy hiệu ứng vô hạn**: bỏ `status="active"` ở các thanh tiến độ học (Bảng điều khiển, Thư viện, trang Học). Trước đây Thư viện có 10 thanh chạy hiệu ứng liên tục, trình duyệt vẽ lại khoảng 70 khung/giây kể cả khi đứng yên. Thanh tiến độ khi tải media lên vẫn giữ hiệu ứng.
 - **Thanh tiến trình khi chuyển trang** (`RouteProgressBar` + `services/RouteProgressService.ts`, gắn ở `router.beforeEach` / `afterEach` / `onError`): thanh mảnh màu chủ đạo ở mép trên khi trang mới đang tải JS, chỉ hiện nếu chuyển trang lâu hơn 120ms (không nháy khi chuyển nhanh). Tôn trọng `prefers-reduced-motion`. Có test.
 - **Bỏ reload cả trang**: lưu thông tin lớp (trang Học sinh / Bộ câu hỏi / Bài kiểm tra của lớp) chỉ tải lại thông tin lớp. **Làm bài mới** ở trang Kiểm tra lấy bộ câu mới và mở cài đặt tại chỗ. **Đặt lại chế độ học** nạp phiên mới tại chỗ (`startNewSession`, dùng chung với nút Tiếp tục).

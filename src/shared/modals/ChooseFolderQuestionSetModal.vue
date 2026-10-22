@@ -158,8 +158,8 @@ defineExpose({
                         </div>
                     </div>
                     <div v-if="loading" class="quiz-item-container">
-                        <a-skeleton active :loading="loading"></a-skeleton>
-                        <a-skeleton active :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
                     </div>
                     <div v-else class="quiz-item-container">
                         <template v-if="question_set_data.length > 0">

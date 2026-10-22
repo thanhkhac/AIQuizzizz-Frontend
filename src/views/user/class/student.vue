@@ -534,9 +534,9 @@ onMounted(async () => {
                     </div>
                 </div>
                 <template v-if="loading">
-                    <a-skeleton active :loading="loading"></a-skeleton>
-                    <a-skeleton active :loading="loading"></a-skeleton>
-                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
                 </template>
                 <template v-else>
                     <a-config-provider

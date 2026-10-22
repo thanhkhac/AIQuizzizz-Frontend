@@ -2591,3 +2591,22 @@ ant-select-tree */
         max-height: 140px;
     }
 }
+
+/* Skeleton chờ dữ liệu: ẩn 300ms đầu (dữ liệu thường về sớm hơn -> không nháy sọc), sau đó mờ dần vào.
+   Các <a-skeleton> không dùng `active` nên sọc đứng yên, không chạy ánh sáng. */
+.ant-skeleton {
+    opacity: 0;
+    animation: skeleton-appear 0.25s ease-out 0.3s forwards;
+}
+
+@keyframes skeleton-appear {
+    to {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ant-skeleton {
+        animation-duration: 0s;
+    }
+}

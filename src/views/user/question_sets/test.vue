@@ -1055,7 +1055,7 @@ onMounted(async () => {
                             {{ t("practice_test.other.question_list") }}
                         </div>
                         <template v-if="loading">
-                            <a-skeleton active :loading="loading"></a-skeleton>
+                            <a-skeleton :loading="loading"></a-skeleton>
                         </template>
                         <div v-else class="question-navigator-container">
                             <div
@@ -1170,9 +1170,9 @@ onMounted(async () => {
                 </div>
                 <div class="content-item">
                     <template v-if="loading">
-                        <a-skeleton active :loading="loading"></a-skeleton>
-                        <a-skeleton active :loading="loading"></a-skeleton>
-                        <a-skeleton active :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
                     </template>
                     <div v-else class="section question-section">
                         <div class="question-info-index">

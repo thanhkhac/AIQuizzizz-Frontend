@@ -194,8 +194,8 @@ const handleOpenFolder = (folder: Folder) => {
                         </div>
                     </div>
                     <div v-if="loading" class="folder-container">
-                        <a-skeleton active :loading="loading"></a-skeleton>
-                        <a-skeleton active :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
                     </div>
                     <div v-else class="folder-container">
                         <template v-if="folder_data.length > 0">

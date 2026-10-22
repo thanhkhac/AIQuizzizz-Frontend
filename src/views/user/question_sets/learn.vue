@@ -747,7 +747,7 @@ onMounted(async () => {
         </div>
 
         <template v-if="loading">
-            <a-skeleton activeactive:loading="loading"></a-skeleton>
+            <a-skeleton :loading="loading"></a-skeleton>
         </template>
         <div v-else class="progress-bar-container">
             <div class="progress-info">
@@ -775,9 +775,9 @@ onMounted(async () => {
         <div class="content">
             <div class="content-item">
                 <template v-if="loading">
-                    <a-skeleton active :loading="loading"></a-skeleton>
-                    <a-skeleton active :loading="loading"></a-skeleton>
-                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
                 </template>
                 <template v-else>
                     <div class="section question-section">
