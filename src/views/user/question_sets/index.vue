@@ -244,7 +244,6 @@ onMounted(async () => {
                                         <div class="quiz-item-progress">
                                             <a-progress
                                                 stroke-color="var(--main-color)"
-                                                status="active"
                                                 :percent="
                                                     getPercentageComplete(
                                                         quiz.totalQuestionCount,

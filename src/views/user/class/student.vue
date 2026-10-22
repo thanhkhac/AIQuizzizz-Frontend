@@ -423,7 +423,7 @@ const onUpdateClass = async () => {
         }
         message.success(t("message.updated_successfully"));
         modal_update_open.value = false;
-        window.location.reload();
+        await getClassData(); // chỉ đổi tên / chủ đề: tải lại thông tin lớp thay vì reload cả trang
     } catch (error) {
         console.log(error);
     } finally {

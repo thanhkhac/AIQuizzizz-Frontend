@@ -948,8 +948,12 @@ function syncMatchingHeights() {
 //#endregion
 
 //#region final buttons
-const onNewTest = () => {
-    window.location.reload();
+// làm bài mới tại chỗ (giống lúc mở trang): ẩn kết quả, lấy bộ câu mới, mở cài đặt - không reload cả trang
+const onNewTest = async () => {
+    reset();
+    toggleResult();
+    await getQuizData();
+    openSettingModal();
 };
 
 const onRedirectToLearn = () => {

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/stores/AuthStore";
 import { GOOGLE_LOGIN_ENABLED } from "@/constants/features";
+import { startRouteProgress, finishRouteProgress } from "@/services/RouteProgressService";
 
 import adminRoutes from "./route-admin";
 import userRoutes from "./route-user";
@@ -114,6 +115,13 @@ const isAdminOrModerator = () => {
     const roles: string[] = useAuthStore().getUserInfo()?.roles ?? [];
     return roles.includes("Administrator") || roles.includes("Moderator");
 };
+
+// thanh tiến trình khi chuyển trang (bao cả lúc tải JS của trang lazy-load)
+router.beforeEach(() => {
+    startRouteProgress();
+});
+router.afterEach(() => finishRouteProgress());
+router.onError(() => finishRouteProgress());
 
 //check claim before redirect
 // Mỗi lần điều hướng chỉ gọi next() đúng một lần, và mọi chặn quyền đều xử lý ở đây (không gọi API trước khi chặn)

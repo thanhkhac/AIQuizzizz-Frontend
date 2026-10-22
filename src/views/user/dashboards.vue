@@ -219,7 +219,6 @@ onMounted(async () => {
                                         quiz.completedQuestionCount,
                                     )
                                 "
-                                status="active"
                             />
                         </div>
                     </div>
