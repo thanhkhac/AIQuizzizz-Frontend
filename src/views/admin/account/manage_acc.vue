@@ -8,6 +8,7 @@ import debounce from "lodash/debounce";
 import { message, Modal, Textarea } from "ant-design-vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/AuthStore";
+import UserAvatar from "@/shared/components/Common/UserAvatar.vue";
 
 const emit = defineEmits(["updateSidebar"]);
 const route = useRoute();
@@ -364,6 +365,12 @@ const getUsersData = async () => {
                     :pagination="false"
                 >
                     <template #bodyCell="{ column, record }">
+                        <template v-if="column.key === 'fullName'">
+                            <div class="account-name-cell">
+                                <UserAvatar :avatar-id="record.avatarId" :size="32" :alt="record.fullName" />
+                                <span>{{ record.fullName }}</span>
+                            </div>
+                        </template>
                         <template v-if="column.key === 'ban'">
                             <div class="action-cell">
                                 <template v-if="user_info.roles.includes('Administrator')">
@@ -434,6 +441,13 @@ const getUsersData = async () => {
 </template>
 
 <style scoped>
+.account-name-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
 .filter-input-item {
     width: calc(100% - 60px);
     margin: 8px;

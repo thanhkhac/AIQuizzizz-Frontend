@@ -19,6 +19,7 @@ import Validator from "@/services/Validator";
 import { mergeQuestionMedia } from "@/services/QuestionMediaService";
 import QuestionMediaView from "@/shared/components/Media/QuestionMediaView.vue";
 import RichContent from "@/shared/components/Common/RichContent.vue";
+import UserAvatar from "@/shared/components/Common/UserAvatar.vue";
 import FlashcardAnswerCard from "@/shared/components/Flashcard/FlashcardAnswerCard.vue";
 import dayjs from "dayjs";
 
@@ -1172,7 +1173,12 @@ onMounted(async () => {
                                 ]"
                             >
                                 <div class="comment-main-content">
-                                    <i class="bx bx-user-circle comment-user-img"></i>
+                                    <UserAvatar
+                                        class="comment-user-img"
+                                        :avatar-id="comment.createBy.avatarId"
+                                        :size="36"
+                                        :alt="comment.createBy.fullName"
+                                    />
                                     <div class="w-100 d-flex flex-column">
                                         <div class="comment-content-info">
                                             {{ comment.createBy.fullName }}
@@ -1230,9 +1236,12 @@ onMounted(async () => {
                                                 ) in comment.childComments"
                                             >
                                                 <div class="comment-main-content">
-                                                    <i
-                                                        class="bx bx-user-circle comment-user-img"
-                                                    ></i>
+                                                    <UserAvatar
+                                                        class="comment-user-img"
+                                                        :avatar-id="childComment.createBy.avatarId"
+                                                        :size="36"
+                                                        :alt="childComment.createBy.fullName"
+                                                    />
                                                     <div class="w-100 d-flex flex-column">
                                                         <div class="comment-content-info">
                                                             {{ childComment.createBy.fullName }}

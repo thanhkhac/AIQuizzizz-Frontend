@@ -6,6 +6,12 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Added — Ảnh đại diện có kiểm duyệt
+- **Cài đặt > Tài khoản**: khung ảnh đại diện có nút **Đổi ảnh** / **Xoá ảnh** (xác nhận) và dòng ghi chú kiểm duyệt. Ảnh được cắt vuông ở giữa + thu nhỏ 512px JPEG ngay trên trình duyệt (`services/AvatarService.ts`, định dạng trình duyệt không đọc được như HEIC thì gửi nguyên file); trong lúc server chuẩn hoá + kiểm duyệt, nút hiện "Đang kiểm duyệt..." và ảnh có lớp mờ + spinner. Lỗi (`AVATAR_VIOLATED` kèm nhắc 1 vi phạm / 3 vi phạm trong 90 ngày bị khoá, `AVATAR_MODERATION_FAILED`, quá dung lượng...) hiện qua thông báo lỗi chung (khoá `ERROR_CODE.*`, vi / en).
+- **Component `UserAvatar`** (ảnh tròn, ảnh lỗi / chưa có -> ảnh mặc định, lazy load) dùng ở: sidebar người dùng + admin, bình luận (chế độ Học), danh sách thành viên lớp, bảng Quản lý tài khoản của admin. Ảnh lấy qua `GET /api/Account/Avatar/{id}` (không cần token).
+- **`authStore.refreshUserInfo()` / `setUserInfo()`** cập nhật state nên sidebar đổi ảnh / tên ngay, không cần tải lại trang (trước: đổi tên xong sidebar vẫn tên cũ tới khi F5). Sidebar admin đọc thông tin qua `computed`.
+- Trang hướng dẫn: mục **Ảnh đại diện** ở Cài đặt tài khoản, mục ảnh đại diện ở Kiểm duyệt nội dung. Test `services/__tests__/AvatarService.spec.ts`.
+
 ### Changed — Trang Thư mục: nút Tạo thư mục nằm trong section
 - Giống trang Thư viện: section có tiêu đề **Thư mục của bạn** / *Sắp xếp bộ câu hỏi theo chủ đề* (khoá `folder_index.sections.folder.*`, vi / en) và nút **Tạo thư mục** ở góc phải tiêu đề section (trước nằm ngoài, cạnh tiêu đề trang). Bỏ tab "Thư mục" đơn lẻ (trùng với tiêu đề section). Cập nhật trang hướng dẫn Thư mục.
 

@@ -5,6 +5,7 @@ export interface Comment {
     createBy: {
         userId: string;
         fullName: string;
+        avatarId?: string | null;
     };
     createdAt: string;
     replyCount: number;

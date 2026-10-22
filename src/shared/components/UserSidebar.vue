@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import user_image from "@/assets/user.png";
+import UserAvatar from "@/shared/components/Common/UserAvatar.vue";
 
 import { ref, onBeforeMount, computed, nextTick, onMounted, watch, onBeforeUnmount } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
@@ -206,7 +206,7 @@ const onSignOut = () => {
                 </li>
             </ul>
             <div class="sidebar-profileSection">
-                <img :src="user_image" alt="" />
+                <UserAvatar :avatar-id="user?.avatarId" :size="60" :alt="user?.fullName" />
                 <div>
                     <span>{{ user.fullName }}</span>
                     <span class="sign-out-btn" @click="onSignOut">

@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import ApiUser from "@/api/ApiUser";
-import user_image from "@/assets/user.png";
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
-import localStorageService from "@/services/LocalStorageService";
+import { prepareAvatarFile } from "@/services/AvatarService";
 
-import { UploadOutlined } from "@ant-design/icons-vue";
 import Input from "@/shared/components/Common/Input.vue";
-import TextArea from "@/shared/components/Common/TextArea.vue";
+import UserAvatar from "@/shared/components/Common/UserAvatar.vue";
 import { useI18n } from "vue-i18n";
-import { message } from "ant-design-vue";
+import { message, Modal } from "ant-design-vue";
 const { t } = useI18n();
 
 const authStore = useAuthStore();
@@ -49,18 +47,71 @@ const onFinish = () => {
 
             if (result.data.success) {
                 message.success(t("message.updated_successfully"));
-                let user_result = await ApiUser.GetUserInfo();
-                if (user_result.data.success) {
-                    localStorageService.SetUserInfo(user_result.data.data);
-                    user.value = authStore.getUserInfo();
-                    formState.fullName = user.value?.fullName ?? formState.fullName;
-                }
+                user.value = await authStore.refreshUserInfo();
+                formState.fullName = user.value?.fullName ?? formState.fullName;
             }
         })
         .catch((error: any) => {
             console.log(error);
         });
 };
+
+//#region ảnh đại diện
+const avatarId = computed(() => user.value?.avatarId ?? null);
+const avatarInputRef = ref<HTMLInputElement>();
+const avatarUploading = ref(false);
+const avatarDeleting = ref(false);
+
+const onPickAvatar = () => avatarInputRef.value?.click();
+
+const onAvatarSelected = async (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = ""; // chọn lại cùng file vẫn kích hoạt change
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+        message.error(t("settings.profile.avatar.not_image"));
+        return;
+    }
+
+    avatarUploading.value = true;
+    try {
+        // cắt vuông + thu nhỏ ở trình duyệt; server chuẩn hoá và kiểm duyệt ngay trong request
+        const prepared = await prepareAvatarFile(file);
+        const result = await ApiUser.UploadAvatar(prepared);
+        if (result.data.success) {
+            user.value = await authStore.refreshUserInfo();
+            message.success(t("settings.profile.avatar.updated"));
+        }
+    } catch (error) {
+        // lỗi (vi phạm, quá dung lượng, ...) đã được interceptor hiển thị
+        console.log(error);
+    } finally {
+        avatarUploading.value = false;
+    }
+};
+
+const onDeleteAvatar = () => {
+    Modal.confirm({
+        title: t("settings.profile.avatar.delete_confirm"),
+        okText: t("settings.profile.avatar.delete"),
+        cancelText: t("settings.profile.avatar.cancel"),
+        okButtonProps: { danger: true },
+        onOk: async () => {
+            avatarDeleting.value = true;
+            try {
+                const result = await ApiUser.DeleteAvatar();
+                if (result.data.success) {
+                    user.value = await authStore.refreshUserInfo();
+                    message.success(t("settings.profile.avatar.deleted"));
+                }
+            } finally {
+                avatarDeleting.value = false;
+            }
+        },
+    });
+};
+//#endregion
 
 onMounted(() => {
     if (user.value) {
@@ -81,7 +132,46 @@ onMounted(() => {
             <a-form ref="formRef" :model="formState" :rules="rules" class="mt-5" layout="vertical">
                 <a-row>
                     <a-col :span="4" class="user-image-container">
-                        <img class="user-image" :src="user_image" alt="user_img" />
+                        <div class="avatar-wrapper">
+                            <UserAvatar :avatar-id="avatarId" :size="100" :alt="formState.fullName" />
+                            <div v-if="avatarUploading" class="avatar-busy" aria-live="polite">
+                                <a-spin size="small" />
+                            </div>
+                        </div>
+                        <input
+                            ref="avatarInputRef"
+                            type="file"
+                            accept="image/*"
+                            class="d-none"
+                            @change="onAvatarSelected"
+                        />
+                        <div class="avatar-actions">
+                            <a-button
+                                size="small"
+                                :loading="avatarUploading"
+                                :disabled="avatarDeleting"
+                                @click="onPickAvatar"
+                            >
+                                <i class="bx bx-camera"></i>
+                                {{
+                                    avatarUploading
+                                        ? $t("settings.profile.avatar.checking")
+                                        : $t("settings.profile.avatar.change")
+                                }}
+                            </a-button>
+                            <a-button
+                                v-if="avatarId"
+                                size="small"
+                                type="text"
+                                danger
+                                :loading="avatarDeleting"
+                                :disabled="avatarUploading"
+                                @click="onDeleteAvatar"
+                            >
+                                {{ $t("settings.profile.avatar.delete") }}
+                            </a-button>
+                        </div>
+                        <div class="avatar-hint">{{ $t("settings.profile.avatar.hint") }}</div>
                     </a-col>
                     <a-col :span="20" class="user-info-container">
                         <a-row>
@@ -129,15 +219,40 @@ onMounted(() => {
     flex-direction: column;
 }
 
-.user-image {
-    width: 100px;
-    height: 100px;
+.avatar-wrapper {
+    position: relative;
     margin: 10px;
-    aspect-ratio: 1/1;
-    background-color: var(--background-color-contrast);
-    border: 1px solid var(--content-item-border-color);
+}
+
+.avatar-busy {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
-    color: var(--text-color);
-    padding: 5px;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.avatar-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.avatar-actions .ant-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.avatar-hint {
+    margin-top: 6px;
+    max-width: 160px;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+    color: var(--c-text-muted);
 }
 </style>

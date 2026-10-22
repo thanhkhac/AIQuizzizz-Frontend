@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import user_image from "@/assets/user.png";
+import UserAvatar from "@/shared/components/Common/UserAvatar.vue";
 
 import ApiClass from "@/api/ApiClass";
 
@@ -558,7 +558,12 @@ onMounted(async () => {
                             <template #bodyCell="{ column, record }">
                                 <template v-if="column.key === 'fullName'">
                                     <div class="student-name-container">
-                                        <img class="user-image" :src="user_image" alt="" />
+                                        <UserAvatar
+                                            class="student-avatar"
+                                            :avatar-id="record.avatarId"
+                                            :size="40"
+                                            :alt="record.fullName"
+                                        />
                                         <div class="student-name">{{ record.fullName }}</div>
                                     </div>
                                 </template>
@@ -910,14 +915,7 @@ onMounted(async () => {
     cursor: pointer;
 }
 
-.user-image {
-    width: 40px;
-    height: 40px;
-    background-color: var(--form-item-background-color);
-    border: 1px solid var(--form-item-border-color);
-    border-radius: 50%;
+.student-avatar {
     margin-right: 10px;
-    object-fit: contain;
-    padding: 3px;
 }
 </style>
