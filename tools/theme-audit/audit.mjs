@@ -33,7 +33,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const id = { qs: SEED.qsId, cl: SEED.clId, t: SEED.testId };
 const PUBLIC = ["/", "/login", "/register", "/verify-email", "/forgot-password", "/reset-password", "/404", "/not-allowed"];
 const USER = [
-    "/user/dashboards",
+    "/home",
     "/user/library",
     `/user/question-set/${id.qs}`,
     "/user/question-set/create",

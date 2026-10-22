@@ -223,7 +223,7 @@ const giveFeedback = (value: "yes" | "no") => {
             >
                 <i class="bx bx-menu" aria-hidden="true"></i>
             </button>
-            <RouterLink :to="{ name: 'home' }" class="guide-logo">AIQuizizz</RouterLink>
+            <RouterLink :to="{ name: isLoggedIn ? 'User_Dashboard' : 'home' }" class="guide-logo">AIQuizizz</RouterLink>
             <span class="guide-header-divider" aria-hidden="true"></span>
             <RouterLink :to="toRoute(GUIDE_ENTRIES[0])" class="guide-header-title">
                 <i class="bx bx-book-open" aria-hidden="true"></i>

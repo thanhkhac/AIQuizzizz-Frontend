@@ -6,6 +6,10 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Changed — Trang chủ người dùng ở `/home`
+- Bảng điều khiển (`User_Dashboard`) đổi URL từ `/user/dashboards` thành **`/home`** (vẫn trong layout người dùng). Link / bookmark cũ `/user/dashboards` tự chuyển sang `/home`. Đăng nhập xong (học viên) vào `/home`.
+- **Logo AIQuizizz** ở header và trang Hướng dẫn: đã đăng nhập -> `/home`; chưa đăng nhập -> trang giới thiệu `/` như cũ.
+
 ### Changed — Giao diện mượt hơn
 - **Section không co / giãn khi vào trang** (Bảng điều khiển: Bộ câu hỏi gần đây, Bộ câu hỏi phổ biến; trang Lớp học). Trước: "gần đây" 315 → 803 → 531px (lỗi gõ `e-else` khiến skeleton và danh sách hiện cùng lúc), "phổ biến" 115 → 251 → 115px, Lớp học 522 → 284px. Nay lúc chờ dữ liệu vẽ **khung giữ chỗ cùng class với thẻ thật** (`.item-placeholder`, mờ, không bấm được), số khung = số mục lần tải trước (`services/PlaceholderCountService.ts`, lưu localStorage, có test). Lần trước rỗng thì giữ chỗ bằng khối "không có dữ liệu" ẩn. Cờ loading bắt đầu `true` (không nháy trạng thái rỗng ở lần render đầu), hai section của Bảng điều khiển tải song song và có cờ riêng. Đo lại: chiều cao giữ nguyên từ lúc vào trang tới khi có dữ liệu, kể cả khi API chậm 800ms; riêng lần đầu tiên trên một trình duyệt (chưa có số đã nhớ) section có thể đổi một lần.
 - **Skeleton chờ dữ liệu bớt nhức mắt**: bỏ `active` ở mọi `<a-skeleton>` (sọc xám đứng yên, không chạy ánh sáng). Trong `main.css`, `.ant-skeleton` ẩn trong 300ms đầu rồi mờ dần vào: dữ liệu về nhanh (thường 50–100ms) thì không thấy sọc nháy nữa. Sửa luôn thuộc tính hỏng `activeactive:loading` ở `learn.vue`.

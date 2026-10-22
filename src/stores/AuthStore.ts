@@ -27,7 +27,7 @@ export const useAuthStore = defineStore("authStore", {
                 ) {
                     this.router.push(this.returnURL || "/admin"); //returnURL or home page
                 } else {
-                    this.router.push(this.returnURL || "/user/dashboards"); //returnURL or home page
+                    this.router.push(this.returnURL || "/home"); //returnURL or home page
                 }
             }
         },
