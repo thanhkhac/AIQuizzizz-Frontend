@@ -32,6 +32,10 @@ onMounted(() => {});
             <RouterLink :to="{ name: 'User_Library' }">Library</RouterLink>
             <RouterLink :to="{ name: 'User_Class' }">Class</RouterLink>
         </div> -->
+        <RouterLink :to="{ name: 'guide' }" class="header-guide-link" :aria-label="$t('guide.title')">
+            <i class="bx bx-help-circle" aria-hidden="true"></i>
+            <span>{{ $t("guide.short") }}</span>
+        </RouterLink>
         <div
             class="header-authentication-navigator"
             :style="isUserLogged ? { display: 'none' } : {}"
@@ -55,6 +59,29 @@ onMounted(() => {});
     z-index: 100;
     color: var(--text-color);
     border-bottom: 1px solid var(--content-item-border-color);
+}
+
+.header-guide-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 0 10px;
+    border-radius: 8px;
+    color: var(--c-text);
+    font-size: 15px;
+    text-decoration: none;
+}
+.header-guide-link:hover {
+    color: var(--c-primary-text);
+}
+.header-guide-link i {
+    font-size: 20px;
+}
+@media (max-width: 575.98px) {
+    .header-guide-link span {
+        display: none;
+    }
 }
 
 .header-menu-btn {

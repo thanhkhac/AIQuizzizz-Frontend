@@ -6,6 +6,14 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Added — Trang Hướng dẫn sử dụng (`/guide`, public)
+- **Bố cục** theo thiết kế Figma (trang WEB, node 29-173 / 30-220 / 30-354): header (logo, ô tìm kiếm `Ctrl K`, nút Đăng nhập / Vào ứng dụng), cây mục lục bên trái (nhóm mở/đóng, mục đang xem được tô), nội dung Markdown ở giữa, cột "Trên trang này" bên phải (>= 1200px, tô mục đang đọc theo vị trí cuộn), Trước / Tiếp theo, "Trang này có hữu ích không?" (chỉ lưu ở trình duyệt). < 768px: thanh "Mục lục" mở drawer bên trái (kèm ô tìm kiếm). Light / dark theo token `--c-*`.
+- **Nội dung**: 27 trang tiếng Việt trong `src/guide/vn/<nhóm>/<trang>.md`, cây mục lục khai báo một chỗ ở `src/guide/manifest.ts` (9 nhóm: Bắt đầu, Bộ câu hỏi, Học & luyện tập, Lớp học, Thư mục & mẫu đề thi, Lịch kiểm tra, Cài đặt tài khoản, Quy định nội dung, Câu hỏi thường gặp). Không mô tả các chức năng đang tắt (Tạo bằng AI, đăng nhập Google, Nạp tiền). Khung trang dùng cùng ngôn ngữ với nội dung (`GUIDE_LOCALE`), khoá i18n `guide.*` có cả vi / en.
+- **Render** (`services/GuideService.ts`): markdown-it `html:false` + DOMPurify; H2/H3 có `id` (bỏ dấu, không trùng); callout `> [!TIP]` / `[!NOTE]` / `[!WARNING]`; link `/guide/...` chuyển trang bằng router; ảnh chỉ nhận `/guide/img/...`; khối code dùng chung `renderCodeBlock` + nút Sao chép. Mỗi file `.md` là một chunk riêng (tải khi mở trang). Tìm kiếm phía client, không phân biệt dấu, ưu tiên khớp nguyên cụm ở tiêu đề / heading.
+- **Lối vào**: mục "Hướng dẫn" ở sidebar người dùng, icon + chữ "Hướng dẫn" ở header (trang chủ + layout người dùng / admin; < 576px chỉ còn icon).
+- **Dọn**: CSS của `RichContent.vue` chuyển sang `assets/rich-content.css` để trang hướng dẫn dùng chung (không đổi giao diện câu hỏi). Rule toàn cục `.multiple-choice-answer ul, ol { margin: 0 !important }` trong `main.css` đang làm mất khoảng cách mọi `<ol>`; chưa sửa gốc (ảnh hưởng toàn app), chỉ ghi đè trong bài hướng dẫn.
+- Test: `services/__tests__/GuideService.spec.ts` (manifest khớp file, không H1, link nội bộ không hỏng, id heading, callout, link / ảnh / XSS, tìm kiếm).
+
 ### Changed — Tắt tạm đăng nhập Google ở FE
 - **Cờ `VITE_ENABLE_GOOGLE_LOGIN`** (`constants/features.ts` -> `GOOGLE_LOGIN_ENABLED`): mặc định **tắt** (để trống hoặc khác `"true"`). Khi tắt, `login.vue` và `register.vue` ẩn nút "Tiếp tục với Google" cùng đường kẻ "HOẶC" (form email / mật khẩu giữ nguyên), và router chuyển `/google-authentication-callback` về `/login`. Đặt `VITE_ENABLE_GOOGLE_LOGIN=true` rồi build lại để bật; code Google, trang callback và API không bị xoá. Có test `constants/__tests__/features.spec.ts`.
 

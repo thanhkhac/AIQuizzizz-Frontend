@@ -76,6 +76,13 @@ const indexRoutes = [
         meta: { title: "" },
     },
     {
+        //hướng dẫn sử dụng (public), nội dung: src/guide
+        path: "/guide/:group?/:page?",
+        name: "guide",
+        component: () => import("@/views/public/guide.vue"),
+        meta: { title: "Hướng dẫn sử dụng" },
+    },
+    {
         path: "/:pathMatch(.*)*",
         redirect: "/404",
     },
@@ -92,6 +99,7 @@ const publicRoutes = [
     "create-password",
     "google-authentication-callback",
     "not-allowed",
+    "guide",
 ];
 // const authRoutes = [];
 

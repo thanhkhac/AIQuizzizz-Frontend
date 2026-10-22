@@ -180,6 +180,14 @@ const onSignOut = () => {
                         </span>
                     </RouterLink>
                 </li>
+                <li :class="['sidebar-listItem', { active: activeItem === 'guide' }]">
+                    <RouterLink :to="{ name: 'guide' }">
+                        <i class="bx bx-help-circle"></i>
+                        <span class="sidebar-listItemText">
+                            {{ $t("guide.short") }}
+                        </span>
+                    </RouterLink>
+                </li>
                 <li v-if="isAdmin" :class="['sidebar-listItem']">
                     <RouterLink :to="{ name: 'Admin_Manager_Account' }">
                         <i class="bx bx-cog"></i>

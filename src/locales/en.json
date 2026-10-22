@@ -1536,5 +1536,32 @@
             },
             "read_only": "Only administrators can change system settings."
         }
+    },
+    "guide": {
+        "title": "User guide",
+        "short": "Guide",
+        "toc": "Contents",
+        "on_this_page": "On this page",
+        "search_placeholder": "Search the guide...",
+        "searching": "Searching...",
+        "no_results": "No matching pages.",
+        "previous": "Previous",
+        "next": "Next",
+        "helpful": "Was this page helpful?",
+        "yes": "Yes",
+        "no": "No",
+        "thanks": "Thanks for your feedback!",
+        "open_app": "Open app",
+        "sign_in": "Sign in",
+        "reading_time": "About {n} min read",
+        "updated": "Last updated: {date}",
+        "not_found_title": "Guide page not found",
+        "not_found_content": "The page you are looking for does not exist or has been renamed.",
+        "back_to_start": "Back to start",
+        "load_failed": "Could not load the content. Please try again.",
+        "retry": "Retry",
+        "open_toc": "Open contents",
+        "close_toc": "Close contents",
+        "breadcrumb": "Breadcrumb"
     }
 }
