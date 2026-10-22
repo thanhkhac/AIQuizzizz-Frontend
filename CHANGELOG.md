@@ -6,6 +6,9 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Fixed — Avatar tràn khi thu gọn sidebar
+- Sidebar thu gọn (cột 85px, nội dung 53px) vẫn để avatar 60px nên tràn sang phải; màn hình thấp thì khung hồ sơ (flex item) bị ép còn ~66px và avatar tràn xuống dưới mép màn hình. Nay khung hồ sơ không co (`flex-shrink: 0`), menu tự cuộn khi thiếu chỗ (`.sidebar-list`: `flex: 1`, `min-height: 0`, `overflow-y: auto`); khi thu gọn avatar còn 44px ở giữa, phần tên ẩn hẳn (đăng xuất đã có trong menu), có chuyển động khi đổi kích thước.
+
 ### Changed — Ảnh đại diện mặc định: chữ cái đầu tên trên nền màu
 - Người chưa có ảnh (hoặc ảnh tải lỗi) không còn dùng icon `user.png` chung mà hiện **chữ cái đầu của tên** (từ cuối của họ tên: "Trần Phúc Lâm" -> "L", giữ dấu "Á", "Đ") trên vòng tròn màu. Màu cố định theo tên (FNV-1a), lấy từ 11 màu có tương phản >= 4.5:1 với chữ trắng (`AVATAR_COLORS`); không có tên -> icon người. `avatarInitial` / `avatarColor` trong `services/AvatarService.ts`, có test.
 - CSS sidebar trước nhắm mọi `div` / `span` trong `.sidebar-profileSection` (kể cả ẩn `span` khi thu gọn, `font-size: 14px !important` trên màn nhỏ) -> nay chỉ nhắm phần tên / đăng xuất (`> div > span`) ở `main.css`, `responsive.css`, `theme-overrides.css`; avatar sidebar có viền màu chủ đạo bằng `box-shadow`.
