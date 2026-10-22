@@ -42,7 +42,7 @@ Liên kết xem ảnh/video có thời hạn. Nếu thấy thông báo **Không 
 
 Ảnh được kiểm duyệt tự động sau khi tải lên. Video không qua bước kiểm duyệt tự động này.
 
-Nếu ảnh bị xác định là vi phạm tiêu chuẩn cộng đồng (khỏa thân hoặc bạo lực):
+Nếu ảnh bị xác định là vi phạm tiêu chuẩn cộng đồng (khỏa thân, khiêu dâm hoặc bạo lực):
 
 - Ảnh bị gỡ và mọi câu hỏi dùng ảnh đó bị xóa, kể cả bản sao trong bài kiểm tra.
 - Tài khoản của bạn bị ghi nhận một vi phạm và bạn nhận email cảnh báo.

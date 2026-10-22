@@ -46,7 +46,7 @@ Xem [Ảnh / video trong câu hỏi](/guide/question-sets/media).
 
 ### Câu hỏi có ảnh của tôi tự nhiên biến mất?
 
-Có thể ảnh đã bị hệ thống kiểm duyệt xác định là vi phạm (khỏa thân hoặc bạo lực). Khi đó, ảnh và mọi câu hỏi dùng ảnh đều bị xóa, và bạn nhận email cảnh báo. Xem [Kiểm duyệt & vi phạm](/guide/policy/moderation).
+Có thể ảnh đã bị hệ thống kiểm duyệt xác định là vi phạm (khỏa thân, khiêu dâm hoặc bạo lực). Khi đó, ảnh và mọi câu hỏi dùng ảnh đều bị xóa, và bạn nhận email cảnh báo. Xem [Kiểm duyệt & vi phạm](/guide/policy/moderation).
 
 ### Vì sao tài khoản của tôi bị khóa?
 
