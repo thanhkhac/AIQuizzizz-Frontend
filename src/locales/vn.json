@@ -848,6 +848,12 @@
     "folder_index": {
         "title": "Thư mục",
         "sub_title": "Quản lý tài liệu học tập hiệu quả bằng cách sắp xếp theo thư mục.",
+        "sections": {
+            "folder": {
+                "title": "Thư mục của bạn",
+                "sub_title": "Sắp xếp bộ câu hỏi theo chủ đề"
+            }
+        },
         "select_option": {
             "All": "Tất cả",
             "Owner": "Chủ sở hữu",

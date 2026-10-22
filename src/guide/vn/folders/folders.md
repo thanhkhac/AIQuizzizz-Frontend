@@ -8,7 +8,7 @@ Bạn có thể lọc danh sách theo quyền của mình bằng ô chọn **T�
 
 ## Tạo thư mục
 
-1. Bấm **Tạo thư mục** (*Create folder*) ở góc trên bên phải.
+1. Bấm **Tạo thư mục** (*Create folder*) ở góc phải khung **Thư mục của bạn**.
 2. Nhập **Tên thư mục** (*Folder name*).
 3. Bấm **Tạo** (*Create*).
 

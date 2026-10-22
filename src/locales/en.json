@@ -848,6 +848,12 @@
     "folder_index": {
         "title": "Folder",
         "sub_title": "Efficiently manage your learning resources by organizing them into folders.",
+        "sections": {
+            "folder": {
+                "title": "Your folders",
+                "sub_title": "Organize your question sets by topic"
+            }
+        },
         "select_option": {
             "All": "All",
             "Owner": "Owner",
