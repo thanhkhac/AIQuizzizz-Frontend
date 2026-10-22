@@ -874,7 +874,7 @@ pre {
     color: var(--c-on-primary) !important;
 }
 .sidebar-profileSection,
-.sidebar-profileSection span {
+.sidebar-profileSection > div > span {
     color: var(--c-text);
 }
 .sidebar-container .ant-divider-inner-text {

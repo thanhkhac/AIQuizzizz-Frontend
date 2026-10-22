@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import user_image from "@/assets/user.png";
-import { avatarUrl } from "@/services/AvatarService";
+import { avatarColor, avatarInitial, avatarUrl } from "@/services/AvatarService";
 import { computed, ref, watch } from "vue";
 
-// Ảnh đại diện tròn; chưa có ảnh hoặc tải lỗi -> ảnh mặc định
-const props = withDefaults(defineProps<{ avatarId?: string | null; size?: number; alt?: string }>(), {
+// Ảnh đại diện tròn; chưa có ảnh hoặc tải lỗi -> vòng tròn màu + chữ cái đầu tên (alt = họ tên)
+const props = withDefaults(defineProps<{ avatarId?: string | null; size?: number; alt?: string | null }>(), {
     avatarId: null,
     size: 40,
     alt: "",
@@ -16,34 +15,58 @@ watch(
     () => (failed.value = false),
 );
 
-const src = computed(() => (!failed.value && avatarUrl(props.avatarId)) || user_image);
-const isDefault = computed(() => src.value === user_image);
+const src = computed(() => (failed.value ? null : avatarUrl(props.avatarId)));
+const initial = computed(() => avatarInitial(props.alt));
+const box = computed(() => ({ width: `${props.size}px`, height: `${props.size}px`, minWidth: `${props.size}px` }));
+const initialStyle = computed(() => ({
+    ...box.value,
+    "--avatar-bg": avatarColor(props.alt),
+    fontSize: `${Math.round(props.size * 0.44)}px`,
+}));
 </script>
 <template>
     <img
-        :class="['user-avatar', isDefault ? 'user-avatar-default' : '']"
+        v-if="src"
+        class="user-avatar"
         :src="src"
-        :alt="alt"
+        :alt="alt ?? ''"
         :width="size"
         :height="size"
-        :style="{ width: `${size}px`, height: `${size}px`, minWidth: `${size}px` }"
+        :style="box"
         loading="lazy"
         decoding="async"
         @error="failed = true"
     />
+    <span v-else class="user-avatar user-avatar-initial" role="img" :aria-label="alt ?? ''" :style="initialStyle">
+        <template v-if="initial">{{ initial }}</template>
+        <i v-else class="bx bxs-user" aria-hidden="true"></i>
+    </span>
 </template>
 <style scoped>
 .user-avatar {
+    display: inline-block;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
     background-color: var(--form-item-background-color);
-    border: 1px solid var(--form-item-border-color);
 }
 
-/* ảnh mặc định là icon: chừa viền trong như trước */
-.user-avatar-default {
-    object-fit: contain;
-    padding: 3px;
+.user-avatar-initial {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--avatar-bg) 82%, #fff), var(--avatar-bg));
+    color: #fff;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0;
+    user-select: none;
+    text-transform: none;
+    visibility: visible;
+    opacity: 1;
+}
+
+.user-avatar-initial i {
+    font-size: 0.9em;
 }
 </style>

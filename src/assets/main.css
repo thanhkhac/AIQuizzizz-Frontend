@@ -129,23 +129,19 @@ body {
     color: var(--text-color);
 }
 
-.sidebar-profileSection img {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
-    min-height: 60px;
-    border-radius: 50%;
+.sidebar-profileSection .user-avatar {
     margin-right: 15px;
-    border: 1px solid var(--main-color);
-    padding: 2px;
+    box-shadow:
+        0 0 0 2px var(--c-surface),
+        0 0 0 3px var(--main-color);
 }
 
-.sidebar-profileSection div {
+.sidebar-profileSection > div {
     display: flex;
     flex-direction: column;
 }
 
-.sidebar-profileSection span {
+.sidebar-profileSection > div > span {
     visibility: visible;
     opacity: 1;
     transition: all 0.2s ease-in-out;
@@ -153,7 +149,7 @@ body {
     font-size: 11px;
 }
 
-.shrink .sidebar-profileSection span {
+.shrink .sidebar-profileSection > div > span {
     visibility: hidden;
     opacity: 0;
 }
