@@ -1522,8 +1522,9 @@ onMounted(async () => {
             </div>
             <div class="content-item final-modal-footer">
                 <div>{{ $t("learn_QS.other.preview_modal_continues_ins") }}</div>
+                <!-- cửa sổ này chỉ mở khi phiên đã học hết (currentSession luôn rỗng): Tiếp tục = nạp phiên mới từ server -->
                 <a-button
-                    :disabled="currentSession.length <= 0"
+                    :loading="loading"
                     :class="['main-color-btn']"
                     type="primary"
                     size="large"
