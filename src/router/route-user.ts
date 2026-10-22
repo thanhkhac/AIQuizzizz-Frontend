@@ -10,10 +10,16 @@ const userRoutes = [
                 meta: { title: "profile" },
             },
             {
+                // trang chủ sau khi đăng nhập: URL /home (đường dẫn tuyệt đối, vẫn nằm trong layout người dùng)
                 name: "User_Dashboard",
-                path: "dashboards",
+                path: "/home",
                 component: () => import("@/views/user/dashboards.vue"),
                 meta: { title: "dashboards" },
+            },
+            {
+                // link / bookmark cũ
+                path: "dashboards",
+                redirect: { name: "User_Dashboard" },
             },
             {
                 name: "User_Library",

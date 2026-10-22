@@ -25,7 +25,8 @@ onMounted(() => {});
             <i :class="sidebarOpen ? 'bx bx-x' : 'bx bx-menu'"></i>
         </button>
         <div class="header-logo">
-            <RouterLink :to="{ name: 'home' }">AIQuizizz</RouterLink>
+            <!-- đã đăng nhập: logo về trang chủ người dùng (/home); chưa đăng nhập: trang giới thiệu -->
+            <RouterLink :to="{ name: isUserLogged ? 'User_Dashboard' : 'home' }">AIQuizizz</RouterLink>
         </div>
         <!-- <div class="header-navigator">
             <RouterLink :to="{ name: 'User_Dashboard' }">Dashboards</RouterLink>
