@@ -52,12 +52,16 @@ Có thể ảnh đã bị hệ thống kiểm duyệt xác định là vi phạm
 
 Tài khoản bị khóa tự động khi có 3 vi phạm trong vòng 90 ngày, hoặc bị quản trị viên khóa. Lý do hiển thị ở trang đăng nhập. Nếu cho rằng có nhầm lẫn, hãy liên hệ quản trị viên. Xem [Kiểm duyệt & vi phạm](/guide/policy/moderation).
 
-## Thư mục & mẫu đề thi
+## Thư mục
 
-### Mẫu đề thi dùng để làm gì?
+### Thư mục dùng để làm gì?
 
-Mẫu đề thi là bộ câu hỏi soạn sẵn để dùng lại khi giao bài kiểm tra cho lớp. Khi soạn bài kiểm tra, bấm **Chọn từ thư mục** (*Choose from folder*) để lấy câu hỏi từ mẫu. Xem [Mẫu đề thi](/guide/folders/test-templates).
+Thư mục giúp bạn gom các bộ câu hỏi và chia sẻ cho đồng nghiệp. Thành viên thư mục xem được các bộ câu hỏi bên trong (kể cả bộ **Riêng tư** (*Private*)) và dùng câu hỏi của chúng để soạn bài kiểm tra qua nút **Chọn từ thư mục** (*Choose from folder*). Xem [Thư mục](/guide/folders/folders).
 
-### Tôi được chia sẻ một thư mục nhưng không thêm được mẫu đề thi vào đó?
+### Tôi được chia sẻ một thư mục nhưng không thêm được bộ câu hỏi vào đó?
 
-Có thể bạn chỉ có quyền **Chỉ xem** (*ViewOnly*). Để thêm mẫu, bạn cần quyền **Chủ sở hữu** (*Owner*) hoặc **Có thể chỉnh sửa** (*Editable*) trong thư mục, và phải là chủ sở hữu của mẫu. Hãy nhờ chủ thư mục đổi quyền của bạn thành **Chỉnh sửa** (*Can edit*). Xem [Thư mục](/guide/folders/folders).
+Để thêm bộ câu hỏi vào thư mục, bạn cần quyền **Chủ sở hữu** (*Owner*) hoặc **Có thể chỉnh sửa** (*Editable*) trong thư mục, và phải có quyền chỉnh sửa bộ câu hỏi. Nếu bạn chỉ có quyền **Chỉ xem** (*ViewOnly*), hãy nhờ chủ thư mục đổi quyền của bạn thành **Chỉnh sửa** (*Can edit*). Nếu bộ câu hỏi đã có trong thư mục, hệ thống cũng báo lỗi. Xem [Thư mục](/guide/folders/folders).
+
+### Tôi sửa câu hỏi trong bộ câu hỏi, sao bài kiểm tra không đổi theo?
+
+Mỗi bài kiểm tra giữ bản sao riêng của câu hỏi. Khi sửa bài kiểm tra chưa mở, nếu câu gốc có bản mới, bấm **Cập nhật theo bản gốc** (*Update from source*) ở thông báo phía trên câu đó. Xem [Giao bài kiểm tra](/guide/classes/assign-test).

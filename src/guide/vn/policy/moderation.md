@@ -11,7 +11,7 @@ Sau khi bạn tải ảnh lên một câu hỏi, hệ thống kiểm tra ảnh �
 Nếu ảnh bị phát hiện vi phạm:
 
 1. Ảnh bị xóa khỏi hệ thống.
-2. **Mọi câu hỏi dùng ảnh đó** bị xóa, kể cả bản sao của câu hỏi trong mẫu đề thi và bài kiểm tra.
+2. **Mọi câu hỏi dùng ảnh đó** bị xóa, kể cả bản sao của câu hỏi trong bài kiểm tra.
 3. Tài khoản của bạn bị ghi nhận **1 vi phạm**.
 4. Bạn nhận email cảnh báo, cho biết lý do, số câu hỏi đã bị xóa và số vi phạm hiện có.
 

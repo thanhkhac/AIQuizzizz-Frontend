@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import ApiTestTemplate from "@/api/ApiTestTemplate";
+import ApiQuestionSet from "@/api/ApiQuestionSet";
 
 import type { Folder } from "@/models/response/folder/folder";
 import type { ResponseQuestion } from "@/models/response/question";
-import type { TestTemplateWithQuestion } from "@/models/response/testTemplate/testTemplateWithQuestion";
 
 import QUESTION_TYPE, { CLASSIC_QUESTION_TYPES } from "@/constants/questionTypes";
 
@@ -22,27 +21,31 @@ const route = useRoute();
 const { t } = useI18n();
 
 interface Props {
-    testTemplateId: string;
+    questionSetId: string;
     folder: Folder | null;
 }
 
 const props = defineProps<Props>();
 
-const test_template_data = ref<TestTemplateWithQuestion>();
+// toàn bộ câu của bộ câu hỏi (question_data là danh sách sau khi lọc)
+const all_questions = ref<ResponseQuestion[]>([]);
 const question_data = ref<ResponseQuestion[]>([]);
 const loading = ref(false);
 const getData = async () => {
     try {
         loading.value = true;
-        if (!props.testTemplateId) return;
-        let result = await ApiTestTemplate.GetById(props.testTemplateId || "");
+        if (!props.questionSetId) return;
+        let result = await ApiQuestionSet.GetQuestionById(props.questionSetId);
         if (result.data.success) {
-            let resultData = result.data.data;
-            test_template_data.value = resultData;
-            question_data.value = resultData.questions;
+            // chỉ các loại câu dùng được trong bài kiểm tra (không có thẻ ghi nhớ)
+            const questions = (result.data.data as ResponseQuestion[]).filter((q) =>
+                (CLASSIC_QUESTION_TYPES as string[]).includes(q.type),
+            );
+            all_questions.value = questions;
+            question_data.value = questions;
         }
     } catch (error) {
-        console.log("ERROR: GETBYID testtemplate: " + error);
+        console.log("ERROR: GET questions of question set: " + error);
     } finally {
         loading.value = false;
     }
@@ -51,13 +54,10 @@ const getData = async () => {
 // presigned URL của media hết hạn -> lấy URL mới, chỉ cập nhật media (giữ lựa chọn/bộ lọc hiện tại)
 const reloadQuestionMedia = async () => {
     try {
-        if (!props.testTemplateId) return;
-        const result = await ApiTestTemplate.GetById(props.testTemplateId);
+        if (!props.questionSetId) return;
+        const result = await ApiQuestionSet.GetQuestionById(props.questionSetId);
         if (result?.data?.success) {
-            mergeQuestionMedia(
-                [...(test_template_data.value?.questions ?? []), ...question_data.value],
-                result.data.data.questions,
-            );
+            mergeQuestionMedia([...all_questions.value, ...question_data.value], result.data.data);
         }
     } catch (error) {
         console.log("ERROR: reload question media", error);
@@ -77,10 +77,10 @@ const onFilter = () => {
     importModalState.checkedList = [];
     importModalState.checkAll = false;
     importModalState.indeterminate = false;
-    let filtered = test_template_data.value?.questions;
+    let filtered = all_questions.value;
     const search = searchValue.value.trim().toLowerCase();
 
-    filtered = test_template_data.value?.questions.filter((x) => {
+    filtered = all_questions.value.filter((x) => {
         const matchesSearch = !search || x.questionText.toLowerCase().includes(search);
 
         const matchesType =
@@ -136,8 +136,8 @@ const toggleDisplayAnswer = (index: number, button: EventTarget) => {
 //#region modal
 const emit = defineEmits<{
     (e: "import", selected: ResponseQuestion[]): void;
-    (e: "backToFolderTestTemplateModal", folder: Folder): void;
-    (e: "backToTestTemplateModal"): void;
+    (e: "backToFolderQuestionSetModal", folder: Folder): void;
+    (e: "backToQuestionSetModal"): void;
 }>();
 const modal_open = ref(false);
 
@@ -154,9 +154,9 @@ const openModal = async () => {
 const closeModal = () => {
     modal_open.value = false;
     if (props.folder !== null) {
-        emit("backToFolderTestTemplateModal", props.folder);
+        emit("backToFolderQuestionSetModal", props.folder);
     } else {
-        emit("backToTestTemplateModal");
+        emit("backToQuestionSetModal");
     }
 };
 

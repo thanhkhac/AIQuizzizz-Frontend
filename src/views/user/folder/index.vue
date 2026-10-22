@@ -211,9 +211,6 @@ onMounted(async () => {
                             <RouterLink class="navigator-item navigator-active" :to="{ name: '' }">
                                 {{ $t("folder_index.navigators.folder") }}
                             </RouterLink>
-                            <RouterLink class="navigator-item" :to="{ name: 'User_TestTemplate' }">
-                                {{ $t("folder_index.navigators.test_template") }}
-                            </RouterLink>
                         </div>
                     </div>
                     <div class="filter-container">

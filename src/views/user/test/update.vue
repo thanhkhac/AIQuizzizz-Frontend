@@ -109,7 +109,7 @@ const rules = {
 
 //#region init data
 const loading = ref(false);
-const isDataValid = ref(true); //to mark whether testTemplate is valid to remove guard
+const isDataValid = ref(true); //to mark whether the test is valid to remove guard
 /** @returns true nếu tải được test để sửa; false nếu đã chuyển hướng (404 / not-allowed) */
 const getData = async (): Promise<boolean> => {
     try {
@@ -144,6 +144,9 @@ const getData = async (): Promise<boolean> => {
         formState.createUpdateQuestions = result.data.data.questions.map((x: ResponseQuestion) =>
             TransferQuestionData.transformResponseToRequest(x),
         );
+        sourceInfo.value = Object.fromEntries(
+            result.data.data.questions.map((x: ResponseQuestion) => [x.id, toSourceInfo(x)]),
+        );
         return true;
     } catch (error: any) {
         isDataValid.value = false;
@@ -157,6 +160,57 @@ const getData = async (): Promise<boolean> => {
     } finally {
         loading.value = false;
     }
+};
+//#endregion
+
+//#region câu gốc trong bộ câu hỏi (bản sao trong bài test)
+interface SourceInfo {
+    sourceVersion: number | null;
+    latestSourceVersion: number | null;
+    sourceQuestionSetName: string | null;
+}
+const sourceInfo = ref<Record<string, SourceInfo>>({});
+const syncingId = ref("");
+
+const toSourceInfo = (question: ResponseQuestion): SourceInfo => ({
+    sourceVersion: question.sourceVersion ?? null,
+    latestSourceVersion: question.latestSourceVersion ?? null,
+    sourceQuestionSetName: question.sourceQuestionSetName ?? null,
+});
+
+// câu gốc đã được sửa sau khi chép vào đề
+const hasNewerSource = (questionId: string) => {
+    const info = sourceInfo.value[questionId];
+    return !!info && info.sourceVersion != null && info.latestSourceVersion != null
+        && info.latestSourceVersion > info.sourceVersion;
+};
+
+const onSyncWithSource = (index: number) => {
+    const question = formState.createUpdateQuestions[index];
+    if (!question) return;
+    Modal.confirm({
+        title: t("update_test.source.sync_confirm_title"),
+        content: t("update_test.source.sync_confirm_content"),
+        centered: true,
+        okText: t("update_test.source.sync"),
+        cancelText: t("create_QS.buttons.cancel"),
+        onOk: async () => {
+            try {
+                syncingId.value = question.id;
+                const result = await ApiTest.SyncWithSource(formState.testId, question.id);
+                if (!result?.data?.success) return;
+                const synced = result.data.data as ResponseQuestion;
+                formState.createUpdateQuestions[index] = TransferQuestionData.transformResponseToRequest(synced);
+                sourceInfo.value = { ...sourceInfo.value, [synced.id]: toSourceInfo(synced) };
+                message.success(t("update_test.source.synced"));
+            } catch (error) {
+                // lỗi (câu gốc đã xoá / hết quyền...) đã hiện toast ở interceptor
+                console.log("ERROR: sync test question with source", error);
+            } finally {
+                syncingId.value = "";
+            }
+        },
+    });
 };
 //#endregion
 
@@ -305,10 +359,10 @@ const openFolderModal = () => {
     folderModalRef.value?.openModal();
 };
 
-const onSwitchToTestTemplate = () => {
+const onSwitchToQuestionSet = () => {
     chosenFolder.value = null;
     folderModalRef.value?.closeModal();
-    openTestTemplateModal();
+    openQuestionSetModal();
 };
 
 const onOpenFolder = async (folder: Folder) => {
@@ -318,21 +372,21 @@ const onOpenFolder = async (folder: Folder) => {
     await nextTick();
 
     folderModalRef.value?.closeModal();
-    openFolderTestTemplateModal();
+    openFolderQuestionSetModal();
 };
 
 //#endregion
 
-//#region choose test template from folder modals
+//#region choose question set from folder modals
 const chosenFolder = ref<Folder | null>(null);
-const chosenTestTemplateId = ref("");
+const chosenQuestionSetId = ref("");
 
-import ChooseFolderTestTemplateModal from "@/shared/modals/ChooseFolderTestTemplateModal.vue";
-const folderTestTemplateModalRef = ref<InstanceType<typeof ChooseFolderTestTemplateModal> | null>(
+import ChooseFolderQuestionSetModal from "@/shared/modals/ChooseFolderQuestionSetModal.vue";
+const folderQuestionSetModalRef = ref<InstanceType<typeof ChooseFolderQuestionSetModal> | null>(
     null,
 );
-const openFolderTestTemplateModal = () => {
-    folderTestTemplateModalRef.value?.openModal();
+const openFolderQuestionSetModal = () => {
+    folderQuestionSetModalRef.value?.openModal();
 };
 
 const onBackToFolderModal = () => {
@@ -342,23 +396,23 @@ const onBackToFolderModal = () => {
 
 //#endregion
 
-//#region choose from test template modal
-import ChooseTestTemplateModal from "@/shared/modals/ChooseTestTemplateModal.vue";
-const testTemplateModalRef = ref<InstanceType<typeof ChooseTestTemplateModal> | null>(null);
-const openTestTemplateModal = () => {
-    testTemplateModalRef.value?.openModal();
+//#region choose from question set modal
+import ChooseQuestionSetModal from "@/shared/modals/ChooseQuestionSetModal.vue";
+const questionSetModalRef = ref<InstanceType<typeof ChooseQuestionSetModal> | null>(null);
+const openQuestionSetModal = () => {
+    questionSetModalRef.value?.openModal();
 };
 
 const onSwitchToFolder = () => {
     chosenFolder.value = null;
-    testTemplateModalRef.value?.closeModal();
+    questionSetModalRef.value?.closeModal();
     openFolderModal();
 };
 
 //use for both case
-const onOpenTestTemplate = async (testTemplateId: string, folder: Folder | null) => {
-    chosenTestTemplateId.value = testTemplateId;
-    testTemplateModalRef.value?.closeModal();
+const onOpenQuestionSet = async (questionSetId: string, folder: Folder | null) => {
+    chosenQuestionSetId.value = questionSetId;
+    questionSetModalRef.value?.closeModal();
     chosenFolder.value = folder;
     await nextTick();
     openQuestionModal();
@@ -366,7 +420,7 @@ const onOpenTestTemplate = async (testTemplateId: string, folder: Folder | null)
 
 //#endregion
 
-//#region choose question from test template
+//#region choose question from question set
 import ChooseQuestionModal from "@/shared/modals/ChooseQuestionModal.vue";
 import TransferQuestionData from "@/services/TransferQuestionData";
 import Validator from "@/services/Validator";
@@ -378,14 +432,14 @@ const openQuestionModal = () => {
     questionModalRef.value?.openModal();
 };
 
-const onBackToFolderTestTemplate = async (folder: Folder) => {
+const onBackToFolderQuestionSet = async (folder: Folder) => {
     chosenFolder.value = folder;
     await nextTick();
-    openFolderTestTemplateModal();
+    openFolderQuestionSetModal();
 };
 
-const onBackToTestTemplate = () => {
-    openTestTemplateModal();
+const onBackToQuestionSet = () => {
+    openQuestionSetModal();
 };
 
 //#endregion
@@ -531,8 +585,27 @@ onMounted(async () => {
                             v-for="(item, index) in formState.createUpdateQuestions"
                             :key="item.id"
                             class="question-list-item"
-                            v-memo="[item, index, item.type]"
+                            v-memo="[item, index, item.type, sourceInfo[item.id], syncingId === item.id]"
                         >
+                            <div v-if="hasNewerSource(item.id)" class="source-update-banner" role="status">
+                                <i class="bx bx-git-compare" aria-hidden="true"></i>
+                                <span>
+                                    {{
+                                        $t("update_test.source.newer", {
+                                            name: sourceInfo[item.id].sourceQuestionSetName,
+                                            current: sourceInfo[item.id].sourceVersion,
+                                            latest: sourceInfo[item.id].latestSourceVersion,
+                                        })
+                                    }}
+                                </span>
+                                <a-button
+                                    size="small"
+                                    :loading="syncingId === item.id"
+                                    @click="onSyncWithSource(index)"
+                                >
+                                    {{ $t("update_test.source.sync") }}
+                                </a-button>
+                            </div>
                             <component
                                 :is="componentMap[item.type as keyof typeof componentMap]"
                                 :question="item"
@@ -561,32 +634,54 @@ onMounted(async () => {
     />
     <ChooseFolderModal
         ref="folderModalRef"
-        @switch-to-test-template="onSwitchToTestTemplate"
+        @switch-to-question-set="onSwitchToQuestionSet"
         @open-folder="onOpenFolder"
     />
-    <ChooseFolderTestTemplateModal
-        ref="folderTestTemplateModalRef"
+    <ChooseFolderQuestionSetModal
+        ref="folderQuestionSetModalRef"
         :folder="chosenFolder"
         @back-to-folder-modal="onBackToFolderModal"
-        @open-test-template="onOpenTestTemplate"
+        @open-question-set="onOpenQuestionSet"
     />
-    <ChooseTestTemplateModal
-        ref="testTemplateModalRef"
+    <ChooseQuestionSetModal
+        ref="questionSetModalRef"
         @switch-to-folder="onSwitchToFolder"
-        @open-test-template="onOpenTestTemplate"
+        @open-question-set="onOpenQuestionSet"
     />
     <ChooseQuestionModal
         ref="questionModalRef"
-        :test-template-id="chosenTestTemplateId"
+        :question-set-id="chosenQuestionSetId"
         :folder="chosenFolder"
-        @back-to-folder-test-template-modal="onBackToFolderTestTemplate"
-        @back-to-test-template-modal="onBackToTestTemplate"
+        @back-to-folder-question-set-modal="onBackToFolderQuestionSet"
+        @back-to-question-set-modal="onBackToQuestionSet"
         @import="onModalImport"
     />
 </template>
 <style></style>
 
 <style scoped>
+.source-update-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--c-warning);
+    border-left-width: 3px;
+    border-radius: 8px;
+    background-color: color-mix(in srgb, var(--c-warning) 10%, transparent);
+    color: var(--c-text);
+    font-size: 14px;
+}
+.source-update-banner > i {
+    font-size: 18px;
+    color: var(--c-warning-text);
+}
+.source-update-banner > span {
+    flex: 1 1 240px;
+}
+
 .content-item-buttons {
     flex-direction: row;
     padding-right: 10px;

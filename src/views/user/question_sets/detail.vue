@@ -199,6 +199,38 @@ const updateRating = async () => {
 
 //#endregion
 
+//#region thêm bộ câu hỏi vào thư mục (thành viên thư mục xem được bộ và dùng câu hỏi để tạo đề)
+import ShareToFolder from "@/shared/modals/ShareToFolder.vue";
+import ApiFolder from "@/api/ApiFolder";
+import type { Folder } from "@/models/response/folder/folder";
+const shareToFolderModalRef = ref<InstanceType<typeof ShareToFolder> | null>(null);
+const openFolderModal = () => {
+    shareToFolderModalRef.value?.openModal();
+};
+
+const onAddToFolder = (folder: Folder) => {
+    Modal.confirm({
+        title: t("detail_QS.modal.add_to_folder_title"),
+        content: t("detail_QS.modal.add_to_folder_content", { name: quiz.value.name, folder_name: folder.name }),
+        okText: t("sidebar.buttons.ok"),
+        cancelText: t("sidebar.buttons.cancel"),
+        centered: true,
+        onOk: async () => {
+            try {
+                const result = await ApiFolder.AddQuestionSet(folder.folderTestId, quiz.value.id);
+                if (result?.data?.success) {
+                    message.success(t("detail_QS.modal.add_to_folder_success", { folder_name: folder.name }));
+                    shareToFolderModalRef.value?.closeModal();
+                }
+            } catch (error) {
+                // lỗi (đã có trong thư mục / không có quyền) đã hiện toast ở interceptor
+                console.log("ERROR: add question set to folder", error);
+            }
+        },
+    });
+};
+//#endregion
+
 //#region permission
 const permission = ref({
     canEdit: false,
@@ -332,8 +364,18 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <div v-if="permission.canDelete" class="quiz-credit">
+                <div v-if="permission.canEdit || permission.canDelete" class="quiz-credit">
                     <div class="share-btn-container">
+                        <a-button
+                            class="me-3 share-btn"
+                            size="large"
+                            @click="openFolderModal"
+                        >
+                            <i class="bx bx-folder-plus"></i>
+                            {{ $t("detail_QS.buttons.add_to_folder") }}
+                        </a-button>
+                    </div>
+                    <div v-if="permission.canDelete" class="share-btn-container">
                         <a-button
                             type="primary"
                             class="me-3 main-color-btn share-btn"
@@ -344,7 +386,7 @@ onMounted(async () => {
                             {{ $t("detail_QS.buttons.share_class") }}
                         </a-button>
                     </div>
-                    <div class="share-btn-container">
+                    <div v-if="permission.canDelete" class="share-btn-container">
                         <a-button
                             type="primary"
                             class="main-color-btn share-btn"
@@ -582,6 +624,7 @@ onMounted(async () => {
             </a-button>
         </template>
     </a-modal>
+    <ShareToFolder ref="shareToFolderModalRef" @add-to-folder="onAddToFolder" />
 </template>
 
 <style scoped>

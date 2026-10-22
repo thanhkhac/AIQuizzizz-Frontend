@@ -6,7 +6,7 @@ AIQuizzizz là nền tảng học trực tuyến giúp bạn tạo bộ câu h�
 - **Tự học**: luyện tập với chế độ Học hoặc làm bài luyện tập từ bất kỳ bộ câu hỏi nào bạn có quyền xem.
 - **Chia sẻ**: công khai bộ câu hỏi cho mọi người, chia sẻ riêng cho từng người qua email, hoặc thêm vào lớp học.
 - **Quản lý lớp học**: mời thành viên, giao bài kiểm tra và xem kết quả.
-- **Sắp xếp tài liệu**: gom mẫu đề thi vào thư mục, theo dõi lịch kiểm tra.
+- **Sắp xếp tài liệu**: gom bộ câu hỏi vào thư mục để chia sẻ cho đồng nghiệp, theo dõi lịch kiểm tra.
 
 ## Các khái niệm chính
 

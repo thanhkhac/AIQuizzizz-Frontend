@@ -94,22 +94,6 @@ const userRoutes = [
                 },
             },
             {
-                name: "User_TestTemplate",
-                path: "test-template",
-                component: () => import("@/views/user/test_template/index.vue"),
-                meta: {
-                    title: "test-template",
-                },
-            },
-            {
-                name: "User_TestTemplate_Detail",
-                path: "test-template/:id",
-                component: () => import("@/views/user/test_template/detail.vue"),
-                meta: {
-                    title: "detail",
-                },
-            },
-            {
                 name: "User_Schedule",
                 path: "schedule",
                 component: () => import("@/views/user/schedule.vue"),
@@ -157,22 +141,6 @@ const userRoutes = [
         component: () => import("@/views/user/question_sets/search.vue"),
         meta: {
             title: "search",
-        },
-    },
-    {
-        name: "User_TestTemplate_Create",
-        path: "/user/test-template/create",
-        component: () => import("@/views/user/test_template/create.vue"),
-        meta: {
-            title: "test-template-create",
-        },
-    },
-    {
-        name: "User_TestTemplate_Update",
-        path: "/user/test-template/:id/update",
-        component: () => import("@/views/user/test_template/update.vue"),
-        meta: {
-            title: "test-template-create",
         },
     },
     {

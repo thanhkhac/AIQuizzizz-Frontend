@@ -104,12 +104,12 @@ defineExpose({
 });
 
 const emit = defineEmits<{
-    (e: "switchToTestTemplate"): void;
+    (e: "switchToQuestionSet"): void;
     (e: "openFolder", folder: Folder): void;
 }>();
 
-const handleSwitchToTestTemplate = () => {
-    emit("switchToTestTemplate");
+const handleSwitchToQuestionSet = () => {
+    emit("switchToQuestionSet");
 };
 
 const handleOpenFolder = (folder: Folder) => {
@@ -160,9 +160,9 @@ const handleOpenFolder = (folder: Folder) => {
                                 <RouterLink
                                     class="navigator-item"
                                     :to="{ name: '' }"
-                                    @click="handleSwitchToTestTemplate"
+                                    @click="handleSwitchToQuestionSet"
                                 >
-                                    {{ $t("folder_index.navigators.test_template") }}
+                                    {{ $t("folder_index.navigators.question_set") }}
                                 </RouterLink>
                             </div>
                         </div>

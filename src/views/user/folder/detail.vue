@@ -6,9 +6,8 @@ import { useI18n } from "vue-i18n";
 import Validator from "@/services/Validator";
 
 import type { Folder } from "@/models/response/folder/folder";
-import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
-import type TestTemplatePageParams from "@/models/request/testTemplate/testTemplatePageParams";
-import type FolderTestTemplatePageParams from "@/models/request/folder/testTemplatePageParams";
+import type { FolderQuestionSet } from "@/models/response/folder/folder";
+import type FolderQuestionSetPageParams from "@/models/request/folder/folderQuestionSetPageParams";
 
 import { useRoute, useRouter } from "vue-router";
 import Input from "@/shared/components/Common/Input.vue";
@@ -30,12 +29,12 @@ const folderData = ref<Folder>({
 const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
     pageSize: route.query.pageSize || 10,
-    testTemplateName: route.query.testTemplateName?.toString() || "",
+    questionSetName: route.query.questionSetName?.toString() || "",
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
 
-const test_template_data = ref<TestTemplate[]>([]);
+const question_set_data = ref<FolderQuestionSet[]>([]);
 const loading = ref(false);
 const getData = async () => {
     try {
@@ -46,18 +45,18 @@ const getData = async () => {
         }
         if (!folderId.value) router.push({ name: "404" });
 
-        let result = await ApiFolder.GetAllTestTemplateByLimit(
+        let result = await ApiFolder.GetAllQuestionSetByLimit(
             folderId.value.toString(),
-            pageParams as FolderTestTemplatePageParams,
+            pageParams as FolderQuestionSetPageParams,
         );
         if (result.data.success) {
             let resultData = result.data.data;
-            test_template_data.value = resultData.testTemplates.items;
+            question_set_data.value = resultData.questionSets.items;
             folderData.value.name = resultData.folderName;
 
-            pageParams.pageNumber = resultData.testTemplates.pageNumber;
-            pageParams.pageSize = resultData.testTemplates.pageSize;
-            pageParams.totalCount = resultData.testTemplates.totalCount;
+            pageParams.pageNumber = resultData.questionSets.pageNumber;
+            pageParams.pageSize = resultData.questionSets.pageSize;
+            pageParams.totalCount = resultData.questionSets.totalCount;
             if (pageParams.statusFilter) {
                 //check if filter is active
                 if (pageParams.pageNumber > resultData.totalPages && pageParams.totalCount > 0) {
@@ -70,7 +69,7 @@ const getData = async () => {
                         query: {
                             pageNumber: 1,
                             pageSize: pageParams.pageSize,
-                            testTemplateName: pageParams.testTemplateName,
+                            questionSetName: pageParams.questionSetName,
                         },
                     });
                 } else {
@@ -82,7 +81,7 @@ const getData = async () => {
                         query: {
                             pageNumber: pageParams.pageNumber,
                             pageSize: pageParams.pageSize,
-                            testTemplateName: pageParams.testTemplateName,
+                            questionSetName: pageParams.questionSetName,
                         },
                     });
                 }
@@ -90,7 +89,7 @@ const getData = async () => {
             }
         }
     } catch (error) {
-        console.log("ERROR: GETALLBYLIMIT testtemplate: " + error);
+        console.log("ERROR: GETALLBYLIMIT folder question set: " + error);
     } finally {
         loading.value = false;
     }
@@ -101,7 +100,7 @@ const getData = async () => {
 //     if (Object.keys(route.query).length === 0) {
 //         pageParams.pageNumber = route.query.pageNumber || 1;
 //         pageParams.pageSize = route.query.pageSize || 10;
-//         pageParams.testTemplateName = route.query.testTemplateName?.toString() || "";
+//         pageParams.questionSetName = route.query.questionSetName?.toString() || "";
 //         pageParams.statusFilter = true;
 
 //         getData();
@@ -113,7 +112,7 @@ watch(
     () => {
         pageParams.pageNumber = route.query.pageNumber || 1;
         pageParams.pageSize = route.query.pageSize || 10;
-        pageParams.testTemplateName = route.query.testTemplateName?.toString() || "";
+        pageParams.questionSetName = route.query.questionSetName?.toString() || "";
         pageParams.statusFilter = true;
 
         getData();
@@ -128,16 +127,16 @@ const onPaginationChange = (page: number, pageSize: number) => {
     getData();
 };
 
-const onRemoveTestTemplate = (testTemplateId: string) => {
+const onRemoveQuestionSet = (questionSetId: string) => {
     Modal.confirm({
-        title: t("folder_detail.modal.delete_template_warning"),
-        content: t("folder_detail.modal.delete_template_ins"),
+        title: t("folder_detail.modal.remove_question_set_warning"),
+        content: t("folder_detail.modal.remove_question_set_ins"),
         okText: t("sidebar.buttons.ok"),
         cancelText: t("sidebar.buttons.cancel"),
         onOk: async () => {
-            const result = await ApiFolder.DeleteTestTemplate(
+            const result = await ApiFolder.DeleteQuestionSet(
                 folderId.value.toString(),
-                testTemplateId,
+                questionSetId,
             );
             if (!result.data.success) {
                 message.error(t("message.removed_failed"));
@@ -231,20 +230,39 @@ import ShareModal from "@/shared/modals/ShareModal.vue";
 import VISIBILITY from "@/constants/visibility";
 const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
 
-const onOpenShareModal = (template: TestTemplate) => {
+const onOpenShareModal = () => {
     shareModalRef.value?.openModal();
 };
 
 //#endregion
 
-const onRedirectToCreate = () => {
-    router.push({ name: "User_TestTemplate_Create" });
+//#region thêm bộ câu hỏi (của mình / được chia sẻ quyền sửa) vào thư mục
+import ChooseQuestionSetModal from "@/shared/modals/ChooseQuestionSetModal.vue";
+const questionSetModalRef = ref<InstanceType<typeof ChooseQuestionSetModal> | null>(null);
+
+const onOpenAddQuestionSet = () => {
+    questionSetModalRef.value?.openModal();
 };
 
-const onRedirectToDetail = (testTemplateId: string) => {
+const onAddQuestionSet = async (questionSetId: string) => {
+    try {
+        const result = await ApiFolder.AddQuestionSet(folderId.value.toString(), questionSetId);
+        if (result?.data?.success) {
+            message.success(t("folder_detail.message.question_set_added"));
+            questionSetModalRef.value?.closeModal();
+            await getData();
+        }
+    } catch (error) {
+        // lỗi (đã có trong thư mục / không có quyền sửa bộ) đã hiện toast ở interceptor
+        console.log("ERROR: add question set to folder", error);
+    }
+};
+//#endregion
+
+const onRedirectToDetail = (questionSetId: string) => {
     router.push({
-        name: "User_TestTemplate_Detail",
-        params: { id: testTemplateId },
+        name: "User_QuestionSet_Detail",
+        params: { id: questionSetId },
     });
 };
 
@@ -276,10 +294,10 @@ onMounted(async () => {
                     type="primary"
                     class="ms-3 main-color-btn"
                     size="large"
-                    @click="onRedirectToCreate"
+                    @click="onOpenAddQuestionSet"
                 >
                     <i class="me-2 bx bx-plus"></i>
-                    {{ $t("folder_detail.buttons.create_new_template") }}
+                    {{ $t("folder_detail.buttons.add_question_set") }}
                 </a-button>
             </div>
         </div>
@@ -296,7 +314,7 @@ onMounted(async () => {
                         <div style="width: 300px; padding: 0px">
                             <Input
                                 @input="getData"
-                                v-model="pageParams.testTemplateName"
+                                v-model="pageParams.questionSetName"
                                 :placeholder="t('folder_detail.search_placeholder')"
                             >
                                 <template #icon>
@@ -312,21 +330,21 @@ onMounted(async () => {
                     <a-skeleton active :loading="loading"></a-skeleton>
                 </template>
                 <template v-else>
-                    <div v-if="test_template_data.length > 0" class="quiz-item-container">
-                        <div class="quiz-item" v-for="template in test_template_data">
+                    <div v-if="question_set_data.length > 0" class="quiz-item-container">
+                        <div class="quiz-item" v-for="set in question_set_data" :key="set.questionSetId">
                             <i class="bx bx-book-open quiz-item-icon"></i>
                             <div>
                                 <div class="quiz-item-title">
-                                    {{ template.name }}
+                                    {{ set.name }}
                                 </div>
                                 <div class="quiz-item-info quiz-info-detail">
                                     <div class="quiz-item-questions">
                                         <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                        {{ $t("dashboards.list_items.quiz.questions", template.numberOfQuestion) }}
+                                        {{ $t("dashboards.list_items.quiz.questions", set.numberOfQuestion) }}
                                     </div>
                                     <div class="quiz-item-created-by">
                                         {{ $t("class_question_set.other.created_by") }}
-                                        {{ template.createBy }}
+                                        {{ set.createBy }}
                                     </div>
                                 </div>
                             </div>
@@ -334,13 +352,13 @@ onMounted(async () => {
                                 <a-button
                                     type="primary"
                                     class="me-3 main-color-btn"
-                                    @click="onRedirectToDetail(template.testTemplateId)"
+                                    @click="onRedirectToDetail(set.questionSetId)"
                                 >
                                     {{ $t("class_question_set.buttons.view") }}
                                 </a-button>
                                 <i
                                     class="text-danger bx bx-trash-alt"
-                                    @click="onRemoveTestTemplate(template.testTemplateId)"
+                                    @click="onRemoveQuestionSet(set.questionSetId)"
                                 ></i>
                             </div>
                         </div>
@@ -363,7 +381,7 @@ onMounted(async () => {
                         :pageSize="pageParams.pageSize"
                         :show-total="
                             (total: any, range: any) =>
-                                `${range[0]}-${range[1]} of ${total} ${t('test_template_index.other.items')}`
+                                `${range[0]}-${range[1]} of ${total} ${t('folder_detail.other.items')}`
                         "
                         show-size-changer
                         class="crud-layout-pagination"
@@ -449,6 +467,12 @@ onMounted(async () => {
         </template>
     </a-modal>
 
+    <ChooseQuestionSetModal
+        ref="questionSetModalRef"
+        hide-folder-tab
+        :action-label="$t('folder_detail.buttons.add')"
+        @open-question-set="onAddQuestionSet"
+    />
     <ShareModal
         ref="shareModalRef"
         :id="folderId"

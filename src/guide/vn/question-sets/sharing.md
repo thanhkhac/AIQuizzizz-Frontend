@@ -1,11 +1,11 @@
-Bạn quyết định ai được xem và chỉnh sửa bộ câu hỏi của mình: công khai cho mọi người, chia sẻ riêng cho từng người qua email, hoặc đưa vào lớp học. Chỉ chủ sở hữu bộ câu hỏi mới thay đổi được các thiết lập này.
+Bạn quyết định ai được xem và chỉnh sửa bộ câu hỏi của mình: công khai cho mọi người, chia sẻ riêng cho từng người qua email, đưa vào lớp học hoặc đưa vào thư mục. Chỉ chủ sở hữu bộ câu hỏi mới thay đổi được quyền hiển thị, chia sẻ qua email và thêm vào lớp.
 
 ## Quyền hiển thị
 
 | Chế độ | Ai xem được |
 | --- | --- |
 | **Công khai** (*Public*) | Mọi người dùng. Bộ câu hỏi xuất hiện trong kết quả tìm kiếm. |
-| **Riêng tư** (*Private*) | Chỉ bạn, những người được chia sẻ qua email và thành viên các lớp có bộ câu hỏi này. |
+| **Riêng tư** (*Private*) | Chỉ bạn, những người được chia sẻ qua email, thành viên các lớp có bộ câu hỏi này và thành viên các thư mục chứa bộ câu hỏi này. |
 
 Bộ câu hỏi mới luôn ở chế độ Riêng tư. Để đổi:
 
@@ -46,6 +46,31 @@ Thành viên của lớp xem được bộ câu hỏi kể cả khi nó ở ch�
 > [!NOTE]
 > Bạn chỉ thêm được vào lớp bộ câu hỏi do bạn tạo hoặc bộ câu hỏi công khai.
 
+## Thêm vào thư mục
+
+Chủ sở hữu và người được chia sẻ quyền **Chỉnh sửa** thấy nút **Thêm vào thư mục** (*Add to folder*) trên trang chi tiết bộ câu hỏi.
+
+1. Mở trang chi tiết bộ câu hỏi, bấm **Thêm vào thư mục**.
+2. Trong hộp **Chọn thư mục** (*Choose folder*), bấm vào thư mục cần thêm. Dùng ô lọc và ô tìm kiếm để tìm nhanh.
+3. Hộp **Thêm bộ câu hỏi vào thư mục?** (*Add question set to folder?*) hiện ra. Bấm **Đồng ý** (*Ok*) để xác nhận.
+
+Khi thêm thành công, hệ thống báo **Đã thêm vào thư mục {tên thư mục}** (*Added to folder {folder name}*).
+
+Để thêm được, bạn cần đủ hai điều kiện:
+
+- Có quyền chỉnh sửa bộ câu hỏi (là chủ sở hữu hoặc có quyền **Chỉnh sửa**).
+- Có quyền **Chủ sở hữu** (*Owner*) hoặc **Có thể chỉnh sửa** (*Editable*) trong thư mục.
+
+Một bộ câu hỏi có thể nằm trong nhiều thư mục. Nếu bộ đã có trong thư mục, hệ thống báo lỗi và không thêm lần nữa.
+
+### Thành viên thư mục được làm gì?
+
+- Xem bộ câu hỏi, kể cả khi bộ ở chế độ Riêng tư.
+- Dùng câu hỏi của bộ để soạn bài kiểm tra cho lớp, qua nút **Chọn từ thư mục** (*Choose from folder*). Xem [Giao bài kiểm tra](/guide/classes/assign-test).
+
+> [!NOTE]
+> Gỡ bộ câu hỏi khỏi thư mục không xóa bộ câu hỏi. Cách gỡ xem tại [Thư mục](/guide/folders/folders).
+
 ## Khi không có quyền truy cập
 
 Nếu mở bộ câu hỏi mà bạn không có quyền xem, trang **Từ chối truy cập!** (*Access Denied!*) xuất hiện. Hãy nhờ chủ sở hữu chia sẻ cho bạn.
@@ -55,3 +80,4 @@ Nếu mở bộ câu hỏi mà bạn không có quyền xem, trang **Từ chối
 - [Tìm bộ câu hỏi công khai](/guide/question-sets/search)
 - [Thành viên & vai trò](/guide/classes/members)
 - [Tạo / tham gia lớp](/guide/classes/create-join)
+- [Thư mục](/guide/folders/folders)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ApiTestTemplate from "@/api/ApiTestTemplate";
+import ApiTest from "@/api/ApiTest";
 import ApiQuestionSet from "@/api/ApiQuestionSet";
 
 import { ref, reactive, watch, onMounted, computed } from "vue";
@@ -98,7 +98,7 @@ const onFileChange = async (file: File) => {
 
         let result;
         try {
-            result = await ApiTestTemplate.ImportFile(file);
+            result = await ApiTest.ImportFile(file);
         } catch (error) {
             // file hỏng/sai định dạng (400 INVALID_FILE_FORMAT...): toast lỗi đã hiển thị ở interceptor,
             // không giữ file lỗi trong danh sách

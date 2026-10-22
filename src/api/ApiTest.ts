@@ -13,6 +13,8 @@ const END_POINTS = {
     GET_USER_EXAM_HISTORY: "Test/{testId}/History",
     GET_ATTEMPT_REVIEW: "Test/{attemptId}/Review",
     GET_TEST_SCHEDULE: "Test/Schedule",
+    SYNC_WITH_SOURCE: "Test/{testId}/Questions/{questionId}/SyncWithSource",
+    IMPORT_FILE: "Test/ImportFile",
 };
 
 class ApiTest {
@@ -28,6 +30,23 @@ class ApiTest {
     Update = async (formState: any) => {
         const url = END_POINTS.UPDATE.replace("{testId}", formState.testId);
         return await Api.patch(url, formState); //body 2 //query 3
+    };
+
+    /** Cập nhật câu hỏi trong bài test theo nội dung mới nhất của câu gốc (bộ câu hỏi) */
+    SyncWithSource = async (testId: string, questionId: string) => {
+        const url = END_POINTS.SYNC_WITH_SOURCE.replace("{testId}", testId).replace("{questionId}", questionId);
+        return await Api.post(url);
+    };
+
+    /** Nhập câu hỏi từ file Excel khi soạn bài test */
+    ImportFile = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        return await Api.post(END_POINTS.IMPORT_FILE, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
     };
 
     Delete = async (testId: string) => {

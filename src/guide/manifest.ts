@@ -70,11 +70,8 @@ export const GUIDE: GuideGroup[] = [
     },
     {
         slug: "folders",
-        title: "Thư mục & mẫu đề thi",
-        pages: [
-            { slug: "folders", title: "Thư mục" },
-            { slug: "test-templates", title: "Mẫu đề thi" },
-        ],
+        title: "Thư mục",
+        pages: [{ slug: "folders", title: "Thư mục" }],
     },
     {
         slug: "schedule",

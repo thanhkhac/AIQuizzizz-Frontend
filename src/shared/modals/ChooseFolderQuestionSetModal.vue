@@ -1,73 +1,58 @@
 <script setup lang="ts">
-import ApiTestTemplate from "@/api/ApiTestTemplate";
-
-import FOLDER_SHARE_MODE from "@/constants/folderShareMode";
-import type TestTemplatePageParams from "@/models/request/testTemplate/testTemplatePageParams";
-import type { TestTemplate } from "@/models/response/testTemplate/testTemplate";
+import ApiFolder from "@/api/ApiFolder";
+import type FolderQuestionSetPageParams from "@/models/request/folder/folderQuestionSetPageParams";
+import type { FolderQuestionSet } from "@/models/response/folder/folder";
 import type { Folder } from "@/models/response/folder/folder";
 
-import { ref, reactive, computed, watch } from "vue";
+import { ref, reactive, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 
 import Input from "@/shared/components/Common/Input.vue";
-import { message, Modal } from "ant-design-vue";
 
 const route = useRoute();
-const router = useRouter();
 
 const { t } = useI18n();
 
-const optionKeys = Object.values(FOLDER_SHARE_MODE);
+interface Props {
+    folder: Folder | null;
+}
 
-const share_mode_options = computed(() =>
-    optionKeys.map((key) => ({
-        label: t(`folder_index.select_option.${key}`),
-        value: key !== FOLDER_SHARE_MODE.ALL ? key : "",
-    })),
-);
+const props = defineProps<Props>();
 
 //#region pagination
-const test_template_data = ref<TestTemplate[]>([]);
+const question_set_data = ref<FolderQuestionSet[]>([]);
 const pageParams = reactive({
     pageNumber: route.query.pageNumber || 1,
     pageSize: route.query.pageSize || 10,
-    name: route.query.name?.toString() || "",
-    shareMode: route.query.shareMode || share_mode_options.value[0].value,
+    questionSetName: "",
     totalCount: 0,
     statusFilter: false, //serve as a flag to check if pageParams is in url
 });
 const loading = ref(false);
 const getData = async () => {
     try {
+        if (!props.folder?.folderTestId) return;
         loading.value = true;
-        let result = await ApiTestTemplate.GetAllByLimit(pageParams as TestTemplatePageParams);
+
+        let result = await ApiFolder.GetAllQuestionSetByLimit(
+            props.folder.folderTestId,
+            pageParams as FolderQuestionSetPageParams,
+        );
         if (result.data.success) {
             let resultData = result.data.data;
-            test_template_data.value = resultData.items;
-            pageParams.pageNumber = resultData.pageNumber;
-            pageParams.pageSize = resultData.pageSize;
-            pageParams.totalCount = resultData.totalCount;
+            question_set_data.value = resultData.questionSets.items;
+
+            pageParams.pageNumber = resultData.questionSets.pageNumber;
+            pageParams.pageSize = resultData.questionSets.pageSize;
+            pageParams.totalCount = resultData.questionSets.totalCount;
         }
     } catch (error) {
-        console.log("ERROR: GETALLBYLIMIT testtemplate: " + error);
+        console.log("ERROR: GETALLBYLIMIT folder question set: " + error);
     } finally {
         loading.value = false;
     }
 };
-
-//update when page change (url)
-// onUpdated(() => {
-//     if (Object.keys(route.query).length === 0) {
-//         pageParams.pageNumber = route.query.pageNumber || 1;
-//         pageParams.pageSize = route.query.pageSize || 10;
-//         pageParams.name = route.query.name?.toString() || "";
-//         pageParams.shareMode = route.query.shareMode || share_mode_options.value[0].value;
-//         pageParams.statusFilter = true;
-
-//         getData();
-//     }
-// });
 
 watch(
     () => Object.keys(route.query).length,
@@ -75,8 +60,7 @@ watch(
         if (Object.keys(route.query).length === 0) {
             pageParams.pageNumber = route.query.pageNumber || 1;
             pageParams.pageSize = route.query.pageSize || 10;
-            pageParams.name = route.query.name?.toString() || "";
-            pageParams.shareMode = route.query.shareMode || share_mode_options.value[0].value;
+            pageParams.questionSetName = "";
             pageParams.statusFilter = true;
 
             getData();
@@ -94,6 +78,11 @@ const onPaginationChange = (page: number, pageSize: number) => {
 //#endregion
 
 //#region modal
+const emit = defineEmits<{
+    (e: "openQuestionSet", questionSetId: string, folder: Folder | null): void;
+    (e: "backToFolderModal"): void;
+}>();
+
 const modal_open = ref(false);
 
 const openModal = async () => {
@@ -103,25 +92,19 @@ const openModal = async () => {
 
 const closeModal = () => {
     modal_open.value = false;
+    emit("backToFolderModal");
 };
+
+const handleOpenQuestionSet = (questionSetId: string) => {
+    closeModal();
+    emit("openQuestionSet", questionSetId, props.folder);
+};
+
 //expose functions to main ref
 defineExpose({
     openModal,
     closeModal,
 });
-
-const emit = defineEmits<{
-    (e: "switchToFolder"): void;
-    (e: "openTestTemplate", testTemplateId: string, folder: Folder | null): void;
-}>();
-const handleSwitchToFolder = () => {
-    emit("switchToFolder");
-};
-
-const handleOpenTestTemplate = (testTemplateId: string) => {
-    emit("openTestTemplate", testTemplateId, null);
-};
-
 //#endregion
 </script>
 <template>
@@ -141,7 +124,7 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
                         </RouterLink>
                     </a-col>
                     <a-col class="main-title" :span="23">
-                        <span>{{ $t("create_test_modals.select_template") }}</span>
+                        <span>{{ $t("create_test_modals.select_question_set") }}</span>
                     </a-col>
                 </a-row>
             </div>
@@ -150,48 +133,21 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
                 <div class="content-item">
                     <div class="title-container">
                         <div class="main-title">
-                            <span>{{ $t("folder_index.title") }}</span> <br />
+                            <span>
+                                {{ $t("create_test_modals.folder", { name: folder?.name }) }}
+                            </span>
+                            <br />
                             <span>
                                 {{ $t("folder_index.sub_title") }}
                             </span>
                         </div>
                     </div>
                     <div class="content-item-functions">
-                        <div class="content-item-navigators">
-                            <div class="navigator-container">
-                                <RouterLink
-                                    class="navigator-item"
-                                    :to="{ name: '' }"
-                                    @click="handleSwitchToFolder"
-                                >
-                                    {{ $t("folder_index.navigators.folder") }}
-                                </RouterLink>
-                                <RouterLink
-                                    class="navigator-item navigator-active"
-                                    :to="{ name: '' }"
-                                >
-                                    {{ $t("folder_index.navigators.test_template") }}
-                                </RouterLink>
-                            </div>
-                        </div>
                         <div class="filter-container">
-                            <a-select
-                                class="me-3"
-                                v-model:value="pageParams.shareMode"
-                                style="width: 200px"
-                                @change="getData"
-                            >
-                                <a-select-option
-                                    v-for="option in share_mode_options"
-                                    :value="option.value"
-                                >
-                                    {{ option.label }}
-                                </a-select-option>
-                            </a-select>
                             <div style="width: 300px; padding: 0px">
                                 <Input
                                     @input="getData"
-                                    v-model="pageParams.name"
+                                    v-model="pageParams.questionSetName"
                                     :placeholder="t('class_index.other.search_class_placeholder')"
                                 >
                                     <template #icon>
@@ -206,21 +162,26 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
                         <a-skeleton active :loading="loading"></a-skeleton>
                     </div>
                     <div v-else class="quiz-item-container">
-                        <template v-if="test_template_data.length > 0">
-                            <div class="quiz-item" v-for="template in test_template_data">
+                        <template v-if="question_set_data.length > 0">
+                            <div
+                                class="quiz-item"
+                                v-for="set in question_set_data"
+                                :key="set.questionSetId"
+                                @click="handleOpenQuestionSet(set.questionSetId)"
+                            >
                                 <i class="bx bx-book-open quiz-item-icon"></i>
                                 <div>
                                     <div class="quiz-item-title">
-                                        {{ template.name }}
+                                        {{ set.name }}
                                     </div>
                                     <div class="quiz-item-info quiz-info-detail">
                                         <div class="quiz-item-questions">
                                             <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                                            {{ $t("dashboards.list_items.quiz.questions", template.numberOfQuestion) }}
+                                            {{ $t("dashboards.list_items.quiz.questions", set.numberOfQuestion) }}
                                         </div>
                                         <div class="quiz-item-created-by">
                                             {{ $t("class_question_set.other.created_by") }}
-                                            {{ template.createBy }}
+                                            {{ set.createBy }}
                                         </div>
                                     </div>
                                 </div>
@@ -228,7 +189,7 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
                                     <a-button
                                         type="primary"
                                         class="me-3 main-color-btn"
-                                        @click="handleOpenTestTemplate(template.testTemplateId)"
+                                        @click.stop="handleOpenQuestionSet(set.questionSetId)"
                                     >
                                         {{ $t("class_question_set.buttons.view") }}
                                     </a-button>
@@ -239,7 +200,7 @@ const handleOpenTestTemplate = (testTemplateId: string) => {
                             <div class="w-100 d-flex justify-content-center">
                                 <a-empty>
                                     <template #description>
-                                        <span> No data matches. </span>
+                                        <span> {{ $t("class_index.other.no_data_matches") }}</span>
                                     </template>
                                 </a-empty>
                             </div>
