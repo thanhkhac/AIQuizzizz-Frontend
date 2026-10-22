@@ -146,14 +146,15 @@ const escapeHtml = (text: string) =>
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
 
-interface MarkdownEnv {
+export interface MarkdownEnv {
     copyLabel?: string;
     copiedLabel?: string;
 }
 
 const LANGUAGE_ALIASES: Record<string, string> = { "c#": "csharp", "cs": "csharp" };
 
-const renderCodeBlock = (code: string, info: string, env: MarkdownEnv): string => {
+/** Khối code (có nút Sao chép); dùng chung với trang Hướng dẫn */
+export const renderCodeBlock = (code: string, info: string, env: MarkdownEnv): string => {
     const rawLanguage = (info.trim().split(/\s+/)[0] ?? "").toLowerCase();
     const language = LANGUAGE_ALIASES[rawLanguage] ?? rawLanguage;
     const text = code.replace(/\n$/, "");

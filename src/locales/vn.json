@@ -1536,5 +1536,32 @@
             },
             "read_only": "Chỉ quản trị viên mới được thay đổi cài đặt hệ thống."
         }
+    },
+    "guide": {
+        "title": "Hướng dẫn sử dụng",
+        "short": "Hướng dẫn",
+        "toc": "Mục lục",
+        "on_this_page": "Trên trang này",
+        "search_placeholder": "Tìm trong hướng dẫn...",
+        "searching": "Đang tìm...",
+        "no_results": "Không tìm thấy trang nào phù hợp.",
+        "previous": "Trước",
+        "next": "Tiếp theo",
+        "helpful": "Trang này có hữu ích không?",
+        "yes": "Có",
+        "no": "Không",
+        "thanks": "Cảm ơn bạn đã phản hồi!",
+        "open_app": "Vào ứng dụng",
+        "sign_in": "Đăng nhập",
+        "reading_time": "Khoảng {n} phút đọc",
+        "updated": "Cập nhật lần cuối: {date}",
+        "not_found_title": "Không tìm thấy trang hướng dẫn",
+        "not_found_content": "Trang bạn tìm không tồn tại hoặc đã được đổi tên.",
+        "back_to_start": "Về trang đầu",
+        "load_failed": "Không tải được nội dung. Vui lòng thử lại.",
+        "retry": "Thử lại",
+        "open_toc": "Mở mục lục",
+        "close_toc": "Đóng mục lục",
+        "breadcrumb": "Đường dẫn"
     }
 }
