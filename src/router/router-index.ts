@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/stores/AuthStore";
+import { GOOGLE_LOGIN_ENABLED } from "@/constants/features";
 
 import adminRoutes from "./route-admin";
 import userRoutes from "./route-user";
@@ -113,6 +114,12 @@ router.beforeEach((to, from, next) => {
     document.title = "AIQuizizz | " + to.meta.title;
 
     const isLoggedIn = useAuthStore().checkUser();
+
+    //đăng nhập Google đang tắt tạm: chặn trang callback (về trang đăng nhập)
+    if (to.name === "google-authentication-callback" && !GOOGLE_LOGIN_ENABLED) {
+        next({ name: "login" });
+        return;
+    }
 
     //check authentication + returnURL
     if (!isLoggedIn && !publicRoutes.includes(to.name as string)) {

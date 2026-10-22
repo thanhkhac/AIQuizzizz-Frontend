@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import google_logo from "@/assets/google_logo.png";
+import { GOOGLE_LOGIN_ENABLED } from "@/constants/features";
 
 import { onMounted, reactive, ref } from "vue";
 import { useAuthStore } from "@/stores/AuthStore";
@@ -122,17 +123,20 @@ onMounted(() => {
             </template>
         </a-alert>
 
-        <div class="authentication-item-external-login">
-            <button type="button" class="external-login external-login-google" @click="onGoogleLogin">
-                <span class="external-login-icon" :style="{ backgroundImage: `url(${google_logo})` }" aria-hidden="true"></span>
-                <span>{{ $t("auth.buttons.continueWithGoogle") }}</span>
-            </button>
-        </div>
-        <a-divider style="height: 1px; background-color: var(--c-border)">
-            <span style="background-color: var(--background-color); color: var(--c-text-muted); padding: 0px 10px">{{
-                $t("auth.others.or")
-            }}</span>
-        </a-divider>
+        <!-- đăng nhập Google đang tắt tạm (bật bằng VITE_ENABLE_GOOGLE_LOGIN=true, xem constants/features.ts) -->
+        <template v-if="GOOGLE_LOGIN_ENABLED">
+            <div class="authentication-item-external-login">
+                <button type="button" class="external-login external-login-google" @click="onGoogleLogin">
+                    <span class="external-login-icon" :style="{ backgroundImage: `url(${google_logo})` }" aria-hidden="true"></span>
+                    <span>{{ $t("auth.buttons.continueWithGoogle") }}</span>
+                </button>
+            </div>
+            <a-divider style="height: 1px; background-color: var(--c-border)">
+                <span style="background-color: var(--background-color); color: var(--c-text-muted); padding: 0px 10px">{{
+                    $t("auth.others.or")
+                }}</span>
+            </a-divider>
+        </template>
         <a-form
             class="authentication-item-form"
             ref="formRef"
