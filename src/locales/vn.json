@@ -411,7 +411,6 @@
                 "updated": "Đã cập nhật ảnh đại diện",
                 "deleted": "Đã xoá ảnh đại diện",
                 "not_image": "Vui lòng chọn một tệp ảnh",
-                "hint": "Ảnh được cắt vuông và kiểm duyệt tự động. Ảnh khoả thân / khiêu dâm (kể cả tranh vẽ, anime) / bạo lực sẽ bị từ chối và tính 1 vi phạm.",
                 "upload": "Tải ảnh lên",
                 "delete_short": "Xoá",
                 "drop": "Thả ảnh vào đây"
