@@ -613,6 +613,11 @@ const onContinuesLearn = async () => {
         return;
     }
 
+    await startNewSession();
+};
+
+// nạp phiên mới từ server và đưa trạng thái học về đầu phiên
+const startNewSession = async () => {
     await getQuizData();
 
     isCurrentSessionReLearn.value = false;
@@ -623,7 +628,7 @@ const onContinuesLearn = async () => {
     incorrect.value = new Set();
     completed.value = [];
 
-    toggleExplainModal();
+    explainModalOpen.value = false; // gán thẳng: lúc mở trang khi đã học hết thì giải thích đang đóng sẵn
 
     resetUserAnswer();
     syncMatchingHeights();
@@ -657,12 +662,7 @@ const onResetLearnHistory = async () => {
     if (result.data.success) {
         message.success(t("learn_QS.msg.learn_mode_reset"));
         completeModalOpen.value = false;
-        // await getQuizData();
-
-        // toggleExplainModal();
-        // resetUserAnswer();
-        // syncMatchingHeights();
-        window.location.reload();
+        await startNewSession(); // học lại từ đầu tại chỗ, không reload cả trang
     }
 };
 
@@ -768,7 +768,6 @@ onMounted(async () => {
             <a-progress
                 :show-info="false"
                 stroke-color="var(--main-color)"
-                status="active"
                 :percent="completionPercentage"
             />
         </div>
@@ -1390,7 +1389,6 @@ onMounted(async () => {
             <a-progress
                 :show-info="false"
                 stroke-color="#7C3AED"
-                status="active"
                 :percent="completionPercentage"
             />
             <div class="progress-info">

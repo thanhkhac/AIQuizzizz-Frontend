@@ -2,6 +2,7 @@
 import { useRoute } from "vue-router";
 import { computed } from "vue";
 import AuthenticationLayout from "@/shared/layouts/_authenticationLayout.vue";
+import RouteProgressBar from "@/shared/components/Common/RouteProgressBar.vue";
 
 const route = useRoute();
 
@@ -19,6 +20,7 @@ const layoutComponent = computed(() => {
 <template>
     <component :is="layoutComponent || 'div'">
         <div class="layout-body">
+            <RouteProgressBar />
             <div class="background-eclipse-container">
                 <div class="eclipse eclipse-left"></div>
                 <div class="eclipse eclipse-right"></div>
