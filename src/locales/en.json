@@ -411,7 +411,10 @@
                 "updated": "Profile photo updated",
                 "deleted": "Profile photo removed",
                 "not_image": "Please choose an image file",
-                "hint": "Photos are cropped square and checked automatically. Nudity, sexual content (including drawings and anime) and violence are rejected and counts as 1 violation."
+                "hint": "Photos are cropped square and checked automatically. Nudity, sexual content (including drawings and anime) and violence are rejected and counts as 1 violation.",
+                "upload": "Upload photo",
+                "delete_short": "Remove",
+                "drop": "Drop image here"
             }
         },
         "security": {
