@@ -6,6 +6,10 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Changed — Giao diện ảnh đại diện (Cài đặt > Tài khoản)
+- Ảnh tròn 112px có viền màu chủ đạo + huy hiệu máy ảnh ở góc; bấm thẳng vào ảnh để chọn ảnh (rê chuột / focus hiện lớp phủ "Đổi ảnh"; đang kiểm duyệt hiện spinner + "Đang kiểm duyệt..." trên ảnh). **Kéo thả** ảnh vào khung để tải lên (viền nét đứt + "Thả ảnh vào đây").
+- Nút dạng viên thuốc cùng hàng: **Tải ảnh lên** / **Đổi ảnh** (màu chủ đạo) và **Xoá** (viền, chữ đỏ), có focus ring, khoá khi đang xử lý. Ghi chú kiểm duyệt nhỏ kèm biểu tượng khiên. Màu theo token `--c-*` / `--main-color` (sáng / tối, mọi màu chủ đạo). Khoá i18n mới: `upload`, `delete_short`, `drop`.
+
 ### Changed — Chính sách kiểm duyệt: thêm nội dung khiêu dâm (kể cả tranh vẽ / anime)
 - Kiểm duyệt ảnh nay có thêm model phân loại khiêu dâm (media-ai 1.1). Cập nhật câu chữ vi / en: ghi chú ảnh đại diện, lỗi `AVATAR_VIOLATED`, lý do khoá tự động (`auto_strikes`), và trang hướng dẫn Kiểm duyệt nội dung, Ảnh đại diện, Media trong câu hỏi, FAQ.
 
