@@ -53,6 +53,12 @@ body {
     list-style: none;
     padding: 0;
     margin: 12px 0 0;
+    /* màn hình thấp: menu tự cuộn, không đẩy / ép khung hồ sơ ở đáy */
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
 }
 
 .sidebar-listItem {
@@ -123,6 +129,7 @@ body {
 }
 
 .sidebar-profileSection {
+    flex-shrink: 0;
     height: 80px;
     display: flex;
     align-items: center;
@@ -131,6 +138,11 @@ body {
 
 .sidebar-profileSection .user-avatar {
     margin-right: 15px;
+    transition:
+        width 0.2s ease-in-out,
+        height 0.2s ease-in-out,
+        min-width 0.2s ease-in-out,
+        font-size 0.2s ease-in-out;
     box-shadow:
         0 0 0 2px var(--c-surface),
         0 0 0 3px var(--main-color);
@@ -152,6 +164,24 @@ body {
 .shrink .sidebar-profileSection > div > span {
     visibility: hidden;
     opacity: 0;
+}
+
+/* thu gọn (cột 85px): avatar nhỏ lại, nằm giữa; bỏ hẳn phần tên (đăng xuất đã có trong menu) */
+.shrink .sidebar-profileSection {
+    justify-content: center;
+    height: 64px;
+}
+
+.shrink .sidebar-profileSection > div {
+    display: none;
+}
+
+.shrink .sidebar-profileSection .user-avatar {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    margin-right: 0;
+    font-size: 19px !important;
 }
 
 .divider {
