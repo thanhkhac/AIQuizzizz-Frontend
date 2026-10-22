@@ -6,6 +6,9 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Changed — Chính sách kiểm duyệt: thêm nội dung khiêu dâm (kể cả tranh vẽ / anime)
+- Kiểm duyệt ảnh nay có thêm model phân loại khiêu dâm (media-ai 1.1). Cập nhật câu chữ vi / en: ghi chú ảnh đại diện, lỗi `AVATAR_VIOLATED`, lý do khoá tự động (`auto_strikes`), và trang hướng dẫn Kiểm duyệt nội dung, Ảnh đại diện, Media trong câu hỏi, FAQ.
+
 ### Added — Ảnh đại diện có kiểm duyệt
 - **Cài đặt > Tài khoản**: khung ảnh đại diện có nút **Đổi ảnh** / **Xoá ảnh** (xác nhận) và dòng ghi chú kiểm duyệt. Ảnh được cắt vuông ở giữa + thu nhỏ 512px JPEG ngay trên trình duyệt (`services/AvatarService.ts`, định dạng trình duyệt không đọc được như HEIC thì gửi nguyên file); trong lúc server chuẩn hoá + kiểm duyệt, nút hiện "Đang kiểm duyệt..." và ảnh có lớp mờ + spinner. Lỗi (`AVATAR_VIOLATED` kèm nhắc 1 vi phạm / 3 vi phạm trong 90 ngày bị khoá, `AVATAR_MODERATION_FAILED`, quá dung lượng...) hiện qua thông báo lỗi chung (khoá `ERROR_CODE.*`, vi / en).
 - **Component `UserAvatar`** (ảnh tròn, ảnh lỗi / chưa có -> ảnh mặc định, lazy load) dùng ở: sidebar người dùng + admin, bình luận (chế độ Học), danh sách thành viên lớp, bảng Quản lý tài khoản của admin. Ảnh lấy qua `GET /api/Account/Avatar/{id}` (không cần token).

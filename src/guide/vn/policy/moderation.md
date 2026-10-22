@@ -2,7 +2,7 @@
 
 ## Nội dung không được phép
 
-Không tải lên câu hỏi ảnh hoặc video có nội dung **khỏa thân** hoặc **bạo lực**.
+Không tải lên câu hỏi (hoặc làm ảnh đại diện) ảnh hoặc video có nội dung **khỏa thân**, **khiêu dâm** hoặc **bạo lực**. Quy định áp dụng cả với ảnh chụp lẫn tranh vẽ, truyện tranh, anime.
 
 ## Kiểm duyệt ảnh tự động
 
@@ -43,7 +43,7 @@ Khi đạt 3 vi phạm còn hiệu lực, tài khoản bị khóa tự động v
 - **Khi đăng nhập:** trang đăng nhập hiện thông báo **Tài khoản bị cấm** (*Account is banned*), kèm **Lý do** (*Reason*) và lời nhắn liên hệ quản trị viên nếu bạn cho rằng có nhầm lẫn.
 - **Khi đang dùng ứng dụng:** bạn bị đăng xuất và được đưa về trang đăng nhập cùng thông báo trên.
 
-Với khóa tự động, lý do có dạng: "Tài khoản bị khóa tự động do có 3 vi phạm tiêu chuẩn cộng đồng (ảnh khỏa thân/bạo lực) trong vòng 90 ngày."
+Với khóa tự động, lý do có dạng: "Tài khoản bị khóa tự động do có 3 vi phạm tiêu chuẩn cộng đồng (ảnh khỏa thân/khiêu dâm/bạo lực) trong vòng 90 ngày."
 
 Quản trị viên cũng có thể khóa tài khoản thủ công. Khi đó, lý do do quản trị viên nhập (nếu có) sẽ hiển thị khi bạn đăng nhập.
 

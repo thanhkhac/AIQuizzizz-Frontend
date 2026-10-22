@@ -71,7 +71,7 @@
         },
         "banned": {
             "reason": "Lý do",
-            "auto_strikes": "Tài khoản bị khóa tự động do có {count} vi phạm tiêu chuẩn cộng đồng (ảnh khỏa thân/bạo lực) trong vòng {days} ngày.",
+            "auto_strikes": "Tài khoản bị khóa tự động do có {count} vi phạm tiêu chuẩn cộng đồng (ảnh khỏa thân/khiêu dâm/bạo lực) trong vòng {days} ngày.",
             "no_reason": "Không có lý do cụ thể.",
             "contact": "Nếu bạn cho rằng đây là nhầm lẫn, vui lòng liên hệ quản trị viên."
         },
@@ -411,7 +411,7 @@
                 "updated": "Đã cập nhật ảnh đại diện",
                 "deleted": "Đã xoá ảnh đại diện",
                 "not_image": "Vui lòng chọn một tệp ảnh",
-                "hint": "Ảnh được cắt vuông và kiểm duyệt tự động. Ảnh khoả thân / bạo lực sẽ bị từ chối và tính 1 vi phạm."
+                "hint": "Ảnh được cắt vuông và kiểm duyệt tự động. Ảnh khoả thân / khiêu dâm (kể cả tranh vẽ, anime) / bạo lực sẽ bị từ chối và tính 1 vi phạm."
             }
         },
         "security": {
@@ -1376,7 +1376,7 @@
         "QUESTION_SET_ALREADY_EXISTS_IN_FOLDER": "Bộ câu hỏi đã có trong thư mục này.",
         "QUESTION_SET_NOT_FOUND_IN_FOLDER": "Bộ câu hỏi không có trong thư mục này.",
         "SOURCE_QUESTION_NOT_FOUND": "Câu gốc đã bị xoá hoặc bạn không còn quyền xem bộ câu hỏi chứa nó.",
-        "AVATAR_VIOLATED": "Ảnh đại diện vi phạm tiêu chuẩn cộng đồng (khoả thân / bạo lực) nên đã bị từ chối và tính 1 vi phạm. Đủ 3 vi phạm trong 90 ngày tài khoản sẽ bị khoá tự động.",
+        "AVATAR_VIOLATED": "Ảnh đại diện vi phạm tiêu chuẩn cộng đồng (khoả thân / khiêu dâm / bạo lực) nên đã bị từ chối và tính 1 vi phạm. Đủ 3 vi phạm trong 90 ngày tài khoản sẽ bị khoá tự động.",
         "AVATAR_MODERATION_FAILED": "Chưa kiểm duyệt được ảnh lúc này, vui lòng thử lại sau.",
         "AVATAR_NOT_FOUND": "Không tìm thấy ảnh đại diện"
     },

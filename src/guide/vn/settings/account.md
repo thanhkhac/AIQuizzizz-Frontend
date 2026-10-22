@@ -25,7 +25,7 @@ Trong phần **Thông tin hồ sơ** (*Profile Information*):
 Để quay về ảnh mặc định, bấm **Xoá ảnh** (*Remove photo*) rồi xác nhận.
 
 > [!WARNING]
-> Ảnh đại diện được kiểm duyệt ngay khi tải lên. Ảnh có nội dung khỏa thân hoặc bạo lực bị từ chối và tài khoản bị ghi nhận **1 vi phạm**, giống ảnh trong câu hỏi. Xem [Kiểm duyệt nội dung](/guide/policy/moderation).
+> Ảnh đại diện được kiểm duyệt ngay khi tải lên. Ảnh có nội dung khỏa thân, khiêu dâm (kể cả tranh vẽ, anime) hoặc bạo lực bị từ chối và tài khoản bị ghi nhận **1 vi phạm**, giống ảnh trong câu hỏi. Xem [Kiểm duyệt nội dung](/guide/policy/moderation).
 
 ## Đổi mật khẩu
 

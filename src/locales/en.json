@@ -72,7 +72,7 @@
         "banned": {
             "reason": "Reason",
             "no_reason": "No reason was provided.",
-            "auto_strikes": "Your account was automatically banned for {count} community-guideline violations (nudity/violence) within {days} days.",
+            "auto_strikes": "Your account was automatically banned for {count} community-guideline violations (nudity/sexual content/violence) within {days} days.",
             "contact": "If you think this is a mistake, please contact the administrator."
         },
         "verify": {
@@ -411,7 +411,7 @@
                 "updated": "Profile photo updated",
                 "deleted": "Profile photo removed",
                 "not_image": "Please choose an image file",
-                "hint": "Photos are cropped square and checked automatically. Nudity / violence is rejected and counts as 1 violation."
+                "hint": "Photos are cropped square and checked automatically. Nudity, sexual content (including drawings and anime) and violence are rejected and counts as 1 violation."
             }
         },
         "security": {
@@ -1376,7 +1376,7 @@
         "QUESTION_SET_ALREADY_EXISTS_IN_FOLDER": "This question set is already in the folder.",
         "QUESTION_SET_NOT_FOUND_IN_FOLDER": "This question set is not in the folder.",
         "SOURCE_QUESTION_NOT_FOUND": "The source question was deleted or you can no longer view its question set.",
-        "AVATAR_VIOLATED": "This profile photo violates the community guidelines (nudity / violence), so it was rejected and counted as 1 violation. 3 violations within 90 days will automatically ban your account.",
+        "AVATAR_VIOLATED": "This profile photo violates the community guidelines (nudity / sexual content / violence), so it was rejected and counted as 1 violation. 3 violations within 90 days will automatically ban your account.",
         "AVATAR_MODERATION_FAILED": "The photo could not be checked right now, please try again later.",
         "AVATAR_NOT_FOUND": "Profile photo not found"
     },
