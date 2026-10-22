@@ -6,6 +6,9 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Changed — Trang Thư mục: nút Tạo thư mục nằm trong section
+- Giống trang Thư viện: section có tiêu đề **Thư mục của bạn** / *Sắp xếp bộ câu hỏi theo chủ đề* (khoá `folder_index.sections.folder.*`, vi / en) và nút **Tạo thư mục** ở góc phải tiêu đề section (trước nằm ngoài, cạnh tiêu đề trang). Bỏ tab "Thư mục" đơn lẻ (trùng với tiêu đề section). Cập nhật trang hướng dẫn Thư mục.
+
 ### Changed — Trang chủ người dùng ở `/home`
 - Bảng điều khiển (`User_Dashboard`) đổi URL từ `/user/dashboards` thành **`/home`** (vẫn trong layout người dùng). Link / bookmark cũ `/user/dashboards` tự chuyển sang `/home`. Đăng nhập xong (học viên) vào `/home`.
 - **Logo AIQuizizz** ở header và trang Hướng dẫn: đã đăng nhập -> `/home`; chưa đăng nhập -> trang giới thiệu `/` như cũ.

@@ -191,28 +191,26 @@ onMounted(async () => {
                     {{ $t("folder_index.sub_title") }}
                 </span>
             </div>
-            <div class="title-button-container">
-                <a-button
-                    type="primary"
-                    class="ms-3 main-color-btn"
-                    size="large"
-                    @click="modal_create_open = true"
-                >
-                    {{ $t("folder_index.buttons.create_folder") }}
-                    <i class="bx bx-plus"></i>
-                </a-button>
-            </div>
         </div>
         <div class="content">
             <div class="content-item">
-                <div class="content-item-functions">
-                    <div class="content-item-navigators">
-                        <div class="navigator-container">
-                            <RouterLink class="navigator-item navigator-active" :to="{ name: '' }">
-                                {{ $t("folder_index.navigators.folder") }}
-                            </RouterLink>
-                        </div>
+                <!-- giống trang Thư viện: tiêu đề section + nút tạo nằm trong section -->
+                <div class="content-item-title d-flex align-items-center">
+                    <div>
+                        <span>{{ $t("folder_index.sections.folder.title") }}</span>
+                        <span>{{ $t("folder_index.sections.folder.sub_title") }}</span>
                     </div>
+                    <a-button
+                        type="primary"
+                        class="main-color-btn content-item-button"
+                        size="large"
+                        @click="modal_create_open = true"
+                    >
+                        {{ $t("folder_index.buttons.create_folder") }}
+                        <i class="bx bx-plus"></i>
+                    </a-button>
+                </div>
+                <div class="content-item-functions">
                     <div class="filter-container">
                         <a-select
                             class="me-3"
@@ -341,9 +339,29 @@ onMounted(async () => {
     width: auto;
 }
 
-.title-button-container {
+.content-item-button {
     display: flex;
-    margin-right: 36px;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--main-color);
+    border: none;
+    border-radius: 5px;
+    padding: 8px 10px;
+    font-size: 16px;
+    color: var(--text-color);
+    transition: all 0.2s ease-in-out;
+    height: 40px;
+    text-decoration: none;
+}
+
+.content-item-button:hover {
+    background-color: var(--main-sub-color);
+}
+
+.content-item-button i {
+    font-size: 24px;
+    margin-left: 10px;
+    transform: translateY(1px);
 }
 
 .filter-container {
