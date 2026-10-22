@@ -6,6 +6,9 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Fixed — Chế độ Học không "Tiếp tục" được sau mỗi phiên
+- Cửa sổ cuối phiên (`learn.vue`) chỉ mở khi đã học hết phiên, lúc đó `currentSession` luôn rỗng, nên nút **Tiếp tục** bị khoá (`:disabled="currentSession.length <= 0"`) và người học bị kẹt. Bỏ điều kiện khoá. Nút gọi `onContinuesLearn`, hàm này tự nạp phiên mới (`LearnQuestions`). Thêm `:loading` trong lúc chờ.
+
 ### Changed — Bỏ mẫu đề thi; thư mục chứa bộ câu hỏi; "Cập nhật theo bản gốc"
 - **Bỏ mẫu đề thi**: xoá trang `views/user/test_template/*`, route `User_TestTemplate*`, `ApiTestTemplate`, model, tab "Mẫu đề thi" ở trang Thư mục, chế độ `template` của `ShareModal`, khoá i18n / mã lỗi liên quan. Nhập Excel (`ImportQSModal`) gọi `ApiTest.ImportFile` (`/Test/ImportFile`).
 - **Thư mục chứa bộ câu hỏi**: trang chi tiết thư mục liệt kê bộ câu hỏi (Xem / gỡ khỏi thư mục), nút **Thêm bộ câu hỏi** mở danh sách bộ của mình / được chia sẻ (`ChooseQuestionSetModal` có `hide-folder-tab`, `action-label`). Trang chi tiết bộ câu hỏi có nút **Thêm vào thư mục** (chủ sở hữu / người có quyền sửa; dùng lại `ShareToFolder`). `ApiFolder`: `GetAllQuestionSetByLimit`, `AddQuestionSet`, `DeleteQuestionSet`.
