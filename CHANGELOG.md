@@ -6,6 +6,9 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Changed — Tắt tạm đăng nhập Google ở FE
+- **Cờ `VITE_ENABLE_GOOGLE_LOGIN`** (`constants/features.ts` -> `GOOGLE_LOGIN_ENABLED`): mặc định **tắt** (để trống hoặc khác `"true"`). Khi tắt, `login.vue` và `register.vue` ẩn nút "Tiếp tục với Google" cùng đường kẻ "HOẶC" (form email / mật khẩu giữ nguyên), và router chuyển `/google-authentication-callback` về `/login`. Đặt `VITE_ENABLE_GOOGLE_LOGIN=true` rồi build lại để bật; code Google, trang callback và API không bị xoá. Có test `constants/__tests__/features.spec.ts`.
+
 ### Changed — Trang Settings
 - **Gộp tab**: Hồ sơ + Bảo mật + Giao diện thành một tab **Tài khoản** (`settings/account.vue`, ba thẻ xếp dọc). Tab còn lại: Gói đăng ký, Giao dịch. Link cũ `?tab=profile|security|appearance` và khoá `setting_key` cũ vẫn trỏ đúng tab Tài khoản.
 - **Ẩn tạm phần Nạp tiền** (thông tin ngân hàng + QR + ghi chú) ở tab Giao dịch bằng cờ `SHOW_DEPOSIT = false` trong `billing.vue`; số dư và lịch sử giao dịch vẫn hiển thị. Đổi cờ thành `true` để hiện lại; code và modal QR được giữ nguyên.
