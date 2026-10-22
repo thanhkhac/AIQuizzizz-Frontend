@@ -3,6 +3,7 @@ import ApiQuestionSet from "@/api/ApiQuestionSet";
 import type QuestionSetPublicPageParams from "@/models/request/question_set/publicPageParams";
 import QUESTION_SET_SORT_CATEGORY from "@/constants/questionSetSortCate";
 import type QuestionSet from "@/models/response/question_set/questionSet";
+import { getPlaceholderCount, rememberPlaceholderCount } from "@/services/PlaceholderCountService";
 
 import { ref, onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
@@ -74,17 +75,25 @@ const pageParams = reactive({
     pageSize: 5,
 });
 
+// true ngay từ đầu: khung giữ chỗ hiện từ lần render đầu tiên, không nháy trạng thái rỗng
+const recentLoading = ref(true);
+const recentPlaceholderCount = getPlaceholderCount("dashboard_recent", 5, pageParams.pageSize);
+
 const getData = async () => {
     try {
+        recentLoading.value = true;
         let result = await ApiQuestionSet.GetRecentByLimit(
             pageParams as QuestionSetPublicPageParams,
         );
         if (result.data.success) {
             let resultData = result.data.data;
             quiz_data.value = resultData.items;
+            rememberPlaceholderCount("dashboard_recent", resultData.items.length);
         }
     } catch (error) {
         console.log("ERROR: GETALLEXAMBYLIMIT class exam: " + error);
+    } finally {
+        recentLoading.value = false;
     }
 };
 
@@ -100,21 +109,28 @@ const publicPageParams = reactive({
     sortBy: QUESTION_SET_SORT_CATEGORY.RATING,
 });
 
-const loading = ref(false);
+const publicLoading = ref(true);
+const publicPlaceholderCount = getPlaceholderCount(
+    "dashboard_public",
+    3,
+    publicPageParams.pageSize,
+);
+
 const getPublicQuizData = async () => {
     try {
-        loading.value = true;
+        publicLoading.value = true;
         let result = await ApiQuestionSet.GetPublicByLimit(
             publicPageParams as QuestionSetPublicPageParams,
         );
         if (result.data.success) {
             let resultData = result.data.data;
             public_quiz_data.value = resultData.items;
+            rememberPlaceholderCount("dashboard_public", resultData.items.length);
         }
     } catch (error) {
         console.log("ERROR: GETALLEXAMBYLIMIT search qs: " + error);
     } finally {
-        loading.value = false;
+        publicLoading.value = false;
     }
 };
 
@@ -135,8 +151,8 @@ onMounted(async () => {
     const sidebarActiveItem = "dashboard";
     emit("updateSidebar", sidebarActiveItem);
 
-    await getData();
-    await getPublicQuizData();
+    // tải song song: hai section có dữ liệu cùng lúc
+    await Promise.all([getData(), getPublicQuizData()]);
 });
 </script>
 
@@ -173,7 +189,12 @@ onMounted(async () => {
                             </div>
                             <div class="result-item-description">
                                 <span class="result-item-noq">
-                                    {{ $t("dashboards.list_items.quiz.questions", item.totalQuestionCount) }}
+                                    {{
+                                        $t(
+                                            "dashboards.list_items.quiz.questions",
+                                            item.totalQuestionCount,
+                                        )
+                                    }}
                                 </span>
                                 {{ $t("detail_QS.other.created_by", { username: item.createBy }) }}
                             </div>
@@ -192,36 +213,47 @@ onMounted(async () => {
                         <i class="bx bx-chevron-right"></i>
                     </RouterLink>
                 </div>
-                <template v-if="loading">
-                    <a-skeleton :loading="loading"></a-skeleton>
-                    <a-skeleton :loading="loading"></a-skeleton>
-                </template>
-                <div e-else class="quiz-container">
-                    <div
-                        class="quiz-item"
-                        v-for="quiz in quiz_data"
-                        @click="onRedirectToDetail(quiz.id)"
-                    >
-                        <div class="quiz-item-title">
-                            {{ quiz.name }} <i class="bx bx-chevron-right"></i>
-                        </div>
-                        <div class="quiz-item-info">
-                            <i class="bx bx-message-square-edit bx-rotate-270"></i>
-                            {{ $t("dashboards.list_items.quiz.questions", quiz.totalQuestionCount) }}
-                        </div>
-                        <div class="quiz-item-progress">
-                            <div>{{ $t("dashboards.list_items.quiz.learningProgress") }}</div>
-                            <a-progress
-                                stroke-color="var(--main-color)"
-                                :percent="
-                                    getPercentageComplete(
+                <div class="quiz-container">
+                    <!-- khung giữ chỗ cùng kích thước thẻ thật, số lượng = lần tải trước -> section không co giãn -->
+                    <template v-if="recentLoading">
+                        <div
+                            v-for="n in recentPlaceholderCount"
+                            :key="`placeholder-${n}`"
+                            class="quiz-item item-placeholder"
+                        ></div>
+                    </template>
+                    <template v-else>
+                        <div
+                            class="quiz-item"
+                            v-for="quiz in quiz_data"
+                            @click="onRedirectToDetail(quiz.id)"
+                        >
+                            <div class="quiz-item-title">
+                                {{ quiz.name }} <i class="bx bx-chevron-right"></i>
+                            </div>
+                            <div class="quiz-item-info">
+                                <i class="bx bx-message-square-edit bx-rotate-270"></i>
+                                {{
+                                    $t(
+                                        "dashboards.list_items.quiz.questions",
                                         quiz.totalQuestionCount,
-                                        quiz.completedQuestionCount,
                                     )
-                                "
-                            />
+                                }}
+                            </div>
+                            <div class="quiz-item-progress">
+                                <div>{{ $t("dashboards.list_items.quiz.learningProgress") }}</div>
+                                <a-progress
+                                    stroke-color="var(--main-color)"
+                                    :percent="
+                                        getPercentageComplete(
+                                            quiz.totalQuestionCount,
+                                            quiz.completedQuestionCount,
+                                        )
+                                    "
+                                />
+                            </div>
                         </div>
-                    </div>
+                    </template>
                     <div class="quiz-item add-button" @click="onRedirectToCreate">
                         <i class="bx bx-plus add-button-icon"></i>
                         <div class="add-button-context">
@@ -246,9 +278,12 @@ onMounted(async () => {
                     </RouterLink>
                 </div>
                 <div class="quiz-container">
-                    <template v-if="loading">
-                        <a-skeleton :loading="loading"></a-skeleton>
-                        <a-skeleton :loading="loading"></a-skeleton>
+                    <template v-if="publicLoading">
+                        <div
+                            v-for="n in publicPlaceholderCount"
+                            :key="`placeholder-${n}`"
+                            class="quiz-item item-placeholder"
+                        ></div>
                     </template>
                     <template v-else>
                         <div
@@ -262,7 +297,12 @@ onMounted(async () => {
                             </div>
                             <div class="p-quiz-item-rating">
                                 <div class="p-quiz-item-question-count">
-                                    {{ $t("dashboards.list_items.quiz.questions", quiz.totalQuestionCount) }}
+                                    {{
+                                        $t(
+                                            "dashboards.list_items.quiz.questions",
+                                            quiz.totalQuestionCount,
+                                        )
+                                    }}
                                 </div>
                                 <div class="p-quiz-item-question-rate">
                                     {{ quiz.ratingAverage }}⭐️ ({{ quiz.ratingCount }}
