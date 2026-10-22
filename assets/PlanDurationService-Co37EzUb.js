@@ -1,0 +1,1 @@
+import{a2 as a}from"./index-Bt9nthUM.js";const n={day:"day",week:"week",month:"month",year:"year",hour:"hour"},u=(r,e)=>{const t=n[(e??"").toLowerCase()];if(!t)return`${r}`;const o=Number(r)===1?"singular":"plural";return`${r} ${a(`settings.subscription.plan.${t}_${o}`)}`};export{u as f};

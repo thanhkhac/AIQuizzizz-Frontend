@@ -1,0 +1,1 @@
+const c="placeholder_count:",n=(t,e,a)=>{try{const o=localStorage.getItem(c+t),r=o===null?NaN:Number(o);if(Number.isInteger(r)&&r>=0)return Math.min(r,a)}catch{}return Math.min(e,a)},l=(t,e)=>{try{localStorage.setItem(c+t,String(Math.max(0,Math.floor(e))))}catch{}};export{n as g,l as r};
