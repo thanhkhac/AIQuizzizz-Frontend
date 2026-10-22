@@ -20,3 +20,24 @@ describe("AvatarService", () => {
         expect(squareCropRect(101, 100)).toEqual({ sx: 0, sy: 0, size: 100 });
     });
 });
+
+import { AVATAR_COLORS, avatarColor, avatarInitial } from "@/services/AvatarService";
+
+describe("AvatarService - ảnh mặc định", () => {
+    it("avatarInitial: chữ đầu của từ cuối, viết hoa, giữ dấu", () => {
+        expect(avatarInitial("Trần Phúc Lâm")).toBe("L");
+        expect(avatarInitial("Admin")).toBe("A");
+        expect(avatarInitial("  nguyễn   văn  ánh ")).toBe("Á");
+        expect(avatarInitial("đạt")).toBe("Đ");
+        expect(avatarInitial("")).toBe("");
+        expect(avatarInitial(null)).toBe("");
+    });
+
+    it("avatarColor: cố định theo tên, không phân biệt hoa thường / khoảng trắng, nằm trong bảng màu", () => {
+        expect(avatarColor("Student")).toBe(avatarColor(" student "));
+        expect(AVATAR_COLORS).toContain(avatarColor("Trần Phúc Lâm"));
+        expect(AVATAR_COLORS).toContain(avatarColor(""));
+        const colors = new Set(["An", "Bình", "Chi", "Dũng", "Hà", "Khoa", "Lan", "Minh", "Nam", "Oanh", "Phúc", "Quân"].map(avatarColor));
+        expect(colors.size).toBeGreaterThan(4); // tên khác nhau ra nhiều màu khác nhau
+    });
+});

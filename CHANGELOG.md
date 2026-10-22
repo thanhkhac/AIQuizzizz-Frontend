@@ -6,6 +6,10 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 ## [Unreleased] - 2026-10-02
 
+### Changed — Ảnh đại diện mặc định: chữ cái đầu tên trên nền màu
+- Người chưa có ảnh (hoặc ảnh tải lỗi) không còn dùng icon `user.png` chung mà hiện **chữ cái đầu của tên** (từ cuối của họ tên: "Trần Phúc Lâm" -> "L", giữ dấu "Á", "Đ") trên vòng tròn màu. Màu cố định theo tên (FNV-1a), lấy từ 11 màu có tương phản >= 4.5:1 với chữ trắng (`AVATAR_COLORS`); không có tên -> icon người. `avatarInitial` / `avatarColor` trong `services/AvatarService.ts`, có test.
+- CSS sidebar trước nhắm mọi `div` / `span` trong `.sidebar-profileSection` (kể cả ẩn `span` khi thu gọn, `font-size: 14px !important` trên màn nhỏ) -> nay chỉ nhắm phần tên / đăng xuất (`> div > span`) ở `main.css`, `responsive.css`, `theme-overrides.css`; avatar sidebar có viền màu chủ đạo bằng `box-shadow`.
+
 ### Changed — Giao diện ảnh đại diện (Cài đặt > Tài khoản)
 - Ảnh tròn 112px có viền màu chủ đạo + huy hiệu máy ảnh ở góc; bấm thẳng vào ảnh để chọn ảnh (rê chuột / focus hiện lớp phủ "Đổi ảnh"; đang kiểm duyệt hiện spinner + "Đang kiểm duyệt..." trên ảnh). **Kéo thả** ảnh vào khung để tải lên (viền nét đứt + "Thả ảnh vào đây").
 - Nút dạng viên thuốc cùng hàng: **Tải ảnh lên** / **Đổi ảnh** (màu chủ đạo) và **Xoá** (viền, chữ đỏ), có focus ring, khoá khi đang xử lý. Màu theo token `--c-*` / `--main-color` (sáng / tối, mọi màu chủ đạo). Khoá i18n mới: `upload`, `delete_short`, `drop`.
