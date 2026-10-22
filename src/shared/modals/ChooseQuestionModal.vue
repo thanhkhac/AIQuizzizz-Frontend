@@ -268,9 +268,9 @@ const handleModalImport = () => {
 
                         <a-checkbox-group v-model:value="importModalState.checkedList">
                             <div v-if="loading" class="preview-question-container">
-                                <a-skeleton active :loading="loading"></a-skeleton>
-                                <a-skeleton active :loading="loading"></a-skeleton>
-                                <a-skeleton active :loading="loading"></a-skeleton>
+                                <a-skeleton :loading="loading"></a-skeleton>
+                                <a-skeleton :loading="loading"></a-skeleton>
+                                <a-skeleton :loading="loading"></a-skeleton>
                             </div>
                             <div v-else class="preview-question-container">
                                 <template v-if="question_data.length > 0">

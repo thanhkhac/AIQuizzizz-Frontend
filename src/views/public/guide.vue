@@ -286,7 +286,7 @@ const giveFeedback = (value: "yes" | "no") => {
                             <span aria-current="page">{{ entry.page.title }}</span>
                         </nav>
                         <h1 class="guide-title">{{ entry.page.title }}</h1>
-                        <a-skeleton v-if="status === 'loading'" active :paragraph="{ rows: 8 }" />
+                        <a-skeleton v-if="status === 'loading'" :paragraph="{ rows: 8 }" />
                         <template v-else-if="rendered">
                             <p class="guide-meta">{{ gt("guide.reading_time", { n: rendered.readingMinutes }) }}</p>
                             <div

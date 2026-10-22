@@ -193,8 +193,8 @@ onMounted(async () => {
                     </RouterLink>
                 </div>
                 <template v-if="loading">
-                    <a-skeleton active :loading="loading"></a-skeleton>
-                    <a-skeleton active :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
+                    <a-skeleton :loading="loading"></a-skeleton>
                 </template>
                 <div e-else class="quiz-container">
                     <div
@@ -247,8 +247,8 @@ onMounted(async () => {
                 </div>
                 <div class="quiz-container">
                     <template v-if="loading">
-                        <a-skeleton active :loading="loading"></a-skeleton>
-                        <a-skeleton active :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
                     </template>
                     <template v-else>
                         <div

@@ -314,8 +314,8 @@ onMounted(async () => {
         </RouterLink>
         <div class="content-item">
             <div v-if="loading">
-                <a-skeleton :loading="loading" active></a-skeleton>
-                <a-skeleton :loading="loading" active></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
             </div>
             <div v-else>
                 <div class="content-item-title">
@@ -458,11 +458,11 @@ onMounted(async () => {
                 </div>
             </div>
             <div v-if="loading">
-                <a-skeleton :loading="loading" active></a-skeleton>
-                <a-skeleton :loading="loading" active></a-skeleton>
-                <a-skeleton :loading="loading" active></a-skeleton>
-                <a-skeleton :loading="loading" active></a-skeleton>
-                <a-skeleton :loading="loading" active></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
             </div>
             <div v-else-if="questions.length === 0" class="w-100 d-flex justify-content-center">
                 <a-empty :description="$t('detail_QS.other.no_questions_found')" />

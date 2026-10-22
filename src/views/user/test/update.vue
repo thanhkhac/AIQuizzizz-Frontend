@@ -574,11 +574,11 @@ onMounted(async () => {
                         </div>
                     </div>
                     <div v-if="loading">
-                        <a-skeleton :loading="loading" active></a-skeleton>
-                        <a-skeleton :loading="loading" active></a-skeleton>
-                        <a-skeleton :loading="loading" active></a-skeleton>
-                        <a-skeleton :loading="loading" active></a-skeleton>
-                        <a-skeleton :loading="loading" active></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
+                        <a-skeleton :loading="loading"></a-skeleton>
                     </div>
                     <div v-else ref="scrollerRef" class="question-list">
                         <div

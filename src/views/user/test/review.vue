@@ -240,8 +240,8 @@ const reloadQuestionMedia = async () => {
                 <span>Attempt info</span>
             </div>
             <div v-if="loading">
-                <a-skeleton :loading="loading" active></a-skeleton>
-                <a-skeleton :loading="loading" active></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
             </div>
             <template v-else>
                 <a-row class="mb-2 d-flex align-items-center justify-content-between">
@@ -302,11 +302,11 @@ const reloadQuestionMedia = async () => {
             </div>
 
             <div v-if="loading">
-                <a-skeleton :loading="loading" active></a-skeleton>
-                <a-skeleton :loading="loading" active></a-skeleton>
-                <a-skeleton :loading="loading" active></a-skeleton>
-                <a-skeleton :loading="loading" active></a-skeleton>
-                <a-skeleton :loading="loading" active></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
+                <a-skeleton :loading="loading"></a-skeleton>
             </div>
             <div v-else class="preview-question-container">
                 <div class="preview-question-item" v-for="(question, index) in questionData">
